@@ -1,0 +1,28 @@
+{
+  "name": "dsbmoduleloader",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "pm2": "./node_modules/.bin/pm2 start src/index.ts --watch"
+  },
+  "author": "anjelo",
+  "license": "ISC",
+  "dependencies": {
+    "eris": "^0.15.1",
+    "fs": "0.0.1-security",
+    "monk": "^7.3.4",
+    "node-fetch": "^2.6.1",
+    "ts-node": "^9.1.1"
+  },
+  "devDependencies": {
+    "@types/node-fetch": "^2.5.11",
+    "@typescript-eslint/eslint-plugin": "^4.22.1",
+    "@typescript-eslint/parser": "^4.22.1",
+    "eslint": "^7.25.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-google": "^0.14.0",
+    "eslint-plugin-import": "^2.22.1",
+    "typescript": "^4.2.4"
+  }
+}
