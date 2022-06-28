@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Client, ClientOptions, Guild, GuildChannel, Member, Role, User } from "eris";
+import Eris, { ApplicationCommandStructure, Client, ClientOptions, CommandInteraction, Guild, GuildChannel, Member, Role, User } from "eris";
 import { Constants, Entity, Permnodes } from "./resources/interfaces";
 import { promises as fs } from "fs";
 import monk, { IMonkManager } from "monk";
@@ -11,8 +11,7 @@ import * as Config from "./resources/config";
 import * as utils from "./resources/utils";
 import Command from "./Base/Command";
 import Module from "./Base/Module";
-import ApplicationCommandManager from "./Base/Application/ApplicationCommandManager";
-import { ApplicationCommand } from "./Base/Application/types";
+import { CustomData } from "./modules/main/internals/CustomDataHandler";
 
 interface ExtendedOptions extends ClientOptions {
 	disabledModules?: ("Main" | "VC" | "Roles")[];
@@ -29,7 +28,8 @@ export default class Bot extends Client {
 
 	public modules: any[];
 	public commands: Command[];
-	public interactions: ApplicationCommandManager[];
+
+	public interactionCustomData: CustomData[];
 
 	constructor(token: string, options?: ExtendedOptions) {
 		super(token, options);
@@ -39,7 +39,7 @@ export default class Bot extends Client {
 		this.events = [];
 		this.modules = [];
 		this.commands = [];
-		this.interactions = [];
+		this.interactionCustomData = [];
 		this.constants = {
 			emojis: require("./resources/emojis").default,
 			config: Config,
@@ -94,40 +94,15 @@ export default class Bot extends Client {
 
 	};
 
-	readonly createCommands = (commands: ApplicationCommand[]) => {
-		for (const command of commands) {
-			if(!command.name || !command.description) {
-				throw new Error("You must define a command name and description.");
-			}
-			command.name = command.name.toLowerCase();
-			if(!command.name.match(/^[\w-]{1,32}$/)) {
-				throw new Error("Command names must match the regular expression \"^[\\w-]{1,32}$\"");
-			}
-		}
-		return this.requestHandler.request("PUT", `/applications/${this.user.id}/commands`, true, (commands as unknown) as { [s: string]: unknown; });
-	}
-
-	readonly createGuildCommands = (commands: ApplicationCommand[], guildID: string) => {
-		for (const command of commands) {
-			if(!command.name || !command.description) {
-				throw new Error("You must define a command name and description.");
-			}
-			command.name = command.name.toLowerCase();
-			if(!command.name.match(/^[\w-]{1,32}$/)) {
-				throw new Error("Command names must match the regular expression \"^[\\w-]{1,32}$\"");
-			}
-		}
-		return this.requestHandler.request("PUT", `/applications/${this.user.id}/guilds/${guildID}/commands`, true, (commands as unknown) as { [s: string]: unknown; });
-	}
-
 	readonly reload = async (): Promise<void> => {
-		const GlobalApplicationCommands: ApplicationCommand[] = [],
-			GuildSpecificCommands: { id: string; commands: ApplicationCommand[] }[] = [];
+		const GlobalApplicationCommands: ApplicationCommandStructure[] = [],
+			GuildSpecificCommands: { id: string; commands: ApplicationCommandStructure[] }[] = [];
 
 		this.commands.filter((c) => !c.disabled).forEach(async (c: Command) => {
-			const obj: ApplicationCommand = {
+			const obj: ApplicationCommandStructure = {
 				name: c.commands[0],
-				description: c.description
+				description: c.description,
+				type: Eris.Constants.ApplicationCommandTypes.CHAT_INPUT
 			};
 	
 			if (c.options) obj.options = c.options;
@@ -146,12 +121,12 @@ export default class Bot extends Client {
 		});
 
 		try {
-			await this.createCommands(GlobalApplicationCommands);
+			await this.bulkEditCommands(GlobalApplicationCommands);
 
 			//Bulk Guild Commands
 			if (GuildSpecificCommands.length) {
 				for (const guild of GuildSpecificCommands) {
-					await this.createGuildCommands(guild.commands, guild.id);
+					await this.bulkEditGuildCommands(guild.id, guild.commands);
 				}
 			}
 

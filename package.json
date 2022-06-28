@@ -9,7 +9,7 @@
   "author": "anjelo",
   "license": "ISC",
   "dependencies": {
-    "eris": "^0.15.1",
+    "eris": "github:DonovanDMC/eris#everything",
     "fs": "0.0.1-security",
     "monk": "^7.3.4",
     "node-fetch": "^2.6.1",

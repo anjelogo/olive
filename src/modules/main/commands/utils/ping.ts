@@ -1,5 +1,4 @@
-import ApplicationCommandManager from "../../../../Base/Application/ApplicationCommandManager";
-import FollowupManager from "../../../../Base/Application/FollowupManager";
+import { CommandInteraction, Message } from "eris";
 import Command from "../../../../Base/Command";
 import Bot from "../../../../main";
 
@@ -16,16 +15,15 @@ export default class Ping extends Command {
 	
 	}
 
-	readonly execute = async (interaction: ApplicationCommandManager): Promise<ApplicationCommandManager | FollowupManager> => {
-		const m: ApplicationCommandManager | FollowupManager = await interaction.defer();
+	readonly execute = async (interaction: CommandInteraction): Promise<Message | void> => {
+		await interaction.defer()
 		
-		return m.edit({
+		return interaction.createMessage({
 			content: "Pong 🏓",
 			embeds: [
 				{
 					color: this.bot.constants.config.colors.default,
 					description: "**Response Time:** `placeholder ms`",
-					type: "rich"
 				}
 			]
 		});

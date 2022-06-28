@@ -1,6 +1,4 @@
-import ApplicationCommandManager from "../../../../Base/Application/ApplicationCommandManager";
-import FollowupManager from "../../../../Base/Application/FollowupManager";
-import { ApplicationCommandOption } from "../../../../Base/Application/types";
+import Eris, { CommandInteraction, Constants, InteractionDataOptionsWithValue, Message } from "eris";
 import Command from "../../../../Base/Command";
 import Bot from "../../../../main";
 
@@ -12,14 +10,13 @@ export default class Eval extends Command {
 
 		this.disabled = true;
 		this.commands = ["eval"];
-		this.description = "Evalulate Code";
 		this.example = "eval 2+2";
 		this.devOnly = true;
-		this.guildSpecific = ["793439337063645184"]; //Olive Support
+		this.guildSpecific = ["793439337063645184"];
 		this.options = [
 			{
 				name: "expression",
-				type: 3,
+				type: Constants.ApplicationCommandOptionTypes.STRING,
 				description: "The expression you want to be evaluated",
 				required: true
 			}
@@ -27,9 +24,10 @@ export default class Eval extends Command {
 	
 	}
 
-	readonly execute = async (interaction: ApplicationCommandManager): Promise<ApplicationCommandManager | FollowupManager> => {
+	readonly execute = async (interaction: CommandInteraction): Promise<void> => {
 
-		const code = ((interaction.getOption("expression") as unknown as ApplicationCommandOption).value as string);
+		const code = (interaction.data.options?.find(o => o.name === "expression") as InteractionDataOptionsWithValue).value as string;
+
 
 		try {
 			const evaled = await eval(code);
@@ -40,7 +38,7 @@ export default class Eval extends Command {
 				interaction.reply("Output exceeded 4000 characters");
 			} */
 
-			return interaction.reply({
+			return interaction.createMessage({
 				embeds: [
 					{
 						color: 1416145,
@@ -54,14 +52,13 @@ export default class Eval extends Command {
 								name: "📤 Output",
 								value: `\`\`\`xl\n${evaled}\n\`\`\``
 							}
-						],
-						type: "rich"
+						]
 					}
 				],
-				hidden: true
+				flags: Eris.Constants.MessageFlags.EPHEMERAL
 			});
 		} catch (e) {
-			return interaction.reply({
+			return interaction.createMessage({
 				embeds: [
 					{
 						color: 14161450,
@@ -75,11 +72,10 @@ export default class Eval extends Command {
 								name: "Error",
 								value: `\`\`\`xl\n${e}\n\`\`\``
 							}
-						],
-						type: "rich"
+						]
 					}
 				],
-				hidden: true
+				flags: Eris.Constants.MessageFlags.EPHEMERAL
 			});
 		}
 	}

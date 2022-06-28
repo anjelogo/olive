@@ -1,7 +1,4 @@
-import { Embed, Guild, Member, Role } from "eris";
-import ApplicationCommandManager from "../../../../Base/Application/ApplicationCommandManager";
-import FollowupManager from "../../../../Base/Application/FollowupManager";
-import { ApplicationCommandOption } from "../../../../Base/Application/types";
+import { CommandInteraction, Constants, Embed, Guild, InteractionDataOptionsSubCommand, InteractionDataOptionsSubCommandGroup, Member, Message, Role } from "eris";
 import Command from "../../../../Base/Command";
 import Bot from "../../../../main";
 import { moduleData } from "../../main";
@@ -18,29 +15,29 @@ export default class Autorole extends Command {
 		this.permissions = ["roles.autorole.edit"];
 		this.options = [
 			{
-				type: 2,
+				type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND_GROUP,
 				name: "list",
 				description: "Edit the auto roles list",
 				options: [
 					{
-						type: 1,
+						type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
 						name: "add",
 						description: "Add role to autoroles",
 						options: [
 							{
-								type: 8,
+								type: Constants.ApplicationCommandOptionTypes.ROLE,
 								name: "role",
 								description: "The role you want to add",
 								required: true
 							}
 						]
 					}, {
-						type: 1,
+						type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
 						name: "remove",
 						description: "Remove role to autoroles",
 						options: [
 							{
-								type: 8,
+								type: Constants.ApplicationCommandOptionTypes.ROLE,
 								name: "role",
 								description: "The role you want to remove",
 								required: true
@@ -49,7 +46,7 @@ export default class Autorole extends Command {
 					}
 				]
 			}, {
-				type: 1,
+				type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
 				name: "view",
 				description: "List roles in autoroles"
 			}
@@ -57,10 +54,10 @@ export default class Autorole extends Command {
 
 	}
 
-	readonly execute = async (interaction: ApplicationCommandManager): Promise<ApplicationCommandManager | FollowupManager | undefined> => {
+	readonly execute = async (interaction: CommandInteraction): Promise<Message | void> => {
 		await interaction.defer();
 
-		const guild: Guild = interaction.guild as Guild,
+		const guild: Guild = this.bot.findGuild(interaction.guildID!!) as Guild,
 			member: Member = interaction.member as Member,
 			data: moduleData = await this.bot.getModuleData("Roles", guild) as moduleData,
 			botMember: Member = this.bot.findMember(guild, this.bot.user.id) as Member,
@@ -82,63 +79,62 @@ export default class Autorole extends Command {
 					.sort((a, b) => b.position - a.position).map((r) => r.name)
 				: guild.id,
 			memberHighestRole: Role = this.bot.findRole(guild, memberHighestRoleID[0]) as Role,
-			subcommand = (interaction.options as ApplicationCommandOption[])[0];
+			subcommand = interaction.data.options?.[0]!! as InteractionDataOptionsSubCommandGroup;
 
 		switch(subcommand.name) {
 
 		case "list": {
-
-			const suboption = (subcommand.options as ApplicationCommandOption[])[0],
-				suboptionvalue = (suboption.options as ApplicationCommandOption[])[0].value as string;
+			const suboption = subcommand.options?.[0] as InteractionDataOptionsSubCommand,
+				suboptionvalue = suboption.options?.[0].value as string;
 
 			switch(suboption.name) {
 			case "add": {
 				if (data.autoRoles.includes(suboptionvalue))
-					return interaction.deny("That role is already an Auto Role.");
+					return interaction.createMessage("That role is already an Auto Role.");
 		
 				const role: Role = this.bot.findRole(guild, suboptionvalue) as Role;
 		
 				if (!role)
-					return interaction.deny("I could not find that role");
+					return interaction.createMessage("I could not find that role");
 		
 				if (role.position > memberHighestRole.position && !member.permissions.has("administrator"))
-					return interaction.deny(`That role's position is higher than your highest role, ${memberHighestRole.mention}. Perhaps try moving your role higher to solve this problem.`);
+					return interaction.createMessage(`That role's position is higher than your highest role, ${memberHighestRole.mention}. Perhaps try moving your role higher to solve this problem.`);
 		
 				if (role.position > botHighestRole.position)
-					return interaction.deny(`That role's position is higher than my highest role, ${botHighestRole.mention}. Perhaps try moving my role higher to solve this problem.`);
+					return interaction.createMessage(`That role's position is higher than my highest role, ${botHighestRole.mention}. Perhaps try moving my role higher to solve this problem.`);
 		
 				try {
 					data.autoRoles.push(role.id);
 					await this.bot.updateModuleData("Roles", data, guild);
-					return interaction.reply(`${this.bot.constants.emojis.tick} Added role ${role.mention} to the roles list!`);
+					return interaction.createMessage(`${this.bot.constants.emojis.tick} Added role ${role.mention} to the roles list!`);
 				} catch (e) {
-					return interaction.deny("Error trying to add role to roles list!");
+					return interaction.createMessage("Error trying to add role to roles list!");
 				}
 			}
 		
 			case "remove": {
-				const suboption = (subcommand.options as ApplicationCommandOption[])[0],
-					suboptionvalue = (suboption.options as ApplicationCommandOption[])[0].value as string;
+				const suboption = subcommand.options?.[0] as InteractionDataOptionsSubCommand,
+				suboptionvalue = suboption.options?.[0].value as string;
 		
 				if (!data.autoRoles.includes(suboptionvalue))
-					return interaction.deny("That role isn't in the roles list!");
+					return interaction.createMessage("That role isn't in the roles list!");
 		
 				const role: Role = this.bot.findRole(guild, suboptionvalue) as Role;
 		
 				if (!role)
-					return interaction.deny("I could not find that role");
+					return interaction.createMessage("I could not find that role");
 		
 				if (role.position > memberHighestRole.position)
-					return interaction.deny(`That role's position is higher than your highest role, ${memberHighestRole.mention}. Perhaps try moving my role higher to solve this problem.`);
+					return interaction.createMessage(`That role's position is higher than your highest role, ${memberHighestRole.mention}. Perhaps try moving my role higher to solve this problem.`);
 		
 				try {
 					const i = data.autoRoles.indexOf(role.id);
 					if (i > -1) data.autoRoles.splice(i, 1);
 		
 					await this.bot.updateModuleData("Roles", data, guild);
-					return interaction.reply(`${this.bot.constants.emojis.tick} Removed role ${role.mention} from the roles list!`);
+					return interaction.createMessage(`${this.bot.constants.emojis.tick} Removed role ${role.mention} from the roles list!`);
 				} catch (e) {
-					return interaction.deny("Error trying to add role to roles list!");
+					return interaction.createMessage("Error trying to add role to roles list!");
 				}
 			}
 			}
@@ -156,7 +152,7 @@ export default class Autorole extends Command {
 				color: this.bot.constants.config.colors.default
 			};
 
-			return interaction.reply(
+			return interaction.createMessage(
 				{
 					embeds: [embed]
 				}

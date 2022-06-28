@@ -1,17 +1,8 @@
-import Eris from "eris";
+import Eris, {ApplicationCommandOptions, CommandInteraction, ComponentInteraction, Message } from "eris";
 import Bot from "../main";
 import { Constants } from "../resources/interfaces";
-import ApplicationCommandManager from "./Application/ApplicationCommandManager";
-import ComponentManager from "./Application/ComponentManger";
-import FollowupManager from "./Application/FollowupManager";
-import { ApplicationCommandOptionChoice } from "./Application/types";
 
-export interface Options {
-	name: string;
-	type: number; //https://discord.com/developers/docs/interactions/slash-commands#data-models-and-types
-	description: string;
-	required?: boolean;
-	choices?: ApplicationCommandOptionChoice[];
+export type Options =  ApplicationCommandOptions & {
 	permissions?: string[];
 	requirePerms?: string[];
 	options?: Options[];
@@ -32,8 +23,8 @@ export default class Command {
 	public bot: Bot;
 	public constants: Constants;
 	public guildSpecific?: string[];
-	public execute: (interaction: ApplicationCommandManager) => Promise<ApplicationCommandManager | FollowupManager | undefined> | undefined;
-	public update: (component: ComponentManager) => Promise<ApplicationCommandManager | FollowupManager | undefined> | undefined;
+	public execute: (interaction: CommandInteraction) => Promise<Message | undefined | void> | undefined;
+	public update: (component: ComponentInteraction) => Promise<Message | undefined | void> | undefined;
 
 	constructor(bot: Bot) {
 		this.commands = [];

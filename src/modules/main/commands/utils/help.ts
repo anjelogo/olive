@@ -1,8 +1,4 @@
-import { Embed, EmbedField } from "eris";
-import ApplicationCommandManager from "../../../../Base/Application/ApplicationCommandManager";
-import ComponentManager from "../../../../Base/Application/ComponentManger";
-import FollowupManager from "../../../../Base/Application/FollowupManager";
-import { ApplicationComponents } from "../../../../Base/Application/types";
+import { ActionRow, CommandInteraction, ComponentInteraction, Constants, Embed, EmbedField, InteractionComponentSelectMenuData, Message } from "eris";
 import Command from "../../../../Base/Command";
 import Module from "../../../../Base/Module";
 import Bot from "../../../../main";
@@ -21,7 +17,7 @@ export default class Help extends Command {
 
 	}
 
-	readonly execute = async (interaction: ApplicationCommandManager): Promise<ApplicationCommandManager | FollowupManager> => {
+	readonly execute = async (interaction: CommandInteraction): Promise<Message | void> => {
 		const embed: Embed = {
 			type: "rich",
 			author: {
@@ -31,39 +27,39 @@ export default class Help extends Command {
 			color: this.bot.constants.config.colors.default,
 			description: "🌴 *A Multi-Purpose Bot made by a community, for a community.* 🌴\n\n**OLIVE** is a multi-purpose bot that includes a variety of modules to help your community thrive! Get start by viewing a list of commands by clicking on the button below!"
 		},
-			components: ApplicationComponents[] = [
+			components: ActionRow[] = [
 				{
-					type: 1,
+					type: Constants.ComponentTypes.ACTION_ROW,
 					components: [
 						{
-							type: 2,
-							style: 5,
+							type: Constants.ComponentTypes.BUTTON,
+							style: Constants.ButtonStyles.LINK,
 							url: "https://discord.gg/DEhvVXdVvv",
 							label: "Support Server"			
 						}, {
-							type: 2,
-							style: 5,
+							type: Constants.ComponentTypes.BUTTON,
+							style: Constants.ButtonStyles.LINK,
 							url: "https://discord.gg/DEhvVXdVvv",
 							label: "Website"			
 						}, {
-							type: 2,
-							style: 5,
+							type: Constants.ComponentTypes.BUTTON,
+							style: Constants.ButtonStyles.LINK,
 							url: "https://discord.gg/DEhvVXdVvv",
 							label: "Donate"			
 						}, {
-							type: 2,
-							style: 5,
+							type: Constants.ComponentTypes.BUTTON,
+							style: Constants.ButtonStyles.LINK,
 							url: this.bot.constants.config.invite,
 							label: "Invite"			
 						}
 					]
 				}, {
-					type: 1,
+					type: Constants.ComponentTypes.ACTION_ROW,
 					components: [
 						{
-							type: 2,
-							style: 1,
-							custom_id: "help_commandembed",
+							type: Constants.ComponentTypes.BUTTON,
+							style: Constants.ButtonStyles.PRIMARY,
+							custom_id: `help_${interaction.member?.id}_commandembed`,
 							label: "View Commands"
 						}
 					]
@@ -76,12 +72,12 @@ export default class Help extends Command {
 					{
 						type: 2,
 						style: 2,
-						custom_id: "help_permissionembed",
+						custom_id: `help_${interaction.member?.id}_permissionembed`,
 						label: "View Permissions"
 					}
 				);
 
-		return await interaction.reply(
+		return await interaction.createMessage(
 			{
 				embeds: [embed],
 				components
@@ -89,14 +85,12 @@ export default class Help extends Command {
 		);
 	}
 
-	readonly update = async (component: ComponentManager): Promise<ApplicationCommandManager | FollowupManager | undefined> => {
+	readonly update = async (component: ComponentInteraction): Promise<Message | void> => {
 
-		const interaction = component.root;
+		switch (component.data.custom_id.split("_")[2]) {
 
-		switch (component.name) {
-
-		case "help_commandembed": {
-			await interaction.defer();
+		case "commandembed": {
+			await component.deferUpdate();
 
 			const commands: Command[] = this.bot.commands.filter((c) => !c.devOnly);
 
@@ -134,10 +128,9 @@ export default class Help extends Command {
 				type: "rich"
 			};
 
-			await component.ack();
-			return await interaction.edit(
+			return await component.editParent(
 				{
-					content: null,
+					content: undefined,
 					embeds: [embed],
 					components: [
 						{
@@ -145,7 +138,7 @@ export default class Help extends Command {
 							components: [
 								{
 									type: 3,
-									custom_id: "help_commandmenu",
+									custom_id: `help_${component.member?.id}_commandmenu`,
 									placeholder: "Choose a command",
 									min_values: 1,
 									max_values: 1,
@@ -159,12 +152,12 @@ export default class Help extends Command {
 									type: 2,
 									style: 1,
 									label: "Permissions List",
-									custom_id: "help_permissionembed"
+									custom_id: `help_${component.member?.id}_permissionembed`
 								}, {
 									type: 2,
 									style: 2,
 									label: "Back to Main Menu",
-									custom_id: "help_home"
+									custom_id: `help_${component.member?.id}_home`
 								}
 							]
 						}
@@ -173,8 +166,8 @@ export default class Help extends Command {
 			);
 		}
 
-		case "help_permissionembed": {
-			await interaction.defer();
+		case "permissionembed": {
+			await component.deferUpdate();
 			
 			const fields: EmbedField[] = [];
 
@@ -210,8 +203,7 @@ export default class Help extends Command {
 				type: "rich"
 			};
 
-			await component.ack();
-			return await interaction.edit(
+			return await component.editParent(
 				{
 					embeds: [embed],
 					components: [
@@ -220,7 +212,7 @@ export default class Help extends Command {
 							components: [
 								{
 									type: 3,
-									custom_id: "help_modulecomponent",
+									custom_id: `help_${component.member?.id}_modulecomponent`,
 									placeholder: "Choose a module",
 									min_values: 1,
 									max_values: 1,
@@ -234,12 +226,12 @@ export default class Help extends Command {
 									type: 2,
 									style: 1,
 									label: "Permissions List",
-									custom_id: "help_permissionembed"
+									custom_id: `help_${component.member?.id}_permissionembed`
 								}, {
 									type: 2,
 									style: 2,
 									label: "Back to Main Menu",
-									custom_id: "help_home"
+									custom_id: `help_${component.member?.id}_home`
 								}
 							]
 						}
@@ -248,18 +240,17 @@ export default class Help extends Command {
 			);
 		}
 
-		case "help_commandmenu": {
-			await interaction.defer();
+		case "commandmenu": {
+			await component.deferUpdate();
 
-			const command = this.bot.commands.find((c) => c.commands[0] === component.values[0]);
+			const command = this.bot.commands.find((c) => c.commands[0] === (component.data as InteractionComponentSelectMenuData).values[0]);
 
 			if (!command)
-				return interaction.deny("Could not find the command!");
+				return component.createMessage("Could not find the command!");
 
 			const helpEmbed = await this.bot.getModule("Main").createHelpEmbed(command);
 
-			await component.ack();
-			return await interaction.edit(
+			return await component.editParent(
 				{
 					embeds: [helpEmbed.embed],
 					components: [
@@ -269,7 +260,7 @@ export default class Help extends Command {
 								{
 									type: 2,
 									style: 1,
-									custom_id: "help_home",
+									custom_id: `help_${component.member?.id}_home`,
 									label: "Back to help"
 								}
 							]
@@ -279,14 +270,13 @@ export default class Help extends Command {
 			);
 		}
 
-		case "help_modulecomponent": {
-			await interaction.defer();
+		case "modulecomponent": {
+			await component.deferUpdate();
 
-			const moduleName = component.values[0],
+			const moduleName = (component.data as InteractionComponentSelectMenuData).values[0],
 				perms = this.bot.perms.filter((p) => p.name.split(/[.\-_]/)[0].toLowerCase() === moduleName.toLowerCase());
 
-			await component.ack();
-			return await interaction.edit(
+			return await component.editParent(
 				{
 					components: [
 						{
@@ -294,7 +284,7 @@ export default class Help extends Command {
 							components: [
 								{
 									type: 3,
-									custom_id: "help_permissionmenu",
+									custom_id: `help_${component.member?.id}_permissionmenu`,
 									placeholder: "Choose a permission",
 									min_values: 1,
 									max_values: 1,
@@ -308,12 +298,12 @@ export default class Help extends Command {
 									type: 2,
 									style: 1,
 									label: "Permissions List",
-									custom_id: "help_permissionembed"
+									custom_id: `help_${component.member?.id}_permissionembed`
 								}, {
 									type: 2,
 									style: 2,
 									label: "Back to Main Menu",
-									custom_id: "help_home"
+									custom_id: `help_${component.member?.id}_home`
 								}
 							]
 						}
@@ -322,10 +312,10 @@ export default class Help extends Command {
 			);
 		}
 
-		case "help_permissionmenu": {
-			await interaction.defer();
+		case "permissionmenu": {
+			await component.deferUpdate();
 
-			const permnode: Permnodes = this.bot.perms.find((p) => p.name === component.values[0]) as Permnodes;
+			const permnode: Permnodes = this.bot.perms.find((p) => p.name === (component.data as InteractionComponentSelectMenuData).values[0]) as Permnodes;
 
 			const embed: Embed = {
 				title: permnode.name,
@@ -334,8 +324,7 @@ export default class Help extends Command {
 				type: "rich"
 			};
 
-			await component.ack();
-			return await interaction.edit(
+			return await component.editParent(
 				{
 					embeds: [embed],
 					components: [
@@ -345,7 +334,7 @@ export default class Help extends Command {
 								{
 									type: 2,
 									style: 1,
-									custom_id: "help_home",
+									custom_id: `help_${component.member?.id}_home`,
 									label: "Back to help"
 								}
 							]
@@ -355,10 +344,8 @@ export default class Help extends Command {
 			);
 		}
 
-		case "help_home": {
-			component.ack();
-
-			return await this.execute(component.root);
+		case "home": {
+			return await this.execute((component as unknown) as CommandInteraction);
 		}
 
 		}

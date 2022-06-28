@@ -1,13 +1,10 @@
-import { Embed, Emoji, Guild, Member, Message, Role, TextChannel } from "eris";
-import ApplicationCommandManager from "../../../../Base/Application/ApplicationCommandManager";
-import ComponentManager from "../../../../Base/Application/ComponentManger";
-import FollowupManager from "../../../../Base/Application/FollowupManager";
-import { ApplicationCommandOption, ApplicationComponents, SelectOptionStructure } from "../../../../Base/Application/types";
+import { ActionRow, CommandInteraction, CommandInteractionData, ComponentInteraction, Constants, Embed, Emoji, Guild, InteractionComponentButtonData, InteractionComponentSelectMenuData, InteractionDataOption, InteractionDataOptions, InteractionDataOptionsSubCommand, InteractionDataOptionsSubCommandGroup, Member, Message, Role, SelectMenuOptions, TextChannel } from "eris";
 import Command from "../../../../Base/Command";
 import Bot from "../../../../main";
+import { findAndUpdateCustomData, getCustomData } from "../../../main/internals/CustomDataHandler";
 import { moduleData, RolesMessage } from "../../main";
 
-interface interactionData {
+interface InteractionCustomDataStructure {
 	id: string,
 	channelID: string,
 	reactionRoles: {
@@ -32,26 +29,26 @@ export default class Reactionrole extends Command {
 		this.example = "reactionrole create 867761105245831188";
 		this.options = [
 			{
-				type: 1,
+				type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
 				name: "create",
 				description: "Create reaction role messages",
 				permissions: ["roles.reaction.create"],
 				options: [
 					{
-						type: 3,
+						type: Constants.ApplicationCommandOptionTypes.STRING,
 						name: "messageid",
 						description: "The ID of the message",
 						required: true
 					}
 				]
 			}, {
-				type: 1,
+				type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
 				name: "edit",
 				description: "Edit reaction role messages",
 				permissions: ["roles.reaction.edit"],
 				options: [
 					{
-						type: 3,
+						type: Constants.ApplicationCommandOptionTypes.STRING,
 						name: "messageid",
 						description: "The ID of the message",
 						required: true
@@ -62,10 +59,10 @@ export default class Reactionrole extends Command {
 
 	}
 
-	private roles = async (interaction: ApplicationCommandManager): Promise<Role[]> => {
+	private roles = async (bot: Bot, interaction: (CommandInteraction | ComponentInteraction)): Promise<Role[]> => {
 
-		const	data = interaction.data as interactionData,
-			guild: Guild = interaction.guild as Guild,
+		const data: InteractionCustomDataStructure = getCustomData(bot, interaction instanceof CommandInteraction ? interaction.id : interaction.message.interaction?.id!!)?.data!! as InteractionCustomDataStructure,
+			guild: Guild = bot.findGuild(interaction.guildID!!) as Guild,
 			member: Member = interaction.member as Member,
 			botMember: Member = this.bot.findMember(guild, this.bot.user.id) as Member,
 			botHighestRoleID = botMember.roles
@@ -108,16 +105,16 @@ export default class Reactionrole extends Command {
 		return [...new Set(roles)];
 	}
 
-	private components = async (interaction: ApplicationCommandManager):
+	private components = async (bot: Bot, interaction: (CommandInteraction | ComponentInteraction)):
 	Promise<
 		{
-			home: ApplicationComponents[];
-			addSelectRole: ApplicationComponents[];
-			addSelectReaction: ApplicationComponents[];
-			removeSelectRole: ApplicationComponents[];
+			home: ActionRow[];
+			addSelectRole: ActionRow[];
+			addSelectReaction: ActionRow[];
+			removeSelectRole: ActionRow[];
 		}
 	> => {
-		const interactionData: interactionData = interaction.data as interactionData,
+		const interactionData: InteractionCustomDataStructure = getCustomData(bot, interaction instanceof CommandInteraction ? interaction.id : interaction.message.interaction?.id!!)?.data!! as InteractionCustomDataStructure,
 			emotes: Partial<Emoji>[] = Object.values(this.bot.constants.emojis.numbers)
 				.map((e) => this.bot.constants.utils.resolveEmoji(e))
 				.filter((e: Partial<Emoji>) => !interactionData.reactionRoles.find((r) => r.emote.id === e.id));
@@ -125,121 +122,121 @@ export default class Reactionrole extends Command {
 		return {
 			home: [
 				{
-					type: 1,
+					type: Constants.ComponentTypes.ACTION_ROW,
 					components: [
 						{
-							type: 2,
-							style: 1,
+							type: Constants.ComponentTypes.BUTTON,
+							style: Constants.ButtonStyles.PRIMARY,
 							label: "Add Role",
-							disabled: interactionData.reactionRoles.length > 10 || !(await this.roles(interaction)).length,
-							custom_id: "reactionrole_add_selectrole"
+							disabled: interactionData.reactionRoles.length > 10 || !(await this.roles(bot, interaction)).length,
+							custom_id: `reactionrole_${interaction.member?.id}_addselectrole`
 						}, {
-							type: 2,
-							style: 1,
+							type: Constants.ComponentTypes.BUTTON,
+							style: Constants.ButtonStyles.SECONDARY,
 							label: "Remove Role",
 							disabled: interactionData.reactionRoles.length < 1,
-							custom_id: "reactionrole_remove_selectrole"
+							custom_id: `reactionrole_${interaction.member?.id}_removeselectrole`
 						}, {
-							type: 2,
-							style: 3,
+							type: Constants.ComponentTypes.BUTTON,
+							style: Constants.ButtonStyles.SUCCESS,
 							label: "Done",
 							disabled: interactionData.reactionRoles.length < 1,
-							custom_id: "reactionrole_save"
+							custom_id: `reactionrole_${interaction.member?.id}_save`
 						}, {
-							type: 2,
-							style: 4,
+							type: Constants.ComponentTypes.BUTTON,
+							style: Constants.ButtonStyles.DANGER,
 							label: "Cancel",
-							custom_id: "reactionrole_cancel"
+							custom_id: `reactionrole_${interaction.member?.id}_cancel`
 						}
 					]
 				}
 			],
 			addSelectRole: [
 				{
-					type: 1,
+					type: Constants.ComponentTypes.ACTION_ROW,
 					components: [
 						{
-							type: 3,
+							type: Constants.ComponentTypes.SELECT_MENU,
 							placeholder: "Choose role",
-							custom_id: "reactionrole_add_selectreaction",
+							custom_id: `reactionrole_${interaction.member?.id}_addselectreaction`,
 							max_values: 1,
 							min_values: 1,
-							options: (await this.roles(interaction)).map((r) => ({ label: r.name, value: r.id }))
+							options: (await this.roles(bot, interaction)).map((r) => ({ label: r.name, value: r.id }))
 						}
 					]
 				}, {
-					type: 1,
+					type: Constants.ComponentTypes.ACTION_ROW,
 					components: [
 						{
-							type: 2,
-							style: 2,
+							type: Constants.ComponentTypes.BUTTON,
+							style: Constants.ButtonStyles.PRIMARY,
 							label: "Back",
-							custom_id: "reactionrole_home"
+							custom_id: `reactionrole_${interaction.member?.id}_home`
 						}, {
-							type: 2,
-							style: 4,
+							type: Constants.ComponentTypes.BUTTON,
+							style: Constants.ButtonStyles.DANGER,
 							label: "Cancel",
-							custom_id: "reactionrole_cancel"
+							custom_id: `reactionrole_${interaction.member?.id}_cancel`
 						}
 					]
 				}
 			],
 			addSelectReaction: [
 				{
-					type: 1,
+					type: Constants.ComponentTypes.ACTION_ROW,
 					components: [
 						{
-							type: 3,
+							type: Constants.ComponentTypes.SELECT_MENU,
 							placeholder: "Choose Emote",
-							custom_id: "reactionrole_add",
+							custom_id: `reactionrole_${interaction.member?.id}_add`,
 							max_values: 1,
 							min_values: 1,
-							options: emotes.map((e) => ({ label: e.name, value: e.id, emoji: e })) as SelectOptionStructure[]
+							options: emotes.map((e) => ({ label: e.name, value: e.id, emoji: e })) as SelectMenuOptions[]
 						}
 					]
 				}, {
-					type: 1,
+					type: Constants.ComponentTypes.ACTION_ROW,
 					components: [
 						{
-							type: 2,
-							style: 2,
+							type: Constants.ComponentTypes.BUTTON,
+							style: Constants.ButtonStyles.PRIMARY,
 							label: "Back",
-							custom_id: "reactionrole_home"
+							custom_id: `reactionrole_${interaction.member?.id}_home`
 						}, {
-							type: 2,
-							style: 4,
+							type: Constants.ComponentTypes.BUTTON,
+							style: Constants.ButtonStyles.DANGER,
 							label: "Cancel",
-							custom_id: "reactionrole_cancel"
+							custom_id: `reactionrole_${interaction.member?.id}_cancel`
 						}
 					]
 				}
 			],
 			removeSelectRole: [
 				{
-					type: 1,
+					type: Constants.ComponentTypes.ACTION_ROW,
 					components: [
 						{
-							type: 3,
+							type: Constants.ComponentTypes.SELECT_MENU,
 							placeholder: "Choose role",
-							custom_id: "reactionrole_remove",
+							custom_id: `reactionrole_${interaction.member?.id}_remove`,
 							max_values: 1,
 							min_values: 1,
-							options: (await this.roles(interaction)).map((r) => ({ label: r.name, value: r.id }))
+							options: (await this.roles(bot, interaction)).map((r) => ({ label: r.name, value: r.id }))
 						}
 					]
 				}, {
-					type: 1,
+					type: Constants.ComponentTypes.ACTION_ROW,
 					components: [
 						{
-							type: 2,
-							style: 2,
+							type: Constants.ComponentTypes.BUTTON,
+							style: Constants.ButtonStyles.PRIMARY,
 							label: "Back",
-							custom_id: "reactionrole_home"
+							custom_id: `reactionrole_${interaction.member?.id}_home`
 						}, {
-							type: 2,
-							style: 4,
+							type: Constants.ComponentTypes.BUTTON,
+							style: Constants.ButtonStyles.DANGER,
 							label: "Cancel",
-							custom_id: "reactionrole_cancel"
+							custom_id: `reactionrole_${interaction.member?.id}_cancel`
 						}
 					]
 				}
@@ -247,8 +244,9 @@ export default class Reactionrole extends Command {
 		};
 	}
 
-	private create(interaction: ApplicationCommandManager, msg: Message): Embed {
-		const interactionData: interactionData = interaction.data as interactionData,
+	private create(bot: Bot, interaction: (CommandInteraction | ComponentInteraction), msg: Message): Embed {
+		const interactionData: InteractionCustomDataStructure = getCustomData(bot, interaction instanceof CommandInteraction ? interaction.id : interaction.message.interaction?.id!!)?.data!! as InteractionCustomDataStructure,
+			guild: Guild = bot.findGuild(interaction.guildID) as Guild,
 			embed: Embed = {
 				type: "rich",
 				title: "Reaction Role Editor",
@@ -258,7 +256,7 @@ export default class Reactionrole extends Command {
 					{
 						name: "Reaction Roles",
 						value: interactionData.reactionRoles.length
-							? interactionData.reactionRoles.map((r) => `${this.bot.constants.utils.parseEmoji(r.emote)} - ${(this.bot.findRole(interaction.guild as Guild, r.role) as Role).mention}`).join("\n")
+							? interactionData.reactionRoles.map((r) => `${this.bot.constants.utils.parseEmoji(r.emote)} - ${(this.bot.findRole(guild, r.role) as Role).mention}`).join("\n")
 							:	"No Reaction Roles"
 					}
 				],
@@ -270,14 +268,14 @@ export default class Reactionrole extends Command {
 		return embed;
 	}
 
-	readonly execute = async (interaction: ApplicationCommandManager): Promise<ApplicationCommandManager | FollowupManager | undefined> => {
+	readonly execute = async (interaction: (CommandInteraction)): Promise<Message | void> => {
 		await interaction.defer();
 
-		const guild: Guild = interaction.guild as Guild,
+		const guild: Guild = this.bot.findGuild(interaction.guildID) as Guild,
 			channel: TextChannel = interaction.channel as TextChannel,
 			data: moduleData = await this.bot.getModuleData("Roles", guild) as moduleData,
-			subcommand: ApplicationCommandOption = (interaction.options as ApplicationCommandOption[])[0] as ApplicationCommandOption,
-			subcommandvalue: string = (subcommand.options as ApplicationCommandOption[])[0].value as string;
+			subcommand = interaction.data.options?.[0]!! as InteractionDataOptionsSubCommand,
+			subcommandvalue = subcommand.options?.[0].value!! as string;
 
 		switch (subcommand.name) {
 
@@ -287,13 +285,13 @@ export default class Reactionrole extends Command {
 			try {
 				message = await this.bot.getMessage(channel.id, subcommandvalue);
 			} catch (e) {
-				return interaction.deny("I could not find a message with that ID.");
+				return interaction.createMessage("I could not find a message with that ID.");
 			}
 
 			if (!message)
-				return interaction.deny("I could not find a message with that ID.");
+				return interaction.createMessage("I could not find a message with that ID.");
 
-			interaction.data = {
+			findAndUpdateCustomData(this.bot, interaction, {
 				id: message.id,
 				channelID: message.channel.id,
 				reactionRoles: [],
@@ -301,12 +299,12 @@ export default class Reactionrole extends Command {
 					role: "",
 					emote: ""
 				}
-			};
+			})
 
 			const msgData: RolesMessage | undefined = data.messages.find((m) => m.id === (message as Message).id);
 
 			if (msgData)
-				return interaction.reply(
+				return interaction.createMessage(
 					{
 						content: `${this.bot.constants.emojis.warning.yellow} There's already Reaction Roles for that message! Would you like to edit it?`,
 						components: [
@@ -317,12 +315,12 @@ export default class Reactionrole extends Command {
 										type: 2,
 										style: 3,
 										label: "Yes",
-										custom_id: "reactionrole_edit"
+										custom_id: `reactionrole_${interaction.member?.id}_edit`
 									}, {
 										type: 2,
 										style: 4,
 										label: "No",
-										custom_id: "reactionrole_cancel"
+										custom_id: `reactionrole_${interaction.member?.id}_cancel`
 									}
 								]
 							}
@@ -330,10 +328,10 @@ export default class Reactionrole extends Command {
 					}
 				);
 
-			return interaction.reply(
+			return interaction.createMessage(
 				{
-					embeds: [this.create(interaction, message)],
-					components: (await this.components(interaction)).home
+					embeds: [this.create(this.bot, interaction, message)],
+					components: (await this.components(this.bot, interaction)).home
 				}
 			);
 		}
@@ -344,16 +342,16 @@ export default class Reactionrole extends Command {
 			try {
 				message = await this.bot.getMessage(channel.id, subcommandvalue);
 			} catch (e) {
-				return interaction.deny("I could not find a message with that ID.");
+				return interaction.createMessage("I could not find a message with that ID.");
 			}
 
 			if (!message)
-				return interaction.deny("I could not find a message with that ID.");
+				return interaction.createMessage("I could not find a message with that ID.");
 
 			const msgData: RolesMessage | undefined = data.messages.find((m) => m.id === (message as Message).id);
 
 			if (!msgData)
-				return interaction.reply(
+				return interaction.createMessage(
 					{
 						content: `${this.bot.constants.emojis.warning.yellow} There's no Reaction Roles for that message! Would you like to create one?`,
 						components: [
@@ -364,12 +362,12 @@ export default class Reactionrole extends Command {
 										type: 2,
 										style: 3,
 										label: "Yes",
-										custom_id: "reactionrole_create"
+										custom_id: `reactionrole_${interaction.member?.id}_create`
 									}, {
 										type: 2,
 										style: 4,
 										label: "No",
-										custom_id: "reactionrole_cancel"
+										custom_id: `reactionrole_${interaction.member?.id}_cancel`
 									}
 								]
 							}
@@ -377,17 +375,20 @@ export default class Reactionrole extends Command {
 					}
 				);
 
-			interaction.data = {
-				id: msgData.id,
-				channelID: msgData.channelID,
-				reactionRoles: msgData.roles,
-				partial: {}
-			};
+			findAndUpdateCustomData(this.bot, interaction, {
+				id: message.id,
+				channelID: message.channel.id,
+				reactionRoles: [],
+				partial: {
+					role: "",
+					emote: ""
+				}
+			})
 
-			return interaction.reply(
+			return interaction.createMessage(
 				{
-					embeds: [this.create(interaction, message)],
-					components: (await this.components(interaction)).home
+					embeds: [this.create(this.bot, interaction, message)],
+					components: (await this.components(this.bot, interaction)).home
 				}
 			);
 		}
@@ -396,44 +397,40 @@ export default class Reactionrole extends Command {
 
 	}
 
-	readonly update = async (component: ComponentManager): Promise<ApplicationCommandManager | FollowupManager | undefined> => {
+	readonly update = async (component: ComponentInteraction): Promise<Message | void> => {
 
-		const interaction = component.root,
-			interactionData: interactionData = interaction.data as interactionData,
-			guild: Guild = interaction.guild as Guild,
-			data: moduleData = await this.bot.getModuleData("Roles", guild) as moduleData;
+		const interactionData: InteractionCustomDataStructure = getCustomData(this.bot, component.message.interaction?.id!!)?.data!! as InteractionCustomDataStructure,
+			guild: Guild = this.bot.findGuild(component.guildID) as Guild,
+			moduleData: moduleData = await this.bot.getModuleData("Roles", guild) as moduleData;
 
-		switch (component.name) {
+		switch (component.data.custom_id.split("_")[2]) {
 
-		case "reactionrole_add_selectrole": {
-			component.ack();
+		case "addselectrole": {
 
-			return interaction.reply(
+			return component.editParent(
 				{
-					components: (await this.components(interaction)).addSelectRole
+					components: (await this.components(this.bot, component)).addSelectRole
 				}
 			);
 		}
 
-		case "reactionrole_add_selectreaction": {
-			await interaction.defer();
+		case "addselectreaction": {
+			await component.deferUpdate();
 
-			interactionData.partial.role = component.values[0];
+			interactionData.partial.role = (component.data as InteractionComponentSelectMenuData).values[0];
 
-			component.ack();
-			return interaction.reply(
+			return component.editParent(
 				{
-					components: (await this.components(interaction)).addSelectReaction
+					components: (await this.components(this.bot, component)).addSelectReaction
 				}
 			);
 		}
 
-		case "reactionrole_add": {
-			await interaction.defer();
+		case "add": {
+			await component.deferUpdate();
 
-			const emojiGuild = this.bot.findGuild("868329965991657483") as Guild;
-
-			const emote = emojiGuild.emojis.find((r) => r.id === component.values[0]);
+			const emojiGuild = this.bot.findGuild("868329965991657483") as Guild,
+				emote = emojiGuild.emojis.find((r) => r.id === (component.data as InteractionComponentSelectMenuData).values[0]);
 
 			interactionData.partial.emote = emote;
 
@@ -442,42 +439,41 @@ export default class Reactionrole extends Command {
 			try {
 				message = await this.bot.getMessage(interactionData.channelID, interactionData.id);
 			} catch (e) {
-				return interaction.deny("Could not find message");
+				return component.editParent({ content: "I could not find that message." });
 			}
 
 			if (!message)
-				return interaction.deny("Could not find message");
+				return component.editParent({ content: "I could not find that message." });
 
 			interactionData.reactionRoles.push(interactionData.partial as { role: string; emote: Partial<Emoji>; });
 
 			interactionData.partial = {};
 
-			const embed = this.create(interaction, message);
+			const embed = this.create(this.bot, component, message);
 
-			await component.ack();
-			return await interaction.edit(
+			return await component.editParent(
 				{
-					content: null,
+					content: undefined,
 					embeds: [embed],
-					components: (await this.components(interaction)).home
+					components: (await this.components(this.bot, component)).home
 				}
 			);
 		}
 
-		case "reactionrole_remove_selectrole": {
-			component.ack();
+		case "removeselectrole": {
+			component.deferUpdate();
 
-			return interaction.reply(
+			return component.editParent(
 				{
-					components: (await this.components(interaction)).removeSelectRole
+					components: (await this.components(this.bot, component)).removeSelectRole
 				}
 			);
 		}
 
-		case "reactionrole_remove": {
-			await interaction.defer();
+		case "remove": {
+			await component.deferUpdate();
 
-			const emote = guild.emojis.find((r) => r.id === component.values[0]);
+			const emote = guild.emojis.find((r) => r.id === (component.data as InteractionComponentSelectMenuData).values[0]);
 
 			interactionData.partial.emote = emote;
 
@@ -486,59 +482,57 @@ export default class Reactionrole extends Command {
 			try {
 				message = await this.bot.getMessage(interactionData.channelID, interactionData.id);
 			} catch (e) {
-				return interaction.deny("Could not find message");
+				return component.editParent({ content: "I could not find that message." });
 			}
 
 			if (!message)
-				return interaction.deny("Could not find message");
+				return component.editParent({ content: "I could not find that message." });
 
 			const i = interactionData.reactionRoles.findIndex((r) => r.role === interactionData.partial.role);
 			if (i > -1) interactionData.reactionRoles.splice(i, 0);
 
 			interactionData.partial = {};
 
-			const embed = this.create(interaction, message);
+			const embed = this.create(this.bot, component, message);
 
-			await component.ack();
-			return await interaction.edit(
+			return await component.editParent(
 				{
-					content: null,
+					content: undefined,
 					embeds: [embed],
-					components: (await this.components(interaction)).home
+					components: (await this.components(this.bot, component)).home
 				}
 			);
 		}
 
-		case "reactionrole_home": {
-			await interaction.defer();
+		case "home": {
+			await component.defer();
 
 			let message: Message | undefined;
 
 			try {
 				message = await this.bot.getMessage(interactionData.channelID, interactionData.id);
 			} catch (e) {
-				return interaction.deny("Could not find message");
+				return component.editParent({ content: "I could not find that message." });
 			}
 
 			if (!message)
-				return interaction.deny("Could not find message");
+				return component.editParent({ content: "I could not find that message." });
 
 			interactionData.partial = {};
 
-			const embed = this.create(interaction, message);
+			const embed = this.create(this.bot, component, message);
 
-			await component.ack();
-			return await interaction.edit(
+			return await component.editParent(
 				{
-					content: null,
+					content: undefined,
 					embeds: [embed],
-					components: (await this.components(interaction)).home
+					components: (await this.components(this.bot, component)).home
 				}
 			);
 		}
 
-		case "reactionrole_save": {
-			await interaction.defer();
+		case "save": {
+			await component.deferUpdate();
 
 			const obj: RolesMessage = {
 				id: interactionData.id,
@@ -546,10 +540,10 @@ export default class Reactionrole extends Command {
 				roles: interactionData.reactionRoles
 			};
 
-			data.messages.push(obj);
+			moduleData.messages.push(obj);
 
 			try {
-				await this.bot.updateModuleData("Roles", data, guild);
+				await this.bot.updateModuleData("Roles", moduleData, guild);
 
 				const message: Message | undefined = await this.bot.getMessage(interactionData.channelID, interactionData.id),
 					reactions = obj.roles.map((r) => r.emote);
@@ -563,9 +557,7 @@ export default class Reactionrole extends Command {
 
 					await message.addReaction(emote);
 				}
-				
-				await component.ack();
-				return await interaction.edit(
+				return await component.editParent(
 					{
 						content: `${this.bot.constants.emojis.tick} Successfully edited Reactions Roles for Message: \`${interactionData.id}\``,
 						embeds: [],
@@ -574,15 +566,12 @@ export default class Reactionrole extends Command {
 				);
 			} catch (e) {
 				console.error(e);
-				await component.ack();
-				return interaction.deny("There was an error while editing this");
+				return component.editParent({ content: "There was an error while editing." });
 			}
 		}
 
-		case "reactionrole_create": {
-			await component.ack();
-
-			interaction.options = [
+		case "create": {
+			(component as any).data.options = [
 				{
 					type: 1,
 					name: "create",
@@ -590,19 +579,17 @@ export default class Reactionrole extends Command {
 						{
 							type: 3,
 							name: "messageid",
-							value: ((interaction.options as ApplicationCommandOption[])[0].options as ApplicationCommandOption[])[0].value
+							value: ((component.data as unknown as CommandInteractionData).options?.[0] as InteractionDataOptionsSubCommand).options?.[0].value
 						}
 					]
 				}
 			];
 
-			return await this.execute(interaction);
+			return await this.execute(component as unknown as CommandInteraction);
 		}
 
-		case "reactionrole_edit": {
-			await component.ack();
-
-			interaction.options = [
+		case "edit": {
+			(component as any).data.options = [
 				{
 					type: 1,
 					name: "edit",
@@ -610,19 +597,17 @@ export default class Reactionrole extends Command {
 						{
 							type: 3,
 							name: "messageid",
-							value: ((interaction.options as ApplicationCommandOption[])[0].options as ApplicationCommandOption[])[0].value
+							value: ((component.data as unknown as CommandInteractionData).options?.[0] as InteractionDataOptionsSubCommand).options?.[0].value
 						}
 					]
 				}
 			];
 
-			return await this.execute(interaction);
+			return await this.execute(component as unknown as CommandInteraction);
 		}
 
-		case "reactionrole_cancel": {
-			await component.ack();
-
-			return interaction.edit(
+		case "cancel": {
+			return component.editParent(
 				{
 					content: `${this.bot.constants.emojis.x} Cancelled.`,
 					embeds: [],

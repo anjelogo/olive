@@ -1,10 +1,9 @@
 import { Permissions, Permission } from "./internals/permissions";
 import { Permnodes } from "../../resources/interfaces";
-import { Embed, EmbedField, Member, PrivateChannel } from "eris";
+import { CommandInteraction, Constants, Embed, EmbedField, Member, PrivateChannel } from "eris";
 import Module from "../../Base/Module";
 import Bot from "../../main";
 import Command from "../../Base/Command";
-import ApplicationCommandManager from "../../Base/Application/ApplicationCommandManager";
 
 export interface moduleData {
 	guildID: string;
@@ -91,7 +90,7 @@ export default class Main extends Module {
 		return [masterPerm, perm, "*"].some(p => perms.includes(p));
 	}
 
-	public handlePermission = async (member: Member, permission: string[] | string, interaction?: ApplicationCommandManager): Promise<boolean> => {
+	public handlePermission = async (member: Member, permission: string[] | string, interaction?: CommandInteraction): Promise<boolean> => {
 		if (typeof permission === "string") permission = [permission];
 
 		const permissions: Permnodes[] = [];
@@ -119,7 +118,7 @@ export default class Main extends Module {
 				dmChannel: PrivateChannel | undefined = await this.bot.getDMChannel(member.id) as PrivateChannel;
 
 			if (interaction) 
-				interaction.reply({ embeds: [embed], hidden: true });
+				interaction.createMessage({ embeds: [embed], flags: Constants.MessageFlags.EPHEMERAL });
 			else if (dmChannel)
 				dmChannel.createMessage({ embed });
 

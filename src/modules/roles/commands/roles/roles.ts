@@ -1,8 +1,4 @@
-import { Guild, Member, Role } from "eris";
-import ApplicationCommandManager from "../../../../Base/Application/ApplicationCommandManager";
-import ComponentManager from "../../../../Base/Application/ComponentManger";
-import FollowupManager from "../../../../Base/Application/FollowupManager";
-import { ApplicationCommandOption, ApplicationComponents } from "../../../../Base/Application/types";
+import { ActionRow, CommandInteraction, ComponentInteraction, Constants, Guild, InteractionComponentSelectMenuData, InteractionDataOptionsSubCommand, InteractionDataOptionsSubCommandGroup, Member, Message, Role } from "eris";
 import Command from "../../../../Base/Command";
 import Bot from "../../../../main";
 import Main from "../../../main/main";
@@ -19,30 +15,30 @@ export default class Roles extends Command {
 		this.example = "role add";
 		this.options = [
 			{
-				type: 2,
+				type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND_GROUP,
 				name: "list",
 				description: "Edit the roles list",
 				permissions: ["roles.list.edit"],
 				options: [
 					{
-						type: 1,
+						type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
 						name: "add",
 						description: "Add a role to the roles list",
 						options: [
 							{
-								type: 8,
+								type: Constants.ApplicationCommandOptionTypes.ROLE,
 								name: "role",
 								description: "The role you want to add",
 								required: true
 							}
 						]
 					}, {
-						type: 1,
+						type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
 						name: "remove",
 						description: "Remove a role from the roles list",
 						options: [
 							{
-								type: 8,
+								type: Constants.ApplicationCommandOptionTypes.ROLE,
 								name: "role",
 								description: "The role you want to remove",
 								required: true
@@ -51,12 +47,12 @@ export default class Roles extends Command {
 					}
 				]
 			}, {
-				type: 1,
+				type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
 				name: "add",
 				description: "Add a role",
 				permissions: ["roles.add.self"]
 			}, {
-				type: 1,
+				type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
 				name: "remove",
 				description: "Remove a role",
 				permissions: ["roles.remove.self"]
@@ -65,11 +61,11 @@ export default class Roles extends Command {
 
 	}
 
-	readonly execute = async (interaction: ApplicationCommandManager): Promise<ApplicationCommandManager | FollowupManager | undefined> => {
+	readonly execute = async (interaction: CommandInteraction): Promise<Message | void> => {
 		await interaction.defer();
 
 		const mainModule: Main = this.bot.getModule("Main"),
-			guild: Guild = interaction.guild as Guild,
+			guild: Guild = this.bot.findGuild(interaction.guildID!!) as Guild,
 			member: Member = interaction.member as Member,
 			data: moduleData = await this.bot.getModuleData("Roles", guild) as moduleData,
 			botMember: Member = this.bot.findMember(guild, this.bot.user.id) as Member,
@@ -91,61 +87,59 @@ export default class Roles extends Command {
 					.sort((a, b) => b.position - a.position).map((r) => r.name)
 				: guild.id,
 			memberHighestRole: Role = this.bot.findRole(guild, memberHighestRoleID[0]) as Role,
-			subcommand = (interaction.options as ApplicationCommandOption[])[0];
+			subcommand = interaction.data.options?.[0]!! as InteractionDataOptionsSubCommandGroup;
 
 		switch(subcommand.name) {
 
 		case "list": {
-
-			const suboption = (subcommand.options as ApplicationCommandOption[])[0],
-				suboptionvalue = (suboption.options as ApplicationCommandOption[])[0].value as string;
+			const suboption = subcommand.options?.[0] as InteractionDataOptionsSubCommand,
+				suboptionvalue = suboption.options?.[0].value as string;
 
 			switch (suboption.name) {
-
 			case "add": {
 				if (data.roles.includes(suboptionvalue))
-					return interaction.deny("That role is already in the roles list!");
+					return interaction.createMessage("That role is already in the roles list!");
 
 				const role: Role = this.bot.findRole(guild, suboptionvalue) as Role;
 
 				if (!role)
-					return interaction.deny("I could not find that role");
+					return interaction.createMessage("I could not find that role");
 
 				if (role.position > memberHighestRole.position && !member.permissions.has("administrator"))
-					return interaction.deny(`That role's position is higher than your highest role, ${memberHighestRole.mention}. Perhaps try moving your role higher to solve this problem.`);
+					return interaction.createMessage(`That role's position is higher than your highest role, ${memberHighestRole.mention}. Perhaps try moving your role higher to solve this problem.`);
 
 				if (role.position > botHighestRole.position)
-					return interaction.deny(`That role's position is higher than my highest role, ${botHighestRole.mention}. Perhaps try moving my role higher to solve this problem.`);
+					return interaction.createMessage(`That role's position is higher than my highest role, ${botHighestRole.mention}. Perhaps try moving my role higher to solve this problem.`);
 
 				try {
 					data.roles.push(role.id);
 					await this.bot.updateModuleData("Roles", data, guild);
-					return interaction.reply(`${this.bot.constants.emojis.tick} Added role ${role.mention} to the roles list!`);
+					return interaction.createMessage(`${this.bot.constants.emojis.tick} Added role ${role.mention} to the roles list!`);
 				} catch (e) {
-					return interaction.deny("Error trying to add role to roles list!");
+					return interaction.createMessage("Error trying to add role to roles list!");
 				}
 			}
 
 			case "remove": {
 				if (!data.roles.includes(suboptionvalue))
-					return interaction.deny("That role isn't in the roles list!");
+					return interaction.createMessage("That role isn't in the roles list!");
 
 				const role: Role = this.bot.findRole(guild, suboptionvalue) as Role;
 
 				if (!role)
-					return interaction.deny("I could not find that role");
+					return interaction.createMessage("I could not find that role");
 
 				if (role.position > memberHighestRole.position)
-					return interaction.deny(`That role's position is higher than your highest role, ${memberHighestRole.mention}. Perhaps try moving my role higher to solve this problem.`);
+					return interaction.createMessage(`That role's position is higher than your highest role, ${memberHighestRole.mention}. Perhaps try moving my role higher to solve this problem.`);
 
 				try {
 					const i = data.roles.indexOf(role.id);
 					if (i > -1) data.roles.splice(i, 1);
 
 					await this.bot.updateModuleData("Roles", data, guild);
-					return interaction.reply(`${this.bot.constants.emojis.tick} Removed role ${role.mention} from the roles list!`);
+					return interaction.createMessage(`${this.bot.constants.emojis.tick} Removed role ${role.mention} from the roles list!`);
 				} catch (e) {
-					return interaction.deny("Error trying to add role to roles list!");
+					return interaction.createMessage("Error trying to add role to roles list!");
 				}
 			}
 
@@ -185,16 +179,16 @@ export default class Roles extends Command {
 			roles = [...new Set(roles)];
 
 			if (!roles.length)
-				return interaction.deny("There are no roles you can get");
+				return interaction.createMessage("There are no roles you can get");
 
-			const components: ApplicationComponents[] = [
+			const components: ActionRow[] = [
 				{
 					type: 1,
 					components: [
 						{
 							type: 3,
 							placeholder: "Choose roles",
-							custom_id: "roles_addroles",
+							custom_id: `roles_${interaction.member?.id}_addroles`,
 							max_values: roles.length,
 							min_values: 1,
 							options: roles.map((r) => ({ label: r.name, value: r.id }))
@@ -207,14 +201,14 @@ export default class Roles extends Command {
 							type: 2,
 							style: 4,
 							label: "Cancel",
-							custom_id: "roles_cancel"
+							custom_id: `roles_${interaction.member?.id}_cancel`
 						}
 					]
 				}
 			];
 
 			try {
-				return interaction.reply(
+				return interaction.createMessage(
 					{
 						content: `${this.bot.constants.emojis.tick} Select the role(s) below you want to recieve.`,
 						embeds: [],
@@ -222,7 +216,7 @@ export default class Roles extends Command {
 					}
 				);
 			} catch (e) {
-				return interaction.deny("Error getting roles list.");
+				return interaction.createMessage("Error getting roles list.");
 			}
 		}
 
@@ -254,16 +248,16 @@ export default class Roles extends Command {
 				}
 
 			if (!roles.length)
-				return interaction.deny("There are no roles you can remove");
+				return interaction.createMessage("There are no roles you can remove");
 
-			const components: ApplicationComponents[] = [
+			const components: ActionRow[] = [
 				{
 					type: 1,
 					components: [
 						{
 							type: 3,
 							placeholder: "Choose roles",
-							custom_id: "roles_removeroles",
+							custom_id: `roles_${interaction.member?.id}_removeroles`,
 							max_values: roles.length,
 							min_values: 1,
 							options: roles.map((r) => ({ label: r.name, value: r.id }))
@@ -276,14 +270,14 @@ export default class Roles extends Command {
 							type: 2,
 							style: 4,
 							label: "Cancel",
-							custom_id: "roles_cancel"
+							custom_id: `roles_${interaction.member?.id}_cancel`
 						}
 					]
 				}
 			];
 
 			try {
-				return interaction.reply(
+				return interaction.createMessage(
 					{
 						content: `${this.bot.constants.emojis.tick} Select the role(s) below you want to remove.`,
 						embeds: [],
@@ -291,7 +285,7 @@ export default class Roles extends Command {
 					}
 				);
 			} catch (e) {
-				return interaction.deny("Error getting roles list.");
+				return interaction.createMessage("Error getting roles list.");
 			}
 		}
 
@@ -299,19 +293,19 @@ export default class Roles extends Command {
 
 	}
 
-	readonly update = async (component: ComponentManager): Promise<ApplicationCommandManager | FollowupManager | undefined> => {
+	readonly update = async (component: ComponentInteraction): Promise<Message | void> => {
 
-		const interaction = component.root,
-			guild: Guild = interaction.guild as Guild,
-			member: Member = interaction.member as Member;
+		const guild: Guild = this.bot.findGuild(component.guildID) as Guild,
+			member: Member = component.member as Member;
 
-		switch (component.name) {
+		console.log(component);
 
-		case "roles_addroles": {
-			interaction.defer();
 
-			if (!component.values.length) {
-				component.ack();
+		switch (component.data.custom_id.split("_")[2]) {
+
+		case "addroles": {
+
+			if (!(component.data as InteractionComponentSelectMenuData).values.length) {
 				return;
 			}
 
@@ -320,7 +314,7 @@ export default class Roles extends Command {
 			
 			let	failed = 0;
 
-			for (const value of component.values) {
+			for (const value of (component.data as InteractionComponentSelectMenuData).values) {
 				const role: Role = this.bot.findRole(guild, value) as Role;
 
 				if (!role) {
@@ -332,10 +326,9 @@ export default class Roles extends Command {
 				promises.push(await member.addRole(role.id).catch(() => failed++));
 			}
 
-			await component.ack();
 			try {
 				await Promise.all(promises);
-				await interaction.edit(
+				await component.editParent(
 					{
 						content: `${this.bot.constants.emojis.tick} You have recieved the role(s): ${names.join(", ")}.`,
 						components: []
@@ -343,24 +336,25 @@ export default class Roles extends Command {
 				);
 
 				if (failed > 0) {
-					interaction.followup(
+					component.createMessage(
 						{
 							content: `There was a problem adding **${failed.toString()}** roles.`,
-							hidden: true
+							flags: Constants.MessageFlags.EPHEMERAL
 						}
 					);
 				}
 				return;
 			} catch (e) {
-				return interaction.deny("There was an error.", { components: [] });
+				throw new Error(e as string);
+				return component.editParent({ content: "There was an error", components: undefined });
 			}
 		}
 
-		case "roles_removeroles": {
-			interaction.defer();
+		case "removeroles": {
+			component.deferUpdate();
 
-			if (!component.values.length) {
-				component.ack();
+			if (!(component.data as InteractionComponentSelectMenuData).values.length) {
+				component.acknowledge();
 				return;
 			}
 
@@ -369,7 +363,7 @@ export default class Roles extends Command {
 			
 			let	failed = 0;
 
-			for (const value of component.values) {
+			for (const value of (component.data as InteractionComponentSelectMenuData).values) {
 				const role: Role = this.bot.findRole(guild, value) as Role;
 
 				if (!role) {
@@ -381,10 +375,9 @@ export default class Roles extends Command {
 				promises.push(await member.removeRole(role.id).catch(() => failed++));
 			}
 
-			await component.ack();
 			try {
 				await Promise.all(promises);
-				await interaction.edit(
+				await component.editParent(
 					{
 						content: `${this.bot.constants.emojis.tick} The following role(s) were removed: ${names.join(", ")}.`,
 						components: []
@@ -392,23 +385,23 @@ export default class Roles extends Command {
 				);
 
 				if (failed > 0) {
-					interaction.followup(
+					component.createMessage(
 						{
 							content: `There was a problem removing **${failed.toString()}** roles.`,
-							hidden: true
+							flags: Constants.MessageFlags.EPHEMERAL
 						}
 					);
 				}
 				return;
 			} catch (e) {
-				return interaction.deny("There was an error.", { components: [] });
+				return component.editParent({ content: "There was an error", components: undefined });
 			}
 		}
 
-		case "roles_cancel": {
-			component.ack();
+		case "cancel": {
+			component.deferUpdate();
 
-			return interaction.edit(`${this.bot.constants.emojis.x} Cancelled`, { components: [] });
+			return component.editParent({ content: "Cancelled", components: undefined });
 		}
 
 		}
