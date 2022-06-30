@@ -106,10 +106,25 @@ export const remove = async (bot: Bot, member: Member, channel: VoiceChannel): P
 		
 	} else if (member.id === channelObj.owner) {
 		const members = channel.voiceMembers.filter((m) => m.id !== member.id).map((m) => m.id),
-			newOwner = members[Math.floor(Math.random() * members.length)];
+			newOwner = bot.findMember(channel.guild, members[Math.floor(Math.random() * members.length)]) as Member;
 
-		channelObj.owner = newOwner;
+		channelObj.owner = newOwner.id;
 
 		await bot.updateModuleData("VC", data, channel.guild);
+
+		logging.log(channel.guild, "vc", {
+			type: "rich",
+			title: `${member.username}#${member.discriminator} -> ${newOwner.username}#${newOwner.discriminator}`,
+			description: `Set \`${newOwner.username}\` the owner of \`${channel.name}\``,
+			author: {
+				name: "Transferred Private Voice Channel Ownership",
+					icon_url: member.avatarURL
+				},
+			color: bot.constants.config.colors.default,
+			timestamp: new Date(),
+			footer: {
+				text: `ID: ${member.id}`
+			}
+		})
 	}
 };
