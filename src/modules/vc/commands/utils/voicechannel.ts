@@ -3,6 +3,7 @@ import { Category, Channel } from "../../internals/interfaces";
 import { moduleData } from "../../main";
 import Command from "../../../../Base/Command";
 import Bot from "../../../../main";
+import Logging from "../../../logging/main";
 
 export default class Voicechannel extends Command {
 	
@@ -155,7 +156,23 @@ export default class Voicechannel extends Command {
 				try {
 					await this.bot.updateModuleData("VC", data, guild);
 
-					return interaction.createMessage(`${this.constants.emojis.tick} Successfully transferred ownership of Private Channel to \`${newOwner.username}\``);
+					interaction.createMessage(`${this.constants.emojis.tick} Successfully transferred ownership of Private Channel to \`${newOwner.username}\``);
+
+					const logging = await this.bot.getModule("Logging") as Logging;
+					logging.log(channel.guild, "vc", {
+						type: "rich",
+						title: `${member.username}#${member.discriminator} -> ${newOwner.username}#${newOwner.discriminator}`,
+						description: `Set \`${newOwner.username}\` the owner of \`${channel.name}\``,
+						author: {
+							name: "Transferred Private Voice Channel Ownership",
+							icon_url: member.avatarURL
+						},
+						color: this.bot.constants.config.colors.default,
+						timestamp: new Date(),
+						footer: {
+							text: `ID: ${member.id}`
+						}
+					})
 				} catch (e) {
 					return interaction.createMessage(`${this.constants.emojis.warning.red} Error trying to edit the channel owner!`);
 				}
