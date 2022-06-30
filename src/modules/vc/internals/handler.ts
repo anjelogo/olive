@@ -97,6 +97,12 @@ export const remove = async (bot: Bot, member: Member, channel: VoiceChannel): P
 				name: "Ended Private Voice Channel",
 				icon_url: member.avatarURL
 			},
+			fields: [
+				{
+					name: "Time Elapsed",
+					value: bot.constants.utils.HMS(Date.now() - channelObj.createdAt)
+				}
+			],
 			color: bot.constants.config.colors.default,
 			timestamp: new Date(),
 			footer: {
