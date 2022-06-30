@@ -63,12 +63,12 @@ export default class Permnode extends Command {
 				name: "view",
 				description: "View user/role's permissions",
 				permissions: ["main.permnode.view"],
-				type: 1,
+				type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
 				options: [
 					{
 						name: "entity",
 						description: "The user or role",
-						type: 9,
+						type: Constants.ApplicationCommandOptionTypes.MENTIONABLE,
 						required: true,
 					}
 				]
@@ -177,8 +177,7 @@ export default class Permnode extends Command {
 					if (!perms.find((p) => p.permission === permnode.name))
 						return interaction.createMessage(`That user does not have the permission \`${permnode.name}\`!`);
 
-					const i = perms.findIndex((p) => p.permission === permnode.name);
-					perms.slice(i, 1);
+					perms.splice(perms.findIndex((p) => p.permission === permnode.name), 1);
 				}
 
 				data.permissions = permissions;
@@ -199,8 +198,7 @@ export default class Permnode extends Command {
 					if (!perms.find((p) => p.permission === permnode.name))
 						return interaction.createMessage(`That role does not have the permission \`${permnode.name}\`!`);
 
-					const i = perms.findIndex((p) => p.permission === permnode.name);
-					perms.slice(i, 1);
+					perms.splice(perms.findIndex((p) => p.permission === permnode.name), 1);
 				}
 
 				data.permissions = permissions;
@@ -296,11 +294,11 @@ export default class Permnode extends Command {
 					components: ActionRow[] = roles.length
 						? [
 							{
-								type: 1,
+								type: Constants.ComponentTypes.ACTION_ROW,
 								components: [
 									{
-										type: 2,
-										style: 2,
+										type: Constants.ComponentTypes.BUTTON,
+										style: Constants.ButtonStyles.SECONDARY,
 										custom_id: `permnode_${interaction.member?.id}_viewinheritance`,
 										label: "View inherited permissions"
 									}
