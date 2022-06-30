@@ -2,7 +2,7 @@ import { ActionRow, CommandInteraction, Component, ComponentInteraction, Constan
 import Command from "../../../../Base/Command";
 import Bot from "../../../../main";
 import { Entity } from "../../../../resources/interfaces";
-import { findAndUpdateCustomData, getCustomData } from "../../internals/CustomDataHandler";
+import { upsertCustomData, getCustomData } from "../../internals/CustomDataHandler";
 import { Permissions } from "../../internals/permissions";
 import { moduleData } from "../../main";
 
@@ -308,7 +308,7 @@ export default class Permnode extends Command {
 						: [];
 
 				if (roles.length)
-					findAndUpdateCustomData(this.bot, interaction, {
+					upsertCustomData(this.bot, interaction, {
 						entity: member.id,
 						page: 0,
 						roles

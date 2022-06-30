@@ -2,6 +2,7 @@ import { Category, Channel } from "./interfaces";
 import { GuildChannel, Member, VoiceChannel } from "eris";
 import Bot from "../../../main";
 import { moduleData } from "../main";
+import Logging from "../../logging/main";
 
 export const create = async (bot: Bot, member: Member, channel: VoiceChannel): Promise<void> => {
 	if (!await bot.getModule("Main").handlePermission(member, "vc.join")) return;
@@ -32,6 +33,23 @@ export const create = async (bot: Bot, member: Member, channel: VoiceChannel): P
 	};
 
 	member.edit({ channelID: voice.id });
+
+	const logging = await bot.getModule("Logging") as Logging;
+	logging.log(channel.guild, "vc", {
+		type: "rich",
+		title: `${member.username}#${member.discriminator}`,
+		description: `Created \`${channel.name}\``,
+		author: {
+			name: "Create New Private Voice Channel",
+			icon_url: member.avatarURL
+		},
+		color: bot.constants.config.colors.default,
+		timestamp: new Date(),
+		footer: {
+			text: `ID: ${member.id}`
+		}
+	})
+
 		
 	category.channels.push(newChannel);
 	await bot.updateModuleData("VC", data, channel.guild);
@@ -47,6 +65,22 @@ export const remove = async (bot: Bot, member: Member, channel: VoiceChannel): P
 
 	if (!channelObj) return;
 
+	const logging = await bot.getModule("Logging") as Logging;
+	logging.log(channel.guild, "vc", {
+		type: "rich",
+		title: `${member.username}#${member.discriminator}`,
+		description: `Left \`${channel.name}\``,
+		author: {
+			name: "Left Private Voice Channel",
+			icon_url: member.avatarURL
+		},
+		color: bot.constants.config.colors.red,
+		timestamp: new Date(),
+		footer: {
+			text: `ID: ${member.id}`
+		}
+	})
+
 	if (channel.voiceMembers.size <= 0) {
 
 		await channel.delete();
@@ -54,6 +88,21 @@ export const remove = async (bot: Bot, member: Member, channel: VoiceChannel): P
 		const i = category.channels.findIndex((c: Channel) => c.channelID === channel.id);
 		if (i > -1) category.channels.splice(i, 1);
 		await bot.updateModuleData("VC", data, channel.guild);
+
+		logging.log(channel.guild, "vc", {
+			type: "rich",
+			title: `${member.username}#${member.discriminator}`,
+			description: `Ended \`${channel.name}\``,
+			author: {
+				name: "Ended Private Voice Channel",
+				icon_url: member.avatarURL
+			},
+			color: bot.constants.config.colors.default,
+			timestamp: new Date(),
+			footer: {
+				text: `ID: ${member.id}`
+			}
+		})
 		
 	} else if (member.id === channelObj.owner) {
 		const members = channel.voiceMembers.filter((m) => m.id !== member.id).map((m) => m.id),

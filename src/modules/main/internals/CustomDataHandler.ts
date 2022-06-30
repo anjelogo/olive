@@ -12,7 +12,7 @@ export function getCustomData(bot: Bot, interactionID: string): CustomData | und
     return data;
 }
 
-export function findAndUpdateCustomData(bot: Bot, interaction: AnyInteraction, payload: any) {
+export function upsertCustomData(bot: Bot, interaction: AnyInteraction, payload: any) {
     let data = bot.interactionCustomData.find((cd) => cd.id === interaction.id);
     if (!data) bot.interactionCustomData.push({
         id: interaction.id,

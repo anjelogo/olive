@@ -3,6 +3,7 @@ import { Member, PrivateChannel, VoiceChannel } from "eris";
 import { create } from "../internals/handler";
 import Bot from "../../../main";
 import { moduleData } from "../main";
+import Logging from "../../logging/main";
 
 export const run = async (bot: Bot, member: Member, channel: VoiceChannel): Promise<void> => {
 
@@ -18,16 +19,25 @@ export const run = async (bot: Bot, member: Member, channel: VoiceChannel): Prom
 	const channelObj: Channel | undefined = cat.channels.find((c) => c.channelID === channel.id);
 
 	if (channelObj) {
-		const dmChannel: PrivateChannel | undefined = await bot.getDMChannel(member.id);
-
-		if (!await bot.getModule("Main").handlePermission(member, "vc.join")) {
-			if (dmChannel) {
-				try {
-					member.edit({ channelID: null });
-				} catch (e) {
-					return;
+		if (await bot.getModule("Main").handlePermission(member, "vc.join")) {
+			//get logging module
+			const logging = await bot.getModule("Logging") as Logging;
+			logging.log(channel.guild, "vc", {
+				type: "rich",
+				title: `${member.username}#${member.discriminator}`,
+				description: `Joined \`${channel.name}\``,
+				author: {
+					name: "Joined Private Voice Channel",
+					icon_url: member.avatarURL
+				},
+				color: bot.constants.config.colors.green,
+				timestamp: new Date(),
+				footer: {
+					text: `ID: ${member.id}`
 				}
-			}
+			})
 		}
+		else 
+			member.edit({ channelID: null });
 	}
 };
