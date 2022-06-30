@@ -1,4 +1,4 @@
-import Eris, {ApplicationCommandOptions, CommandInteraction, ComponentInteraction, Message } from "eris";
+import Eris, {ApplicationCommandOptions, ApplicationCommandTypes, CommandInteraction, ComponentInteraction, Message } from "eris";
 import Bot from "../main";
 import { Constants } from "../resources/interfaces";
 
@@ -10,10 +10,11 @@ export type Options =  ApplicationCommandOptions & {
 
 export default class Command {
 
+	public type: (ApplicationCommandTypes | undefined);
 	public disabled = false;
 	public commands: string[];
 	public description: string;
-	public example: string;
+	public example: (string | null);
 	public enabled: boolean;
 	public devOnly: boolean;
 	public category: string;

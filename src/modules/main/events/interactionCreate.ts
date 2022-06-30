@@ -6,6 +6,7 @@ export const run = async (bot: Bot, interaction: AnyInteraction): Promise<void> 
 	switch (interaction.type) {
 
     case Constants.InteractionTypes.APPLICATION_COMMAND: {
+
         await commandHandler(bot, interaction)
 
         break;

@@ -8,12 +8,11 @@ export default class Reload extends Command {
 
 		super(bot);
 
-		this.disabled = true;
+		this.disabled = false;
 		this.commands = ["reload"];
 		this.description = "Reload application commands";
 		this.example = "eval";
 		this.devOnly = true;
-		this.guildSpecific = ["793439337063645184"]; //Olive Support
 	
 	}
 
@@ -50,10 +49,10 @@ export default class Reload extends Command {
 
     readonly update = async (component: ComponentInteraction): Promise<Message | void> => {
 
-        switch (component.data.custom_id.split("_")[0]) {
+        switch (component.data.custom_id.split("_")[2]) {
         
         case "yes": {
-            component.defer();
+            await component.deferUpdate();
 
             await this.bot.reload();
             
@@ -69,6 +68,8 @@ export default class Reload extends Command {
         }
 
         case "no": {
+            await component.deferUpdate();
+
             return component.editParent({
                 embeds: [
                     {

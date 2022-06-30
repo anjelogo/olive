@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import Eris, { ApplicationCommandStructure, Client, ClientOptions, CommandInteraction, Guild, GuildChannel, Member, Role, User } from "eris";
+import Eris, { ApplicationCommandStructure, ChatInputApplicationCommandStructure, Client, ClientOptions, CommandInteraction, Guild, GuildChannel, Member, Role, User } from "eris";
 import { Constants, Entity, Permnodes } from "./resources/interfaces";
 import { promises as fs } from "fs";
 import monk, { IMonkManager } from "monk";
@@ -99,24 +99,33 @@ export default class Bot extends Client {
 			GuildSpecificCommands: { id: string; commands: ApplicationCommandStructure[] }[] = [];
 
 		this.commands.filter((c) => !c.disabled).forEach(async (c: Command) => {
-			const obj: ApplicationCommandStructure = {
-				name: c.commands[0],
-				description: c.description,
-				type: Eris.Constants.ApplicationCommandTypes.CHAT_INPUT
-			};
+			if (!c.type) {
+				const obj: ApplicationCommandStructure = {
+					name: c.commands[0],
+					description: c.description,
+					type: Eris.Constants.ApplicationCommandTypes.CHAT_INPUT
+				};
+		
+				if (c.options) obj.options = c.options;
 	
-			if (c.options) obj.options = c.options;
-
-			if (c.guildSpecific && c.guildSpecific.length)
-				for (const guild of c.guildSpecific) {
-					const guildCommand = GuildSpecificCommands.find((gc) => gc.id === guild);
-
-					if (!guildCommand)
-						GuildSpecificCommands.push({ id: guild, commands: [obj] });
-					else guildCommand.commands.push(obj);
-				}
-			else
+				if (c.guildSpecific && c.guildSpecific.length)
+					for (const guild of c.guildSpecific) {
+						const guildCommand = GuildSpecificCommands.find((gc) => gc.id === guild);
+	
+						if (!guildCommand)
+							GuildSpecificCommands.push({ id: guild, commands: [obj] });
+						else guildCommand.commands.push(obj);
+					}
+				else
+					GlobalApplicationCommands.push(obj);
+			}
+			else if (c.type === Eris.Constants.ApplicationCommandTypes.MESSAGE) {
+				const obj: ApplicationCommandStructure = {
+					name: c.commands[0],
+					type: Eris.Constants.ApplicationCommandTypes.MESSAGE
+				};
 				GlobalApplicationCommands.push(obj);
+			}
 
 		});
 
@@ -126,7 +135,12 @@ export default class Bot extends Client {
 			//Bulk Guild Commands
 			if (GuildSpecificCommands.length) {
 				for (const guild of GuildSpecificCommands) {
-					await this.bulkEditGuildCommands(guild.id, guild.commands);
+					try {
+						await this.bulkEditGuildCommands(guild.id, guild.commands);
+					}
+					catch (e) {
+						continue;
+					}
 				}
 			}
 

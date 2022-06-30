@@ -8,7 +8,7 @@ export default class Eval extends Command {
 
 		super(bot);
 
-		this.disabled = true;
+		this.disabled = false;
 		this.commands = ["eval"];
 		this.example = "eval 2+2";
 		this.devOnly = true;

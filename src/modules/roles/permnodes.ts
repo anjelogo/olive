@@ -4,11 +4,7 @@ export default [
 		description: "Grants the access to all Roles module components/commands",
 		default: false
 	}, {
-		name: "roles.reaction.create",
-		description: "Grants the ability to create Reaction Role Messages",
-		default: false
-	}, {
-		name: "roles.reaction.edit",
+		name: "roles.reaction.modify",
 		description: "Grants the ability to edit Reaction Role Messages",
 		default: false
 	}, {

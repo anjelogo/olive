@@ -6,7 +6,9 @@ import Main from "../main";
 export const commandHandler = async (bot: Bot, interaction: CommandInteraction): Promise<Message | void | boolean> => {
 	
 	const member: Member = interaction.member as Member,
-		command = bot.commands.filter((c) => c.commands.includes(interaction.data.name))[0],
+		command = interaction.data.type === Constants.ApplicationCommandTypes.MESSAGE
+		? bot.commands.filter((c) => c.commands[0] === "Create/Edit Reaction Role")[0]
+		: bot.commands.filter((c) => c.commands.includes(interaction.data.name))[0],
 		mainModule: Main = bot.getModule("Main");	
 
 	if (!command) return;
@@ -58,8 +60,8 @@ export const commandHandler = async (bot: Bot, interaction: CommandInteraction):
 					}
 				}
 			}
-				}
 		}
+	}
 
 	if (requirePerms.length)
 		return interaction.createMessage(`${bot.constants.emojis.x} I need more permissions to run that command.\n\n Permissions neede: \`${requirePerms.join("`, `")}\``);
@@ -136,7 +138,7 @@ export const updateHandler = async (bot: Bot, component: ComponentInteraction, a
 			type: "rich"
 		};
 		component.createMessage({ embeds: [embed], flags: Constants.MessageFlags.EPHEMERAL });
-		console.error(e);
+		throw new Error(e as string);
 	}
 
 };
