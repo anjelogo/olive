@@ -1,10 +1,9 @@
-import { CommandInteraction, Constants, Interaction, Message } from "eris";
+import { CommandInteraction, Constants, Message } from "eris";
 import Command from "../../../../Base/Command";
 import Bot from "../../../../main";
-import { findAndUpdateCustomData } from "../../../main/internals/CustomDataHandler";
 import Reactionrole from "./reactionrole";
 
-export default class ReactionroleMessage extends Command {
+export default class ReactionroleContext extends Command {
     
     constructor(bot: Bot) {
         super(bot);

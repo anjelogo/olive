@@ -12,7 +12,6 @@ export default class Eval extends Command {
 		this.commands = ["eval"];
 		this.example = "eval 2+2";
 		this.devOnly = true;
-		this.guildSpecific = ["793439337063645184"];
 		this.options = [
 			{
 				name: "expression",

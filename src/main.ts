@@ -119,10 +119,10 @@ export default class Bot extends Client {
 				else
 					GlobalApplicationCommands.push(obj);
 			}
-			else if (c.type === Eris.Constants.ApplicationCommandTypes.MESSAGE) {
+			else if (c.type === Eris.Constants.ApplicationCommandTypes.MESSAGE || c.type === Eris.Constants.ApplicationCommandTypes.USER) {
 				const obj: ApplicationCommandStructure = {
 					name: c.commands[0],
-					type: Eris.Constants.ApplicationCommandTypes.MESSAGE
+					type: c.type
 				};
 				GlobalApplicationCommands.push(obj);
 			}

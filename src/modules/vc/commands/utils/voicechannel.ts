@@ -264,9 +264,7 @@ export default class Voicechannel extends Command {
 		}
 
 		case "information": {
-			const selectedChannel = subcommand.options
-				? (subcommand.options?.[0] as InteractionDataOptionsSubCommand).value as string
-				: member.voiceState.channelID ?? undefined;
+			const selectedChannel = subcommand.options[0] ? subcommand.options[0].value as string : member.voiceState.channelID;
 
 			if (!selectedChannel)
 				return interaction.createMessage("Specify or join a private voice channel to the information of a channel!");
