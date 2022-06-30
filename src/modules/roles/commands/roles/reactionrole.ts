@@ -96,7 +96,6 @@ export default class Reactionrole extends Command {
 	Promise<
 		{
 			home: ActionRow[];
-			exit: ActionRow[];
 			addSelectRole: ActionRow[];
 			addSelectReaction: ActionRow[];
 			removeSelectRole: ActionRow[];
@@ -140,7 +139,20 @@ export default class Reactionrole extends Command {
 					]
 				}
 			],
-			exit: [
+			addSelectRole: [
+				{
+					type: Constants.ComponentTypes.ACTION_ROW,
+					components: [
+						{
+							type: Constants.ComponentTypes.SELECT_MENU,
+							placeholder: "Choose role",
+							custom_id: `reactionrole_${interaction.member?.id}_addselectreaction`,
+							max_values: 1,
+							min_values: 1,
+							options: (await this.roles(bot, interaction)).map((r) => ({ label: r.name, value: r.id }))
+						}
+					]
+				},
 				{
 					type: Constants.ComponentTypes.ACTION_ROW,
 					components: [
@@ -157,22 +169,6 @@ export default class Reactionrole extends Command {
 						}
 					]
 				}
-			],
-			addSelectRole: [
-				{
-					type: Constants.ComponentTypes.ACTION_ROW,
-					components: [
-						{
-							type: Constants.ComponentTypes.SELECT_MENU,
-							placeholder: "Choose role",
-							custom_id: `reactionrole_${interaction.member?.id}_addselectreaction`,
-							max_values: 1,
-							min_values: 1,
-							options: (await this.roles(bot, interaction)).map((r) => ({ label: r.name, value: r.id }))
-						}
-					]
-				},
-				(await this.components(bot, interaction)).exit[0]
 			],
 			addSelectReaction: [
 				{

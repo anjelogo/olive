@@ -65,7 +65,6 @@ export default class Log extends Command {
     Promise<
         {
             home: ActionRow[],
-            exit: ActionRow[],
             addLog: ActionRow[],
             deleteLog: ActionRow[]
         }
@@ -103,24 +102,6 @@ export default class Log extends Command {
                     ]
                 }
             ],
-            exit: [
-                {
-					type: Constants.ComponentTypes.ACTION_ROW,
-					components: [
-						{
-							type: Constants.ComponentTypes.BUTTON,
-							style: Constants.ButtonStyles.PRIMARY,
-							label: "Back",
-							custom_id: `log_${interaction.member?.id}_home`
-						}, {
-							type: Constants.ComponentTypes.BUTTON,
-							style: Constants.ButtonStyles.DANGER,
-							label: "Cancel",
-							custom_id: `log_${interaction.member?.id}_cancel`
-						}
-					]
-				}
-            ],
             addLog: [
                 {
                     type: Constants.ComponentTypes.ACTION_ROW,
@@ -134,8 +115,22 @@ export default class Log extends Command {
                             options: (await this.typesAvailable(this.bot, interaction)).map((t) => ({ label: t, value: t}) )
                         }
                     ]
-                },
-                (await this.components(bot, interaction)).exit[0]
+                }, {
+					type: Constants.ComponentTypes.ACTION_ROW,
+					components: [
+						{
+							type: Constants.ComponentTypes.BUTTON,
+							style: Constants.ButtonStyles.PRIMARY,
+							label: "Back",
+							custom_id: `reactionrole_${interaction.member?.id}_home`
+						}, {
+							type: Constants.ComponentTypes.BUTTON,
+							style: Constants.ButtonStyles.DANGER,
+							label: "Cancel",
+							custom_id: `reactionrole_${interaction.member?.id}_cancel`
+						}
+					]
+				}
             ],
             deleteLog: [
                 {
@@ -151,7 +146,22 @@ export default class Log extends Command {
                         }
                     ]
                 },
-                (await this.components(bot, interaction)).exit[0]
+                {
+					type: Constants.ComponentTypes.ACTION_ROW,
+					components: [
+						{
+							type: Constants.ComponentTypes.BUTTON,
+							style: Constants.ButtonStyles.PRIMARY,
+							label: "Back",
+							custom_id: `reactionrole_${interaction.member?.id}_home`
+						}, {
+							type: Constants.ComponentTypes.BUTTON,
+							style: Constants.ButtonStyles.DANGER,
+							label: "Cancel",
+							custom_id: `reactionrole_${interaction.member?.id}_cancel`
+						}
+					]
+				}
             ]
         }
     }
@@ -167,8 +177,6 @@ export default class Log extends Command {
 
         case "create": {
             const channelData: (LogChannelStructure | undefined) = data.channels.find((c) => c.channelID === channel.id);
-
-            console.log(channelData)
 
             upsertCustomData(this.bot, interaction, {
                 id: channel.id,
@@ -263,9 +271,9 @@ export default class Log extends Command {
             try {
                 await this.bot.updateModuleData("Logging", moduleData, guild);
 
-                return component.editParent({ content: `${this.bot.constants.emojis.tick} Saved log channel` });
+                return component.editParent({ content: `${this.bot.constants.emojis.tick} Saved log channel`, embeds: [], components: [] });
             } catch (e) {
-                await component.editParent({ content: `${this.bot.constants.emojis.cross} Failed to save log channel` });
+                await component.editParent({ content: `${this.bot.constants.emojis.cross} Failed to save log channel`, embeds: [], components: [] });
                 throw new Error(e as string);
             }
         }
