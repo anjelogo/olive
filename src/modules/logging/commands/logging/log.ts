@@ -21,9 +21,9 @@ export default class Log extends Command {
         this.options = [
             {
                 type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
-                name: "create",
-                description: "Create a log channel",
-                permissions: ["logging.channel.create"]
+                name: "modify",
+                description: "Create/edit a log channel",
+                permissions: ["logging.channel.modify"]
             }, {
                 type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
                 name: "delete",
@@ -175,7 +175,7 @@ export default class Log extends Command {
 
         switch (subcommand.name) {
 
-        case "create": {
+        case "modify": {
             const channelData: (LogChannelStructure | undefined) = data.channels.find((c) => c.channelID === channel.id);
 
             upsertCustomData(this.bot, interaction, {
