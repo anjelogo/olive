@@ -68,7 +68,7 @@ export default class Reactionrole extends Command {
 							position: (this.bot.findRole(guild, r) as Role).position
 						}))
 					.sort((a, b) => b.position - a.position).map((r) => r.name)
-				: guild.id,
+				: [guild.id],
 			memberHighestRole: Role = this.bot.findRole(guild, memberHighestRoleID[0]) as Role;
 
 		const roles: Role[] = [];

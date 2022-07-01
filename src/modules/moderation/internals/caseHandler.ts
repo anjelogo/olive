@@ -1,0 +1,67 @@
+import { Guild } from "eris";
+import Bot from "../../../main";
+import { Case, moduleData } from "../main";
+import { updateLogEntry } from "./logHandler";
+
+export async function getCases(bot: Bot, guild: Guild, userID: string, caseID?: string): Promise<Case[]> {
+    const data = await bot.getModuleData("Moderation", guild) as moduleData;
+
+    if (!data) return [];
+
+    if (caseID) {
+        return data.cases.filter((c) => c.id === caseID);
+    }
+    else {
+        return data.cases.filter((c) => c.userID === userID);
+    }
+}
+
+export async function addCase(bot: Bot, guild: Guild, caseData: Case): Promise<void> {
+    const data = await bot.getModuleData("Moderation", guild) as moduleData;
+
+    if (!data) return;
+
+    data.cases ? data.cases.push(caseData) : data.cases = [caseData];
+
+    try {
+        await bot.updateModuleData("Moderation", data, guild);
+    } catch (e) {
+        throw new Error("Could not update data");
+    }
+}
+
+export async function removeCase(bot: Bot, guild: Guild, caseID: string): Promise<void> {
+    const data = await bot.getModuleData("Moderation", guild) as moduleData;
+
+    if (!data) return;
+
+    data.cases = data.cases.filter((c) => c.id !== caseID);
+
+    try {
+        await bot.updateModuleData("Moderation", data, guild);
+    } catch (e) {
+        throw new Error("Could not update data");
+    }
+}
+
+export async function resolveCase(bot: Bot, guild: Guild, caseID: string, moderatorID: string, reason: string): Promise<void> {
+    const data = await bot.getModuleData("Moderation", guild) as moduleData;
+
+    if (!data) return;
+
+    const caseToResolve = data.cases.find((c) => c.id === caseID);
+
+    if (!caseToResolve) return;
+
+    caseToResolve.resolved = {
+        moderatorID,
+        reason
+    };
+
+    try {
+        await bot.updateModuleData("Moderation", data, guild);
+        await updateLogEntry(bot, guild, caseToResolve);
+    } catch (e) {
+        throw new Error(e as string);
+    }
+}

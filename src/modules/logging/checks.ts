@@ -1,13 +1,13 @@
 import Module from "../../Base/Module";
 import Bot from "../../main";
-import Main, { moduleData } from "./main";
+import Logging, { moduleData } from "./main";
 
 export default class Checks {
 
 	readonly bot: Bot;
 	readonly module: Module;
 
-	constructor (bot: Bot, Module: Main) {
+	constructor (bot: Bot, Module: Logging) {
 		this.bot = bot;
 		this.module = Module;
 	}

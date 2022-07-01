@@ -36,7 +36,7 @@ export default class Log extends Command {
 
     private typesAvailable = async (bot: Bot, interaction: (CommandInteraction | ComponentInteraction)) => {
         const customData = getCustomData(bot, interaction instanceof CommandInteraction ? interaction.id : interaction.message.interaction?.id!!)?.data!! as CustomDataStructure,
-            validTypes: LogChannelTypes[] = ["vc", "welcome"];
+            validTypes: LogChannelTypes[] = ["vc", "welcome", "moderation"];
 
         return validTypes.filter(t => !customData.types.includes(t));
     }
