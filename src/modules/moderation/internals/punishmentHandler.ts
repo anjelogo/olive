@@ -32,7 +32,12 @@ export async function punish(bot: Bot, guild: Guild, data: Case): Promise<void> 
                     name: "Reason",
                     value: reason
                 }
-            ]
+            ],
+            footer: {
+                text: `Case ID: ${data.id}`
+            },
+            timestamp: new Date(),
+            color: bot.constants.config.colors.default
         }
 
     try {

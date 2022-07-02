@@ -59,6 +59,29 @@ export async function resolveCase(bot: Bot, guild: Guild, caseID: string, modera
     };
 
     try {
+        //Try to get DM channel of user and dm them
+        const dmChannel = await bot.getDMChannel(caseToResolve.userID);
+
+        if (dmChannel) {
+            await dmChannel.createMessage({
+                embed: {
+                    title: "Your case has been resolved by a moderator.",
+                    description: `A case of yours: \`${caseToResolve.action} (${caseToResolve.id})\` has been resolved.`,
+                    fields: [
+                        {
+                            name: "Reason",
+                            value: reason
+                        }
+                    ],
+                    color: bot.constants.config.colors.default,
+                    timestamp: new Date(),
+                    footer: {
+                        text: `Case ID: ${caseToResolve.id}`
+                    }
+                }
+            });
+        }
+
         await bot.updateModuleData("Moderation", data, guild);
         await updateLogEntry(bot, guild, caseToResolve);
     } catch (e) {

@@ -139,7 +139,7 @@ export default class Case extends Command {
                     flags: Constants.MessageFlags.EPHEMERAL
                 });
 
-            let reason = suboption ? suboptionvalue : "";
+            let reason = suboption ? suboptionvalue : "No reason provided";
 
             await resolveCase(this.bot, guild, Case.id, member.id, reason);
             
