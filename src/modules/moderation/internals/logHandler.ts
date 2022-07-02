@@ -29,7 +29,7 @@ export async function createLogEntry(bot: Bot, guild: Guild, data: Case, partial
                 inline: true
             }, {
                 name: "Punishment Duration",
-                value: data.time ? `\`${bot.constants.utils.HMS(data.time)}\`` : "Permanent",
+                value: ["ban", "timeout"].some((a) => a === data.action) ? (data.time ? `\`${bot.constants.utils.HMS(data.time)}\`` : "Permanent") : "No Duration",
                 inline: true
             }, {
                 name: "Reason",
@@ -63,8 +63,6 @@ export async function updateLogEntry(bot: Bot, guild: Guild, data: Case) {
         if (cases.length) {
             for (const Case of cases) {
                 const message = await bot.getMessage(Case!!.channelID, Case!!.messageID);
-
-                console.log(message);
 
                 if (!message) continue;
 

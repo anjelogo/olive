@@ -54,17 +54,21 @@ export default class Reload extends Command {
         case "yes": {
             await component.deferUpdate();
 
-            await this.bot.reload();
+            try {
+                await this.bot.reload();
             
-            return component.editParent({
-                embeds: [
-                    {
-                        color: 1416145,
-                        description: "Successfully reloaded the bot's application commands.",
-                    }
-                ],
-                components: []
-            })
+                return component.editParent({
+                    embeds: [
+                        {
+                            color: 1416145,
+                            description: "Successfully reloaded the bot's application commands.",
+                        }
+                    ],
+                    components: []
+                });
+            } catch (e) {
+                throw new Error(e as string);
+            }
         }
 
         case "no": {

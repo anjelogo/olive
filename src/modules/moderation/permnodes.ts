@@ -12,6 +12,10 @@ export default [
         description: "Grants the ability to ban members",
         default: false
     }, {
+        name: "moderation.punish.unban",
+        description: "Grants the ability to unban members",
+        default: false
+    }, {
         name: "moderation.punish.kick",
         description: "Grants the ability to kick members",
         default: false
@@ -44,11 +48,19 @@ export default [
         description: "Grants the ability to clear the moderation history of a member",
         default: false
     }, {
+        name: "moderation.case.*",
+        description: "Grants the ability to view the moderation case of a member",
+        default: false
+    }, {
         name: "moderation.case.view",
         description: "Grants the ability to view the moderation case of a member",
         default: false
     }, {
         name: "moderation.case.delete",
+        description: "Grants the ability to delete the moderation case of a member",
+        default: false
+    }, {
+        name: "moderation.case.resolve",
         description: "Grants the ability to delete the moderation case of a member",
         default: false
     }, {
