@@ -1,12 +1,21 @@
 import { Emoji, Guild } from "eris";
-import Module from "../../Base/Module";
+import Module, { moduleDataStructure } from "../../Base/Module";
 import Bot from "../../main";
 
-export interface moduleData {
+export interface moduleData extends moduleDataStructure {
 	guildID: string;
 	roles: string[];
 	autoRoles: string[];
 	messages: RolesMessage[];
+	savedRoles: {
+		enabled: boolean;
+		roles: SavedRolesStructure[];
+	};
+}
+
+export interface SavedRolesStructure {
+	userID: string;
+	roles: string[];
 }
 
 export interface RolesMessage {
@@ -29,7 +38,7 @@ export default class Roles extends Module {
 		super(bot);
 
 		this.name = "Roles";
-		this.version = "1.0";
+		this.version = "1.1";
 		this.path = "modules/roles";
 		this.db = true;
 
@@ -52,11 +61,16 @@ export default class Roles extends Module {
 		return messages.find((m) => m.id === id);
 	}
 
-	readonly moduleData: moduleData = {
+	readonly moduleData = {
+		version: this.version,
 		guildID: "",
 		roles: [],
 		autoRoles: [],
-		messages: []
+		messages: [],
+		savedRoles: {
+			enabled: false,
+			roles: []
+		}
 	}
 
 }

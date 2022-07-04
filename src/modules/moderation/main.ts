@@ -1,4 +1,4 @@
-import Module from "../../Base/Module";
+import Module, { moduleDataStructure } from "../../Base/Module";
 import Bot from "../../main";
 
 export type CaseActionTypes = ("ban" | "kick" | "timeout" | "warn");
@@ -24,7 +24,7 @@ export interface ModerationSettings {
     infractionUntilTimeout: number;
 }
 
-export interface moduleData {
+export interface moduleData extends moduleDataStructure {
 	guildID: string;
     cases: Case[];
     settings: ModerationSettings
@@ -41,7 +41,7 @@ export default class Moderation extends Module {
 		super(bot);
 
 		this.name = "Moderation";
-		this.version = "1.0";
+		this.version = "1.1";
 		this.path = "modules/moderation";
 		this.db = true;
 
@@ -52,6 +52,7 @@ export default class Moderation extends Module {
 	}
 
 	readonly moduleData: moduleData = {
+        version: this.version,
 		guildID: "",
         cases: [],
         settings: {

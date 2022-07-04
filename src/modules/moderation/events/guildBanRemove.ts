@@ -15,7 +15,7 @@ export const run = async (bot: Bot, guild: Guild, user: User): Promise<void> => 
 
         if (moderator.id === bot.user.id) return
 
-        const Case = Cases.filter(c => c.action === "ban" && !c.resolved)[0];
+        const Case = Cases.filter(c => c.id === audit.entries[0].id)[0];
 
         await resolveCase(bot, guild, Case.id, moderator.id, "No Reason Provided");
 

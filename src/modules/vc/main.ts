@@ -1,8 +1,8 @@
-import Module from "../../Base/Module";
+import Module, { moduleDataStructure } from "../../Base/Module";
 import Bot from "../../main";
 import { Category } from "./internals/interfaces";
 
-export interface moduleData {
+export interface moduleData extends moduleDataStructure {
 	guildID: string;
 	categories: Category[];
 	defaultName: defaultName;
@@ -24,7 +24,7 @@ export default class VC extends Module {
 		super(bot);
 
 		this.name = "VC";
-		this.version = "1.0";
+		this.version = "1.1";
 		this.path = "modules/vc";
 		this.db = true;
 
@@ -34,7 +34,8 @@ export default class VC extends Module {
 		await this.load();
 	}
 
-	readonly moduleData: moduleData = {
+	readonly moduleData = {
+		version: this.version,
 		guildID: "",
 		categories: [],
 		defaultName: {

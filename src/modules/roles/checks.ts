@@ -171,4 +171,52 @@ export default class Checks {
 
 	}
 
+	readonly checkVersion = async (newVersion: string): Promise<string> => {
+		const data: moduleData[] = (await this.bot.getAllData(this.module.name) as unknown) as moduleData[];
+
+		let promises = [];
+
+		if (data.length) {
+			for (const guildData of data) {
+				if (guildData.version === this.module.version) continue;
+
+				switch (guildData.version) {
+
+					case "1.0": {
+						//Migrates from 1.0 to 1.1
+			
+						for (const guildData of data) {
+							if (guildData.version === newVersion) continue;
+			
+							const oldDataStruct = {
+									guildID: guildData.guildID,
+									roles: guildData.roles,
+									autoRoles: guildData.autoRoles,
+									messages: guildData.messages
+								},
+								newDataStruct = {
+									version: newVersion,
+									guildID: oldDataStruct.guildID,
+									roles: guildData.roles,
+									autoRoles: guildData.autoRoles,
+									messages: guildData.messages,
+									savedRoles: {
+										enabled: false,
+										roles: []
+									}
+								}
+			
+							promises.push(await this.bot.updateModuleData(this.module.name, newDataStruct, guildData.guildID));
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		await Promise.all(promises);
+
+		return `${data.length} Guild(s) Versions Migrated.`;
+	}
+
 }

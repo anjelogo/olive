@@ -6,6 +6,11 @@ import Bot from "../main";
 import Command from "./Command";
 import { Guild } from "eris";
 
+export interface moduleDataStructure {
+	version: string;
+	guildID: string;
+}
+
 export default class Module {
 
 	readonly name: string;

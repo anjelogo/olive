@@ -1,5 +1,5 @@
 import { Channel, Embed, Guild, GuildChannel, TextChannel } from "eris";
-import Module from "../../Base/Module";
+import Module, { moduleDataStructure } from "../../Base/Module";
 import Bot from "../../main";
 
 export type LogChannelTypes = ("welcome" | "vc" | "moderation");
@@ -16,7 +16,7 @@ export interface LogChannelStructure {
 	cases?: CaseLogDataStructure[];
 }
 
-export interface moduleData {
+export interface moduleData extends moduleDataStructure {
 	guildID: string;
 	channels: LogChannelStructure[]
 }
@@ -26,14 +26,16 @@ export default class Logging extends Module {
 	readonly name: string;
 	readonly version: string;
 	readonly path: string;
+	readonly weight: number;
 	readonly db: boolean;
 
 	constructor (bot: Bot) {
 		super(bot);
 
 		this.name = "Logging";
-		this.version = "1.0";
+		this.version = "1.1";
 		this.path = "modules/logging";
+		this.weight = 1;
 		this.db = true;
 
 	}
@@ -42,7 +44,7 @@ export default class Logging extends Module {
 		await this.load();
 	}
 
-	readonly moduleData: moduleData = {
+	readonly moduleData = {
 		guildID: "",
 		channels: []
 	}

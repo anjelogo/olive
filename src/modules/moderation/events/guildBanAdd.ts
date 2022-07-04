@@ -21,7 +21,7 @@ export const run = async (bot: Bot, guild: Guild, user: User): Promise<void> => 
         const reason = audit.entries[0].reason ?? undefined;
 
         const Case: Case = {
-            id: uniqid(),
+            id: audit.entries[0].id,
             userID: user.id,
             moderatorID: moderator.user.id,
             action: "ban",

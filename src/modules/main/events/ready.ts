@@ -11,10 +11,12 @@ export const run = async (bot: Bot): Promise<void> => {
 
 	bot.modules.forEach(async (m: Module) => {
 		if (m.db) {
+
 			bot.constants.utils.log(m.name, "DB found, performing checks...");
 			const checks = new (require(`../../../${m.path}/checks`).default)(bot, m),
-				res = await checks.run();
-			bot.constants.utils.log(m.name, `Checks completed, ${res}`);
+				res = await checks.run(),
+				res2 = await checks.checkVersion(m.version);
+			bot.constants.utils.log(m.name, `Checks completed, ${res}${res2 ? ` ${res2}` : ""}`);
 		}
 	});
 

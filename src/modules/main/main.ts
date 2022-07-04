@@ -1,11 +1,11 @@
 import { Permissions, Permission } from "./internals/permissions";
 import { Permnodes } from "../../resources/interfaces";
 import { CommandInteraction, Constants, Embed, EmbedField, Member, PrivateChannel } from "eris";
-import Module from "../../Base/Module";
+import Module, { moduleDataStructure } from "../../Base/Module";
 import Bot from "../../main";
 import Command from "../../Base/Command";
 
-export interface moduleData {
+export interface moduleData extends moduleDataStructure {
 	guildID: string;
 	permissions: Permissions[];
 	disabledModules: [];
@@ -28,7 +28,7 @@ export default class Main extends Module {
 		super(bot);
 
 		this.name = "Main";
-		this.version = "1.0";
+		this.version = "1.1";
 		this.path = "modules/main";
 		this.weight = 0; //Load this module before everything
 		this.db = true; //Uses database
@@ -187,6 +187,7 @@ export default class Main extends Module {
 	}
 
 	readonly moduleData = {
+		version: this.version,
 		guildID: this.bot.constants.config.guildID,
 		permissions: [],
 		disabledModules: []
