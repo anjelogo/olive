@@ -162,6 +162,26 @@ export default class Checks {
 						continue;
 					}
 				}
+
+				for (const Roles of guildData.savedRoles.roles) {
+					for (const rid of Roles.roles) {
+						const role: Role = this.bot.findRole(guild, rid) as Role,
+						botMember: Member = this.bot.findMember(guild, this.bot.user.id) as Member,
+						botHighestRoleID = botMember.roles
+							.map((r) => 
+								({
+									name: (this.bot.findRole(guild, r) as Role).name,
+									position: (this.bot.findRole(guild, r) as Role).position
+								}))
+							.sort((a, b) => b.position - a.position).map((r) => r.name),
+						botHighestRole: Role = this.bot.findRole(guild, botHighestRoleID[0]) as Role;
+				
+					if (!role || (role && botHighestRole && (role.position > botHighestRole.position))) {
+						promises.push(deleteAutoRole(this, guildData, rid));
+						continue;
+					}
+					}
+				}
 			}
 		}
 
@@ -182,33 +202,31 @@ export default class Checks {
 
 				switch (guildData.version) {
 
+					case undefined:
 					case "1.0": {
 						//Migrates from 1.0 to 1.1
+						if (guildData.version === newVersion) continue;
 			
-						for (const guildData of data) {
-							if (guildData.version === newVersion) continue;
-			
-							const oldDataStruct = {
-									guildID: guildData.guildID,
-									roles: guildData.roles,
-									autoRoles: guildData.autoRoles,
-									messages: guildData.messages
-								},
-								newDataStruct = {
-									version: newVersion,
-									guildID: oldDataStruct.guildID,
-									roles: guildData.roles,
-									autoRoles: guildData.autoRoles,
-									messages: guildData.messages,
-									savedRoles: {
-										enabled: false,
-										roles: []
-									}
+						const oldDataStruct = {
+								guildID: guildData.guildID,
+								roles: guildData.roles,
+								autoRoles: guildData.autoRoles,
+								messages: guildData.messages
+							},
+							newDataStruct = {
+								version: newVersion,
+								guildID: oldDataStruct.guildID,
+								roles: guildData.roles,
+								autoRoles: guildData.autoRoles,
+								messages: guildData.messages,
+								savedRoles: {
+									enabled: false,
+									roles: []
 								}
+							}
 			
 							promises.push(await this.bot.updateModuleData(this.module.name, newDataStruct, guildData.guildID));
 							break;
-						}
 					}
 				}
 			}

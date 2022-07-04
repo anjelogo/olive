@@ -59,27 +59,25 @@ export default class Checks {
 
 				switch (guildData.version) {
 
+					case undefined:
 					case "1.0": {
 						//Migrates from 1.0 to 1.1
+						if (guildData.version === newVersion) continue;
 			
-						for (const guildData of data) {
-							if (guildData.version === newVersion) continue;
+						const oldDataStruct = {
+								guildID: guildData.guildID,
+								cases: guildData.cases,
+								settings: guildData.settings
+							},
+							newDataStruct = {
+								version: newVersion,
+								guildID: oldDataStruct.guildID,
+								cases: oldDataStruct.cases,
+								settings: oldDataStruct.settings
+							}
 			
-							const oldDataStruct = {
-									guildID: guildData.guildID,
-									cases: guildData.cases,
-									settings: guildData.settings
-								},
-								newDataStruct = {
-									version: newVersion,
-									guildID: oldDataStruct.guildID,
-									cases: oldDataStruct.cases,
-									settings: oldDataStruct.settings
-								}
-			
-							promises.push(await this.bot.updateModuleData(this.module.name, newDataStruct, guildData.guildID));
-							break;
-						}
+						promises.push(await this.bot.updateModuleData(this.module.name, newDataStruct, guildData.guildID));
+						break;
 					}
 				}
 			}
