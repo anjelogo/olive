@@ -43,5 +43,9 @@ export default [
 		name: "roles.autorole.get",
 		description: "Grants the ability to get autoroles",
 		default: false
+	}, {
+		name: "roles.save.toggle",
+		description: "Grants the ability to toggle saving roles",
+		default: false
 	}
 ];
