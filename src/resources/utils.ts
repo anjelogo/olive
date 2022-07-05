@@ -41,3 +41,8 @@ export const parseEmoji = (emote: Partial<Emoji>): string => {
 
 	return `<${emote.animated ? "a" : ""}:${emote.name}:${emote.id}>`;
 };
+
+export const convertSnowflake = (snowflake: string): Date => {
+	const milliseconds = BigInt(snowflake) >> 22n;
+	return new Date(Number(milliseconds) + 1420070400000);
+}
