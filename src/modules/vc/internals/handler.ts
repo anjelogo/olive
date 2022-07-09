@@ -38,7 +38,7 @@ export const create = async (bot: Bot, member: Member, channel: VoiceChannel): P
 	logging.log(channel.guild, "vc", {
 		type: "rich",
 		title: `${member.username}#${member.discriminator}`,
-		description: `Created \`${channel.name}\``,
+		description: `Created \`${voice.name}\``,
 		author: {
 			name: "Create New Private Voice Channel",
 			icon_url: member.avatarURL
