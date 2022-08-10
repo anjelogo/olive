@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import Eris, { ApplicationCommandStructure, ChatInputApplicationCommandStructure, Client, ClientOptions, CommandInteraction, Guild, GuildChannel, Member, Role, User } from "eris";
+import Eris, { ApplicationCommandStructure, Client, ClientOptions, Guild, GuildChannel, Member, Role, User } from "eris";
 import { Constants, Entity, Permnodes } from "./resources/interfaces";
 import { promises as fs } from "fs";
 import monk, { IMonkManager } from "monk";

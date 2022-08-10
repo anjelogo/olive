@@ -85,7 +85,7 @@ export default class Checks {
 
 		await Promise.all(promises);
 
-		return `${data.length} Guild(s) Versions Migrated.`;
+		return `${promises.length} Guild(s) Versions Migrated.`;
 	}
 
 }
