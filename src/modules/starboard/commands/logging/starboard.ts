@@ -43,12 +43,12 @@ export default class Starboard extends Command {
                 await interaction.defer();
 
                 const member = this.bot.findMember(guild, subcommand.options?.[0].value!! as string) as Member,
-                    stars = data.messages.filter((m) => m.authorID === member.id).length;
+                    stars = data.messages.filter((m) => m.authorID === member.id).map((s) => s.stars).length;
 
                 await interaction.createMessage({
                     embeds: [
                         {
-                            title: `User has ⭐ **${stars}** stars.`,
+                            description: `User has ⭐ **${stars}** stars.`,
                             color: this.bot.constants.config.colors.default
                         }
                     ],
