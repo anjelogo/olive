@@ -3,7 +3,7 @@ import Command from "../../../../Base/Command";
 import Bot from "../../../../main";
 import { moduleData } from "../../main";
 
-export default class Log extends Command {
+export default class Starboard extends Command {
 
     constructor(bot: Bot) {
 
@@ -34,7 +34,7 @@ export default class Log extends Command {
     readonly execute = async (interaction: CommandInteraction): Promise<Message | void> => {
 
         const guild = this.bot.findGuild(interaction.guildID) as Guild,
-            data = (await this.bot.getModuleData("Main", guild)) as moduleData,
+            data = await this.bot.getModuleData("Starboard", guild) as moduleData,
             subcommand = interaction.data.options?.[0]!! as InteractionDataOptionsSubCommand;
 
         switch (subcommand.name) {
@@ -48,7 +48,8 @@ export default class Log extends Command {
                 await interaction.createMessage({
                     embeds: [
                         {
-                            title: `User has ⭐ **${stars}** stars.`
+                            title: `User has ⭐ **${stars}** stars.`,
+                            color: this.bot.constants.config.colors.default
                         }
                     ],
                     flags: Constants.MessageFlags.EPHEMERAL
