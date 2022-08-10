@@ -24,15 +24,9 @@ export default class StarboardContext extends Command {
                 name: "view",
                 options: [
                     {
-                        type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
+                        type: Constants.ApplicationCommandOptionTypes.STRING,
                         name: "user",
-                        options: [
-                            {
-                                type: Constants.ApplicationCommandOptionTypes.STRING,
-                                name: "user",
-                                value: member.id
-                            }
-                        ]
+                        value: member.id
                     }
                 ]
             }
