@@ -48,7 +48,7 @@ export default class Log extends Command {
                 await interaction.createMessage({
                     embeds: [
                         {
-                            title: `User has ${stars} ⭐`
+                            title: `User has ⭐ **${stars}** stars.`
                         }
                     ],
                     flags: Constants.MessageFlags.EPHEMERAL
