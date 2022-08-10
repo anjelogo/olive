@@ -1,8 +1,8 @@
-import { Channel, Embed, Guild, GuildChannel, TextChannel } from "eris";
+import { Embed, Guild, TextChannel } from "eris";
 import Module, { moduleDataStructure } from "../../Base/Module";
 import Bot from "../../main";
 
-export type LogChannelTypes = ("welcome" | "vc" | "moderation");
+export type LogChannelTypes = ("welcome" | "vc" | "moderation" | "starboard");
 
 export interface CaseLogDataStructure {
 	channelID: string;
@@ -10,10 +10,17 @@ export interface CaseLogDataStructure {
 	caseID: string;
 }
 
+export interface StarDataStructure {
+	channelID: string;
+	messageID: string;
+	starID: string;
+}
+
 export interface LogChannelStructure {
     types: LogChannelTypes[];
     channelID: string;
 	cases?: CaseLogDataStructure[];
+	stars?: StarDataStructure[];
 }
 
 export interface moduleData extends moduleDataStructure {
@@ -49,7 +56,7 @@ export default class Logging extends Module {
 		channels: []
 	}
 
-	readonly log = async (guild: Guild, type: LogChannelTypes, embed: Embed, id?: string) => {
+	readonly log = async (guild: Guild, type: LogChannelTypes, payload: {content?: string, embeds?: Embed[]}, data?: { channelID?: string, caseID?: string; starID?: string; }) => {
 		const guildData = await this.bot.getModuleData(this.name, guild) as moduleData;
 
 		if (!guildData) return;
@@ -58,24 +65,37 @@ export default class Logging extends Module {
 
 			for (const c of channels) {
 				const channel = this.bot.findChannel(guild, c.channelID) as TextChannel,
-					message = await channel.createMessage({
-						content: undefined,
-						embeds: [embed]
-				})
+					message = await channel.createMessage(payload)
 
 				if (type === "moderation") {
 					c.cases ? c.cases.push({
 						channelID: channel.id,
 						messageID: message.id,
-						caseID: id!!
+						caseID: data!!.caseID!!
 					}) : c.cases = [{
 						channelID: channel.id,
 						messageID: message.id,
-						caseID: id!!
+						caseID: data!!.caseID!!
 					}]
 
 					await this.bot.updateModuleData(this.name, guildData, guild);
 				}
+
+				if (type === "starboard") {
+					c.stars ? c.stars.push({
+						channelID: data!!.channelID!!,
+						messageID: message.id,
+						starID: data!!.starID!!
+					}) : c.stars = [{
+						channelID: data!!.channelID!!,
+						messageID: message.id,
+						starID: data!!.starID!!
+					}]
+
+					await message.addReaction("⭐");
+					await this.bot.updateModuleData(this.name, guildData, guild);
+				}
+
 			}
 		}
 	}

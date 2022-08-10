@@ -22,7 +22,7 @@ export const run = async (bot: Bot, member: Member, channel: VoiceChannel): Prom
 		if (await bot.getModule("Main").handlePermission(member, "vc.join")) {
 			//get logging module
 			const logging = await bot.getModule("Logging") as Logging;
-			logging.log(channel.guild, "vc", {
+			logging.log(channel.guild, "vc", {embeds: [{
 				type: "rich",
 				title: `${member.username}#${member.discriminator}`,
 				description: `Joined \`${channel.name}\``,
@@ -35,7 +35,7 @@ export const run = async (bot: Bot, member: Member, channel: VoiceChannel): Prom
 				footer: {
 					text: `ID: ${member.id}`
 				}
-			})
+			}]})
 		}
 		else 
 			member.edit({ channelID: null });

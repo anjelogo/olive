@@ -13,36 +13,36 @@ export async function createLogEntry(bot: Bot, guild: Guild, data: Case, partial
         },
         logging = await bot.getModule("Logging") as Logging,
         member = partialUser ?? bot.findMember(guild, data.userID) as Member,
-        moderator = bot.findMember(guild, data.moderatorID) as Member;
+        moderator = bot.findMember(guild, data.moderatorID) as Member,
+        embed = {
+            type: "rich",
+            title: `User ${actions[data.action]}`,
+            author: {
+                name: member.username!!,
+                icon_url: member.avatarURL
+            },
+            fields: [
+                {
+                    name: "Moderator",
+                    value: moderator.mention,
+                    inline: true
+                }, {
+                    name: "Punishment Duration",
+                    value: ["ban", "timeout"].some((a) => a === data.action) ? (data.time ? `\`${bot.constants.utils.HMS(data.time)}\`` : "Permanent") : "No Duration",
+                    inline: true
+                }, {
+                    name: "Reason",
+                    value: data.reason ?? "No reason provided."
+                }
+            ],
+            timestamp: data.timestamp,
+            footer: {
+                text: `Case ID: ${data.id}`
+            },
+            color: bot.constants.config.colors.red
+        }
 
-    logging.log(guild, "moderation", {
-        type: "rich",
-        title: `User ${actions[data.action]}`,
-        author: {
-            name: member.username!!,
-            icon_url: member.avatarURL
-        },
-        fields: [
-            {
-                name: "Moderator",
-                value: moderator.mention,
-                inline: true
-            }, {
-                name: "Punishment Duration",
-                value: ["ban", "timeout"].some((a) => a === data.action) ? (data.time ? `\`${bot.constants.utils.HMS(data.time)}\`` : "Permanent") : "No Duration",
-                inline: true
-            }, {
-                name: "Reason",
-                value: data.reason ?? "No reason provided."
-            }
-        ],
-        timestamp: data.timestamp,
-        footer: {
-            text: `Case ID: ${data.id}`
-        },
-        color: bot.constants.config.colors.red
-    }, data.id);
-
+    logging.log(guild, "moderation", { embeds: [embed] }, { caseID: data.id });
 }
 
 export async function updateLogEntry(bot: Bot, guild: Guild, data: Case) {

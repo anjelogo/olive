@@ -35,7 +35,7 @@ export const create = async (bot: Bot, member: Member, channel: VoiceChannel): P
 	member.edit({ channelID: voice.id });
 
 	const logging = await bot.getModule("Logging") as Logging;
-	logging.log(channel.guild, "vc", {
+	logging.log(channel.guild, "vc", {embeds: [{
 		type: "rich",
 		title: `${member.username}#${member.discriminator}`,
 		description: `Created \`${voice.name}\``,
@@ -48,7 +48,7 @@ export const create = async (bot: Bot, member: Member, channel: VoiceChannel): P
 		footer: {
 			text: `ID: ${member.id}`
 		}
-	})
+	}]})
 
 		
 	category.channels.push(newChannel);
@@ -66,7 +66,7 @@ export const remove = async (bot: Bot, member: Member, channel: VoiceChannel): P
 	if (!channelObj) return;
 
 	const logging = await bot.getModule("Logging") as Logging;
-	logging.log(channel.guild, "vc", {
+	logging.log(channel.guild, "vc", {embeds: [{
 		type: "rich",
 		title: `${member.username}#${member.discriminator}`,
 		description: `Left \`${channel.name}\``,
@@ -79,7 +79,7 @@ export const remove = async (bot: Bot, member: Member, channel: VoiceChannel): P
 		footer: {
 			text: `ID: ${member.id}`
 		}
-	})
+	}]})
 
 	if (channel.voiceMembers.size <= 0) {
 
@@ -89,7 +89,7 @@ export const remove = async (bot: Bot, member: Member, channel: VoiceChannel): P
 		if (i > -1) category.channels.splice(i, 1);
 		await bot.updateModuleData("VC", data, channel.guild);
 
-		logging.log(channel.guild, "vc", {
+		logging.log(channel.guild, "vc", {embeds: [{
 			type: "rich",
 			title: `${member.username}#${member.discriminator}`,
 			description: `Ended \`${channel.name}\``,
@@ -108,7 +108,7 @@ export const remove = async (bot: Bot, member: Member, channel: VoiceChannel): P
 			footer: {
 				text: `ID: ${member.id}`
 			}
-		})
+		}]})
 		
 	} else if (member.id === channelObj.owner) {
 		const members = channel.voiceMembers.filter((m) => m.id !== member.id).map((m) => m.id),
@@ -118,7 +118,7 @@ export const remove = async (bot: Bot, member: Member, channel: VoiceChannel): P
 
 		await bot.updateModuleData("VC", data, channel.guild);
 
-		logging.log(channel.guild, "vc", {
+		logging.log(channel.guild, "vc", {embeds: [{
 			type: "rich",
 			title: `${member.username}#${member.discriminator} -> ${newOwner.username}#${newOwner.discriminator}`,
 			description: `Set \`${newOwner.username}\` the owner of \`${channel.name}\``,
@@ -131,6 +131,6 @@ export const remove = async (bot: Bot, member: Member, channel: VoiceChannel): P
 			footer: {
 				text: `ID: ${member.id}`
 			}
-		})
+		}]})
 	}
 };

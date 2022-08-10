@@ -8,7 +8,7 @@ export const run = async (bot: Bot, guild: Guild, member: Member | { id: string;
 
     let user = member.user
 
-    logging.log(guild, "welcome", {
+    logging.log(guild, "welcome", {embeds: [{
         type: "rich",
         title: `${user.username}#${user.discriminator}`,
         description: `Left the server`,
@@ -21,6 +21,6 @@ export const run = async (bot: Bot, guild: Guild, member: Member | { id: string;
         footer: {
             text: `ID: ${member.id}`
         }
-    });
+    }]});
 
 }

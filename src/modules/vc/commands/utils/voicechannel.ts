@@ -157,7 +157,7 @@ export default class Voicechannel extends Command {
 					await this.bot.updateModuleData("VC", data, guild);
 
 					const logging = await this.bot.getModule("Logging") as Logging;
-					logging.log(channel.guild, "vc", {
+					logging.log(channel.guild, "vc", {embeds: [{
 						type: "rich",
 						title: `${member.username}#${member.discriminator} -> ${newOwner.username}#${newOwner.discriminator}`,
 						description: `Set \`${newOwner.username}\` the owner of \`${channel.name}\``,
@@ -170,7 +170,7 @@ export default class Voicechannel extends Command {
 						footer: {
 							text: `ID: ${member.id}`
 						}
-					})
+					}]})
 
 					return interaction.createMessage(`${this.constants.emojis.tick} Successfully transferred ownership of Private Channel to \`${newOwner.username}\``);
 				} catch (e) {

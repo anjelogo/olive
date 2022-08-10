@@ -18,6 +18,8 @@ export default class Checks {
 
 		let deletedGuilds = 0,
             deletedChannels = 0,
+			deletedCases = 0,
+			deletedStars = 0,
 			failed = 0;
 
 		async function deleteGuild(checks: Checks, guild: string) {
@@ -45,6 +47,34 @@ export default class Checks {
             }
         }
 
+		async function deleteCaseMessage(checks: Checks, guildData: moduleData, channelID: string, messageID: string) {
+			if (!messageID) return;
+
+			const i = guildData.channels.find((c) => c.channelID === channelID)!!.cases!!.findIndex((c) => c.messageID === messageID);
+			if (i > -1) guildData.channels.find((c) => c.channelID === channelID)!!.cases!!.splice(i, 1);
+
+			try {
+				await checks.bot.updateModuleData(checks.module.name, guildData, guildData.guildID);
+				deletedCases++;
+			} catch (e) {
+				failed++;
+			}
+		}
+
+		async function deleteStarMessage(checks: Checks, guildData: moduleData, channelID: string, messageID: string) {
+			if (!messageID) return;
+
+			const i = guildData.channels.find((c) => c.channelID === channelID)!!.stars!!.findIndex((c) => c.messageID === messageID);
+			if (i > -1) guildData.channels.find((c) => c.channelID === channelID)!!.stars!!.splice(i, 1);
+
+			try {
+				await checks.bot.updateModuleData(checks.module.name, guildData, guildData.guildID);
+				deletedStars++;
+			} catch (e) {
+				failed++;
+			}
+		}
+
 		if (data.length) {
 			for (const guildData of data) {
 
@@ -62,13 +92,35 @@ export default class Checks {
                         promises.push(await deleteChannel(this, guildData, channel.channelID));
                     }
 
+					if (channel.cases) {
+						for (const caseData of channel.cases) {
+							const caseMessage = this.bot.getMessage(channel.channelID, caseData.messageID);
+
+							if (!caseMessage) {
+								promises.push(await deleteCaseMessage(this, guildData, channel.channelID, caseData.messageID));
+								break;
+							}
+						}
+					}
+
+					if (channel.stars) {
+						for (const starData of channel.stars) {
+							const starMessage = this.bot.getMessage(channel.channelID, starData.messageID);
+
+							if (!starMessage) {
+								promises.push(await deleteStarMessage(this, guildData, channel.channelID, starData.messageID));
+								break;
+							}
+						}
+					}
+
                 }
 			}
 		}
 
 		await Promise.all(promises);
 
-		return `${deletedGuilds} Guild(s) Deleted. ${deletedChannels} Channel(s) Deleted. ${failed} Failed Operation(s).`;
+		return `${deletedGuilds} Guild(s) Deleted. ${deletedChannels} Channel(s) Deleted. ${deletedCases} Case(s) Deleted. ${deletedStars} Star(s) Deleted. ${failed} Failed Operation(s).`;
 
 	}
 	

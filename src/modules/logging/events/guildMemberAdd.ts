@@ -6,7 +6,7 @@ export const run = async (bot: Bot, guild: Guild,  member: Member): Promise<void
 
     const logging = await bot.getModule("Logging") as Logging;
 
-    logging.log(guild, "welcome", {
+    logging.log(guild, "welcome", {embeds: [{
         type: "rich",
         title: `${member.username}#${member.discriminator}`,
         description: `Joined the server`,
@@ -19,6 +19,6 @@ export const run = async (bot: Bot, guild: Guild,  member: Member): Promise<void
         footer: {
             text: `ID: ${member.id}`
         }
-    });
+    }]});
 
 }
