@@ -94,7 +94,7 @@ export async function updateLogEntry(bot: Bot, guild: Guild, starID: string) {
                 },
                 guildData = await bot.getModuleData("Starboard", guild) as moduleData,
                 messageData = guildData.messages.find((m) => m.messageID === starID)!!,
-                channel = bot.findChannel(guild, starboard.channelID) as TextChannel,
+                channel = bot.findChannel(guild, messageData.channelID) as TextChannel,
                 stars = messageData.stars.length <= 3 ? starStrings.small : messageData.stars.length <= 10 ? starStrings.medium : starStrings.large;
 
             try {
