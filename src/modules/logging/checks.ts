@@ -1,3 +1,4 @@
+import { TextChannel } from "eris";
 import Module from "../../Base/Module";
 import Bot from "../../main";
 import Logging, { moduleData } from "./main";
@@ -87,14 +88,14 @@ export default class Checks {
 
                 for (const channel of guildData.channels) {
 
-                    const channelObj = this.bot.findChannel(guild, channel.channelID);
+                    const channelObj = this.bot.findChannel(guild, channel.channelID) as TextChannel;
                     if (!channelObj) {
                         promises.push(await deleteChannel(this, guildData, channel.channelID));
                     }
 
 					if (channel.cases) {
 						for (const caseData of channel.cases) {
-							const caseMessage = this.bot.getMessage(channel.channelID, caseData.messageID);
+							const caseMessage = this.bot.findMessage(channelObj, caseData.messageID);
 
 							if (!caseMessage) {
 								promises.push(await deleteCaseMessage(this, guildData, channel.channelID, caseData.messageID));
@@ -105,7 +106,7 @@ export default class Checks {
 
 					if (channel.stars) {
 						for (const starData of channel.stars) {
-							const starMessage = this.bot.getMessage(channel.channelID, starData.messageID);
+							const starMessage = this.bot.findMessage(channelObj, starData.messageID);
 
 							if (!starMessage) {
 								promises.push(await deleteStarMessage(this, guildData, channel.channelID, starData.messageID));

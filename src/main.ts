@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import Eris, { ApplicationCommandStructure, Client, ClientOptions, Guild, GuildChannel, Member, Role, User } from "eris";
+import Eris, { ApplicationCommandStructure, Client, ClientOptions, Guild, GuildChannel, Member, Message, Role, TextChannel, User } from "eris";
 import { Constants, Entity, Permnodes } from "./resources/interfaces";
 import { promises as fs } from "fs";
 import monk, { IMonkManager } from "monk";
@@ -213,6 +213,15 @@ export default class Bot extends Client {
 			return guild.roles.get((query.match(/\d+/) as RegExpMatchArray)[0]);
 		else if (guild.roles.find((r: Role) => r.name.toLowerCase() === query.toLowerCase()))
 			return guild.roles.find((r: Role) => r.name.toLowerCase() === query.toLowerCase());
+	}
+
+	readonly findMessage = (channel: TextChannel, query: string | undefined): Message | undefined => {
+		if (!query || !channel) return;
+
+		if (/^\d+$/.test(query))
+			return channel.messages.get(query);
+		else if (channel.messages.find((m: Message) => m.content.toLowerCase() === query.toLowerCase()))
+			return channel.messages.find((m: Message) => m.content.toLowerCase() === query.toLowerCase());
 	}
 
 	readonly findEntity = (guild: Guild, query: string | undefined): Entity | undefined => {

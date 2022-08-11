@@ -1,3 +1,4 @@
+import { TextChannel } from "eris";
 import Bot from "../../main";
 import Roles, { moduleData } from "./main";
 
@@ -54,14 +55,14 @@ export default class Checks {
 			}
 
 			for (const message of guildData.messages) {
-				const channel = this.bot.findChannel(guild, message.channelID);
+				const channel = this.bot.findChannel(guild, message.channelID) as TextChannel;
 
 				if (!channel) {
 					promises.push(await deleteStar(this, guildData, message.messageID));
 					continue;
 				}
 
-				const msg = await this.bot.getMessage(message.channelID, message.messageID)
+				const msg = this.bot.findMessage(channel, message.messageID);
 
 				if (!msg) {
 					promises.push(await deleteStar(this, guildData, message.messageID));
