@@ -25,7 +25,6 @@ export interface ModerationSettings {
 }
 
 export interface moduleData extends moduleDataStructure {
-	guildID: string;
     cases: Case[];
     settings: ModerationSettings
 }

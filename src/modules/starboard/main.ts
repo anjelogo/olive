@@ -10,7 +10,6 @@ export interface messageDataStructure {
 }
 
 export interface moduleData extends moduleDataStructure {
-	guildID: string;
     messages: messageDataStructure[];
 }
 

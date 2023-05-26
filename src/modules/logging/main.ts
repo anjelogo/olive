@@ -4,15 +4,16 @@ import Bot from "../../main";
 
 export type LogChannelTypes = ("welcome" | "vc" | "moderation" | "starboard");
 
-export interface CaseLogDataStructure {
+export interface DataStructure {
 	channelID: string;
 	messageID: string;
+}
+
+export interface CaseLogDataStructure extends DataStructure {
 	caseID: string;
 }
 
-export interface StarDataStructure {
-	channelID: string;
-	messageID: string;
+export interface StarDataStructure extends DataStructure {
 	starID: string;
 }
 
@@ -24,7 +25,6 @@ export interface LogChannelStructure {
 }
 
 export interface moduleData extends moduleDataStructure {
-	guildID: string;
 	channels: LogChannelStructure[]
 }
 

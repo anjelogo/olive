@@ -6,7 +6,6 @@ import Bot from "../../main";
 import Command from "../../Base/Command";
 
 export interface moduleData extends moduleDataStructure {
-	guildID: string;
 	permissions: Permissions[];
 	disabledModules: [];
 }

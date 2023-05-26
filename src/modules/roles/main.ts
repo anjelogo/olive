@@ -2,17 +2,6 @@ import { Emoji, Guild } from "eris";
 import Module, { moduleDataStructure } from "../../Base/Module";
 import Bot from "../../main";
 
-export interface moduleData extends moduleDataStructure {
-	guildID: string;
-	roles: string[];
-	autoRoles: string[];
-	messages: RolesMessage[];
-	savedRoles: {
-		enabled: boolean;
-		roles: SavedRolesStructure[];
-	};
-}
-
 export interface SavedRolesStructure {
 	userID: string;
 	roles: string[];
@@ -25,6 +14,16 @@ export interface RolesMessage {
 		role: string;
 		emote: Partial<Emoji>;
 	}[];
+}
+
+export interface moduleData extends moduleDataStructure {
+	roles: string[];
+	autoRoles: string[];
+	messages: RolesMessage[];
+	savedRoles: {
+		enabled: boolean;
+		roles: SavedRolesStructure[];
+	};
 }
 
 export default class Roles extends Module {

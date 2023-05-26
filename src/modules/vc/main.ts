@@ -3,7 +3,6 @@ import Bot from "../../main";
 import { Category } from "./internals/interfaces";
 
 export interface moduleData extends moduleDataStructure {
-	guildID: string;
 	categories: Category[];
 	defaultName: defaultName;
 }

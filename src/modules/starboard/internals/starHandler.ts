@@ -1,6 +1,6 @@
 import { Guild, Message } from "eris";
 import Bot from "../../../main";
-import Starboard, { messageDataStructure, moduleData } from "../main";
+import  { messageDataStructure, moduleData } from "../main";
 import { createLogEntry, removeLogEntry, updateLogEntry } from "./logHandler";
 import { moduleData as LoggingModuleData } from "../../logging/main";
 
