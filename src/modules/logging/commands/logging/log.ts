@@ -1,4 +1,4 @@
-import { ActionRow, CommandInteraction, ComponentInteraction, Constants, Embed, Guild, InteractionComponentSelectMenuData, InteractionDataOptionsSubCommand, Message, NewsChannel, TextChannel } from "eris";
+import { ComponentInteraction, Constants, CommandInteraction, Embed, Message, Guild, TextChannel, MessageActionRow, MessageComponentSelectMenuInteractionData } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import Bot from "../../../../main";
 import { upsertCustomData, getCustomData } from "../../../main/internals/CustomDataHandler";
@@ -54,7 +54,7 @@ export default class Log extends Command {
                     }
                 ],
                 footer: {
-                    text: interaction.channel.id
+                    text: interaction.channelID
                 }
             }
 
@@ -64,9 +64,9 @@ export default class Log extends Command {
     private components = async (bot: Bot, interaction: (CommandInteraction | ComponentInteraction)):
     Promise<
         {
-            home: ActionRow[],
-            addLog: ActionRow[],
-            deleteLog: ActionRow[]
+            home: MessageActionRow[],
+            addLog: MessageActionRow[],
+            deleteLog: MessageActionRow[]
         }
     > => {
         const customData = getCustomData(bot, interaction instanceof CommandInteraction ? interaction.id : interaction.message.interaction?.id!!)?.data!! as CustomDataStructure;
@@ -81,23 +81,23 @@ export default class Log extends Command {
                             style: Constants.ButtonStyles.PRIMARY,
                             label: "Add Log",
                             disabled: !(await this.typesAvailable(this.bot, interaction)).length,
-                            custom_id: `log_${interaction.member?.id}_addlog`
+                            customID: `log_${interaction.member?.id}_addlog`
                         }, {
                             type: Constants.ComponentTypes.BUTTON,
                             style: Constants.ButtonStyles.SECONDARY,
                             label: "Remove Log",
                             disabled: (await this.typesAvailable(this.bot, interaction)).length > 1,
-                            custom_id: `log_${interaction.member?.id}_removelog`
+                            customID: `log_${interaction.member?.id}_removelog`
                         }, {
                             type: Constants.ComponentTypes.BUTTON,
                             style: Constants.ButtonStyles.SUCCESS,
                             label: "Save",
-                            custom_id: `log_${interaction.member?.id}_save`
+                            customID: `log_${interaction.member?.id}_save`
                         }, {
                             type: Constants.ComponentTypes.BUTTON,
                             style: Constants.ButtonStyles.DANGER,
                             label: "Cancel",
-                            custom_id: `log_${interaction.member?.id}_cancel`
+                            customID: `log_${interaction.member?.id}_cancel`
                         }
                     ]
                 }
@@ -107,11 +107,11 @@ export default class Log extends Command {
                     type: Constants.ComponentTypes.ACTION_ROW,
                     components: [
                         {
-                            type: Constants.ComponentTypes.SELECT_MENU,
+                            type: Constants.ComponentTypes.STRING_SELECT,
                             placeholder: "Select a logging type",
-                            custom_id: `log_${interaction.member?.id}_addlogtype`,
-                            max_values: 2,
-                            min_values: 1,
+                            customID: `log_${interaction.member?.id}_addlogtype`,
+                            maxValues: 2,
+                            minValues: 1,
                             options: (await this.typesAvailable(this.bot, interaction)).map((t) => ({ label: t, value: t}) )
                         }
                     ]
@@ -122,12 +122,12 @@ export default class Log extends Command {
 							type: Constants.ComponentTypes.BUTTON,
 							style: Constants.ButtonStyles.PRIMARY,
 							label: "Back",
-							custom_id: `reactionrole_${interaction.member?.id}_home`
+							customID: `reactionrole_${interaction.member?.id}_home`
 						}, {
 							type: Constants.ComponentTypes.BUTTON,
 							style: Constants.ButtonStyles.DANGER,
 							label: "Cancel",
-							custom_id: `reactionrole_${interaction.member?.id}_cancel`
+							customID: `reactionrole_${interaction.member?.id}_cancel`
 						}
 					]
 				}
@@ -137,11 +137,11 @@ export default class Log extends Command {
                     type: Constants.ComponentTypes.ACTION_ROW,
                     components: [
                         {
-                            type: Constants.ComponentTypes.SELECT_MENU,
+                            type: Constants.ComponentTypes.STRING_SELECT,
                             placeholder: "Select a logging type",
-                            custom_id: `log_${interaction.member?.id}_addlogtype`,
-                            max_values: 2,
-                            min_values: 1,
+                            customID: `log_${interaction.member?.id}_addlogtype`,
+                            maxValues: 2,
+                            minValues: 1,
                             options: customData.types.map((t) => ({ label: t, value: t }))
                         }
                     ]
@@ -153,12 +153,12 @@ export default class Log extends Command {
 							type: Constants.ComponentTypes.BUTTON,
 							style: Constants.ButtonStyles.PRIMARY,
 							label: "Back",
-							custom_id: `reactionrole_${interaction.member?.id}_home`
+							customID: `reactionrole_${interaction.member?.id}_home`
 						}, {
 							type: Constants.ComponentTypes.BUTTON,
 							style: Constants.ButtonStyles.DANGER,
 							label: "Cancel",
-							custom_id: `reactionrole_${interaction.member?.id}_cancel`
+							customID: `reactionrole_${interaction.member?.id}_cancel`
 						}
 					]
 				}
@@ -170,8 +170,8 @@ export default class Log extends Command {
 
         const guild = this.bot.findGuild(interaction.guildID!!) as Guild,
             data = await this.bot.getModuleData("Logging", guild) as moduleData,
-            channel = interaction.channel as (TextChannel | NewsChannel),
-            subcommand = interaction.data.options?.[0]!! as InteractionDataOptionsSubCommand
+            channel = interaction.channel as (TextChannel),
+            subcommand = interaction.data.options.raw?.[0]
 
         switch (subcommand.name) {
 
@@ -193,16 +193,16 @@ export default class Log extends Command {
             const channelData = data.channels.find((c) => c.channelID === channel.id);
 
             if (!channelData)
-                return interaction.createMessage("This channel is not a log channel");
+                return interaction.createMessage({ content: `${this.bot.constants.emojis.cross} This channel is not a log channel` });
 
             data.channels.splice(data.channels.indexOf(channelData), 1);
 
             try {
                 await this.bot.updateModuleData("Logging", data, guild);
 
-                return interaction.createMessage(`${this.bot.constants.emojis.tick} Removed log channel`);
+                return interaction.createMessage({ content: `${this.bot.constants.emojis.tick} Removed log channel`})
             } catch (e) {
-                await interaction.createMessage(`${this.bot.constants.emojis.cross} Failed to remove log channel`);
+                await interaction.createMessage({ content: `${this.bot.constants.emojis.cross} An error occured while removing the log channel` });
                 throw new Error(e as string);
             }
 
@@ -218,7 +218,7 @@ export default class Log extends Command {
             customData = await getCustomData(this.bot, component.message.interaction?.id!!)?.data!! as CustomDataStructure,
             moduleData = await this.bot.getModuleData("Logging", guild) as moduleData;
 
-        switch (component.data.custom_id.split("_")[2]) {
+        switch (component.data.customID.split("_")[2]) {
 
         case "addlog": {
 
@@ -241,7 +241,7 @@ export default class Log extends Command {
         case "addlogtype": {
             await component.deferUpdate();
 
-            customData.types = [...customData.types, ...(component.data as InteractionComponentSelectMenuData).values as LogChannelTypes[]]
+            customData.types = [...customData.types, ...(component.data as MessageComponentSelectMenuInteractionData).values.raw as LogChannelTypes[]]
 
             const embed = this.create(this.bot, component);
 
@@ -258,13 +258,13 @@ export default class Log extends Command {
             await component.deferUpdate();
 
             const obj: LogChannelStructure = {
-                channelID: component.channel.id,
+                channelID: component.channelID,
                 types: customData.types
             }
 
             //if data found, delete existing data
-            if (moduleData.channels.find((c) => c.channelID === component.channel.id))
-                moduleData.channels.splice(moduleData.channels.findIndex((c) => c.channelID === component.channel.id), 1);
+            if (moduleData.channels.find((c) => c.channelID === component.channelID))
+                moduleData.channels.splice(moduleData.channels.findIndex((c) => c.channelID === component.channelID), 1);
 
             moduleData.channels.push(obj);
 

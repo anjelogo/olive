@@ -1,6 +1,6 @@
-import Eris, {ApplicationCommandOptions, ApplicationCommandTypes, CommandInteraction, ComponentInteraction, Message } from "eris";
+import { Constants, ApplicationCommandTypes, CommandInteraction, ComponentInteraction, Message, ApplicationCommandOptions } from "oceanic.js";
 import Bot from "../main";
-import { Constants } from "../resources/interfaces";
+import { Constants as CustomConstants } from "../resources/interfaces";
 
 export type Options =  ApplicationCommandOptions & {
 	permissions?: string[];
@@ -19,10 +19,10 @@ export default class Command {
 	public devOnly: boolean;
 	public category: string;
 	public permissions?: string[];
-	public requirePerms?: keyof typeof Eris.Constants.Permissions;
+	public requirePerms?: keyof typeof Constants.Permissions;
 	public options?: Options[];
 	public bot: Bot;
-	public constants: Constants;
+	public constants: CustomConstants;
 	public guildSpecific?: string[];
 	public execute: (interaction: CommandInteraction) => Promise<Message | undefined | void> | undefined;
 	public update: (component: ComponentInteraction) => Promise<Message | undefined | void> | undefined;

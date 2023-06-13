@@ -2,10 +2,9 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import Eris, { ApplicationCommandStructure, Client, ClientOptions, Guild, GuildChannel, Member, Message, Role, TextChannel, User } from "eris";
-import { Constants, Entity, Permnodes } from "./resources/interfaces";
+import { Client, ClientOptions, User, Guild, Member, GuildChannel, TextChannel, Role, Constants, CreateChatInputApplicationCommandOptions, CreateApplicationCommandOptions, CreateGuildApplicationCommandOptions, Message } from "oceanic.js";
+import { Constants as CustomConstants, Entity, Permnodes } from "./resources/interfaces";
 import { promises as fs } from "fs";
-import monk, { IMonkManager } from "monk";
 import { Auth } from "./resources/auth";
 import * as Config from "./resources/config";
 import * as utils from "./resources/utils";
@@ -22,17 +21,17 @@ export default class Bot extends Client {
 	readonly name: string;
 	readonly perms: Permnodes[]
 	readonly events: any[];
-	readonly constants: Constants;
+	readonly constants: CustomConstants;
 	readonly disabledModules: string[];
-	readonly db: IMonkManager;
+	//TODO: Add DB Manager using mongo-strict
 
 	public modules: any[];
 	public commands: Command[];
 
 	public interactionCustomData: CustomData[];
 
-	constructor(token: string, options?: ExtendedOptions) {
-		super(token, options);
+	constructor(options?: ExtendedOptions) {
+		super(options);
 
 		this.name = Config.name;
 		this.perms = [];
@@ -46,8 +45,8 @@ export default class Bot extends Client {
 			utils: utils
 		};
 		this.disabledModules = (options && options.disabledModules) ? [...options.disabledModules] : [];
-		this.db = monk(Auth.database.replace("{db}", this.name).replace(" ", "_"));
-
+		//TODO: Add DB Connection using mongo-strict
+		
 	}
 
 	readonly init = async (): Promise<void> => {
@@ -95,32 +94,32 @@ export default class Bot extends Client {
 	};
 
 	readonly reload = async (): Promise<void> => {
-		const GlobalApplicationCommands: ApplicationCommandStructure[] = [],
-			GuildSpecificCommands: { id: string; commands: ApplicationCommandStructure[] }[] = [];
+		const GlobalApplicationCommands: CreateApplicationCommandOptions[] = [],
+			GuildSpecificCommands: { id: string; commands: CreateGuildApplicationCommandOptions[] }[] = [];
 
 		this.commands.filter((c) => !c.disabled).forEach(async (c: Command) => {
 			if (!c.type) {
-				const obj: ApplicationCommandStructure = {
+				const command: CreateChatInputApplicationCommandOptions = {
 					name: c.commands[0],
 					description: c.description,
-					type: Eris.Constants.ApplicationCommandTypes.CHAT_INPUT
+					type: Constants.ApplicationCommandTypes.CHAT_INPUT
 				};
 		
-				if (c.options) obj.options = c.options;
+				if (c.options) command.options = c.options;
 	
 				if (c.guildSpecific && c.guildSpecific.length)
 					for (const guild of c.guildSpecific) {
 						const guildCommand = GuildSpecificCommands.find((gc) => gc.id === guild);
 	
 						if (!guildCommand)
-							GuildSpecificCommands.push({ id: guild, commands: [obj] });
-						else guildCommand.commands.push(obj);
+							GuildSpecificCommands.push({ id: guild, commands: [command] });
+						else guildCommand.commands.push(command);
 					}
 				else
-					GlobalApplicationCommands.push(obj);
+					GlobalApplicationCommands.push(command);
 			}
-			else if (c.type === Eris.Constants.ApplicationCommandTypes.MESSAGE || c.type === Eris.Constants.ApplicationCommandTypes.USER) {
-				const obj: ApplicationCommandStructure = {
+			else if (c.type === Constants.ApplicationCommandTypes.MESSAGE || c.type === Constants.ApplicationCommandTypes.USER) {
+				const obj: CreateApplicationCommandOptions = {
 					name: c.commands[0],
 					type: c.type
 				};
@@ -130,13 +129,13 @@ export default class Bot extends Client {
 		});
 
 		try {
-			await this.bulkEditCommands(GlobalApplicationCommands);
+			await this.application.bulkEditGlobalCommands(GlobalApplicationCommands);
 
 			//Bulk Guild Commands
 			if (GuildSpecificCommands.length) {
 				for (const guild of GuildSpecificCommands) {
 					try {
-						await this.bulkEditGuildCommands(guild.id, guild.commands);
+						await this.application.bulkEditGuildCommands(guild.id, guild.commands);
 					}
 					catch (e) {
 						continue;
@@ -167,7 +166,7 @@ export default class Bot extends Client {
 			return this.users.find((u: User) => u.username.toLowerCase() === query.toLowerCase());
 	}
 
-	readonly findGuild = (query: string | undefined): Guild | undefined => {
+	readonly findGuild = (query: string | undefined | null): Guild | undefined => {
 		if (!query) return;
 
 		if (/^\d+$/.test(query))

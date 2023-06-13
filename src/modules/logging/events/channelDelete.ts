@@ -1,8 +1,8 @@
-import { NewsChannel, TextChannel } from "eris";
+import { TextChannel } from "oceanic.js";
 import Bot from "../../../main";
 import { moduleData } from "../main";
 
-export const run = async (bot: Bot, channel: (TextChannel | NewsChannel)): Promise<void> => {
+export const run = async (bot: Bot, channel: (TextChannel)): Promise<void> => {
 	if (![0, 5].includes(channel.type)) return;
 
 	const data: moduleData = (await bot.getModuleData("VC", channel.guild) as unknown) as moduleData;

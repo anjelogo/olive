@@ -1,4 +1,4 @@
-import Eris, { CommandInteraction, Constants, InteractionDataOptionsWithValue, Message } from "eris";
+import Eris, { CommandInteraction, Constants } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import Bot from "../../../../main";
 
@@ -25,7 +25,7 @@ export default class Eval extends Command {
 
 	readonly execute = async (interaction: CommandInteraction): Promise<void> => {
 
-		const code = (interaction.data.options?.find(o => o.name === "expression") as InteractionDataOptionsWithValue).value as string;
+		const code = (interaction.data.options.getStringOption("expression"))?.value as string;
 
 
 		try {

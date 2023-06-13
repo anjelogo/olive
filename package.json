@@ -1,18 +1,18 @@
 {
-  "name": "dsbmoduleloader",
-  "version": "1.0.0",
+  "name": "olive-rewrite",
+  "version": "2.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "pm2": "./node_modules/.bin/pm2 start src/index.ts --watch"
   },
-  "author": "anjelo",
+  "author": "Anjelo Go",
   "license": "ISC",
   "dependencies": {
-    "eris": "github:DonovanDMC/eris#everything",
     "fs": "0.0.1-security",
-    "monk": "^7.3.4",
+    "mongo-strict": "^0.1.3",
     "node-fetch": "^2.6.1",
+    "oceanic.js": "^1.6.0",
     "uniqid": "^5.4.0"
   },
   "devDependencies": {

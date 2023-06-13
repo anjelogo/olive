@@ -1,4 +1,4 @@
-import { CommandInteraction, Message } from "eris";
+import { CommandInteraction, Message } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import Bot from "../../../../main";
 
@@ -16,14 +16,14 @@ export default class Ping extends Command {
 	}
 
 	readonly execute = async (interaction: CommandInteraction): Promise<Message | void> => {
-		await interaction.defer()
+		await interaction.defer();
 		
 		return interaction.createMessage({
 			content: "Pong 🏓",
 			embeds: [
 				{
 					color: this.bot.constants.config.colors.default,
-					description: "**Response Time:** `placeholder ms`",
+					description: `**Response Time:** \`${Date.now() - interaction.createdAt.getMilliseconds()}\``,
 				}
 			]
 		});

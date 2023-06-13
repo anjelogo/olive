@@ -1,4 +1,4 @@
-import { Embed, Guild, TextChannel } from "eris";
+import { Embed, Guild, TextChannel } from "oceanic.js";
 import Module, { moduleDataStructure } from "../../Base/Module";
 import Bot from "../../main";
 
@@ -92,7 +92,7 @@ export default class Logging extends Module {
 						starID: data!!.starID!!
 					}]
 
-					await message.addReaction("⭐");
+					await message.createReaction("⭐");
 					await this.bot.updateModuleData(this.name, guildData, guild);
 				}
 

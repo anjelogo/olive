@@ -1,4 +1,4 @@
-import { ActionRow, CommandInteraction, ComponentInteraction, Constants, Embed, EmbedField, InteractionComponentSelectMenuData, Message } from "eris";
+import { CommandInteraction, ComponentInteraction, Constants, Embed, EmbedField, Message, MessageActionRow, MessageComponentSelectMenuInteractionData } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import Module from "../../../../Base/Module";
 import Bot from "../../../../main";
@@ -22,12 +22,12 @@ export default class Help extends Command {
 			type: "rich",
 			author: {
 				name: this.bot.user.username,
-				icon_url: this.bot.user.avatarURL
+				iconURL: this.bot.user.avatarURL()
 			},
 			color: this.bot.constants.config.colors.default,
 			description: "🌴 *A Multi-Purpose Bot made by a community, for a community.* 🌴\n\n**OLIVE** is a multi-purpose bot that includes a variety of modules to help your community thrive! Get start by viewing a list of commands by clicking on the button below!"
 		},
-			components: ActionRow[] = [
+			components: MessageActionRow[] = [
 				{
 					type: Constants.ComponentTypes.ACTION_ROW,
 					components: [
@@ -59,8 +59,8 @@ export default class Help extends Command {
 						{
 							type: Constants.ComponentTypes.BUTTON,
 							style: Constants.ButtonStyles.PRIMARY,
-							custom_id: `help_${interaction.member?.id}_commandembed`,
-							label: "View Commands"
+							label: "View Commands",
+							customID: `help_${interaction.member?.id}_commandembed`,
 						}
 					]
 				}
@@ -70,10 +70,10 @@ export default class Help extends Command {
 			if (components[1].components)
 				components[1].components.push(
 					{
-						type: 2,
-						style: 2,
-						custom_id: `help_${interaction.member?.id}_permissionembed`,
-						label: "View Permissions"
+						type: Constants.ComponentTypes.BUTTON,
+						style: Constants.ButtonStyles.PRIMARY,
+						label: "View Permissions",
+						customID: `help_${interaction.member?.id}_permissionembed`,
 					}
 				);
 
@@ -87,7 +87,7 @@ export default class Help extends Command {
 
 	readonly update = async (component: ComponentInteraction): Promise<Message | void> => {
 
-		switch (component.data.custom_id.split("_")[2]) {
+		switch (component.data.customID.split("_")[1]) {
 
 		case "commandembed": {
 			await component.deferUpdate();
@@ -134,30 +134,30 @@ export default class Help extends Command {
 					embeds: [embed],
 					components: [
 						{
-							type: 1,
+							type: Constants.ComponentTypes.ACTION_ROW,
 							components: [
 								{
-									type: 3,
-									custom_id: `help_${component.member?.id}_commandmenu`,
+									type: Constants.ComponentTypes.STRING_SELECT,
+									customID: `help_${component.member?.id}_commandmenu`,
 									placeholder: "Choose a command",
-									min_values: 1,
-									max_values: 1,
+									minValues: 1,
+									maxValues: 1,
 									options: commands.map((c) => ({ label: c.commands[0].replace(/^\w/, c => c.toUpperCase()), value: c.commands[0], description: c.description }))
 								}
 							]
 						}, {
-							type: 1,
+							type: Constants.ComponentTypes.ACTION_ROW,
 							components: [
 								{
-									type: 2,
-									style: 1,
+									type: Constants.ComponentTypes.BUTTON,
+									style: Constants.ButtonStyles.PRIMARY,
 									label: "Permissions List",
-									custom_id: `help_${component.member?.id}_permissionembed`
+									customID: `help_${component.member?.id}_permissionembed`
 								}, {
-									type: 2,
-									style: 2,
+									type: Constants.ComponentTypes.BUTTON,
+									style: Constants.ButtonStyles.PRIMARY,
 									label: "Back to Main Menu",
-									custom_id: `help_${component.member?.id}_home`
+									customID: `help_${component.member?.id}_home`
 								}
 							]
 						}
@@ -208,30 +208,30 @@ export default class Help extends Command {
 					embeds: [embed],
 					components: [
 						{
-							type: 1,
+							type: Constants.ComponentTypes.ACTION_ROW,
 							components: [
 								{
-									type: 3,
-									custom_id: `help_${component.member?.id}_modulecomponent`,
+									type: Constants.ComponentTypes.STRING_SELECT,
+									customID: `help_${component.member?.id}_modulecomponent`,
 									placeholder: "Choose a module",
-									min_values: 1,
-									max_values: 1,
+									minValues: 1,
+									maxValues: 1,
 									options: this.bot.modules.map((m: Module) => ({ label: m.name, value: m.name }))
 								}
 							]
 						}, {
-							type: 1,
+							type: Constants.ComponentTypes.ACTION_ROW,
 							components: [
 								{
-									type: 2,
-									style: 1,
+									type: Constants.ComponentTypes.BUTTON,
+									style: Constants.ButtonStyles.PRIMARY,
 									label: "Permissions List",
-									custom_id: `help_${component.member?.id}_permissionembed`
+									customID: `help_${component.member?.id}_permissionembed`
 								}, {
-									type: 2,
-									style: 2,
+									type: Constants.ComponentTypes.BUTTON,
+									style: Constants.ButtonStyles.PRIMARY,
 									label: "Back to Main Menu",
-									custom_id: `help_${component.member?.id}_home`
+									customID: `help_${component.member?.id}_home`
 								}
 							]
 						}
@@ -243,10 +243,10 @@ export default class Help extends Command {
 		case "commandmenu": {
 			await component.deferUpdate();
 
-			const command = this.bot.commands.find((c) => c.commands[0] === (component.data as InteractionComponentSelectMenuData).values[0]);
+			const command = this.bot.commands.find((c) => c.commands[0] === (component.data as MessageComponentSelectMenuInteractionData).values.getStrings()[0]);
 
 			if (!command)
-				return component.createMessage("Could not find the command!");
+				return component.createMessage({content: "Could not find the command!"});
 
 			const helpEmbed = await this.bot.getModule("Main").createHelpEmbed(command);
 
@@ -255,13 +255,13 @@ export default class Help extends Command {
 					embeds: [helpEmbed.embed],
 					components: [
 						{
-							type: 1,
+							type: Constants.ComponentTypes.ACTION_ROW,
 							components: [
 								{
-									type: 2,
-									style: 1,
-									custom_id: `help_${component.member?.id}_home`,
-									label: "Back to help"
+									type: Constants.ComponentTypes.BUTTON,
+									style: Constants.ButtonStyles.PRIMARY,
+									label: "Back to help",
+									customID: `help_${component.member?.id}_home`,
 								}
 							]
 						}
@@ -273,37 +273,37 @@ export default class Help extends Command {
 		case "modulecomponent": {
 			await component.deferUpdate();
 
-			const moduleName = (component.data as InteractionComponentSelectMenuData).values[0],
+			const moduleName = (component.data as MessageComponentSelectMenuInteractionData).values.getStrings()[0],
 				perms = this.bot.perms.filter((p) => p.name.split(/[.\-_]/)[0].toLowerCase() === moduleName.toLowerCase());
 
 			return await component.editParent(
 				{
 					components: [
 						{
-							type: 1,
+							type: Constants.ComponentTypes.ACTION_ROW,
 							components: [
 								{
-									type: 3,
-									custom_id: `help_${component.member?.id}_permissionmenu`,
+									type: Constants.ComponentTypes.STRING_SELECT,
+									customID: `help_${component.member?.id}_permissionmenu`,
 									placeholder: "Choose a permission",
-									min_values: 1,
-									max_values: 1,
+									minValues: 1,
+									maxValues: 1,
 									options: perms.map((p) => ({ label: p.name, value: p.name }))
 								}
 							]
 						}, {
-							type: 1,
+							type: Constants.ComponentTypes.ACTION_ROW,
 							components: [
 								{
-									type: 2,
-									style: 1,
+									type: Constants.ComponentTypes.BUTTON,
+									style: Constants.ButtonStyles.PRIMARY,
 									label: "Permissions List",
-									custom_id: `help_${component.member?.id}_permissionembed`
+									customID: `help_${component.member?.id}_permissionembed`
 								}, {
-									type: 2,
-									style: 2,
+									type: Constants.ComponentTypes.BUTTON,
+									style: Constants.ButtonStyles.PRIMARY,
 									label: "Back to Main Menu",
-									custom_id: `help_${component.member?.id}_home`
+									customID: `help_${component.member?.id}_home`
 								}
 							]
 						}
@@ -315,7 +315,7 @@ export default class Help extends Command {
 		case "permissionmenu": {
 			await component.deferUpdate();
 
-			const permnode: Permnodes = this.bot.perms.find((p) => p.name === (component.data as InteractionComponentSelectMenuData).values[0]) as Permnodes;
+			const permnode: Permnodes = this.bot.perms.find((p) => p.name === ((component.data as MessageComponentSelectMenuInteractionData).values.getStrings()[0])) as Permnodes;
 
 			const embed: Embed = {
 				title: permnode.name,
@@ -329,13 +329,13 @@ export default class Help extends Command {
 					embeds: [embed],
 					components: [
 						{
-							type: 1,
+							type: Constants.ComponentTypes.ACTION_ROW,
 							components: [
 								{
-									type: 2,
-									style: 1,
-									custom_id: `help_${component.member?.id}_home`,
-									label: "Back to help"
+									type: Constants.ComponentTypes.BUTTON,
+									style: Constants.ButtonStyles.PRIMARY,
+									label: "Back to help",
+									customID: `help_${component.member?.id}_home`,
 								}
 							]
 						}

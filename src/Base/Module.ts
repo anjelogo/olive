@@ -4,7 +4,7 @@ import { Permnodes, Constants } from "../resources/interfaces";
 import { promises as fs } from "fs";
 import Bot from "../main";
 import Command from "./Command";
-import { Guild } from "eris";
+import { Guild } from "oceanic.js";
 
 export interface moduleDataStructure {
 	version: string;

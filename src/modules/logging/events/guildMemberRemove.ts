@@ -1,4 +1,4 @@
-import { Guild, Member, User } from "eris";
+import { Guild, Member, User } from "oceanic.js";
 import Bot from "../../../main";
 import Logging from "../main";
 
@@ -14,10 +14,10 @@ export const run = async (bot: Bot, guild: Guild, member: Member | { id: string;
         description: `Left the server`,
         author: {
             name: "Left Server",
-            icon_url: user.avatarURL
+            iconURL: member.user.avatarURL()
         },
-        color: bot.constants.config.colors.red,
-        timestamp: new Date(),
+        color: bot.constants.config.colors.green,
+        timestamp: new Date().toDateString(),
         footer: {
             text: `ID: ${member.id}`
         }
