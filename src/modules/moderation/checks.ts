@@ -12,46 +12,47 @@ export default class Checks {
 		this.module = Module;
 	}
 
-	readonly run = async (): Promise<string> => {
-		const data: moduleData[] = (await this.bot.getAllData(this.module.name) as unknown) as moduleData[],
-			promises = [];
+	// TODO: fix this
+	// readonly run = async (): Promise<string> => {
+	// 	const data: moduleData[] = (await this.bot.getAllData(this.module.name) as unknown) as moduleData[],
+	// 		promises = [];
 
-		let deletedGuilds = 0,
-			failed = 0;
+	// 	let deletedGuilds = 0,
+	// 		failed = 0;
 
-		async function deleteGuild(checks: Checks, guild: string) {
-			if (!guild) return;
+	// 	async function deleteGuild(checks: Checks, guild: string) {
+	// 		if (!guild) return;
 
-			try {
-				await checks.bot.db.get(checks.module.name).findOneAndDelete({ guildID: guild });
-				deletedGuilds++;
-			} catch (e) {
-				failed++;
-			}
-		}
+	// 		try {
+	// 			await checks.bot.db.get(checks.module.name).findOneAndDelete({ guildID: guild });
+	// 			deletedGuilds++;
+	// 		} catch (e) {
+	// 			failed++;
+	// 		}
+	// 	}
 
-		if (data.length) {
-			for (const guildData of data) {
+	// 	if (data.length) {
+	// 		for (const guildData of data) {
 
-				const guild = this.bot.findGuild(guildData.guildID);
+	// 			const guild = this.bot.findGuild(guildData.guildID);
 
-				if (!guild) {
-					promises.push(await deleteGuild(this, guildData.guildID));
-					continue;
-				}
-			}
-		}
+	// 			if (!guild) {
+	// 				promises.push(await deleteGuild(this, guildData.guildID));
+	// 				continue;
+	// 			}
+	// 		}
+	// 	}
 
-		await Promise.all(promises);
+	// 	await Promise.all(promises);
 
-		return `${deletedGuilds} Guild(s) Deleted. ${failed} Failed Operation(s).`;
+	// 	return `${deletedGuilds} Guild(s) Deleted. ${failed} Failed Operation(s).`;
 
-	}
+	// }
 
 	readonly checkVersion = async (newVersion: string): Promise<string> => {
 		const data: moduleData[] = (await this.bot.getAllData(this.module.name) as unknown) as moduleData[];
 
-		let promises = [];
+		const promises = [];
 
 		if (data.length) {
 			for (const guildData of data) {
@@ -59,26 +60,26 @@ export default class Checks {
 
 				switch (guildData.version) {
 
-					case undefined:
-					case "1.0": {
-						//Migrates from 1.0 to 1.1
-						if (guildData.version === newVersion) continue;
+				case undefined:
+				case "1.0": {
+					//Migrates from 1.0 to 1.1
+					if (guildData.version === newVersion) continue;
 			
-						const oldDataStruct = {
-								guildID: guildData.guildID,
-								cases: guildData.cases,
-								settings: guildData.settings
-							},
-							newDataStruct = {
-								version: newVersion,
-								guildID: oldDataStruct.guildID,
-								cases: oldDataStruct.cases,
-								settings: oldDataStruct.settings
-							}
+					const oldDataStruct = {
+							guildID: guildData.guildID,
+							cases: guildData.cases,
+							settings: guildData.settings
+						},
+						newDataStruct = {
+							version: newVersion,
+							guildID: oldDataStruct.guildID,
+							cases: oldDataStruct.cases,
+							settings: oldDataStruct.settings
+						};
 			
-						promises.push(await this.bot.updateModuleData(this.module.name, newDataStruct, guildData.guildID));
-						break;
-					}
+					promises.push(await this.bot.updateModuleData(this.module.name, newDataStruct, guildData.guildID));
+					break;
+				}
 				}
 			}
 		}

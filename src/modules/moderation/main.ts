@@ -51,15 +51,15 @@ export default class Moderation extends Module {
 	}
 
 	readonly moduleData: moduleData = {
-        version: this.version,
+		version: this.version,
 		guildID: "",
-        cases: [],
-        settings: {
-            caseLimit: 100,
-            infractionUntilBan: 9,
-            infractionUntilKick: 5,
-            infractionUntilTimeout: 3
-        }
+		cases: [],
+		settings: {
+			caseLimit: 100,
+			infractionUntilBan: 9,
+			infractionUntilKick: 5,
+			infractionUntilTimeout: 3
+		}
 	}
 
 }
