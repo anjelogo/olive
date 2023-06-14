@@ -28,6 +28,8 @@ export interface moduleData extends moduleDataStructure {
 	channels: LogChannelStructure[]
 }
 
+export interface DataType { channelID?: string, caseID?: string; starID?: string; }
+
 export default class Logging extends Module {
 
 	readonly name: string;
@@ -56,7 +58,7 @@ export default class Logging extends Module {
 		channels: []
 	}
 
-	readonly log = async (guild: Guild, type: LogChannelTypes, payload: {content?: string, embeds?: Embed[]}, data?: { channelID?: string, caseID?: string; starID?: string; }) => {
+	readonly log = async (guild: Guild, type: LogChannelTypes, payload: {content?: string, embeds?: Embed[]}, data?: DataType) => {
 		const guildData = await this.bot.getModuleData(this.name, guild) as moduleData;
 
 		if (!guildData) return;
@@ -65,32 +67,32 @@ export default class Logging extends Module {
 
 			for (const c of channels) {
 				const channel = this.bot.findChannel(guild, c.channelID) as TextChannel,
-					message = await channel.createMessage(payload)
+					message = await channel.createMessage(payload);
 
 				if (type === "moderation") {
 					c.cases ? c.cases.push({
 						channelID: channel.id,
 						messageID: message.id,
-						caseID: data!!.caseID!!
+						caseID: (data as DataType).caseID as string
 					}) : c.cases = [{
 						channelID: channel.id,
 						messageID: message.id,
-						caseID: data!!.caseID!!
-					}]
+						caseID: (data as DataType).caseID as string
+					}];
 
 					await this.bot.updateModuleData(this.name, guildData, guild);
 				}
 
 				if (type === "starboard") {
 					c.stars ? c.stars.push({
-						channelID: data!!.channelID!!,
+						channelID: (data as DataType).channelID as string,
 						messageID: message.id,
-						starID: data!!.starID!!
+						starID: (data as DataType).starID as string,
 					}) : c.stars = [{
-						channelID: data!!.channelID!!,
+						channelID: (data as DataType).channelID as string,
 						messageID: message.id,
-						starID: data!!.starID!!
-					}]
+						starID: (data as DataType).starID as string,
+					}];
 
 					await message.createReaction("⭐");
 					await this.bot.updateModuleData(this.name, guildData, guild);
