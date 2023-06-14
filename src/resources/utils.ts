@@ -1,4 +1,4 @@
-import { Emoji } from "eris";
+import { Emoji } from "oceanic.js";
 
 export const log = (Module: string, message: string): void => {
 	console.log(`[${Module}] ${message}`);
@@ -45,4 +45,4 @@ export const parseEmoji = (emote: Partial<Emoji>): string => {
 export const convertSnowflake = (snowflake: string): Date => {
 	const milliseconds = BigInt(snowflake) >> 22n;
 	return new Date(Number(milliseconds) + 1420070400000);
-}
+};

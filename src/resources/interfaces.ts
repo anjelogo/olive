@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Member, Role } from "eris";
+import { Member, Role } from "oceanic.js";
 
 export interface Permnodes {
 	name: string,
