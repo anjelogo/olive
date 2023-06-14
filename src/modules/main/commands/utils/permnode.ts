@@ -82,10 +82,12 @@ export default class Permnode extends Command {
 		const guild = this.bot.findGuild(interaction.guildID) as Guild,
 			data: moduleData = (await this.bot.getModuleData("Main", guild) as unknown) as moduleData,
 			permissions: Permissions[] = data.permissions,
-			subcommand = interaction.data.options.raw[0];
+			subcommand = interaction.data.options.raw[0].name;
 
-		switch (subcommand.name) {
+		switch (subcommand) {
 		case "edit": {
+			// UNTESTED - MIGHT NOT WORK
+			// if doesnt work, possible fix: use interaction.data.options.getString("entity", true) instead of interaction.data.resolved.members.map((m) => m.id)[0] || interaction.data.resolved.roles.map((r) => r.id)[0]
 			const entity: Entity | undefined = this.bot.findEntity(guild, interaction.data.resolved.members.map((m) => m.id)[0] || interaction.data.resolved.roles.map((r) => r.id)[0]);
 			
 			if (!entity) return interaction.createMessage({content: "I could not find that entity!"});
