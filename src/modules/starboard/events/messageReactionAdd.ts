@@ -1,21 +1,21 @@
-import { Channel, Emoji, Guild, Member, Message } from "eris";
+import { Channel, Emoji, Guild, Member, Message, TextChannel } from "oceanic.js";
 import Bot from "../../../main";
 import { handleStarredMessage } from "../internals/starHandler";
 
 export const run = async (bot: Bot, msgObj: (Message | { id: string; channel: Channel; author?: unknown; guildID?: unknown }), emoji: Partial<Emoji>, reactor: Partial<Member>) => {
-    if (emoji.name !== "⭐") return;
+	if (emoji.name !== "⭐") return;
 
-    let msg: Message;
+	let msg: Message;
 
-    if (!msgObj.author) msg = await bot.getMessage(msgObj.channel.id, msgObj.id) as Message;
-    else msg = msgObj as Message;
+	if (!msgObj.author) msg = await bot.findMessage(bot.getChannel((msgObj.channel as Channel).id) as TextChannel, msgObj.id) as Message;
+	else msg = msgObj as Message;
 
-    if (!msg || !emoji || !reactor || !msg.guildID) return;
+	if (!msg || !emoji || !reactor || !msg.guildID) return;
 
 	const guild = bot.findGuild(msg.guildID) as Guild,
 		member = bot.findMember(guild, reactor.id) as Member;
 
-    if (member.bot) return;
+	if (member.bot) return;
     
-    await handleStarredMessage(bot, guild, msg, "add", reactor.id!!);
-}
+	await handleStarredMessage(bot, guild, msg, "add", reactor.id as string);
+};

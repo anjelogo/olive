@@ -1,4 +1,4 @@
-import { Guild } from "eris";
+import { Guild } from "oceanic.js";
 import Module, { moduleDataStructure } from "../../Base/Module";
 import Bot from "../../main";
 
@@ -50,7 +50,7 @@ export default class Starboard extends Module {
 	readonly moduleData = {
 		version: this.version,
 		guildID: "",
-        messages: []
+		messages: []
 	}
 
 }
