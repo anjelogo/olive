@@ -1,4 +1,4 @@
-import { Emoji, Guild, Member, Message, PrivateChannel, Role } from "eris";
+import { Emoji, Guild, Member, Message, PrivateChannel, Role } from "oceanic.js";
 import Bot from "../../../main";
 import Main from "../../main/main";
 import Roles, { RolesMessage } from "../main";
@@ -22,16 +22,16 @@ export const run = async (bot: Bot, msg: Partial<Message>, emoji: Partial<Emoji>
 	if (rData) {
 
 		const role: Role = bot.findRole(guild, rData.role) as Role,
-			dmChannel: PrivateChannel | undefined = await bot.getDMChannel(member.id);
+			dmChannel: PrivateChannel | undefined = await member.user.createDM();
 
 		if (!member.roles.includes(role.id)) return;
 
 		try {
 			await member.removeRole(role.id);
 			
-			if (dmChannel) dmChannel.createMessage(`${bot.constants.emojis.tick} You have removed the role \`${role.name}\` in \`${guild.name}\`.`);
+			if (dmChannel) dmChannel.createMessage({content: `${bot.constants.emojis.tick} You have removed the role \`${role.name}\` in \`${guild.name}\`.`});
 		} catch (e) {
-			if (dmChannel) dmChannel.createMessage(`${bot.constants.emojis.warning.red} There was a problem while removing your role.`);
+			if (dmChannel) dmChannel.createMessage({content: `${bot.constants.emojis.warning.red} There was a problem while removing your role.`});
 		}
 
 	}

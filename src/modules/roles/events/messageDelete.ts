@@ -1,4 +1,4 @@
-import { Message, TextChannel } from "eris";
+import { Message, TextChannel } from "oceanic.js";
 import Bot from "../../../main";
 import Roles, { moduleData, RolesMessage } from "../main";
 

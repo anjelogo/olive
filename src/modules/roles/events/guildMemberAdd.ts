@@ -1,4 +1,4 @@
-import { Guild, Member } from "eris";
+import { Guild, Member } from "oceanic.js";
 import Bot from "../../../main";
 import { moduleData } from "../main";
 

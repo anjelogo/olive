@@ -1,4 +1,4 @@
-import { Emoji, Guild } from "eris";
+import { Emoji, Guild } from "oceanic.js";
 import Module, { moduleDataStructure } from "../../Base/Module";
 import Bot from "../../main";
 

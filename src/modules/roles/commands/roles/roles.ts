@@ -1,4 +1,4 @@
-import { ActionRow, CommandInteraction, ComponentInteraction, Constants, Guild, InteractionComponentSelectMenuData, InteractionDataOptionsSubCommand, InteractionDataOptionsSubCommandGroup, Member, Message, Role } from "eris";
+import { CommandInteraction, ComponentInteraction, Constants, Guild, Member, Message, MessageActionRow, MessageComponentSelectMenuInteractionData, Role } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import Bot from "../../../../main";
 import Main from "../../../main/main";
@@ -65,7 +65,7 @@ export default class Roles extends Command {
 		await interaction.defer();
 
 		const mainModule: Main = this.bot.getModule("Main"),
-			guild: Guild = this.bot.findGuild(interaction.guildID!!) as Guild,
+			guild: Guild = this.bot.findGuild(interaction.guildID) as Guild,
 			member: Member = interaction.member as Member,
 			data: moduleData = await this.bot.getModuleData("Roles", guild) as moduleData,
 			botMember: Member = this.bot.findMember(guild, this.bot.user.id) as Member,
@@ -87,59 +87,61 @@ export default class Roles extends Command {
 					.sort((a, b) => b.position - a.position).map((r) => r.name)
 				: guild.id,
 			memberHighestRole: Role = this.bot.findRole(guild, memberHighestRoleID[0]) as Role,
-			subcommand = interaction.data.options?.[0]!! as InteractionDataOptionsSubCommandGroup;
+			subcommand = interaction.data.options.raw[0].name;
 
-		switch(subcommand.name) {
+		switch(subcommand) {
 
 		case "list": {
-			const suboption = subcommand.options?.[0] as InteractionDataOptionsSubCommand,
-				suboptionvalue = suboption.options?.[0].value as string;
+			const suboptions = interaction.data.options.getSubCommand(true)[1];
 
-			switch (suboption.name) {
+			if (!suboptions) return interaction.createMessage({content: "Could not find subcommand", flags: Constants.MessageFlags.EPHEMERAL});
+
+			const role = interaction.data.options.getRole("role", true);
+
+			switch (suboptions) {
 			case "add": {
-				if (data.roles.includes(suboptionvalue))
-					return interaction.createMessage("That role is already in the roles list!");
-
-				const role: Role = this.bot.findRole(guild, suboptionvalue) as Role;
+				if (data.roles.includes(role.id))
+					return interaction.createMessage({content: "That role is already in the roles list!"});
 
 				if (!role)
-					return interaction.createMessage("I could not find that role");
+					return interaction.createMessage({content: "I could not find that role"});
 
-				if (role.position > memberHighestRole.position && !member.permissions.has("administrator"))
-					return interaction.createMessage(`That role's position is higher than your highest role, ${memberHighestRole.mention}. Perhaps try moving your role higher to solve this problem.`);
+				if (role.position > memberHighestRole.position && !member.permissions.has("ADMINISTRATOR"))
+					return interaction.createMessage({content: `That role's position is higher than your highest role, ${memberHighestRole.mention}. Perhaps try moving your role higher to solve this problem.`});
 
 				if (role.position > botHighestRole.position)
-					return interaction.createMessage(`That role's position is higher than my highest role, ${botHighestRole.mention}. Perhaps try moving my role higher to solve this problem.`);
+					return interaction.createMessage({content: `That role's position is higher than my highest role, ${botHighestRole.mention}. Perhaps try moving my role higher to solve this problem.`});
 
 				try {
 					data.roles.push(role.id);
 					await this.bot.updateModuleData("Roles", data, guild);
-					return interaction.createMessage(`${this.bot.constants.emojis.tick} Added role ${role.mention} to the roles list!`);
+					return interaction.createMessage({content: `${this.bot.constants.emojis.tick} Added role ${role.mention} to the roles list!`});
 				} catch (e) {
-					return interaction.createMessage("Error trying to add role to roles list!");
+					return interaction.createMessage({content: "Error trying to add role to roles list!"});
 				}
 			}
 
 			case "remove": {
-				if (!data.roles.includes(suboptionvalue))
-					return interaction.createMessage("That role isn't in the roles list!");
-
-				const role: Role = this.bot.findRole(guild, suboptionvalue) as Role;
+				if (data.roles.includes(role.id))
+					return interaction.createMessage({content: "That role is already in the roles list!"});
 
 				if (!role)
-					return interaction.createMessage("I could not find that role");
+					return interaction.createMessage({content: "I could not find that role"});
 
-				if (role.position > memberHighestRole.position)
-					return interaction.createMessage(`That role's position is higher than your highest role, ${memberHighestRole.mention}. Perhaps try moving my role higher to solve this problem.`);
+				if (role.position > memberHighestRole.position && !member.permissions.has("ADMINISTRATOR"))
+					return interaction.createMessage({content: `That role's position is higher than your highest role, ${memberHighestRole.mention}. Perhaps try moving your role higher to solve this problem.`});
+
+				if (role.position > botHighestRole.position)
+					return interaction.createMessage({content: `That role's position is higher than my highest role, ${botHighestRole.mention}. Perhaps try moving my role higher to solve this problem.`});
 
 				try {
 					const i = data.roles.indexOf(role.id);
 					if (i > -1) data.roles.splice(i, 1);
 
 					await this.bot.updateModuleData("Roles", data, guild);
-					return interaction.createMessage(`${this.bot.constants.emojis.tick} Removed role ${role.mention} from the roles list!`);
+					return interaction.createMessage({content: `${this.bot.constants.emojis.tick} Removed role ${role.mention} from the roles list!`});
 				} catch (e) {
-					return interaction.createMessage("Error trying to add role to roles list!");
+					return interaction.createMessage({content: "Error trying to add role to roles list!"});
 				}
 			}
 
@@ -169,7 +171,7 @@ export default class Roles extends Command {
 
 					if (member.roles.includes(role.id)) continue;
 					if (role.position >= botHighestRole.position) continue;
-					if (member.roles.length && role.position > memberHighestRole.position && !member.permissions.has("administrator")) continue;
+					if (member.roles.length && role.position > memberHighestRole.position && !member.permissions.has("ADMINISTRATOR")) continue;
 					if (role.id === guild.id) continue;
 					if (role.managed) continue;
 
@@ -179,29 +181,29 @@ export default class Roles extends Command {
 			roles = [...new Set(roles)];
 
 			if (!roles.length)
-				return interaction.createMessage("There are no roles you can get");
+				return interaction.createMessage({content: "There are no roles you can get"});
 
-			const components: ActionRow[] = [
+			const components: MessageActionRow[] = [
 				{
-					type: 1,
+					type: Constants.ComponentTypes.ACTION_ROW,
 					components: [
 						{
-							type: 3,
+							type: Constants.ComponentTypes.STRING_SELECT,
 							placeholder: "Choose roles",
-							custom_id: `roles_${interaction.member?.id}_addroles`,
-							max_values: roles.length,
-							min_values: 1,
+							customID: `roles_${interaction.member?.id}_addroles`,
+							maxValues: roles.length,
+							minValues: 1,
 							options: roles.map((r) => ({ label: r.name, value: r.id }))
 						}
 					]
 				}, {
-					type: 1,
+					type: Constants.ComponentTypes.ACTION_ROW,
 					components: [
 						{
-							type: 2,
-							style: 4,
+							type: Constants.ComponentTypes.BUTTON,
+							style: Constants.ButtonStyles.DANGER,
 							label: "Cancel",
-							custom_id: `roles_${interaction.member?.id}_cancel`
+							customID: `roles_${interaction.member?.id}_cancel`
 						}
 					]
 				}
@@ -216,7 +218,7 @@ export default class Roles extends Command {
 					}
 				);
 			} catch (e) {
-				return interaction.createMessage("Error getting roles list.");
+				return interaction.createMessage({content: "Error getting roles list."});
 			}
 		}
 
@@ -241,36 +243,36 @@ export default class Roles extends Command {
 
 					if (!member.roles.includes(role.id)) continue;
 					if (role.position >= botHighestRole.position) continue;
-					if (member.roles.length && role.position > memberHighestRole.position && !member.permissions.has("administrator")) continue;
+					if (member.roles.length && role.position > memberHighestRole.position && !member.permissions.has("ADMINISTRATOR")) continue;
 					if (role.managed) continue;
 
 					roles.push(role);
 				}
 
 			if (!roles.length)
-				return interaction.createMessage("There are no roles you can remove");
+				return interaction.createMessage({content: "There are no roles you can remove"});
 
-			const components: ActionRow[] = [
+			const components: MessageActionRow[] = [
 				{
-					type: 1,
+					type: Constants.ComponentTypes.ACTION_ROW,
 					components: [
 						{
-							type: 3,
+							type: Constants.ComponentTypes.STRING_SELECT,
 							placeholder: "Choose roles",
-							custom_id: `roles_${interaction.member?.id}_removeroles`,
-							max_values: roles.length,
-							min_values: 1,
+							customID: `roles_${interaction.member?.id}_removeroles`,
+							maxValues: roles.length,
+							minValues: 1,
 							options: roles.map((r) => ({ label: r.name, value: r.id }))
 						}
 					]
 				}, {
-					type: 1,
+					type: Constants.ComponentTypes.ACTION_ROW,
 					components: [
 						{
-							type: 2,
-							style: 4,
+							type: Constants.ComponentTypes.BUTTON,
+							style: Constants.ButtonStyles.DANGER,
 							label: "Cancel",
-							custom_id: `roles_${interaction.member?.id}_cancel`
+							customID: `roles_${interaction.member?.id}_cancel`
 						}
 					]
 				}
@@ -285,7 +287,7 @@ export default class Roles extends Command {
 					}
 				);
 			} catch (e) {
-				return interaction.createMessage("Error getting roles list.");
+				return interaction.createMessage({content: "Error getting roles list."});
 			}
 		}
 
@@ -301,11 +303,11 @@ export default class Roles extends Command {
 		console.log(component);
 
 
-		switch (component.data.custom_id.split("_")[2]) {
+		switch (component.data.customID.split("_")[2]) {
 
 		case "addroles": {
 
-			if (!(component.data as InteractionComponentSelectMenuData).values.length) {
+			if (!(component.data as MessageComponentSelectMenuInteractionData).values.raw.length) {
 				return;
 			}
 
@@ -314,7 +316,7 @@ export default class Roles extends Command {
 			
 			let	failed = 0;
 
-			for (const value of (component.data as InteractionComponentSelectMenuData).values) {
+			for (const value of (component.data as MessageComponentSelectMenuInteractionData).values.raw) {
 				const role: Role = this.bot.findRole(guild, value) as Role;
 
 				if (!role) {
@@ -353,8 +355,10 @@ export default class Roles extends Command {
 		case "removeroles": {
 			component.deferUpdate();
 
-			if (!(component.data as InteractionComponentSelectMenuData).values.length) {
-				component.acknowledge();
+			if (!(component.data as MessageComponentSelectMenuInteractionData).values.raw.length) {
+				component.createMessage({
+					content: "You must select at least one role.",
+				});
 				return;
 			}
 
@@ -363,7 +367,7 @@ export default class Roles extends Command {
 			
 			let	failed = 0;
 
-			for (const value of (component.data as InteractionComponentSelectMenuData).values) {
+			for (const value of (component.data as MessageComponentSelectMenuInteractionData).values.raw) {
 				const role: Role = this.bot.findRole(guild, value) as Role;
 
 				if (!role) {
