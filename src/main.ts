@@ -5,7 +5,6 @@
 import { Client, ClientOptions, User, Guild, Member, GuildChannel, TextChannel, Role, Constants, CreateChatInputApplicationCommandOptions, CreateApplicationCommandOptions, CreateGuildApplicationCommandOptions, Message } from "oceanic.js";
 import { Constants as CustomConstants, Entity, Permnodes } from "./resources/interfaces";
 import { promises as fs } from "fs";
-import { Auth } from "./resources/auth";
 import * as Config from "./resources/config";
 import * as utils from "./resources/utils";
 import Command from "./Base/Command";
