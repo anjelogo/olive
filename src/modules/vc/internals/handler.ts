@@ -1,5 +1,5 @@
 import { Category, Channel } from "./interfaces";
-import { GuildChannel, Member, VoiceChannel } from "eris";
+import { CategoryChannel, Constants, Member, VoiceChannel } from "oceanic.js";
 import Bot from "../../../main";
 import { moduleData } from "../main";
 import Logging from "../../logging/main";
@@ -12,12 +12,12 @@ export const create = async (bot: Bot, member: Member, channel: VoiceChannel): P
 
 	if (!category || (category && category.channelID !== channel.id)) return;
 
-	const parentOverwrites = (bot.findChannel(channel.guild, category.catID) as GuildChannel).permissionOverwrites.map((p) => ({ id: p.id, type: p.type, allow: Number(p.allow.toString()), deny: Number(p.deny.toString())}));
+	const parentOverwrites = (bot.findChannel(channel.guild, category.catID) as CategoryChannel).permissionOverwrites.map((p) => ({ id: p.id, type: p.type, allow: p.allow, deny: p.deny}));
 
 	const voice = await member.guild.createChannel(
-		data.defaultName.channel.replace("{user}", member.username),
-		2,
+		Constants.ChannelTypes.GUILD_VOICE,
 		{
+			name: data.defaultName.channel.replace("{user}", member.username),
 			parentID: channel.parentID as string,
 			permissionOverwrites: [
 				...parentOverwrites
@@ -41,15 +41,14 @@ export const create = async (bot: Bot, member: Member, channel: VoiceChannel): P
 		description: `Created \`${voice.name}\``,
 		author: {
 			name: "Create New Private Voice Channel",
-			icon_url: member.avatarURL
+			iconURL: member.avatarURL()
 		},
 		color: bot.constants.config.colors.default,
-		timestamp: new Date(),
+		timestamp: new Date().toISOString(),
 		footer: {
 			text: `ID: ${member.id}`
 		}
-	}]})
-
+	}]});
 		
 	category.channels.push(newChannel);
 	await bot.updateModuleData("VC", data, channel.guild);
@@ -72,14 +71,14 @@ export const remove = async (bot: Bot, member: Member, channel: VoiceChannel): P
 		description: `Left \`${channel.name}\``,
 		author: {
 			name: "Left Private Voice Channel",
-			icon_url: member.avatarURL
+			iconURL: member.avatarURL()
 		},
 		color: bot.constants.config.colors.red,
-		timestamp: new Date(),
+		timestamp: new Date().toISOString(),
 		footer: {
 			text: `ID: ${member.id}`
 		}
-	}]})
+	}]});
 
 	if (channel.voiceMembers.size <= 0) {
 
@@ -95,7 +94,7 @@ export const remove = async (bot: Bot, member: Member, channel: VoiceChannel): P
 			description: `Ended \`${channel.name}\``,
 			author: {
 				name: "Ended Private Voice Channel",
-				icon_url: member.avatarURL
+				iconURL: member.avatarURL()
 			},
 			fields: [
 				{
@@ -104,11 +103,11 @@ export const remove = async (bot: Bot, member: Member, channel: VoiceChannel): P
 				}
 			],
 			color: bot.constants.config.colors.default,
-			timestamp: new Date(),
+			timestamp: new Date().toISOString(),
 			footer: {
 				text: `ID: ${member.id}`
 			}
-		}]})
+		}]});
 		
 	} else if (member.id === channelObj.owner) {
 		const members = channel.voiceMembers.filter((m) => m.id !== member.id).map((m) => m.id),
@@ -124,13 +123,13 @@ export const remove = async (bot: Bot, member: Member, channel: VoiceChannel): P
 			description: `Set \`${newOwner.username}\` the owner of \`${channel.name}\``,
 			author: {
 				name: "Transferred Private Voice Channel Ownership",
-					icon_url: member.avatarURL
-				},
+				iconURL: member.avatarURL()
+			},
 			color: bot.constants.config.colors.default,
-			timestamp: new Date(),
+			timestamp: new Date().toISOString(),
 			footer: {
 				text: `ID: ${member.id}`
 			}
-		}]})
+		}]});
 	}
 };

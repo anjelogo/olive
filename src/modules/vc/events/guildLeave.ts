@@ -1,4 +1,4 @@
-import { Guild } from "eris";
+import { Guild } from "oceanic.js";
 import Bot from "../../../main";
 
 export const run = async (bot: Bot, guild: Guild): Promise<void> => {

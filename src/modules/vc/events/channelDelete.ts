@@ -1,8 +1,8 @@
-import { CategoryChannel, NewsChannel, TextChannel, VoiceChannel } from "eris";
+import { Constants, GuildChannel } from "oceanic.js";
 import Bot from "../../../main";
 import { moduleData } from "../main";
 
-export const run = async (bot: Bot, channel: (TextChannel | NewsChannel | VoiceChannel | CategoryChannel)): Promise<void> => {
+export const run = async (bot: Bot, channel: (GuildChannel)): Promise<void> => {
 	if ([0, 5, 13].includes(channel.type)) return;
 
 	const data: moduleData = (await bot.getModuleData("VC", channel.guild) as unknown) as moduleData;
@@ -20,14 +20,14 @@ export const run = async (bot: Bot, channel: (TextChannel | NewsChannel | VoiceC
 		}
 	}
 
-	if (channel.type === 4) {
+	if (channel.type === Constants.ChannelTypes.GUILD_CATEGORY) {
 		const catData = data.categories.find((c) => c.catID === channel.id);
 		
 		if (catData)
 			await deleteCategory(data, catData.catID);
 	}
 
-	if (channel.type === 2) {
+	if (channel.type === Constants.ChannelTypes.GUILD_VOICE) {
 		const catData = data.categories.find((c) => c.channelID === channel.id);
 		
 		if (catData)

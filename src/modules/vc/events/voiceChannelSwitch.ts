@@ -1,5 +1,5 @@
 import { Category, Channel } from "../internals/interfaces";
-import { Member, PrivateChannel, VoiceChannel } from "eris";
+import { Member, VoiceChannel } from "oceanic.js";
 import { create, remove } from "../internals/handler";
 import Bot from "../../../main";
 import { moduleData } from "../main";
@@ -28,14 +28,14 @@ export const run = async (bot: Bot, member: Member, newChannel: VoiceChannel, ol
 				description: `Joined \`${newChannel.name}\``,
 				author: {
 					name: "Joined Private Voice Channel",
-					icon_url: member.avatarURL
+					iconURL: member.avatarURL()
 				},
 				color: bot.constants.config.colors.green,
-				timestamp: new Date(),
+				timestamp: new Date().toISOString(),
 				footer: {
 					text: `ID: ${member.id}`
 				}
-			}]})
+			}]});
 		}
 		else
 			member.edit({ channelID: null });

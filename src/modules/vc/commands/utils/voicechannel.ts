@@ -1,4 +1,4 @@
-import { CommandInteraction, Constants, Embed, Guild, GuildChannel, InteractionDataOptionsSubCommand, InteractionDataOptionsSubCommandGroup, Member, Message, Role, VoiceChannel } from "eris";
+import { CommandInteraction, Constants, Embed, Guild, GuildChannel, Member, Message, Role, VoiceChannel } from "oceanic.js";
 import { Category, Channel } from "../../internals/interfaces";
 import { moduleData } from "../../main";
 import Command from "../../../../Base/Command";
@@ -26,7 +26,6 @@ export default class Voicechannel extends Command {
 						name: "name",
 						type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
 						description: "Set a new name for the voice channel",
-						permissions: ["vc.edit.name"],
 						options: [
 							{
 								name: "name",
@@ -39,7 +38,6 @@ export default class Voicechannel extends Command {
 						name: "category",
 						type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
 						description: "Set a category as a Private VC category",
-						permissions: ["vc.edit.category"],
 						options: [
 							{
 								name: "channel",
@@ -52,7 +50,6 @@ export default class Voicechannel extends Command {
 						name: "owner",
 						type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
 						description: "Set the new owner of the channel",
-						permissions: ["vc.edit.owner"],
 						options: [
 							{
 								name: "member",
@@ -96,60 +93,63 @@ export default class Voicechannel extends Command {
 		const member = interaction.member as Member,
 			guild = this.bot.findGuild(interaction.guildID) as Guild,
 			data: moduleData = (await this.bot.getModuleData("VC", guild) as unknown) as moduleData,
-			subcommand = interaction.data.options?.[0]!! as InteractionDataOptionsSubCommandGroup;
+			subcommand = interaction.data.options.raw[0].name;
 
-		switch(subcommand.name) {
+		switch(subcommand) {
 
 		case "set": {
-			const suboption = subcommand.options?.[0] as InteractionDataOptionsSubCommand,
-			suboptionvalue = suboption.options?.[0].value as string;
+			const suboption = interaction.data.options.getSubCommand(true)[1];
 
-			switch (suboption.name) {
+			if (!suboption) return interaction.createMessage({content: "Could not find suboption!", flags: Constants.MessageFlags.EPHEMERAL});
+
+			switch (suboption) {
 
 			case "name": {
-				if (!member.voiceState.channelID)
-					return interaction.createMessage("You need to be in a Private Voice channel to run this command!");
+				if (!member.voiceState?.channelID)
+					return interaction.createMessage({content: "You need to be in a Private Voice channel to run this command!"});
 
 				const channel: VoiceChannel = this.bot.findChannel(guild, member.voiceState.channelID) as VoiceChannel,
 					cat: Category | undefined = data.categories.find((c: Category) => c.catID === channel.parentID);
 
 				if (!channel || !cat)	
-					return interaction.createMessage("Could not find channel.");
+					return interaction.createMessage({content: "Could not find channel.", flags: Constants.MessageFlags.EPHEMERAL});
 		
 				const channelObj: Channel | undefined = cat.channels.find((c) => c.channelID === channel.id);
 				if (!channelObj)
-					return interaction.createMessage("That Voice Channel is not a Private Voice Channel!");
-				if (channelObj.owner !== member.id) return interaction.createMessage("You're not the owner of this voice channel!");
+					return interaction.createMessage({content: "That Voice Channel is not a Private Voice Channel!"});
+				if (channelObj.owner !== member.id) return interaction.createMessage({content: "You're not the owner of this voice channel!", flags: Constants.MessageFlags.EPHEMERAL});
 				if (!await this.bot.getModule("Main").handlePermission(member, "vc.edit.name", interaction)) return;
 			
+				const newName = interaction.data.options.getString("name", true);
+
 				try {
-					await channel.edit({ name: suboptionvalue });
-					return interaction.createMessage(`${this.constants.emojis.tick} Successfully changed the name of the channel to \`${suboptionvalue}\``);
+					await channel.edit({ name: newName});
+					return interaction.createMessage({content: `${this.constants.emojis.tick} Successfully changed the name of the channel to \`${newName}\``, flags: Constants.MessageFlags.EPHEMERAL});
 				} catch (e) {
-					return interaction.createMessage(`${this.constants.emojis.warning.red} Error trying to edit the channel name! Perhaps insufficient permissions?`);
+					return interaction.createMessage({content: `${this.constants.emojis.warning.red} Error trying to edit the channel name! Perhaps insufficient permissions?`, flags: Constants.MessageFlags.EPHEMERAL});
 				}
 			}
 
 			case "owner": {
-				const newOwner: Member = this.bot.findMember(guild, suboptionvalue) as Member;
+				const newOwner = interaction.data.options.getUser("member", true);
 
-				if (!member.voiceState.channelID)
-					return interaction.createMessage("You need to be in a Private Voice channel to run this command!");
+				if (!member.voiceState?.channelID)
+					return interaction.createMessage({content: "You need to be in a Private Voice channel to run this command!", flags: Constants.MessageFlags.EPHEMERAL});
 
 				const channel: VoiceChannel = this.bot.findChannel(guild, member.voiceState.channelID) as VoiceChannel,
 					cat: Category | undefined = data.categories.find((c: Category) => c.catID === channel.parentID);
 
 				if (!channel || !cat)	
-					return interaction.createMessage("Could not find channel.");
+					return interaction.createMessage({content: "Could not find channel.", flags: Constants.MessageFlags.EPHEMERAL});
 		
 				const channelObj: Channel | undefined = cat.channels.find((c) => c.channelID === channel.id);
 				if (!channelObj)
-					return interaction.createMessage("That Voice Channel is not a Private Voice Channel!");
-				if (channelObj.owner !== member.id) return interaction.createMessage("You're not the owner of this voice channel!");
+					return interaction.createMessage({content: "That Voice Channel is not a Private Voice Channel!", flags: Constants.MessageFlags.EPHEMERAL});
+				if (channelObj.owner !== member.id) return interaction.createMessage({content: "You're not the owner of this voice channel!", flags: Constants.MessageFlags.EPHEMERAL});
 				if (!await this.bot.getModule("Main").handlePermission(member, "vc.edit.owner", interaction)) return;
 
 				if (!newOwner || !channel.voiceMembers.map((m) => m.id).includes(newOwner.id))
-					return interaction.createMessage("The new owner needs to be in the voicechannel!");
+					return interaction.createMessage({content: "The user is not in the voice channel!", flags: Constants.MessageFlags.EPHEMERAL});
 						
 				channelObj.owner = newOwner.id;
 						
@@ -163,34 +163,41 @@ export default class Voicechannel extends Command {
 						description: `Set \`${newOwner.username}\` the owner of \`${channel.name}\``,
 						author: {
 							name: "Transferred Private Voice Channel Ownership",
-							icon_url: member.avatarURL
+							iconURL: member.avatarURL()
 						},
 						color: this.bot.constants.config.colors.default,
-						timestamp: new Date(),
+						timestamp: new Date().toISOString(),
 						footer: {
 							text: `ID: ${member.id}`
 						}
-					}]})
+					}]});
 
-					return interaction.createMessage(`${this.constants.emojis.tick} Successfully transferred ownership of Private Channel to \`${newOwner.username}\``);
+					// message the new owner
+					const newOwnerDM = await newOwner.createDM();
+					await newOwnerDM.createMessage({content: `You are now the owner of \`${channel.name}\` in \`${channel.guild.name}\`!`});
+
+					return interaction.createMessage({content: `${this.constants.emojis.tick} Successfully transferred ownership of Private Channel to \`${newOwner.username}\``, flags: Constants.MessageFlags.EPHEMERAL});
 				} catch (e) {
-					return interaction.createMessage(`${this.constants.emojis.warning.red} Error trying to edit the channel owner!`);
+					return interaction.createMessage({content: `${this.constants.emojis.warning.red} Error trying to edit the channel owner!`});
 				}
 			}
 
 			case "category": {
-				const channel: GuildChannel = this.bot.findChannel(guild, suboptionvalue) as GuildChannel;
+				const channel = interaction.data.options.getChannel("channel", true);
 
-				if (channel.type !== 4)
-					return interaction.createMessage("That channel is not a category!");
+				if (channel.type !== Constants.ChannelTypes.GUILD_CATEGORY)
+					return interaction.createMessage({content: "That channel is not a category!"});
 
 				const categories: Category[] = data.categories;
 
 				if (categories.map((c) => c.catID).includes(channel.id))
-					return interaction.createMessage("That category already exists as a Private Voice Channel Category!");
+					return interaction.createMessage({content: "That category already exists as a Private Voice Channel Category!"});
 				if (!await this.bot.getModule("Main").handlePermission(member, "vc.edit.category", interaction)) return;
 
-				const voice = await guild.createChannel(data.defaultName.category, 2, { parentID: channel.id }),
+				const voice = await guild.createChannel(Constants.ChannelTypes.GUILD_VOICE, {
+						name: data.defaultName.category,
+						parentID: channel.id,
+					}),
 					newCat: Category = {
 						catID: channel.id,
 						channelID: voice.id,
@@ -201,10 +208,10 @@ export default class Voicechannel extends Command {
 
 				try {
 					await this.bot.updateModuleData("VC", data, guild);
-					await interaction.createMessage(`${this.constants.emojis.tick} Successfully made \`${channel.name}\` a Private VC category. You can manually rename \`${voice.name}\` to change the name.`);
+					await interaction.createMessage({content: `${this.constants.emojis.tick} Successfully made \`${channel.name}\` a Private VC category. You can manually rename \`${voice.name}\` to change the name.`, flags: Constants.MessageFlags.EPHEMERAL});
 					return interaction.createFollowup({ content: `${this.bot.constants.emojis.warning.yellow} To remove the channel, simply delete the channel.`, flags: Constants.MessageFlags.EPHEMERAL});
 				} catch (e) {
-					return interaction.createMessage(`${this.constants.emojis.warning.red} Error trying to add category!`);
+					return interaction.createMessage({content: `${this.constants.emojis.warning.red} Error trying to add category!`, flags: Constants.MessageFlags.EPHEMERAL});
 				}
 			}
 
@@ -214,23 +221,23 @@ export default class Voicechannel extends Command {
 		}
 
 		case "lock": {
-			if (!member.voiceState.channelID)
-				return interaction.createMessage("You need to be in a Private Voice channel to run this command!");
+			if (!member.voiceState?.channelID)
+				return interaction.createMessage({content: "You need to be in a Private Voice channel to run this command!", flags: Constants.MessageFlags.EPHEMERAL});
 
 			const channel: VoiceChannel = this.bot.findChannel(guild, member.voiceState.channelID) as VoiceChannel,
 				cat: Category | undefined = data.categories.find((c: Category) => c.catID === channel.parentID);
 
 			if (!channel || !cat)	
-				return interaction.createMessage("Could not find channel.");
+				return interaction.createMessage({content: "Could not find channel.", flags: Constants.MessageFlags.EPHEMERAL});
 
 			const channelObj: Channel | undefined = cat.channels.find((c) => c.channelID === channel.id);
 			if (!channelObj)
-				return interaction.createMessage("That Voice Channel is not a Private Voice Channel!");
-			if (channelObj.owner !== member.id) return interaction.createMessage("You're not the owner of this voice channel!");
+				return interaction.createMessage({content: "That Voice Channel is not a Private Voice Channel!"});
+			if (channelObj.owner !== member.id) return interaction.createMessage({content: "You're not the owner of this voice channel!", flags: Constants.MessageFlags.EPHEMERAL});
 			if (!await this.bot.getModule("Main").handlePermission(member, "VC.lock", interaction)) return;
 			
 			if (channelObj.locked)
-				return interaction.createMessage("This channel is already locked!");
+				return interaction.createMessage({content: "This channel is already locked!", flags: Constants.MessageFlags.EPHEMERAL});
 
 			channelObj.locked = true;
 
@@ -238,76 +245,74 @@ export default class Voicechannel extends Command {
 				const existingOverwrites = channel.permissionOverwrites.map((p) => ({ id: p.id, type: p.type, allow: Number(p.allow.toString()), deny: Number(p.deny.toString()) }));
 
 				for (const overwrite of existingOverwrites)
-					await channel.editPermission(overwrite.id, 35652096, 1048576, overwrite.type);
+					await channel.editPermission(overwrite.id, { allow: BigInt(35652096), deny: BigInt(1048576), type: overwrite.type});
 
-				await channel.editPermission((this.bot.findRole(guild, "@everyone") as Role).id, 35652096, 1048576, Constants.PermissionOverwriteTypes.ROLE);
+				await channel.editPermission((this.bot.findRole(guild, "@everyone") as Role).id, { allow: BigInt(35652096), deny: BigInt(1048576), type: Constants.OverwriteTypes.ROLE});
 
 				await this.bot.updateModuleData("VC", data, guild);
 				return interaction.createMessage({ content: `${this.bot.constants.emojis.tick} Locked channel!`, flags: Constants.MessageFlags.EPHEMERAL });
 			} catch (e) {
-				return interaction.createMessage(`${this.constants.emojis.warning.red} Error trying to lock channel!`);
+				return interaction.createMessage({content: `${this.constants.emojis.warning.red} Error trying to lock channel!`, flags: Constants.MessageFlags.EPHEMERAL});
 			}
 		}
 
 		case "unlock": {
-			if (!member.voiceState.channelID)
-				return interaction.createMessage("You need to be in a Private Voice channel to run this command!");
+			if (!member.voiceState?.channelID)
+				return interaction.createMessage({content: "You need to be in a Private Voice channel to run this command!", flags: Constants.MessageFlags.EPHEMERAL});
 
 			const channel: VoiceChannel = this.bot.findChannel(guild, member.voiceState.channelID) as VoiceChannel,
 				cat: Category | undefined = data.categories.find((c: Category) => c.catID === channel.parentID);
 
 			if (!channel || !cat)	
-				return interaction.createMessage("Could not find channel.");
+				return interaction.createMessage({content: "Could not find channel.", flags: Constants.MessageFlags.EPHEMERAL});
 
 			const channelObj: Channel | undefined = cat.channels.find((c) => c.channelID === channel.id);
 			if (!channelObj)
-				return interaction.createMessage("That Voice Channel is not a Private Voice Channel!");
-			if (channelObj.owner !== member.id) return interaction.createMessage("You're not the owner of this voice channel!");
+				return interaction.createMessage({content: "That Voice Channel is not a Private Voice Channel!", flags: Constants.MessageFlags.EPHEMERAL});
+			if (channelObj.owner !== member.id) return interaction.createMessage({content: "You're not the owner of this voice channel!", flags: Constants.MessageFlags.EPHEMERAL});
 			if (!await this.bot.getModule("Main").handlePermission(member, "vc.lock", interaction)) return;
 
 			channelObj.locked = false;
 
 			try {
 				for (const overwrite of channelObj.parentOverwrites)
-					await channel.editPermission(overwrite.id, overwrite.allow, overwrite.deny, overwrite.type);
+					await channel.editPermission(overwrite.id, { allow: overwrite.allow, deny: overwrite.deny, type: overwrite.type });
 
-				await channel.editPermission((this.bot.findRole(guild, "@everyone") as Role).id, 0, 0, Constants.PermissionOverwriteTypes.ROLE);
+				await channel.editPermission((this.bot.findRole(guild, "@everyone") as Role).id, { allow: undefined, deny: undefined, type: Constants.OverwriteTypes.ROLE});
 
 				await this.bot.updateModuleData("VC", data, guild);
 				return interaction.createMessage({ content: `${this.bot.constants.emojis.tick} Unlocked channel!`, flags: Constants.MessageFlags.EPHEMERAL });
 			} catch (e) {
-				return interaction.createMessage(`${this.constants.emojis.warning.red} Error trying to unlock channel!`);
+				return interaction.createMessage({content: `${this.constants.emojis.warning.red} Error trying to unlock channel!`, flags: Constants.MessageFlags.EPHEMERAL});
 			}
 		}
 
 		case "information": {
-			const selectedChannel = subcommand.options[0] ? subcommand.options[0].value as string : member.voiceState.channelID;
+			let channel = interaction.data.options.getChannel("channel", false) as VoiceChannel | undefined;
 
-			if (!selectedChannel)
-				return interaction.createMessage("Specify or join a private voice channel to the information of a channel!");
+			if (!channel && member.voiceState?.channelID)
+				channel = this.bot.getChannel(member.voiceState.channelID);
+			else if (!channel)
+				return interaction.createMessage({content: "Specify or join a private voice channel to the information of a channel!", flags: Constants.MessageFlags.EPHEMERAL});
 			
 			const status = {
-					locked: ":lock: Locked",
-					unlocked: ":unlock: Unlocked"
-				},	
-				channel: GuildChannel | undefined = this.bot.findChannel(guild, selectedChannel);
+				locked: ":lock: Locked",
+				unlocked: ":unlock: Unlocked"
+			};
 
-			if (!channel)
-				return interaction.createMessage("Not a valid channel!");
-
-			const cat: Category | undefined = data.categories.find((c: Category) => c.catID === channel.parentID);
+			const cat: Category | undefined = data.categories.find((c: Category) => c.catID === channel!.parentID);
 
 			if (!cat)
-				return interaction.createMessage("That's not a Private Voice Channel!");
+				return interaction.createMessage({content: "That's not a Private Voice Channel!", flags: Constants.MessageFlags.EPHEMERAL});
 
-			const channelObj: Channel | undefined = cat.channels.find((c) => c.channelID === channel.id);
+			const channelObj: Channel | undefined = cat.channels.find((c) => c.channelID === channel!.id);
 				
 			if (!channelObj)
-				return interaction.createMessage("That's not a Private Voice Channel!");
+				return interaction.createMessage({content: "That's not a Private Voice Channel!", flags: Constants.MessageFlags.EPHEMERAL});
 				
 			const owner: Member | undefined = this.bot.findMember(guild, channelObj.owner),
 				embed: Embed = {
-					title: channel.name,
+					title: channel!.name,
 					fields: [
 						{
 							name: "Owner",
