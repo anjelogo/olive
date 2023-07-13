@@ -1,5 +1,5 @@
 import { Constants, ApplicationCommandTypes, CommandInteraction, ComponentInteraction, Message, ApplicationCommandOptions } from "oceanic.js";
-import Bot from "../main";
+import ExtendedClient from "./Client";
 import { Constants as CustomConstants } from "../resources/interfaces";
 
 export type Options =  ApplicationCommandOptions & {
@@ -21,13 +21,13 @@ export default class Command {
 	public permissions?: string[];
 	public requirePerms?: keyof typeof Constants.Permissions;
 	public options?: Options[];
-	public bot: Bot;
+	public bot: ExtendedClient;
 	public constants: CustomConstants;
 	public guildSpecific?: string[];
 	public execute: (interaction: CommandInteraction) => Promise<Message | undefined | void> | undefined;
 	public update: (component: ComponentInteraction) => Promise<Message | undefined | void> | undefined;
 
-	constructor(bot: Bot) {
+	constructor(bot: ExtendedClient) {
 		this.commands = [];
 		this.description = "No Description Available :(";
 		this.example = "No Example Available :(";

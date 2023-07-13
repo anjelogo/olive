@@ -1,5 +1,5 @@
 import Module, { moduleDataStructure } from "../../Base/Module";
-import Bot from "../../main";
+import ExtendedClient from "../../Base/Client";
 
 export type CaseActionTypes = ("ban" | "kick" | "timeout" | "warn");
 
@@ -36,7 +36,7 @@ export default class Moderation extends Module {
 	readonly path: string;
 	readonly db: boolean;
 
-	constructor (bot: Bot) {
+	constructor (bot: ExtendedClient) {
 		super(bot);
 
 		this.name = "Moderation";

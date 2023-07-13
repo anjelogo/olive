@@ -1,11 +1,11 @@
 import { CommandInteraction, Constants, Guild, Message } from "oceanic.js";
 import Command from "../../../../Base/Command";
-import Bot from "../../../../main";
+import ExtendedClient from "../../../../Base/Client";
 import { moduleData } from "../../main";
 
 export default class Saveroles extends Command {
 
-	constructor(bot: Bot) {
+	constructor(bot: ExtendedClient) {
 		super(bot);
 
 		this.commands = ["saveroles"];
@@ -26,7 +26,7 @@ export default class Saveroles extends Command {
 
 		await this.bot.updateModuleData("Roles", data, guild);
 
-		return interaction.createMessage({
+		return interaction.createFollowup({
 			content: `${this.bot.constants.emojis.tick} Role Saving has been ${savedRoles.enabled ? "enabled" : "disabled"}`,
 			flags: Constants.MessageFlags.EPHEMERAL
 		});

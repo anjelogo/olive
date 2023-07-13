@@ -1,13 +1,13 @@
 import { CommandInteraction, Constants, Guild, Member, Message, Role } from "oceanic.js";
 import Command from "../../../../Base/Command";
-import Bot from "../../../../main";
+import ExtendedClient from "../../../../Base/Client";
 import { autoCalculateInfractions, punish } from "../../internals/punishmentHandler";
 import uniqid from "uniqid";
 import { Case } from "../../main";
 
 export default class Kick extends Command {
 
-	constructor(bot: Bot) {
+	constructor(bot: ExtendedClient) {
 
 		super(bot);
 
@@ -39,13 +39,13 @@ export default class Kick extends Command {
 			memberString = interaction.data.options.getString("user", true);
 
 		if (!moderator)
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.x} I couldn't find you in the server!`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
 			
 		if (!memberString)
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.x} You must specify a user to kick!`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
@@ -53,7 +53,7 @@ export default class Kick extends Command {
 		const userToKick = this.bot.findMember(guild, memberString) as Member;
 
 		if (!userToKick)
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.x} I couldn't find that user!`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
@@ -89,27 +89,27 @@ export default class Kick extends Command {
 			userToKickHighestRole = this.bot.findRole(guild, userToKickHighestRoleID[0]) as Role;
 
 		if (userToKick.id === moderator.id)
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.x} You can't kick yourself!`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
 		if (userToKick.id === guild.ownerID)
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.x} You can't kick the server owner!`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
 		if (userToKickHighestRole.position > memberHighestRole.position)
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.x} You can't kick a user with a higher role than you!`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
 		if (userToKickHighestRole.position > botHighestRole.position)
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.x} User has a role higher than the bot!`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
 		if (userToKickHighestRole.position === botHighestRole.position)
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.x} User has the same role as the bot!`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
@@ -131,7 +131,7 @@ export default class Kick extends Command {
 		await punish(this.bot, guild, caseData);
 		await autoCalculateInfractions(this.bot, userToKick);
 
-		return interaction.createMessage({
+		return interaction.createFollowup({
 			content: `${this.bot.constants.emojis.check} Kicked \`${userToKick.username}#${userToKick.discriminator}\` for \`${reason}\``,
 			flags: Constants.MessageFlags.EPHEMERAL
 		});

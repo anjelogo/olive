@@ -1,6 +1,6 @@
 import { CommandInteraction, ComponentInteraction, Constants, Embed, EmbedField, Guild, Member, Message, MessageActionRow, Role } from "oceanic.js";
 import Command from "../../../../Base/Command";
-import Bot from "../../../../main";
+import ExtendedClient from "../../../../Base/Client";
 import { Entity } from "../../../../resources/interfaces";
 import { upsertCustomData, getCustomData } from "../../internals/CustomDataHandler";
 import { Permissions } from "../../internals/permissions";
@@ -8,7 +8,7 @@ import { moduleData } from "../../main";
 
 export default class Permnode extends Command {
 	
-	constructor(bot: Bot) {
+	constructor(bot: ExtendedClient) {
 
 		super(bot);
 
@@ -370,7 +370,7 @@ export default class Permnode extends Command {
 			moduleData: moduleData = (await this.bot.getModuleData("Main", guild) as unknown) as moduleData,
 			permissions: Permissions[] = moduleData.permissions;
 
-		async function constructEmbed(bot: Bot, interaction: (ComponentInteraction | CommandInteraction), id: string) {
+		async function constructEmbed(bot: ExtendedClient, interaction: (ComponentInteraction | CommandInteraction), id: string) {
 			const role: Role = bot.findRole(guild, id) as Role,
 				roleData: Permissions | undefined = (permissions.find((p: Permissions) => p.roleID === role.id)),
 				strings: string[] = [];

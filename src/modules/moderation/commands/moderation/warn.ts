@@ -1,13 +1,13 @@
 import { CommandInteraction, Constants, Guild, Member, Message, Role } from "oceanic.js";
 import Command from "../../../../Base/Command";
-import Bot from "../../../../main";
+import ExtendedClient from "../../../../Base/Client";
 import { autoCalculateInfractions, punish } from "../../internals/punishmentHandler";
 import uniqid from "uniqid";
 import { Case } from "../../main";
 
 export default class Warn extends Command {
 
-	constructor(bot: Bot) {
+	constructor(bot: ExtendedClient) {
 
 		super(bot);
 
@@ -39,13 +39,13 @@ export default class Warn extends Command {
 			memberString = interaction.data.options.getString("user", true);
 
 		if (!moderator)
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.x} You must specify a user to warn!`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
 
 		if (!memberString)
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.x} You must specify a user to warn!`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
@@ -53,7 +53,7 @@ export default class Warn extends Command {
 		const userToWarn = this.bot.findMember(guild, memberString) as Member;
 
 		if (!userToWarn)
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.x} I couldn't find that user!`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
@@ -89,27 +89,27 @@ export default class Warn extends Command {
 			userToWarnHighestRole = this.bot.findRole(guild, userToWarnHighestRoleID[0]) as Role;
 
 		if (userToWarn.id === moderator.id)
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.x} You can't warn yourself!`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
 		if (userToWarn.id === guild.ownerID)
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.x} You can't warn the server owner!`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
 		if (userToWarnHighestRole.position > memberHighestRole.position)
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.x} You can't warn a user with a higher role than you!`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
 		if (userToWarnHighestRole.position > botHighestRole.position)
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.x} User has a role higher than the bot!`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
 		if (userToWarnHighestRole.position === botHighestRole.position)
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.x} User has the same role as the bot!`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
@@ -131,7 +131,7 @@ export default class Warn extends Command {
 		await punish(this.bot, guild, caseData);
 		await autoCalculateInfractions(this.bot, userToWarn);
 
-		return interaction.createMessage({
+		return interaction.createFollowup({
 			content: `${this.bot.constants.emojis.check} Warned \`${userToWarn.username}#${userToWarn.discriminator}\` for \`${reason}\``,
 			flags: Constants.MessageFlags.EPHEMERAL
 		});

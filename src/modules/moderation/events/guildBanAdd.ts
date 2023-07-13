@@ -1,10 +1,10 @@
 import { Constants, Guild, Member, User } from "oceanic.js";
-import Bot from "../../../main";
+import ExtendedClient from "../../../Base/Client";
 import { addCase, getCases } from "../internals/caseHandler";
 import { createLogEntry } from "../internals/logHandler";
 import { Case } from "../main";
 
-export const run = async (bot: Bot, guild: Guild, user: User): Promise<void> => {
+export const run = async (bot: ExtendedClient, guild: Guild, user: User): Promise<void> => {
     
 	const Cases = await getCases(bot, guild, user.id),
 		audit = await guild.getAuditLog({

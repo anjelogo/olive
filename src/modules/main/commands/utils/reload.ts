@@ -1,10 +1,10 @@
 import { CommandInteraction, ComponentInteraction, Constants, Message } from "oceanic.js";
 import Command from "../../../../Base/Command";
-import Bot from "../../../../main";
+import ExtendedClient from "../../../../Base/Client";
 
 export default class Reload extends Command {
 	
-	constructor(bot: Bot) {
+	constructor(bot: ExtendedClient) {
 
 		super(bot);
 

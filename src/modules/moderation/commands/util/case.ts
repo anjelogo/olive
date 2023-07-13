@@ -1,13 +1,13 @@
 import { CommandInteraction, Constants, Guild, Member, Message, TextChannel } from "oceanic.js";
 import Command from "../../../../Base/Command";
-import Bot from "../../../../main";
+import ExtendedClient from "../../../../Base/Client";
 import { moduleData, Case as CaseStructure} from "../../main";
 import { moduleData as LoggingModuleData } from "../../../logging/main";
 import { removeCase, resolveCase } from "../../internals/caseHandler";
 
 export default class Case extends Command {
 
-	constructor (bot: Bot) {
+	constructor (bot: ExtendedClient) {
 
 		super(bot);
 
@@ -76,7 +76,7 @@ export default class Case extends Command {
 			Case = data.cases.find((c) => c.id === caseID);
 
 		if (!Case)
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.x} I could not find that case.`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
@@ -97,7 +97,7 @@ export default class Case extends Command {
 				const logCase = channelsWithCases.map((c) => c.cases!.find((c) => c.caseID === Case.id))[0];
 
 				if (!logCase)
-					return interaction.createMessage({
+					return interaction.createFollowup({
 						content: `${this.bot.constants.emojis.x} I could not find that case.`,
 						flags: Constants.MessageFlags.EPHEMERAL
 					});
@@ -105,12 +105,12 @@ export default class Case extends Command {
 				const logMessage = this.bot.findMessage(this.bot.getChannel(logCase.channelID) as TextChannel, logCase.messageID);
 
 				if (!logMessage)
-					return interaction.createMessage({
+					return interaction.createFollowup({
 						content: `${this.bot.constants.emojis.x} I could not find that case.`,
 						flags: Constants.MessageFlags.EPHEMERAL
 					});
 
-				return interaction.createMessage({
+				return interaction.createFollowup({
 					embeds: [logMessage.embeds[0]],
 					flags: Constants.MessageFlags.EPHEMERAL
 				});
@@ -122,7 +122,7 @@ export default class Case extends Command {
 
 		case "resolve": {
 			if (Case.resolved)
-				return interaction.createMessage({
+				return interaction.createFollowup({
 					content: `${this.bot.constants.emojis.x} That case has already been resolved.`,
 					flags: Constants.MessageFlags.EPHEMERAL
 				});
@@ -132,7 +132,7 @@ export default class Case extends Command {
 
 			await resolveCase(this.bot, guild, Case.id, member.id, reason as string);
 			
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.check} Case \`${Case.id}\` has been resolved.`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
@@ -141,7 +141,7 @@ export default class Case extends Command {
 		case "delete": {
 			await removeCase(this.bot, guild, Case.id);
 
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.check} Case \`${Case.id}\` has been deleted.`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});

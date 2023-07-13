@@ -2,7 +2,7 @@ import { Permissions, Permission } from "./internals/permissions";
 import { Permnodes } from "../../resources/interfaces";
 import { CommandInteraction, Constants, Embed, EmbedField, Member, PrivateChannel } from "oceanic.js";
 import Module, { moduleDataStructure } from "../../Base/Module";
-import Bot from "../../main";
+import ExtendedClient from "../../Base/Client";
 import Command from "../../Base/Command";
 
 export interface moduleData extends moduleDataStructure {
@@ -23,7 +23,7 @@ export default class Main extends Module {
 	readonly weight: number;
 	readonly db: boolean;
 
-	constructor (bot: Bot) {
+	constructor (bot: ExtendedClient) {
 		super(bot);
 
 		this.name = "Main";

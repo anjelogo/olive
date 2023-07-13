@@ -1,8 +1,8 @@
 import { Guild, Member, User } from "oceanic.js";
-import Bot from "../../../main";
+import ExtendedClient from "../../../Base/Client";
 import Logging from "../main";
 
-export const run = async (bot: Bot, guild: Guild, member: Member | { id: string; user: User }): Promise<void> => {
+export const run = async (bot: ExtendedClient, guild: Guild, member: Member | { id: string; user: User }): Promise<void> => {
 
 	const logging = await bot.getModule("Logging") as Logging;
 

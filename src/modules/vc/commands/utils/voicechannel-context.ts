@@ -1,11 +1,11 @@
 import { CommandInteraction, Constants, Message } from "oceanic.js";
 import Command from "../../../../Base/Command";
-import Bot from "../../../../main";
+import ExtendedClient from "../../../../Base/Client";
 import Voicechannel from "./voicechannel";
 
 export default class VoicechannelContext extends Command {
   
-	constructor(bot: Bot) {
+	constructor(bot: ExtendedClient) {
 		super(bot);
 
 		this.commands = ["Set Voice Channel Owner"];

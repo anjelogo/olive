@@ -1,10 +1,10 @@
 import { CommandInteraction, Constants, Message } from "oceanic.js";
 import Command from "../../../../Base/Command";
-import Bot from "../../../../main";
+import ExtendedClient from "../../../../Base/Client";
 import Starboard from "./starboard";
 
 export default class StarboardContext extends Command { 
-	constructor(bot: Bot) {
+	constructor(bot: ExtendedClient) {
 		super(bot);
 
 		this.commands = ["View Stars"];

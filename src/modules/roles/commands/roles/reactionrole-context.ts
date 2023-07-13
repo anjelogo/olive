@@ -1,10 +1,10 @@
 import { CommandInteraction, Constants, Message } from "oceanic.js";
 import Command from "../../../../Base/Command";
-import Bot from "../../../../main";
+import ExtendedClient from "../../../../Base/Client";
 import Reactionrole from "./reactionrole";
 
 export default class ReactionroleContext extends Command {
-	constructor(bot: Bot) {
+	constructor(bot: ExtendedClient) {
 		super(bot);
 
 		this.commands = ["Create/Edit Reaction Role"];

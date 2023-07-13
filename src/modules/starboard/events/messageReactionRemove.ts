@@ -1,8 +1,8 @@
 import { Emoji, Guild, Member, Message } from "oceanic.js";
-import Bot from "../../../main";
+import ExtendedClient from "../../../Base/Client";
 import { handleStarredMessage } from "../internals/starHandler";
 
-export const run = async (bot: Bot, msg: Message, emoji: Partial<Emoji>, userID: string) => {
+export const run = async (bot: ExtendedClient, msg: Message, emoji: Partial<Emoji>, userID: string) => {
 	if (emoji.name !== "⭐") return;
 
 	if (!msg || !emoji || !userID || !msg.guildID) return;

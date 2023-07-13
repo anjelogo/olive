@@ -1,8 +1,8 @@
 import { remove } from "../internals/handler";
 import { Member, VoiceChannel } from "oceanic.js";
-import Bot from "../../../main";
+import ExtendedClient from "../../../Base/Client";
 
-export const run = async (bot: Bot, member: Member, channel: VoiceChannel): Promise<void> => {
+export const run = async (bot: ExtendedClient, member: Member, channel: VoiceChannel): Promise<void> => {
 
 	await remove(bot, member, channel);
 

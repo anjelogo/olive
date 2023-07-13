@@ -2,7 +2,7 @@
 
 import { Permnodes, Constants } from "../resources/interfaces";
 import { promises as fs } from "fs";
-import Bot from "../main";
+import ExtendedClient from "./Client";
 import Command from "./Command";
 import { Guild } from "oceanic.js";
 
@@ -15,14 +15,14 @@ export default class Module {
 
 	readonly name: string;
 	readonly version: string;
-	readonly bot: Bot;
+	readonly bot: ExtendedClient;
 	readonly constants: Constants;
 	readonly path: string;
 	readonly weight: number;
 	readonly db?: boolean;
 	readonly moduleData: unknown;
 
-	constructor (bot: Bot) {
+	constructor (bot: ExtendedClient) {
 
 		this.name = "";
 		this.version = "0.0";

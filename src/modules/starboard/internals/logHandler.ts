@@ -1,10 +1,10 @@
 import { Guild, Message, TextChannel } from "oceanic.js";
-import Bot from "../../../main";
+import ExtendedClient from "../../../Base/Client";
 import Logging from "../../logging/main";
 import { messageDataStructure, moduleData } from "../main";
 import { moduleData as LoggingModuleData } from "../../logging/main";
 
-export const createLogEntry = async (bot: Bot, guild: Guild, message: Message): Promise<void> => {
+export const createLogEntry = async (bot: ExtendedClient, guild: Guild, message: Message): Promise<void> => {
 
 	const star = {
 			small: "⭐",
@@ -19,7 +19,6 @@ export const createLogEntry = async (bot: Bot, guild: Guild, message: Message): 
 	const loggingObj: any = {
 		content: `${stars} **${messageData.stars.length}** <#${message.channelID}>\n(${messageData.messageID})`,
 		embeds: [{  
-			type: "rich",
 			author: {
 				name: message.author.username,
 				iconURL: message.author.avatarURL()
@@ -46,7 +45,7 @@ export const createLogEntry = async (bot: Bot, guild: Guild, message: Message): 
 
 };
 
-export async function removeLogEntry(bot: Bot, guild: Guild, starID: string): Promise<void> {
+export async function removeLogEntry(bot: ExtendedClient, guild: Guild, starID: string): Promise<void> {
 
 	const guildLoggingData = await bot.getModuleData("Logging", guild) as LoggingModuleData,
 		loggingChannels = guildLoggingData.channels.filter((c) => c.types.includes("starboard"));
@@ -74,7 +73,7 @@ export async function removeLogEntry(bot: Bot, guild: Guild, starID: string): Pr
 
 }
 
-export async function updateLogEntry(bot: Bot, guild: Guild, starID: string) {
+export async function updateLogEntry(bot: ExtendedClient, guild: Guild, starID: string) {
 
 	const guildLoggingData = await bot.getModuleData("Logging", guild) as LoggingModuleData,
 		loggingChannels = guildLoggingData.channels.filter((c) => c.types.includes("starboard"));

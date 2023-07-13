@@ -1,10 +1,10 @@
 import { CommandInteraction, Message } from "oceanic.js";
 import Command from "../../../../Base/Command";
-import Bot from "../../../../main";
+import ExtendedClient from "../../../../Base/Client";
 
 export default class Ping extends Command {
 	
-	constructor(bot: Bot) {
+	constructor(bot: ExtendedClient) {
 
 		super(bot);
 
@@ -18,7 +18,7 @@ export default class Ping extends Command {
 	readonly execute = async (interaction: CommandInteraction): Promise<Message | void> => {
 		await interaction.defer();
 		
-		return interaction.createMessage({
+		return interaction.createFollowup({
 			content: "Pong 🏓",
 			embeds: [
 				{

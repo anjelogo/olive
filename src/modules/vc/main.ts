@@ -1,5 +1,5 @@
 import Module, { moduleDataStructure } from "../../Base/Module";
-import Bot from "../../main";
+import ExtendedClient from "../../Base/Client";
 import { Category } from "./internals/interfaces";
 
 export interface moduleData extends moduleDataStructure {
@@ -19,7 +19,7 @@ export default class VC extends Module {
 	readonly path: string;
 	readonly db: boolean;
 
-	constructor (bot: Bot) {
+	constructor (bot: ExtendedClient) {
 		super(bot);
 
 		this.name = "VC";

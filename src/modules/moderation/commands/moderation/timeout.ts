@@ -1,13 +1,13 @@
 import { CommandInteraction, Constants, Guild, Member, Message, Role } from "oceanic.js";
 import Command from "../../../../Base/Command";
-import Bot from "../../../../main";
+import ExtendedClient from "../../../../Base/Client";
 import { autoCalculateInfractions, punish } from "../../internals/punishmentHandler";
 import uniqid from "uniqid";
 import { Case } from "../../main";
 
 export default class Timeout extends Command {
 
-	constructor(bot: Bot) {
+	constructor(bot: ExtendedClient) {
 
 		super(bot);
 
@@ -39,13 +39,13 @@ export default class Timeout extends Command {
 			memberString = interaction.data.options.getString("user", true);
 
 		if (!moderator)
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.x} I couldn't find you in the server!`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
 
 		if (!memberString)
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.x} You must specify a user to timeout!`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
@@ -53,7 +53,7 @@ export default class Timeout extends Command {
 		const userToTimeOut = this.bot.findMember(guild, memberString) as Member;
 
 		if (!userToTimeOut)
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.x} I couldn't find that user!`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
@@ -89,27 +89,27 @@ export default class Timeout extends Command {
 			userToTimeOutHighestRole = this.bot.findRole(guild, userToTimeOutHighestRoleID[0]) as Role;
 
 		if (userToTimeOut.id === moderator.id)
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.x} You can't time yourself out!`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
 		if (userToTimeOut.id === guild.ownerID)
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.x} You can't time the server owner out!`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
 		if (userToTimeOutHighestRole.position > memberHighestRole.position)
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.x} You can't put a user with a higher role than you on time out!`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
 		if (userToTimeOutHighestRole.position > botHighestRole.position)
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.x} User has a role higher than the bot!`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
 		if (userToTimeOutHighestRole.position === botHighestRole.position)
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.x} User has the same role as the bot!`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
@@ -131,7 +131,7 @@ export default class Timeout extends Command {
 		await punish(this.bot, guild, caseData);
 		await autoCalculateInfractions(this.bot, userToTimeOut);
 
-		return interaction.createMessage({
+		return interaction.createFollowup({
 			content: `${this.bot.constants.emojis.check} Placed \`${userToTimeOut.username}#${userToTimeOut.discriminator}\` on Time Out for \`${reason}\``,
 			flags: Constants.MessageFlags.EPHEMERAL
 		});

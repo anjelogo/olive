@@ -1,8 +1,8 @@
 import { Guild, Role } from "oceanic.js";
-import Bot from "../../../main";
+import ExtendedClient from "../../../Base/Client";
 import { moduleData } from "../main";
 
-export const run = async (bot: Bot, guild: Guild, role: Role): Promise<void> => {
+export const run = async (bot: ExtendedClient, guild: Guild, role: Role): Promise<void> => {
 
 	if (!guild || !role) return;
 

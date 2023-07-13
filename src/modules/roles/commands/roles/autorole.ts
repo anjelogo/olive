@@ -1,11 +1,11 @@
 import { CommandInteraction, Constants, Embed, Guild, Member, Message, Role } from "oceanic.js";
 import Command from "../../../../Base/Command";
-import Bot from "../../../../main";
+import ExtendedClient from "../../../../Base/Client";
 import { moduleData } from "../../main";
 
 export default class Autorole extends Command {
 
-	constructor(bot: Bot) {
+	constructor(bot: ExtendedClient) {
 
 		super(bot);
 
@@ -87,51 +87,51 @@ export default class Autorole extends Command {
 			const subcommand = interaction.data.options.getSubCommand(true)[1];
 
 			if (!subcommand)
-				return interaction.createMessage({content: "Subcommand not found", flags: Constants.MessageFlags.EPHEMERAL});
+				return interaction.createFollowup({content: "Subcommand not found", flags: Constants.MessageFlags.EPHEMERAL});
 
 			const role = interaction.data.options.getRole("role", true);
 
 			switch(subcommand) {
 			case "add": {
 				if (data.autoRoles.includes(role.id))
-					return interaction.createMessage({content: "That role is already an Auto Role."});
+					return interaction.createFollowup({content: "That role is already an Auto Role."});
 		
 				if (!role)
-					return interaction.createMessage({content: "I could not find that role"});
+					return interaction.createFollowup({content: "I could not find that role"});
 		
 				if (role.position > memberHighestRole.position && !member.permissions.has("ADMINISTRATOR"))
-					return interaction.createMessage({content: `That role's position is higher than your highest role, ${memberHighestRole.mention}. Perhaps try moving your role higher to solve this problem.`});
+					return interaction.createFollowup({content: `That role's position is higher than your highest role, ${memberHighestRole.mention}. Perhaps try moving your role higher to solve this problem.`});
 		
 				if (role.position > botHighestRole.position)
-					return interaction.createMessage({content: `That role's position is higher than my highest role, ${botHighestRole.mention}. Perhaps try moving my role higher to solve this problem.`});
+					return interaction.createFollowup({content: `That role's position is higher than my highest role, ${botHighestRole.mention}. Perhaps try moving my role higher to solve this problem.`});
 		
 				try {
 					data.autoRoles.push(role.id);
 					await this.bot.updateModuleData("Roles", data, guild);
-					return interaction.createMessage({content: `${this.bot.constants.emojis.tick} Added role ${role.mention} to the roles list!`});
+					return interaction.createFollowup({content: `${this.bot.constants.emojis.tick} Added role ${role.mention} to the roles list!`});
 				} catch (e) {
-					return interaction.createMessage({content: "Error trying to add role to roles list!"});
+					return interaction.createFollowup({content: "Error trying to add role to roles list!"});
 				}
 			}
 		
 			case "remove": {
 				if (!role)
-					return interaction.createMessage({content: "I could not find that role"});
+					return interaction.createFollowup({content: "I could not find that role"});
 		
 				if (role.position > memberHighestRole.position)
-					return interaction.createMessage({content: `That role's position is higher than your highest role, ${memberHighestRole.mention}. Perhaps try moving your role higher to solve this problem.`});
+					return interaction.createFollowup({content: `That role's position is higher than your highest role, ${memberHighestRole.mention}. Perhaps try moving your role higher to solve this problem.`});
 		
 				if (role.position > botHighestRole.position)
-					return interaction.createMessage({content: `That role's position is higher than my highest role, ${botHighestRole.mention}. Perhaps try moving my role higher to solve this problem.`});
+					return interaction.createFollowup({content: `That role's position is higher than my highest role, ${botHighestRole.mention}. Perhaps try moving my role higher to solve this problem.`});
 	
 				try {
 					const i = data.autoRoles.indexOf(role.id);
 					if (i > -1) data.autoRoles.splice(i, 1);
 		
 					await this.bot.updateModuleData("Roles", data, guild);
-					return interaction.createMessage({content: `${this.bot.constants.emojis.tick} Removed role ${role.mention} from the roles list!`});
+					return interaction.createFollowup({content: `${this.bot.constants.emojis.tick} Removed role ${role.mention} from the roles list!`});
 				} catch (e) {
-					return interaction.createMessage({content: "Error trying to add role to roles list!"});
+					return interaction.createFollowup({content: "Error trying to add role to roles list!"});
 				}
 			}
 			}
@@ -149,7 +149,7 @@ export default class Autorole extends Command {
 				color: this.bot.constants.config.colors.default
 			};
 
-			return interaction.createMessage(
+			return interaction.createFollowup(
 				{
 					embeds: [embed]
 				}

@@ -1,11 +1,11 @@
 import { CommandInteraction, Constants, Member, Message } from "oceanic.js";
 import Command from "../../../../Base/Command";
-import Bot from "../../../../main";
+import ExtendedClient from "../../../../Base/Client";
 import Permnode from "./permnode";
 
 export default class PermnodeContext extends Command {
 		
-	constructor(bot: Bot) {
+	constructor(bot: ExtendedClient) {
 		super(bot);
 
 		this.commands = ["View User's Permission nodes"];

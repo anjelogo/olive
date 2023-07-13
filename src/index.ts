@@ -1,7 +1,7 @@
 import { Auth } from "./resources/auth";
-import Bot from "./main";
+import ExtendedClient from "./Base/Client";
 
-const bot = new Bot({
+const client = new ExtendedClient({
 	defaultImageFormat: "png",
 	defaultImageSize: 1024,
 	disabledModules: [],
@@ -12,4 +12,4 @@ const bot = new Bot({
 	}
 });
 
-bot.init();
+client.init();

@@ -1,9 +1,9 @@
 import { Emoji, Guild, Member, Message, PrivateChannel, Role } from "oceanic.js";
-import Bot from "../../../main";
+import ExtendedClient from "../../../Base/Client";
 import Main from "../../main/main";
 import Roles, { RolesMessage } from "../main";
 
-export const run = async (bot: Bot, msg: Message, emoji: Partial<Emoji>, reactor: Partial<Member>): Promise<void> => {
+export const run = async (bot: ExtendedClient, msg: Message, emoji: Partial<Emoji>, reactor: Partial<Member>): Promise<void> => {
 
 	if (!msg || !emoji || !reactor || !msg.guildID) return;
 

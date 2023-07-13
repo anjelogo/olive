@@ -1,6 +1,6 @@
 import { Emoji, Guild } from "oceanic.js";
 import Module, { moduleDataStructure } from "../../Base/Module";
-import Bot from "../../main";
+import ExtendedClient from "../../Base/Client";
 
 export interface SavedRolesStructure {
 	userID: string;
@@ -33,7 +33,7 @@ export default class Roles extends Module {
 	readonly path: string;
 	readonly db: boolean;
 
-	constructor(bot: Bot) {
+	constructor(bot: ExtendedClient) {
 		super(bot);
 
 		this.name = "Roles";

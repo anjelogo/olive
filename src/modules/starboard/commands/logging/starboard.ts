@@ -1,11 +1,11 @@
 import { CommandInteraction, Constants, Guild, Message } from "oceanic.js";
 import Command from "../../../../Base/Command";
-import Bot from "../../../../main";
+import ExtendedClient from "../../../../Base/Client";
 import { moduleData } from "../../main";
 
 export default class Starboard extends Command {
 
-	constructor(bot: Bot) {
+	constructor(bot: ExtendedClient) {
 
 		super(bot);
 
@@ -46,12 +46,12 @@ export default class Starboard extends Command {
 				stars = data.messages.filter((m) => m.authorID === member.id).map((s) => s.stars).length;
 
 			if (!member)
-				return interaction.createMessage({
+				return interaction.createFollowup({
 					content: "User not found.",
 					flags: Constants.MessageFlags.EPHEMERAL
 				});
 
-			await interaction.createMessage({
+			await interaction.createFollowup({
 				embeds: [
 					{
 						description: `User has ⭐ **${stars}** stars.`,

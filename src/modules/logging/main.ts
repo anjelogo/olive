@@ -1,6 +1,6 @@
 import { Embed, Guild, TextChannel } from "oceanic.js";
 import Module, { moduleDataStructure } from "../../Base/Module";
-import Bot from "../../main";
+import ExtendedClient from "../../Base/Client";
 
 export type LogChannelTypes = ("welcome" | "vc" | "moderation" | "starboard");
 
@@ -38,7 +38,7 @@ export default class Logging extends Module {
 	readonly weight: number;
 	readonly db: boolean;
 
-	constructor (bot: Bot) {
+	constructor (bot: ExtendedClient) {
 		super(bot);
 
 		this.name = "Logging";

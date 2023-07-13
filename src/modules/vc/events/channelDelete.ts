@@ -1,8 +1,8 @@
 import { Constants, GuildChannel } from "oceanic.js";
-import Bot from "../../../main";
+import ExtendedClient from "../../../Base/Client";
 import { moduleData } from "../main";
 
-export const run = async (bot: Bot, channel: (GuildChannel)): Promise<void> => {
+export const run = async (bot: ExtendedClient, channel: (GuildChannel)): Promise<void> => {
 	if ([0, 5, 13].includes(channel.type)) return;
 
 	const data: moduleData = (await bot.getModuleData("VC", channel.guild) as unknown) as moduleData;

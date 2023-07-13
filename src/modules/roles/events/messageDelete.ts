@@ -1,8 +1,8 @@
 import { Message, TextChannel } from "oceanic.js";
-import Bot from "../../../main";
+import ExtendedClient from "../../../Base/Client";
 import Roles, { moduleData, RolesMessage } from "../main";
 
-export const run = async (bot: Bot, msg: (Message | { id: string; channel: unknown; })): Promise<void> => {
+export const run = async (bot: ExtendedClient, msg: (Message | { id: string; channel: unknown; })): Promise<void> => {
 
 	if (!msg || (msg && !msg.id) || (msg && !(msg.channel as TextChannel).guild)) return;
 

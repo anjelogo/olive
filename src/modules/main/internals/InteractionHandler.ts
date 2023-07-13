@@ -1,9 +1,9 @@
 import { CommandInteraction, ComponentInteraction, Constants, Embed, Member, Message } from "oceanic.js";
 import { Options } from "../../../Base/Command";
-import Bot from "../../../main";
+import ExtendedClient from "../../../Base/Client";
 import Main from "../main";
 
-export const commandHandler = async (bot: Bot, interaction: CommandInteraction): Promise<Message | void | boolean> => {
+export const commandHandler = async (bot: ExtendedClient, interaction: CommandInteraction): Promise<Message | void | boolean> => {
 	
 	const member: Member = interaction.member as Member,
 		command = interaction.data.type === Constants.ApplicationCommandTypes.MESSAGE
@@ -109,7 +109,7 @@ export const commandHandler = async (bot: Bot, interaction: CommandInteraction):
 
 };
 
-export const updateHandler = async (bot: Bot, component: ComponentInteraction, authorID: string): Promise<Message | void> => {
+export const updateHandler = async (bot: ExtendedClient, component: ComponentInteraction, authorID: string): Promise<Message | void> => {
 
 	const command = bot.commands.filter((c) => c.commands.includes(component.data.customID.split("_")[0]))[0];
 	if (!command) return;

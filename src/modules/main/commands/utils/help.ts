@@ -1,12 +1,12 @@
 import { CommandInteraction, ComponentInteraction, Constants, Embed, EmbedField, Message, MessageActionRow, MessageComponentSelectMenuInteractionData } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import Module from "../../../../Base/Module";
-import Bot from "../../../../main";
+import ExtendedClient from "../../../../Base/Client";
 import { Permnodes } from "../../../../resources/interfaces";
 
 export default class Help extends Command {
 	
-	constructor(bot: Bot) {
+	constructor(bot: ExtendedClient) {
 
 		super(bot);
 

@@ -1,6 +1,6 @@
 import { Guild } from "oceanic.js";
 import Module, { moduleDataStructure } from "../../Base/Module";
-import Bot from "../../main";
+import ExtendedClient from "../../Base/Client";
 
 export interface messageDataStructure {
 	channelID: string;
@@ -20,7 +20,7 @@ export default class Starboard extends Module {
 	readonly path: string;
 	readonly db: boolean;
 
-	constructor (bot: Bot) {
+	constructor (bot: ExtendedClient) {
 		super(bot);
 
 		this.name = "Starboard";

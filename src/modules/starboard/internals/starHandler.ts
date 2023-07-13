@@ -1,10 +1,10 @@
 import { Guild, Message, TextChannel } from "oceanic.js";
-import Bot from "../../../main";
+import ExtendedClient from "../../../Base/Client";
 import  { messageDataStructure, moduleData } from "../main";
 import { createLogEntry, removeLogEntry, updateLogEntry } from "./logHandler";
 import { moduleData as LoggingModuleData } from "../../logging/main";
 
-export const getStarredMessage = async (bot: Bot, messageID: string, guild: Guild): Promise<messageDataStructure | undefined> => {
+export const getStarredMessage = async (bot: ExtendedClient, messageID: string, guild: Guild): Promise<messageDataStructure | undefined> => {
 	const data = await bot.getModuleData("Starboard", guild) as moduleData;
 
 	if (!data) return undefined;
@@ -13,7 +13,7 @@ export const getStarredMessage = async (bot: Bot, messageID: string, guild: Guil
 	return data.messages.filter((m) => m.messageID === messageID)[0];
 };
 
-export const handleStarredMessage = async (bot: Bot, guild: Guild, message: Message, action: ("add" | "remove"), reactorID: string) => {
+export const handleStarredMessage = async (bot: ExtendedClient, guild: Guild, message: Message, action: ("add" | "remove"), reactorID: string) => {
 	let msg = message;
     
 	//Check if message is the message on the starboard log
@@ -36,7 +36,7 @@ export const handleStarredMessage = async (bot: Bot, guild: Guild, message: Mess
 		await createStarredMessage(bot, guild, msg, reactorID);
 };
 
-export const createStarredMessage = async (bot: Bot, guild: Guild, message: Message, reactorID: string) => {
+export const createStarredMessage = async (bot: ExtendedClient, guild: Guild, message: Message, reactorID: string) => {
 
 	const data = await bot.getModuleData("Starboard", guild) as moduleData;
 
@@ -61,7 +61,7 @@ export const createStarredMessage = async (bot: Bot, guild: Guild, message: Mess
 	}
 };
 
-export const updateStarredMessage = async (bot: Bot, guild: Guild, message: Message, action: ("add"| "remove"), reactorID: string) => {
+export const updateStarredMessage = async (bot: ExtendedClient, guild: Guild, message: Message, action: ("add"| "remove"), reactorID: string) => {
     
 	const data = await bot.getModuleData("Starboard", guild) as moduleData;
 
@@ -97,7 +97,7 @@ export const updateStarredMessage = async (bot: Bot, guild: Guild, message: Mess
 	}
 };
 
-export const removeStarredMessage = async (bot: Bot, guild: Guild, message: Message) => {
+export const removeStarredMessage = async (bot: ExtendedClient, guild: Guild, message: Message) => {
 	const starboardData = await bot.getModuleData("Starboard", guild) as moduleData;
 
 	if (!starboardData) return;

@@ -1,7 +1,7 @@
 import { Member } from "oceanic.js";
-import Bot from "../../../main";
+import ExtendedClient from "../../../Base/Client";
 
-export const run = async (bot: Bot, member: Member, oldMember: ({ avatar: string } | null), communicationDisabledUntil?: number): Promise<void> => {
+export const run = async (bot: ExtendedClient, member: Member, oldMember: ({ avatar: string } | null), communicationDisabledUntil?: number): Promise<void> => {
 
 	console.log(communicationDisabledUntil);
 

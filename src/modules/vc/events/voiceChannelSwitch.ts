@@ -1,11 +1,11 @@
 import { Category, Channel } from "../internals/interfaces";
 import { Member, VoiceChannel } from "oceanic.js";
 import { create, remove } from "../internals/handler";
-import Bot from "../../../main";
+import ExtendedClient from "../../../Base/Client";
 import { moduleData } from "../main";
 import Logging from "../../logging/main";
 
-export const run = async (bot: Bot, member: Member, newChannel: VoiceChannel, oldChannel: VoiceChannel): Promise<void> => {
+export const run = async (bot: ExtendedClient, member: Member, newChannel: VoiceChannel, oldChannel: VoiceChannel): Promise<void> => {
 
 	if (!newChannel.parentID) return;
 

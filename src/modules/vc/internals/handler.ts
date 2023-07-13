@@ -1,10 +1,10 @@
 import { Category, Channel } from "./interfaces";
 import { CategoryChannel, Constants, Member, VoiceChannel } from "oceanic.js";
-import Bot from "../../../main";
+import ExtendedClient from "../../../Base/Client";
 import { moduleData } from "../main";
 import Logging from "../../logging/main";
 
-export const create = async (bot: Bot, member: Member, channel: VoiceChannel): Promise<void> => {
+export const create = async (bot: ExtendedClient, member: Member, channel: VoiceChannel): Promise<void> => {
 	if (!await bot.getModule("Main").handlePermission(member, "vc.join")) return;
 
 	const data: moduleData = (await bot.getModuleData("VC", channel.guild) as unknown) as moduleData,
@@ -54,7 +54,7 @@ export const create = async (bot: Bot, member: Member, channel: VoiceChannel): P
 	await bot.updateModuleData("VC", data, channel.guild);
 };
 
-export const remove = async (bot: Bot, member: Member, channel: VoiceChannel): Promise<void> => {
+export const remove = async (bot: ExtendedClient, member: Member, channel: VoiceChannel): Promise<void> => {
 	const data: moduleData = (await bot.getModuleData("VC", channel.guild) as unknown) as moduleData,
 		category: Category | undefined = data.categories.find((c: Category) => c.catID === channel.parentID);
 

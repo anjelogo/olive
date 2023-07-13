@@ -1,11 +1,11 @@
 import { CommandInteraction, Constants, Guild, Message } from "oceanic.js";
 import Command from "../../../../Base/Command";
-import Bot from "../../../../main";
+import ExtendedClient from "../../../../Base/Client";
 import { getCases, removeCase } from "../../internals/caseHandler";
 
 export default class History extends Command {
 
-	constructor(bot: Bot) {
+	constructor(bot: ExtendedClient) {
 
 		super(bot);
 
@@ -52,7 +52,7 @@ export default class History extends Command {
 		const user = interaction.data.options.getUser("user", true);
 
 		if (!user)
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.x} I couldn't find that user!`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
@@ -60,7 +60,7 @@ export default class History extends Command {
 		const cases = await getCases(this.bot, guild, user.id);
 
 		if (!cases)
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.x} I couldn't find any cases for that user!`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
@@ -101,7 +101,7 @@ export default class History extends Command {
 				timestamp: new Date().toISOString()
 			};
 
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				content: undefined,
 				embeds: [embed],
 				flags: Constants.MessageFlags.EPHEMERAL
@@ -113,7 +113,7 @@ export default class History extends Command {
 				await removeCase(this.bot, guild, Case.id);
 			}
 
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.check} Successfully cleared the moderation history of ${user.mention}`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});

@@ -1,6 +1,6 @@
 import { ComponentInteraction, Constants, CommandInteraction, Embed, Message, Guild, TextChannel, MessageActionRow, MessageComponentSelectMenuInteractionData } from "oceanic.js";
 import Command from "../../../../Base/Command";
-import Bot from "../../../../main";
+import ExtendedClient from "../../../../Base/Client";
 import { upsertCustomData, getCustomData } from "../../../main/internals/CustomDataHandler";
 import { LogChannelStructure, LogChannelTypes, moduleData } from "../../main";
 
@@ -11,7 +11,7 @@ export interface CustomDataStructure {
 
 export default class Log extends Command {
 
-	constructor(bot: Bot) {
+	constructor(bot: ExtendedClient) {
 
 		super(bot);
 
@@ -34,14 +34,14 @@ export default class Log extends Command {
 
 	}
 
-	private typesAvailable = async (bot: Bot, interaction: (CommandInteraction | ComponentInteraction)) => {
+	private typesAvailable = async (bot: ExtendedClient, interaction: (CommandInteraction | ComponentInteraction)) => {
 		const customData = getCustomData(bot, interaction instanceof CommandInteraction ? interaction.id : interaction.message.interaction?.id as string)?.data as CustomDataStructure,
 			validTypes: LogChannelTypes[] = ["vc", "welcome", "moderation", "starboard"];
 
 		return validTypes.filter(t => !customData.types.includes(t));
 	}
 
-	private create = (bot: Bot, interaction: (CommandInteraction | ComponentInteraction)) => {
+	private create = (bot: ExtendedClient, interaction: (CommandInteraction | ComponentInteraction)) => {
 		const customData = getCustomData(bot, interaction instanceof CommandInteraction ? interaction.id : interaction.message.interaction?.id as string)?.data as CustomDataStructure,
 			embed: Embed = {
 				type: "rich",
@@ -61,7 +61,7 @@ export default class Log extends Command {
 		return embed;
 	}
 
-	private components = async (bot: Bot, interaction: (CommandInteraction | ComponentInteraction)):
+	private components = async (bot: ExtendedClient, interaction: (CommandInteraction | ComponentInteraction)):
 	Promise<
 		{
 			home: MessageActionRow[],

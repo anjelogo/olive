@@ -1,8 +1,8 @@
 import { AnyInteraction, Constants } from "oceanic.js";
-import Bot from "../../../main";
+import ExtendedClient from "../../../Base/Client";
 import { commandHandler, updateHandler } from "../internals/InteractionHandler";
 
-export const run = async (bot: Bot, interaction: AnyInteraction): Promise<void> => {
+export const run = async (bot: ExtendedClient, interaction: AnyInteraction): Promise<void> => {
 	switch (interaction.type) {
 
 	case Constants.InteractionTypes.APPLICATION_COMMAND: {

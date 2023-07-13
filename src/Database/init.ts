@@ -1,11 +1,9 @@
-import { createConnection } from "mongo-strict"
-import { Auth } from "../resources/auth"
+import { connect } from "mongoose";
+import { Auth } from "../resources/auth";
 
 const init = async (): Promise<void> => {
-    //load the database
-    createConnection({
-        uri: Auth.database
-    });
+	//load the database
+	await connect(Auth.database);
     
     
-}
+};
