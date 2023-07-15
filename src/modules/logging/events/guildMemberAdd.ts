@@ -15,7 +15,7 @@ export const run = async (bot: ExtendedClient, member: Member): Promise<void> =>
 			iconURL: member.avatarURL()
 		},
 		color: bot.constants.config.colors.green,
-		timestamp: new Date().toDateString(),
+		timestamp: new Date().toISOString(),
 		footer: {
 			text: `ID: ${member.id}`
 		}
