@@ -1,10 +1,12 @@
-import { Guild, Member } from "oceanic.js";
+import { Guild, Member, Uncached, User } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
 import { moduleData } from "../main";
 
-export const run = async (bot: ExtendedClient, guild: Guild, member: Member): Promise<void> => {
+export const run = async (bot: ExtendedClient, member: Member | User, guild: Guild | Uncached): Promise<void> => {
 
-	const data: moduleData = await bot.getModuleData("Roles", guild) as moduleData;
+	if (member instanceof User) return;
+
+	const data: moduleData = await bot.getModuleData("Roles", guild.id) as moduleData;
     
 	if (!member.roles.length) return;
 	if (!data.savedRoles.enabled) return;
@@ -18,5 +20,5 @@ export const run = async (bot: ExtendedClient, guild: Guild, member: Member): Pr
 
 	data.savedRoles.roles.push({ userID: member.id, roles: member.roles });
 
-	await bot.updateModuleData("Roles", data, guild);
+	await bot.updateModuleData("Roles", data, member.guild);
 };

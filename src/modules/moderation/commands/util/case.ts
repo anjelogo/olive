@@ -69,7 +69,7 @@ export default class Case extends Command {
 		
 		const member = interaction.member as Member,
 			guild = this.bot.findGuild(interaction.guildID!) as Guild,
-			data = await this.bot.getModuleData("Moderation", guild) as moduleData,
+			data = await this.bot.getModuleData("Moderation", guild.id) as moduleData,
 			subcommand = interaction.data.options.raw[0].name;
 
 		const caseID = interaction.data.options.getString("case", true),
@@ -83,7 +83,7 @@ export default class Case extends Command {
 
 		switch (subcommand) {
 		case "view": {
-			const guildData = await this.bot.getModuleData("Logging", guild) as LoggingModuleData;
+			const guildData = await this.bot.getModuleData("Logging", guild.id) as LoggingModuleData;
 
 			if (guildData.channels.filter((c) => c.types.includes("moderation")).length) {
 				const moderationLogChannels = guildData.channels.filter((c) => c.types.includes("moderation") && c.cases);

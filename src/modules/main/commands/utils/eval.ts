@@ -54,7 +54,7 @@ export default class Eval extends Command {
 						]
 					}
 				],
-				flags: Eris.Constants.MessageFlags.EPHEMERAL
+				flags: Constants.MessageFlags.EPHEMERAL
 			});
 		} catch (e) {
 			return interaction.createMessage({
@@ -74,7 +74,7 @@ export default class Eval extends Command {
 						]
 					}
 				],
-				flags: Eris.Constants.MessageFlags.EPHEMERAL
+				flags: Constants.MessageFlags.EPHEMERAL
 			});
 		}
 	}

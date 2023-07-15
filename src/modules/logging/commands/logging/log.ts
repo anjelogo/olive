@@ -169,7 +169,7 @@ export default class Log extends Command {
 	readonly execute = async (interaction: CommandInteraction): Promise<Message | void> => {
 
 		const guild = this.bot.findGuild(interaction.guildID) as Guild,
-			data = await this.bot.getModuleData("Logging", guild) as moduleData,
+			data = await this.bot.getModuleData("Logging", guild.id) as moduleData,
 			channel = interaction.channel as (TextChannel),
 			subcommand = interaction.data.options.raw?.[0];
 
@@ -216,7 +216,7 @@ export default class Log extends Command {
 		
 		const guild = this.bot.findGuild(component.guildID) as Guild,
 			customData = await getCustomData(this.bot, component.message.interaction?.id as string)?.data as CustomDataStructure,
-			moduleData = await this.bot.getModuleData("Logging", guild) as moduleData;
+			moduleData = await this.bot.getModuleData("Logging", guild.id) as moduleData;
 
 		switch (component.data.customID.split("_")[2]) {
 
@@ -239,7 +239,6 @@ export default class Log extends Command {
 		}
 
 		case "addlogtype": {
-			await component.deferUpdate();
 
 			customData.types = [...customData.types, ...(component.data as MessageComponentSelectMenuInteractionData).values.raw as LogChannelTypes[]];
 
@@ -255,7 +254,6 @@ export default class Log extends Command {
 		}
 
 		case "save": {
-			await component.deferUpdate();
 
 			const obj: LogChannelStructure = {
 				channelID: component.channelID,

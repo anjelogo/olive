@@ -78,7 +78,7 @@ export default class Main extends Module {
 
 		const masterPerm = `${perm.split(/[.\-_]/)[0]}.*`,
 			permission: Permnodes | undefined = this.bot.perms.find((p: Permnodes) => p.name === perm),
-			moduleData: moduleData = (await this.bot.getModuleData("Main", member.guild) as unknown) as moduleData,
+			moduleData: moduleData = (await this.bot.getModuleData("Main", member.guild.id) as unknown) as moduleData,
 			permissions: Permissions[] = moduleData.permissions;
 
 		if (!permission || !permissions) return false;

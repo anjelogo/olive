@@ -59,7 +59,7 @@ export default class Autorole extends Command {
 
 		const guild: Guild = this.bot.findGuild(interaction.guildID) as Guild,
 			member: Member = interaction.member as Member,
-			data: moduleData = await this.bot.getModuleData("Roles", guild) as moduleData,
+			data: moduleData = await this.bot.getModuleData("Roles", guild.id) as moduleData,
 			botMember: Member = this.bot.findMember(guild, this.bot.user.id) as Member,
 			botHighestRoleID = botMember.roles
 				.map((r) => 

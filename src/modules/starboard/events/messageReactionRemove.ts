@@ -1,16 +1,16 @@
-import { Emoji, Guild, Member, Message } from "oceanic.js";
+import { Guild, Member, Message, PartialEmoji, PossiblyUncachedMessage, Uncached, User } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
 import { handleStarredMessage } from "../internals/starHandler";
 
-export const run = async (bot: ExtendedClient, msg: Message, emoji: Partial<Emoji>, userID: string) => {
+export const run = async (bot: ExtendedClient, msg: PossiblyUncachedMessage, reactor: Uncached | Member | User, emoji: PartialEmoji) => {
 	if (emoji.name !== "⭐") return;
 
-	if (!msg || !emoji || !userID || !msg.guildID) return;
+	if (!msg || !emoji || !reactor || !msg.guildID) return;
 
 	const guild = bot.findGuild(msg.guildID) as Guild,
-		member = bot.findMember(guild, userID) as Member;
+		member = guild.members.get(reactor.id);
 
-	if (member.bot) return;
+	if (!member || member.bot) return;
 
-	await handleStarredMessage(bot, guild, msg, "remove", userID);
+	await handleStarredMessage(bot, guild, msg as Message, "remove", reactor.id);
 };

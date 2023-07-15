@@ -105,14 +105,12 @@ export default class ExtendedClient extends Olive {
 		return Module;
 	}
 
-	readonly getModuleData = async (name: string, guild: string | Guild): Promise<unknown> => {
+	readonly getModuleData = async (name: string, guildID: string): Promise<unknown> => {
 		const Module: Module = this.getModule(name);
 
-		if (typeof guild === "string") guild = this.findGuild(guild) as Guild;
+		if (!guildID) return undefined;
 
-		if (!guild) return undefined;
-
-		return await Module.data(guild);
+		return await Module.data(guildID);
 	}
 
 	readonly getAllData = async (name: string): Promise<unknown> => {

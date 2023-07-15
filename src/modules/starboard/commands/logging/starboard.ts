@@ -34,7 +34,7 @@ export default class Starboard extends Command {
 	readonly execute = async (interaction: CommandInteraction): Promise<Message | void> => {
 
 		const guild = this.bot.findGuild(interaction.guildID) as Guild,
-			data = await this.bot.getModuleData("Starboard", guild) as moduleData,
+			data = await this.bot.getModuleData("Starboard", guild.id) as moduleData,
 			subcommand = interaction.data.options.raw[0].name;
 
 		switch (subcommand) {

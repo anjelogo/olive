@@ -1,18 +1,18 @@
-import { Emoji, Guild, Member, Message, PrivateChannel, Role } from "oceanic.js";
+import { Guild, Member, PartialEmoji, PossiblyUncachedMessage, PrivateChannel, Role, Uncached, User } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
 import Main from "../../main/main";
 import Roles, { RolesMessage } from "../main";
 
-export const run = async (bot: ExtendedClient, msg: Partial<Message>, emoji: Partial<Emoji>, reactor: string): Promise<void> => {
+export const run = async (bot: ExtendedClient, msg: PossiblyUncachedMessage, reactor: Uncached | Member | User, emoji: PartialEmoji): Promise<void> => {
 	if (!msg || !emoji || !reactor || !msg.guildID || !msg.id) return;
 
 	const guild: Guild = bot.findGuild(msg.guildID) as Guild,
-		member: Member = bot.findMember(guild, reactor) as Member,
 		rolesModule: Roles = bot.getModule("Roles"),
 		mainModule: Main = bot.getModule("Main"),
-		msgData: RolesMessage = await rolesModule.getReactionMessage(msg.id, msg.guildID) as RolesMessage;
+		msgData: RolesMessage = await rolesModule.getReactionMessage(msg.id, msg.guildID) as RolesMessage,
+		member = guild.members.get(reactor.id);
 
-	if (!msgData || member.bot) return;
+	if (!member || !msgData || member.bot) return;
 
 	if (!await mainModule.handlePermission(member, "roles.reaction.interact")) return;
 

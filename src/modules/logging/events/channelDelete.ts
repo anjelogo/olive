@@ -5,7 +5,7 @@ import { moduleData } from "../main";
 export const run = async (bot: ExtendedClient, channel: (TextChannel)): Promise<void> => {
 	if (![0, 5].includes(channel.type)) return;
 
-	const data: moduleData = (await bot.getModuleData("VC", channel.guild) as unknown) as moduleData;
+	const data: moduleData = (await bot.getModuleData("VC", channel.guild.id) as unknown) as moduleData;
 
 	async function deleteChannel(guildData: moduleData, channel: string) {
 		if (!guildData) return;

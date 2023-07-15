@@ -9,7 +9,7 @@ export interface CustomData {
 
 export function getCustomData(bot: ExtendedClient, interactionID: string): CustomData | undefined {
 	const data = bot.interactionCustomData.find((cd) => cd.id === interactionID);
-	if (!data) throw new Error("No custom data found for this interaction");
+	if (!data) throw new Error("No custom data found for this interaction or interaction expired");
 	return data;
 }
 
@@ -25,6 +25,6 @@ export function upsertCustomData(bot: ExtendedClient, interaction: AnyInteractio
 
 export function deleteCustomData(bot: ExtendedClient, interaction: AnyInteraction) {
 	const data = bot.interactionCustomData.find((cd) => cd.id === interaction.id);
-	if (!data) throw new Error("No custom data found for this interaction");
+	if (!data) throw new Error("No custom data found for this interaction or interaction expired");
 	bot.interactionCustomData.slice(bot.interactionCustomData.indexOf(data), 1);
 }

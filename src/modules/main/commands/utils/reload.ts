@@ -17,9 +17,9 @@ export default class Reload extends Command {
 	}
 
 	readonly execute = async (interaction: CommandInteraction): Promise<Message | void> => {
-		await interaction.defer();
-
-		return interaction.createMessage({
+		await interaction.defer(Constants.MessageFlags.EPHEMERAL);
+		
+		return interaction.createFollowup({
 			embeds: [
 				{
 					color: 1416145,
@@ -52,8 +52,6 @@ readonly update = async (component: ComponentInteraction): Promise<Message | voi
 	switch (component.data.customID.split("_")[2]) {
 
 	case "yes": {
-		await component.deferUpdate();
-
 		try {
 			await this.bot.reload();
 
@@ -72,8 +70,6 @@ readonly update = async (component: ComponentInteraction): Promise<Message | voi
 	}
 
 	case "no": {
-		await component.deferUpdate();
-
 		return component.editParent({
 			embeds: [
 				{

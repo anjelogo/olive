@@ -18,7 +18,7 @@ export default class Saveroles extends Command {
 		await interaction.defer(Constants.MessageFlags.EPHEMERAL);
 
 		const guild = this.bot.findGuild(interaction.guildID) as Guild,
-			data = await this.bot.getModuleData("Roles", guild) as moduleData,
+			data = await this.bot.getModuleData("Roles", guild.id) as moduleData,
 			savedRoles = data.savedRoles;
 
 		if (!savedRoles.enabled) data.savedRoles.enabled = true;

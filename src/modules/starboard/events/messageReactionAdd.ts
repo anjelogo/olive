@@ -1,13 +1,13 @@
-import { Channel, Emoji, Guild, Member, Message, TextChannel } from "oceanic.js";
+import { Channel, Emoji, Guild, Member, Message, PartialEmoji, PossiblyUncachedMessage, TextChannel, Uncached, User } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
 import { handleStarredMessage } from "../internals/starHandler";
 
-export const run = async (bot: ExtendedClient, msgObj: (Message | { id: string; channel: Channel; author?: unknown; guildID?: unknown }), emoji: Partial<Emoji>, reactor: Partial<Member>) => {
+export const run = async (bot: ExtendedClient, msgObj: PossiblyUncachedMessage | Message, reactor: Uncached | Member | User, emoji: PartialEmoji) => {
 	if (emoji.name !== "⭐") return;
 
 	let msg: Message;
 
-	if (!msgObj.author) msg = bot.findMessage(bot.getChannel((msgObj.channel as Channel).id) as TextChannel, msgObj.id) as Message;
+	if (!(msgObj instanceof Message)) msg = bot.findMessage(bot.getChannel((msgObj.channel as Channel).id) as TextChannel, msgObj.id) as Message;
 	else msg = msgObj as Message;
 
 	if (!msg || !emoji || !reactor || !msg.guildID) return;

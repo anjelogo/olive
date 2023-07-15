@@ -261,7 +261,7 @@ export default class Reactionrole extends Command {
 
 		const guild = this.bot.findGuild(interaction.guildID) as Guild,
 			channel = interaction.channel as TextChannel,
-			data = await this.bot.getModuleData("Roles", guild) as moduleData,
+			data = await this.bot.getModuleData("Roles", guild.id) as moduleData,
 			messageid = interaction.data.options.getString("messageid", true);
 
 		let message: Message | undefined;
@@ -299,7 +299,7 @@ export default class Reactionrole extends Command {
 
 		const guild = this.bot.findGuild(component.guildID) as Guild,
 			customData = await getCustomData(this.bot, component.message.interaction?.id as string)?.data as CustomDataStructure,
-			moduleData = await this.bot.getModuleData("Roles", guild) as moduleData;
+			moduleData = await this.bot.getModuleData("Roles", guild.id) as moduleData;
 
 		switch (component.data.customID.split("_")[2]) {
 

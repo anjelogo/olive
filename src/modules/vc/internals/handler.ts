@@ -1,5 +1,5 @@
 import { Category, Channel } from "./interfaces";
-import { CategoryChannel, Constants, Member, VoiceChannel } from "oceanic.js";
+import { CategoryChannel, Constants, Member, StageChannel, VoiceChannel } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
 import { moduleData } from "../main";
 import Logging from "../../logging/main";
@@ -7,7 +7,7 @@ import Logging from "../../logging/main";
 export const create = async (bot: ExtendedClient, member: Member, channel: VoiceChannel): Promise<void> => {
 	if (!await bot.getModule("Main").handlePermission(member, "vc.join")) return;
 
-	const data: moduleData = (await bot.getModuleData("VC", channel.guild) as unknown) as moduleData,
+	const data: moduleData = (await bot.getModuleData("VC", channel.guild.id) as unknown) as moduleData,
 		category: Category | undefined = data.categories.find((c: Category) => c.catID === channel.parentID);
 
 	if (!category || (category && category.channelID !== channel.id)) return;
@@ -54,8 +54,8 @@ export const create = async (bot: ExtendedClient, member: Member, channel: Voice
 	await bot.updateModuleData("VC", data, channel.guild);
 };
 
-export const remove = async (bot: ExtendedClient, member: Member, channel: VoiceChannel): Promise<void> => {
-	const data: moduleData = (await bot.getModuleData("VC", channel.guild) as unknown) as moduleData,
+export const remove = async (bot: ExtendedClient, member: Member, channel: VoiceChannel | StageChannel): Promise<void> => {
+	const data: moduleData = (await bot.getModuleData("VC", channel.guild.id) as unknown) as moduleData,
 		category: Category | undefined = data.categories.find((c: Category) => c.catID === channel.parentID);
 
 	if (!category) return;
@@ -67,7 +67,7 @@ export const remove = async (bot: ExtendedClient, member: Member, channel: Voice
 	const logging = await bot.getModule("Logging") as Logging;
 	logging.log(channel.guild, "vc", {embeds: [{
 		type: "rich",
-		title: `${member.username}#${member.discriminator}`,
+		title: `${member.tag}`,
 		description: `Left \`${channel.name}\``,
 		author: {
 			name: "Left Private Voice Channel",
@@ -90,7 +90,7 @@ export const remove = async (bot: ExtendedClient, member: Member, channel: Voice
 
 		logging.log(channel.guild, "vc", {embeds: [{
 			type: "rich",
-			title: `${member.username}#${member.discriminator}`,
+			title: `${member.tag}`,
 			description: `Ended \`${channel.name}\``,
 			author: {
 				name: "Ended Private Voice Channel",
@@ -119,7 +119,7 @@ export const remove = async (bot: ExtendedClient, member: Member, channel: Voice
 
 		logging.log(channel.guild, "vc", {embeds: [{
 			type: "rich",
-			title: `${member.username}#${member.discriminator} -> ${newOwner.username}#${newOwner.discriminator}`,
+			title: `${member.tag} -> ${newOwner.tag}`,
 			description: `Set \`${newOwner.username}\` the owner of \`${channel.name}\``,
 			author: {
 				name: "Transferred Private Voice Channel Ownership",
@@ -131,5 +131,8 @@ export const remove = async (bot: ExtendedClient, member: Member, channel: Voice
 				text: `ID: ${member.id}`
 			}
 		}]});
+
+		const newOwnerDM = await newOwner.user.createDM();
+		await newOwnerDM.createMessage({content: `${bot.constants.emojis.warning.yellow} You are now the owner of \`${channel.name}\` in \`${channel.guild.name}\`!`});
 	}
 };

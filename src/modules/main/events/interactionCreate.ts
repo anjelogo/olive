@@ -1,6 +1,6 @@
 import { AnyInteraction, Constants } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
-import { commandHandler, updateHandler } from "../internals/InteractionHandler";
+import { commandHandler, modalHandler, updateHandler } from "../internals/InteractionHandler";
 
 export const run = async (bot: ExtendedClient, interaction: AnyInteraction): Promise<void> => {
 	switch (interaction.type) {
@@ -19,6 +19,19 @@ export const run = async (bot: ExtendedClient, interaction: AnyInteraction): Pro
 		if (authorID) {
 			await updateHandler(bot, interaction, authorID);
 		}
+
+		break;
+	}
+
+	case Constants.InteractionTypes.MODAL_SUBMIT: {
+
+		const authorID = interaction.data.customID.split("_")[1];
+
+		if (authorID) {
+			await modalHandler(bot, interaction, authorID);
+		}
+
+		break;
 	}
 
 	}

@@ -1,4 +1,4 @@
-import { CommandInteraction, ComponentInteraction, Constants, Embed, Member, Message } from "oceanic.js";
+import { CommandInteraction, ComponentInteraction, Constants, Embed, Member, Message, ModalComponent, ModalSubmitInteraction } from "oceanic.js";
 import { Options } from "../../../Base/Command";
 import ExtendedClient from "../../../Base/Client";
 import Main from "../main";
@@ -138,6 +138,40 @@ export const updateHandler = async (bot: ExtendedClient, component: ComponentInt
 			type: "rich"
 		};
 		component.createMessage({ embeds: [embed], flags: Constants.MessageFlags.EPHEMERAL });
+		throw new Error(e as string);
+	}
+
+};
+
+export const modalHandler = async (bot: ExtendedClient, modal: ModalSubmitInteraction, authorID: string): Promise<Message | void> => {
+
+	const command = bot.commands.filter((c) => c.commands.includes(modal.data.customID.split("_")[0]))[0];
+	if (!command) return;
+
+	const member = modal.member	as Member;
+
+	if (member.id !== authorID) return;
+
+	try {
+		await command.modalSubmit(modal);
+	} catch (e) {
+		const embed: Embed = {
+			author: {
+				name: "Command Error"
+			},
+			color: bot.constants.config.colors.red,
+			fields: [{
+				name: "Error",
+				value: `\`\`\`x1\n${e}\n\`\`\``
+			},
+			{
+				name: "What do I do?",
+				value: "Report the error to an admin if you cannot solve this"
+			}
+			],
+			type: "rich"
+		};
+		modal.createMessage({ embeds: [embed], flags: Constants.MessageFlags.EPHEMERAL });
 		throw new Error(e as string);
 	}
 

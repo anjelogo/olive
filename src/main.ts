@@ -14,7 +14,7 @@ import monk, { IMonkManager } from "monk";
 import { Auth } from "./resources/auth";
 
 interface ExtendedOptions extends ClientOptions {
-	disabledModules?: ("Main" | "VC" | "Roles")[];
+	disabledModules?: ("Main" | "VC" | "Roles" | "Starboard" | "Moderation")[];
 }
 
 export default class Olive extends Client {

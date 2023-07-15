@@ -9,7 +9,7 @@ export const run = async (bot: ExtendedClient, member: Member, channel: VoiceCha
 
 	if (!channel.parentID) return;
 
-	const data: moduleData = (await bot.getModuleData("VC", channel.guild) as unknown) as moduleData,
+	const data: moduleData = (await bot.getModuleData("VC", channel.guild.id) as unknown) as moduleData,
 		cat: Category | undefined = data.categories.find((c: Category) => c.catID === channel.parentID);
 
 	if (!cat) return;
@@ -24,7 +24,7 @@ export const run = async (bot: ExtendedClient, member: Member, channel: VoiceCha
 			const logging = await bot.getModule("Logging") as Logging;
 			logging.log(channel.guild, "vc", {embeds: [{
 				type: "rich",
-				title: `${member.username}#${member.discriminator}`,
+				title: `${member.tag}`,
 				description: `Joined \`${channel.name}\``,
 				author: {
 					name: "Joined Private Voice Channel",

@@ -1,4 +1,4 @@
-import { Constants, ApplicationCommandTypes, CommandInteraction, ComponentInteraction, Message, ApplicationCommandOptions } from "oceanic.js";
+import { Constants, ApplicationCommandTypes, CommandInteraction, ComponentInteraction, Message, ApplicationCommandOptions, ModalSubmitInteraction } from "oceanic.js";
 import ExtendedClient from "./Client";
 import { Constants as CustomConstants } from "../resources/interfaces";
 
@@ -26,6 +26,7 @@ export default class Command {
 	public guildSpecific?: string[];
 	public execute: (interaction: CommandInteraction) => Promise<Message | undefined | void> | undefined;
 	public update: (component: ComponentInteraction) => Promise<Message | undefined | void> | undefined;
+	public modalSubmit: (modal: ModalSubmitInteraction) => Promise<Message | undefined | void> | undefined;
 
 	constructor(bot: ExtendedClient) {
 		this.commands = [];
@@ -39,6 +40,7 @@ export default class Command {
 
 		this.execute = () => { return undefined; };
 		this.update = () => { return undefined; };
+		this.modalSubmit = () => { return undefined; };
 	}
 
 }
