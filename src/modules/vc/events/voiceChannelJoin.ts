@@ -15,16 +15,16 @@ export const run = async (bot: ExtendedClient, member: Member, channel: VoiceCha
 	if (!cat) return;
 
 	if (channel.id === cat.channelID) await create(bot, member, channel);
-	
-	const channelObj: Channel | undefined = cat.channels.find((c) => c.channelID === channel.id);
 
-	if (channelObj) {
+  const channelObj = cat.channels.find((c: Channel) => c.channelID === channel.id);
+
+  if (channelObj) {
 		if (await bot.getModule("Main").handlePermission(member, "vc.join")) {
 			//get logging module
 			const logging = await bot.getModule("Logging") as Logging;
 			logging.log(channel.guild, "vc", {embeds: [{
 				type: "rich",
-				title: `${member.tag}`,
+				title: `${member.username}`,
 				description: `Joined \`${channel.name}\``,
 				author: {
 					name: "Joined Private Voice Channel",

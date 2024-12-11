@@ -33,11 +33,31 @@ export const create = async (bot: ExtendedClient, member: Member, channel: Voice
 	};
 
 	member.edit({ channelID: voice.id });
+		
+	category.channels.push(newChannel);
+	await bot.updateModuleData("VC", data, channel.guild);
 
-	const logging = await bot.getModule("Logging") as Logging;
+  // send a message to the user
+  try {
+    const dm = await member.user.createDM();
+    await dm.createMessage({
+      embeds: [{
+        description: `You have created \`${voice.name}\`!\n\nYou can lock the channel by using \`/vc lock\` and unlock it by using \`/vc unlock\`.\nView information about the channel by using \`/vc info\`.\n\nLeaving the channel will delete it or transfer ownership to another member if there are other members in the channel.`,
+        author: {
+          name: "Private Voice Channel Created",
+        },
+        color: bot.constants.config.colors.default,
+        timestamp: new Date().toISOString(),
+      }]
+    })
+  } catch (e) {
+    console.error(e);
+  }
+  
+  const logging = await bot.getModule("Logging") as Logging;
 	logging.log(channel.guild, "vc", {embeds: [{
 		type: "rich",
-		title: `${member.username}#${member.discriminator}`,
+		title: `${member.username}`,
 		description: `Created \`${voice.name}\``,
 		author: {
 			name: "Create New Private Voice Channel",
@@ -49,9 +69,6 @@ export const create = async (bot: ExtendedClient, member: Member, channel: Voice
 			text: `ID: ${member.id}`
 		}
 	}]});
-		
-	category.channels.push(newChannel);
-	await bot.updateModuleData("VC", data, channel.guild);
 };
 
 export const remove = async (bot: ExtendedClient, member: Member, channel: VoiceChannel | StageChannel): Promise<void> => {
@@ -67,7 +84,7 @@ export const remove = async (bot: ExtendedClient, member: Member, channel: Voice
 	const logging = await bot.getModule("Logging") as Logging;
 	logging.log(channel.guild, "vc", {embeds: [{
 		type: "rich",
-		title: `${member.tag}`,
+		title: `${member.username}`,
 		description: `Left \`${channel.name}\``,
 		author: {
 			name: "Left Private Voice Channel",
@@ -90,7 +107,7 @@ export const remove = async (bot: ExtendedClient, member: Member, channel: Voice
 
 		logging.log(channel.guild, "vc", {embeds: [{
 			type: "rich",
-			title: `${member.tag}`,
+			title: `${member.username}`,
 			description: `Ended \`${channel.name}\``,
 			author: {
 				name: "Ended Private Voice Channel",
@@ -119,7 +136,7 @@ export const remove = async (bot: ExtendedClient, member: Member, channel: Voice
 
 		logging.log(channel.guild, "vc", {embeds: [{
 			type: "rich",
-			title: `${member.tag} -> ${newOwner.tag}`,
+			title: `${member.username} -> ${newOwner.username}`,
 			description: `Set \`${newOwner.username}\` the owner of \`${channel.name}\``,
 			author: {
 				name: "Transferred Private Voice Channel Ownership",
@@ -132,7 +149,13 @@ export const remove = async (bot: ExtendedClient, member: Member, channel: Voice
 			}
 		}]});
 
-		const newOwnerDM = await newOwner.user.createDM();
-		await newOwnerDM.createMessage({content: `${bot.constants.emojis.warning.yellow} You are now the owner of \`${channel.name}\` in \`${channel.guild.name}\`!`});
+    try {
+      const newOwnerDM = await newOwner.user.createDM();
+      await newOwnerDM.createMessage({content: `${bot.constants.emojis.warning.yellow} You are now the owner of \`${channel.name}\` in \`${channel.guild.name}\`!`});
+      const oldOwnerDM = await member.user.createDM();
+      await oldOwnerDM.createMessage({content: `${bot.constants.emojis.warning.yellow} Ownership of \`${channel.name}\` has been transferred to \`${newOwner.tag}\` for \`${channel.guild.name}\`!`});
+    } catch (e) {
+      console.error(e);
+    }
 	}
 };

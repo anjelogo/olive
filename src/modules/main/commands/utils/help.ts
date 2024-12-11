@@ -17,58 +17,57 @@ export default class Help extends Command {
 
 	}
 
-	readonly execute = async (interaction: CommandInteraction): Promise<Message | void> => {
-		const embed: Embed = {
-			type: "rich",
-			author: {
-				name: this.bot.user.username,
-				iconURL: this.bot.user.avatarURL()
-			},
-			color: this.bot.constants.config.colors.default,
-			description: "🌴 *A Multi-Purpose Bot made by a community, for a community.* 🌴\n\n**OLIVE** is a multi-purpose bot that includes a variety of modules to help your community thrive! Get start by viewing a list of commands by clicking on the button below!"
-		},
-			components: MessageActionRow[] = [
+ readonly homeEmbed: Embed = {
+		type: "rich",
+		color: this.bot.constants.config.colors.default,
+		description: "🌴 *A Multi-Purpose Bot made by a community, for a community.* 🌴\n\n**OLIVE** is a multi-purpose bot that includes a variety of modules to help your community thrive! Get start by viewing a list of commands by clicking on the button below!"
+ }
+
+ readonly components: MessageActionRow[] = [
+		{
+			type: Constants.ComponentTypes.ACTION_ROW,
+			components: [
 				{
-					type: Constants.ComponentTypes.ACTION_ROW,
-					components: [
-						{
-							type: Constants.ComponentTypes.BUTTON,
-							style: Constants.ButtonStyles.LINK,
-							url: "https://discord.gg/DEhvVXdVvv",
-							label: "Support Server"			
-						}, {
-							type: Constants.ComponentTypes.BUTTON,
-							style: Constants.ButtonStyles.LINK,
-							url: "https://discord.gg/DEhvVXdVvv",
-							label: "Website"			
-						}, {
-							type: Constants.ComponentTypes.BUTTON,
-							style: Constants.ButtonStyles.LINK,
-							url: "https://discord.gg/DEhvVXdVvv",
-							label: "Donate"			
-						}, {
-							type: Constants.ComponentTypes.BUTTON,
-							style: Constants.ButtonStyles.LINK,
-							url: this.bot.constants.config.invite,
-							label: "Invite"			
-						}
-					]
+					type: Constants.ComponentTypes.BUTTON,
+					style: Constants.ButtonStyles.LINK,
+					url: "https://discord.gg/DEhvVXdVvv",
+					label: "Support Server"			
 				}, {
-					type: Constants.ComponentTypes.ACTION_ROW,
-					components: [
-						{
-							type: Constants.ComponentTypes.BUTTON,
-							style: Constants.ButtonStyles.PRIMARY,
-							label: "View Commands",
-							customID: `help_${interaction.member?.id}_commandembed`,
-						}
-					]
+					type: Constants.ComponentTypes.BUTTON,
+					style: Constants.ButtonStyles.LINK,
+					url: "https://discord.gg/DEhvVXdVvv",
+					label: "Website"			
+				}, {
+					type: Constants.ComponentTypes.BUTTON,
+					style: Constants.ButtonStyles.LINK,
+					url: "https://discord.gg/DEhvVXdVvv",
+					label: "Donate"			
+				}, {
+					type: Constants.ComponentTypes.BUTTON,
+					style: Constants.ButtonStyles.LINK,
+					url: this.bot.constants.config.invite,
+					label: "Invite"			
 				}
-			];
+			]
+		}, {
+			type: Constants.ComponentTypes.ACTION_ROW,
+			components: []
+		}
+ ];
+
+	readonly execute = async (interaction: CommandInteraction): Promise<Message | void> => {
+  this.components[1].components = [
+   {
+    type: Constants.ComponentTypes.BUTTON,
+    style: Constants.ButtonStyles.PRIMARY,
+    label: "View Commands",
+    customID: `help_${interaction.member?.id}_commandembed`,
+   }
+  ];
 
 		if (await this.bot.getModule("Main").hasPerm(interaction.member, "main.permnode.view"))
-			if (components[1].components)
-				components[1].components.push(
+			if (this.components[1].components)
+				this.components[1].components.push(
 					{
 						type: Constants.ComponentTypes.BUTTON,
 						style: Constants.ButtonStyles.PRIMARY,
@@ -79,18 +78,18 @@ export default class Help extends Command {
 
 		return await interaction.createMessage(
 			{
-				embeds: [embed],
-				components
+				embeds: [this.homeEmbed],
+				components: this.components,
+				flags: Constants.MessageFlags.EPHEMERAL
 			}
 		);
 	}
 
 	readonly update = async (component: ComponentInteraction): Promise<Message | void> => {
 
-		switch (component.data.customID.split("_")[1]) {
+		switch (component.data.customID.split("_")[2]) {
 
 		case "commandembed": {
-			await component.deferUpdate();
 
 			const commands: Command[] = this.bot.commands.filter((c) => !c.devOnly);
 
@@ -167,8 +166,6 @@ export default class Help extends Command {
 		}
 
 		case "permissionembed": {
-			await component.deferUpdate();
-			
 			const fields: EmbedField[] = [];
 
 			fields.push({ name: "Administrator", value: "`*` (All Permissions)", inline: false });
@@ -241,12 +238,10 @@ export default class Help extends Command {
 		}
 
 		case "commandmenu": {
-			await component.deferUpdate();
-
 			const command = this.bot.commands.find((c) => c.commands[0] === (component.data as MessageComponentSelectMenuInteractionData).values.getStrings()[0]);
 
 			if (!command)
-				return component.createMessage({content: "Could not find the command!"});
+				return component.editParent({content: "Could not find the command!"});
 
 			const helpEmbed = await this.bot.getModule("Main").createHelpEmbed(command);
 
@@ -271,8 +266,6 @@ export default class Help extends Command {
 		}
 
 		case "modulecomponent": {
-			await component.deferUpdate();
-
 			const moduleName = (component.data as MessageComponentSelectMenuInteractionData).values.getStrings()[0],
 				perms = this.bot.perms.filter((p) => p.name.split(/[.\-_]/)[0].toLowerCase() === moduleName.toLowerCase());
 
@@ -313,8 +306,6 @@ export default class Help extends Command {
 		}
 
 		case "permissionmenu": {
-			await component.deferUpdate();
-
 			const permnode: Permnodes = this.bot.perms.find((p) => p.name === ((component.data as MessageComponentSelectMenuInteractionData).values.getStrings()[0])) as Permnodes;
 
 			const embed: Embed = {
@@ -345,7 +336,12 @@ export default class Help extends Command {
 		}
 
 		case "home": {
-			return await this.execute((component as unknown) as CommandInteraction);
+   return await component.editParent(
+    {
+     embeds: [this.homeEmbed],
+     components: this.components
+    }
+   );
 		}
 
 		}

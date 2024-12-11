@@ -460,8 +460,6 @@ export default class Permnode extends Command {
 		switch(component.data.customID.split("_")[2]) {
 
 		case "viewinheritance": {
-			await component.deferUpdate();
-
 			const obj = await constructEmbed(this.bot, component, data.roles[data.page].id);
 
 			return component.editOriginal({
@@ -472,7 +470,6 @@ export default class Permnode extends Command {
 
 		case "viewnextinheritance": {
 			data.page++;
-			await component.deferUpdate();
 
 			const obj = await constructEmbed(this.bot, component, data.roles[data.page].id);
 
@@ -484,7 +481,6 @@ export default class Permnode extends Command {
 
 		case "viewpreviousinheritance": {
 			data.page--;
-			await component.deferUpdate();
 
 			const obj = await constructEmbed(this.bot, component, data.roles[data.page].id);
 
@@ -496,7 +492,6 @@ export default class Permnode extends Command {
 
 		case "viewmemberdefined": {
 			data.page = 0;
-			await component.deferUpdate();
 
 			(component as any).data.options = [
 				{
