@@ -35,5 +35,13 @@ export default [
 		name: "main.permnode.list",
 		description: "Grants access to list permnodes",
 		default: false
-	}
+	}, {
+    name: "main.emoji.*",
+    description: "Grants access to all emoji features",
+    default: false
+  }, {
+    name: "main.emoji.copy",
+    description: "Grants access to copy emojis",
+    default: false
+  }
 ];
