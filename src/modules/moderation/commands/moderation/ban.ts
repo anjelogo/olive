@@ -41,7 +41,7 @@ export default class Ban extends Command {
 
 		const guild = this.bot.findGuild(interaction.guildID) as Guild,
 			moderator = interaction.member,
-			memberString = interaction.data.options.getString("user", true);
+			memberString = interaction.data.options.getUser("user", true);
 
 		if (!moderator)
 			return interaction.createFollowup({
@@ -55,7 +55,7 @@ export default class Ban extends Command {
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
 
-		const userToBan = this.bot.findMember(guild, memberString) as Member;
+		const userToBan = this.bot.findMember(guild, memberString.id) as Member;
 
 		if (!userToBan)
 			return interaction.createFollowup({
@@ -108,6 +108,11 @@ export default class Ban extends Command {
 				content: `${this.bot.constants.emojis.x} You can't ban a user with a higher role than you!`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
+    if (userToBanHighestRole.position === memberHighestRole.position)
+      return interaction.createFollowup({
+        content: `${this.bot.constants.emojis.x} You can't ban a user with the same role as you!`,
+        flags: Constants.MessageFlags.EPHEMERAL
+      });
 		if (userToBanHighestRole.position > botHighestRole.position)
 			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.x} User has a role higher than the bot!`,

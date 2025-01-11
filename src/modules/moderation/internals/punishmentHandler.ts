@@ -36,7 +36,7 @@ export async function punish(bot: ExtendedClient, guild: Guild, data: Case): Pro
 			footer: {
 				text: `Case ID: ${data.id}`
 			},
-			timestamp: new Date().toDateString(),
+			timestamp: new Date().toISOString(),
 			color: bot.constants.config.colors.default
 		};
 

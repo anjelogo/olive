@@ -103,6 +103,11 @@ export default class Kick extends Command {
 				content: `${this.bot.constants.emojis.x} You can't kick a user with a higher role than you!`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
+    if (userToKick.id === this.bot.user.id)
+      return interaction.createFollowup({
+        content: `${this.bot.constants.emojis.x} You can't kick the bot!`,
+        flags: Constants.MessageFlags.EPHEMERAL
+      });
 		if (userToKickHighestRole.position > botHighestRole.position)
 			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.x} User has a role higher than the bot!`,

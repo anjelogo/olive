@@ -86,6 +86,6 @@ export async function resolveCase(bot: ExtendedClient, guild: Guild, caseID: str
 		await bot.updateModuleData("Moderation", data, guild);
 		await updateLogEntry(bot, guild, caseToResolve);
 	} catch (e) {
-		throw new Error(e as string);
+    // eslint-disable-next-line no-console
 	}
 }

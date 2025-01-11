@@ -103,6 +103,11 @@ export default class Warn extends Command {
 				content: `${this.bot.constants.emojis.x} You can't warn a user with a higher role than you!`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
+    if (userToWarnHighestRole.position === memberHighestRole.position)
+      return interaction.createFollowup({
+        content: `${this.bot.constants.emojis.x} You can't warn a user with the same role as you!`,
+        flags: Constants.MessageFlags.EPHEMERAL
+      });
 		if (userToWarnHighestRole.position > botHighestRole.position)
 			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.x} User has a role higher than the bot!`,
