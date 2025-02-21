@@ -2,13 +2,13 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Client, ClientOptions } from "oceanic.js";
-import { Constants as CustomConstants, Permnodes } from "./resources/interfaces";
-import { promises as fs } from "fs";
 import * as Config from "./resources/config";
 import * as utils from "./resources/utils";
 import Command from "./Base/Command";
 import Module from "./Base/Module";
+import { Client, ClientOptions } from "oceanic.js";
+import { Constants as CustomConstants, Permnodes } from "./resources/interfaces";
+import { promises as fs } from "fs";
 import { CustomData } from "./modules/main/internals/CustomDataHandler";
 import monk, { IMonkManager } from "monk";
 import { Auth } from "./resources/auth";

@@ -12,7 +12,8 @@ export const commandHandler = async (bot: ExtendedClient, interaction: CommandIn
 		mainModule: Main = bot.getModule("Main");	
 
 	if (!command) return;
-	if (interaction.channel && interaction.channel.type !== 0) return interaction.createMessage({content: `${bot.constants.emojis.x} You can only run these commands in servers!`});
+	if (interaction.channel && interaction.channel.type !== Constants.ChannelTypes.GUILD_TEXT && interaction.data.type === Constants.ApplicationCommandTypes.MESSAGE)
+    return interaction.createMessage({content: `${bot.constants.emojis.x} You can only run these commands in servers!`, flags: Constants.MessageFlags.EPHEMERAL});
 
 	const requirePerms: string[] = [],
 		permissions: string[] = [];
