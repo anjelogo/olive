@@ -3,6 +3,7 @@ import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import Main from "../../../main/main";
 import { moduleData } from "../../main";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class Roles extends Command {
 
@@ -61,7 +62,7 @@ export default class Roles extends Command {
 
 	}
 
-	readonly execute = async (interaction: CommandInteraction): Promise<Message | void> => {
+	readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
 		await interaction.defer();
 
 		const mainModule: Main = this.bot.getModule("Main"),
@@ -330,7 +331,7 @@ export default class Roles extends Command {
 
 			try {
 				await Promise.all(promises);
-				await component.editParent(
+				await component.editOriginal(
 					{
 						content: `${this.bot.constants.emojis.tick} You have recieved the role(s): ${names.join(", ")}.`,
 						components: []
@@ -347,8 +348,8 @@ export default class Roles extends Command {
 				}
 				return;
 			} catch (e) {
-				throw new Error(e as string);
-				return component.editParent({ content: "There was an error", components: undefined });
+				component.editOriginal({ content: "There was an error", components: undefined });
+        throw new Error("Error adding roles: " + e);
 			}
 		}
 
@@ -381,7 +382,7 @@ export default class Roles extends Command {
 
 			try {
 				await Promise.all(promises);
-				await component.editParent(
+				await component.editOriginal(
 					{
 						content: `${this.bot.constants.emojis.tick} The following role(s) were removed: ${names.join(", ")}.`,
 						components: []
@@ -398,14 +399,14 @@ export default class Roles extends Command {
 				}
 				return;
 			} catch (e) {
-				return component.editParent({ content: "There was an error", components: undefined });
+				return component.editOriginal({ content: "There was an error", components: undefined });
 			}
 		}
 
 		case "cancel": {
 			component.deferUpdate();
 
-			return component.editParent({ content: "Cancelled", components: undefined });
+			return component.editOriginal({ content: "Cancelled", components: undefined });
 		}
 
 		}

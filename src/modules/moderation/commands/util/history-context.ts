@@ -2,6 +2,7 @@ import { CommandInteraction, Constants, Message } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import History from "./history";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class HistoryContext extends Command {
     
@@ -14,10 +15,10 @@ export default class HistoryContext extends Command {
 		this.type = Constants.ApplicationCommandTypes.USER;
 	}
 
-	public execute = async (interaction: CommandInteraction): Promise<Message | undefined | void> => {
+	public execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
 
 		const member = interaction.data.resolved.members.first();
-		if (!member) return await interaction.createMessage({content: "Member not found"});
+		if (!member) return interaction.createFollowup({content: "Member not found"});
 
 		(interaction as any).data.options = [
 			{
@@ -33,6 +34,7 @@ export default class HistoryContext extends Command {
 			}
 		];
 
-		return await new History(this.bot).execute(interaction as unknown as CommandInteraction);
+		await new History(this.bot).execute(interaction as unknown as CommandInteraction);
+    return;
 	}
 }

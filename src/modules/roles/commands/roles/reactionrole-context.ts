@@ -2,6 +2,7 @@ import { CommandInteraction, Constants, Message } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import Reactionrole from "./reactionrole";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class ReactionroleContext extends Command {
 	constructor(bot: ExtendedClient) {
@@ -13,11 +14,11 @@ export default class ReactionroleContext extends Command {
 		this.type = Constants.ApplicationCommandTypes.MESSAGE;
 	}
 
-	public execute = async (interaction: CommandInteraction): Promise<Message | undefined | void> => {
+	public execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
 
 		const message = interaction.data.resolved.messages.first();
 
-		if (!message) return await interaction.createMessage({content: "Message not found", flags: Constants.MessageFlags.EPHEMERAL});
+		if (!message) return interaction.createFollowup({content: "Message not found", flags: Constants.MessageFlags.EPHEMERAL});
 
 		(interaction as any).data.options = [
 			{
@@ -33,6 +34,7 @@ export default class ReactionroleContext extends Command {
 			}
 		];
 
-		return await new Reactionrole(this.bot).execute(interaction as unknown as CommandInteraction);
+		await new Reactionrole(this.bot).execute(interaction as unknown as CommandInteraction);
+    return;
 	}
 }

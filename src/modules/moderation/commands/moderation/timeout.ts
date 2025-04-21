@@ -4,6 +4,7 @@ import ExtendedClient from "../../../../Base/Client";
 import { autoCalculateInfractions, punish } from "../../internals/punishmentHandler";
 import uniqid from "uniqid";
 import { Case } from "../../main";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class Timeout extends Command {
 
@@ -31,7 +32,7 @@ export default class Timeout extends Command {
 
 	}
 
-	readonly execute = async (interaction: CommandInteraction): Promise<Message | void> => {
+	readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
 		await interaction.defer(Constants.MessageFlags.EPHEMERAL);
 
 		const guild = this.bot.findGuild(interaction.guildID) as Guild,

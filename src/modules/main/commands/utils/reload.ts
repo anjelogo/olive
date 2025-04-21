@@ -1,6 +1,7 @@
 import { CommandInteraction, ComponentInteraction, Constants, Message } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class Reload extends Command {
 	
@@ -16,7 +17,7 @@ export default class Reload extends Command {
 	
 	}
 
-	readonly execute = async (interaction: CommandInteraction): Promise<Message | void> => {
+	readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
 		await interaction.defer(Constants.MessageFlags.EPHEMERAL);
 		
 		return interaction.createFollowup({
@@ -55,7 +56,7 @@ readonly update = async (component: ComponentInteraction): Promise<Message | voi
 		try {
 			await this.bot.reload();
 
-			return component.editParent({
+			return component.editOriginal({
 				embeds: [
 					{
 						color: 1416145,
@@ -70,7 +71,7 @@ readonly update = async (component: ComponentInteraction): Promise<Message | voi
 	}
 
 	case "no": {
-		return component.editParent({
+		return component.editOriginal({
 			embeds: [
 				{
 					color: 1416145,

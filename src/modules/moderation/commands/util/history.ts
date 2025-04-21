@@ -2,6 +2,7 @@ import { CommandInteraction, Constants, Guild, Message } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import { getCases, removeCase } from "../../internals/caseHandler";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class History extends Command {
 
@@ -43,7 +44,7 @@ export default class History extends Command {
 
 	}
 
-	readonly execute = async (interaction: CommandInteraction): Promise<Message | void> => {
+	readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
 		await interaction.defer(Constants.MessageFlags.EPHEMERAL);
 		
 		const guild = this.bot.findGuild(interaction.guildID) as Guild,

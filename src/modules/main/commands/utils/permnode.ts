@@ -5,6 +5,7 @@ import { Entity } from "../../../../resources/interfaces";
 import { upsertCustomData, getCustomData } from "../../internals/CustomDataHandler";
 import { Permissions } from "../../internals/permissions";
 import { moduleData } from "../../main";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class Permnode extends Command {
 	
@@ -76,7 +77,7 @@ export default class Permnode extends Command {
 		];
 	}
 
-	readonly execute = async (interaction: CommandInteraction): Promise<Message | void> => {
+	readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
 		await interaction.defer();
 		
 		const guild = this.bot.findGuild(interaction.guildID) as Guild,
@@ -506,7 +507,8 @@ export default class Permnode extends Command {
 					]
 				}
 			];
-			return this.execute(component as unknown as CommandInteraction);
+			this.execute(component as unknown as CommandInteraction);
+      return;
 		}
 
 		}

@@ -1,20 +1,21 @@
-import { MessageActionRow, CommandInteraction, ComponentInteraction, Constants, Embed, Emoji, Guild, Member, Message, Role, TextChannel, MessageComponentSelectMenuInteractionData, SelectOption } from "oceanic.js";
+import { MessageActionRow, CommandInteraction, ComponentInteraction, Constants, Embed, Guild, Member, Message, Role, TextChannel, MessageComponentSelectMenuInteractionData, SelectOption, PartialEmoji } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import { upsertCustomData, getCustomData } from "../../../main/internals/CustomDataHandler";
 import { moduleData, RolesMessage } from "../../main";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 interface CustomDataStructure {
 	id: string,
 	channelID: string,
 	reactionRoles: {
 		role: string;
-		emote: Partial<Emoji>;	
+		emote: PartialEmoji
 	}[],
 	partial: Partial<
 	{
 		role: string;
-		emote: Partial<Emoji>;
+		emote: PartialEmoji;
 	}>
 }
 
@@ -103,9 +104,9 @@ export default class Reactionrole extends Command {
 	> => {
 		const customData = await getCustomData(bot, (interaction as CommandInteraction).id)?.data as CustomDataStructure,
 			guild = bot.findGuild(interaction.guildID) as Guild,
-			emotes: Partial<Emoji>[] = Object.values(this.bot.constants.emojis.numbers)
+			emotes: PartialEmoji[] = Object.values(this.bot.constants.emojis.numbers)
 				.map((e) => this.bot.constants.utils.resolveEmoji(e))
-				.filter((e: Partial<Emoji>) => !customData.reactionRoles.find((r) => r.emote.id === e.id));
+				.filter((e: PartialEmoji) => !customData.reactionRoles.find((r) => r.emote.id === e.id));
 
 		return {
 			home: [
@@ -256,7 +257,7 @@ export default class Reactionrole extends Command {
 		return embed;
 	}
 
-	readonly execute = async (interaction: (CommandInteraction)): Promise<Message | void> => {
+	readonly execute = async (interaction: (CommandInteraction)): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
 		await interaction.defer();
 
 		const guild = this.bot.findGuild(interaction.guildID) as Guild,
@@ -305,7 +306,7 @@ export default class Reactionrole extends Command {
 
 		case "addselectrole": {
 
-			return component.editParent(
+			return component.editOriginal(
 				{
 					components: (await this.components(this.bot, component)).addSelectRole
 				}
@@ -314,7 +315,7 @@ export default class Reactionrole extends Command {
 
 		case "removeselectrole": {
 
-			return await component.editParent(
+			return await component.editOriginal(
 				{
 					components: (await this.components(this.bot, component)).removeSelectRole
 				}
@@ -326,7 +327,7 @@ export default class Reactionrole extends Command {
 
 			customData.partial.role = (component.data as MessageComponentSelectMenuInteractionData).values.raw[0];
 
-			return component.editParent(
+			return component.editOriginal(
 				{
 					components: (await this.components(this.bot, component)).addSelectReaction
 				}
@@ -347,19 +348,19 @@ export default class Reactionrole extends Command {
 			try {
 				message = this.bot.findMessage(this.bot.getChannel(customData.channelID) as TextChannel, customData.id);
 			} catch (e) {
-				return component.editParent({ content: "I could not find that message." });
+				return component.editOriginal({ content: "I could not find that message." });
 			}
 
 			if (!message)
-				return component.editParent({ content: "I could not find that message." });
+				return component.editOriginal({ content: "I could not find that message." });
 
-			customData.reactionRoles.push(customData.partial as { role: string; emote: Partial<Emoji>; });
+			customData.reactionRoles.push(customData.partial as { role: string; emote: PartialEmoji; });
 
 			customData.partial = {};
 
 			const embed = this.create(this.bot, component, message);
 
-			return await component.editParent(
+			return await component.editOriginal(
 				{
 					content: undefined,
 					embeds: [embed],
@@ -381,11 +382,11 @@ export default class Reactionrole extends Command {
 			try {
 				message = this.bot.findMessage(this.bot.getChannel(customData.channelID) as TextChannel, customData.id);
 			} catch (e) {
-				return component.editParent({ content: "I could not find that message." });
+				return component.editOriginal({ content: "I could not find that message." });
 			}
 
 			if (!message)
-				return component.editParent({ content: "I could not find that message." });
+				return component.editOriginal({ content: "I could not find that message." });
 
 			customData.reactionRoles.splice(customData.reactionRoles.findIndex((r) => r.role === customData.partial.role), 1);
 
@@ -393,7 +394,7 @@ export default class Reactionrole extends Command {
 
 			const embed = this.create(this.bot, component, message);
 
-			return await component.editParent(
+			return await component.editOriginal(
 				{
 					content: undefined,
 					embeds: [embed],
@@ -408,15 +409,15 @@ export default class Reactionrole extends Command {
 			try {
 				message = this.bot.findMessage(this.bot.getChannel(customData.channelID) as TextChannel, customData.id);
 			} catch (e) {
-				return component.editParent({ content: "I could not find that message." });
+				return component.editOriginal({ content: "I could not find that message." });
 			}
 
 			if (!message)
-				return component.editParent({ content: "I could not find that message." });
+				return component.editOriginal({ content: "I could not find that message." });
 
 			customData.partial = {};
 
-			return await component.editParent(
+			return await component.editOriginal(
 				{
 					content: undefined,
 					embeds: [this.create(this.bot, component, message)],
@@ -441,7 +442,7 @@ export default class Reactionrole extends Command {
 			moduleData.messages.push(obj);
 
 			try {
-				await component.editParent(
+				await component.editOriginal(
 					{
 						content: `${this.bot.constants.emojis.tick} Message is being constructed...`,
 						embeds: [],
@@ -462,7 +463,7 @@ export default class Reactionrole extends Command {
 
 					await message?.createReaction(emote);
 				}
-				return await component.editParent(
+				return await component.editOriginal(
 					{
 						content: `${this.bot.constants.emojis.tick} Successfully edited Reactions Roles for Message: \`${customData.id}\``,
 						embeds: [],
@@ -470,13 +471,13 @@ export default class Reactionrole extends Command {
 					}
 				);
 			} catch (e) {
-				component.editParent({ content: "There was an error while editing." });
+				component.editOriginal({ content: "There was an error while editing." });
 				throw new Error(e as string);
 			}
 		}
 
 		case "cancel": {
-			return component.editParent(
+			return component.editOriginal(
 				{
 					content: `${this.bot.constants.emojis.x} Cancelled.`,
 					embeds: [],

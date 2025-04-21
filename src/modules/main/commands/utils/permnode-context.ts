@@ -2,6 +2,7 @@ import { CommandInteraction, Constants, Member, Message } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import Permnode from "./permnode";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class PermnodeContext extends Command {
 		
@@ -14,11 +15,11 @@ export default class PermnodeContext extends Command {
 		this.type = Constants.ApplicationCommandTypes.USER;
 	}
 
-		public execute = async (interaction: CommandInteraction): Promise<Message | undefined | void> => {
+		public execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
 
 			const member = interaction.data.resolved.members.find((m: Member) => m.id === interaction.data.targetID);
 
-			if (!member) return await interaction.createMessage({content: "Member not found"});
+			if (!member) return await interaction.createFollowup({content: "Member not found"});
 
 			// ignore this hacky way of using the interaction as a command
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -36,6 +37,7 @@ export default class PermnodeContext extends Command {
 				}
 			];
 
-			return await new Permnode(this.bot).execute(interaction as unknown as CommandInteraction);
+			await new Permnode(this.bot).execute(interaction as unknown as CommandInteraction);
+      return;
 		}
 }

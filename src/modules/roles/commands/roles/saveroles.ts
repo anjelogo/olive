@@ -2,6 +2,7 @@ import { CommandInteraction, Constants, Guild, Message } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import { moduleData } from "../../main";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class Saveroles extends Command {
 
@@ -14,7 +15,7 @@ export default class Saveroles extends Command {
 		this.permissions = ["roles.save.toggle"];
 	}
 
-	readonly execute = async (interaction: CommandInteraction): Promise<Message | void> => {
+	readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
 		await interaction.defer(Constants.MessageFlags.EPHEMERAL);
 
 		const guild = this.bot.findGuild(interaction.guildID) as Guild,

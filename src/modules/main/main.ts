@@ -73,7 +73,7 @@ export default class Main extends Module {
 		return perms;
 	}
 
-	readonly hasPerm = async (member: Member | undefined, perm: string): Promise<boolean> => {
+	readonly hasPerm = async (member: Member | null, perm: string): Promise<boolean> => {
 		if (!member || !perm) return false;
 
 		const masterPerm = `${perm.split(/[.\-_]/)[0]}.*`,

@@ -2,6 +2,7 @@ import { CommandInteraction, Constants, Guild, Message } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import { moduleData } from "../../main";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class Starboard extends Command {
 
@@ -31,7 +32,7 @@ export default class Starboard extends Command {
 
 	}
 
-	readonly execute = async (interaction: CommandInteraction): Promise<Message | void> => {
+	readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
 
 		const guild = this.bot.findGuild(interaction.guildID) as Guild,
 			data = await this.bot.getModuleData("Starboard", guild.id) as moduleData,

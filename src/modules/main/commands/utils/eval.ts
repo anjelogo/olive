@@ -1,6 +1,7 @@
 import Eris, { CommandInteraction, Constants } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class Eval extends Command {
 	
@@ -23,7 +24,7 @@ export default class Eval extends Command {
 	
 	}
 
-	readonly execute = async (interaction: CommandInteraction): Promise<void> => {
+	readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
 
 		const code = (interaction.data.options.getStringOption("expression"))?.value as string;
 
@@ -37,7 +38,7 @@ export default class Eval extends Command {
 				interaction.reply("Output exceeded 4000 characters");
 			} */
 
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				embeds: [
 					{
 						color: 1416145,
@@ -57,7 +58,7 @@ export default class Eval extends Command {
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
 		} catch (e) {
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				embeds: [
 					{
 						color: 14161450,

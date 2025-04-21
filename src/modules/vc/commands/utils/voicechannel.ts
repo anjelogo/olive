@@ -1,9 +1,10 @@
-import { CommandInteraction, Constants, Embed, Guild, Member, Message, Role, VoiceChannel, ModalActionRow, ModalSubmitInteraction } from "oceanic.js";
+import { CommandInteraction, Constants, Embed, Guild, Member, Message, Role, VoiceChannel, ModalActionRow, ModalSubmitInteraction, InteractionCallbackResponse, AnyInteractionChannel, Uncached } from "oceanic.js";
 import { Category, Channel } from "../../internals/interfaces";
 import { moduleData } from "../../main";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import Logging from "../../../logging/main";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class Voicechannel extends Command {
 	
@@ -86,7 +87,7 @@ export default class Voicechannel extends Command {
 		];
 	}
 
-	public execute = async (interaction: CommandInteraction): Promise<Message | void> => {
+	public execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | InteractionCallbackResponse<AnyInteractionChannel | Uncached> | void> => {
 		//Since the voicechannel command takes a bit to load data, we'll defer the interaction.
 		if (interaction.data.options.getSubCommand(true)[1] !== "name")
 			await interaction.defer(Constants.MessageFlags.EPHEMERAL);
@@ -107,18 +108,18 @@ export default class Voicechannel extends Command {
 
 			case "name": {
 				if (!member.voiceState?.channelID)
-					return interaction.createMessage({content: "You need to be in a Private Voice channel to run this command!"});
+					return interaction.createFollowup({content: "You need to be in a Private Voice channel to run this command!"});
 
 				const channel: VoiceChannel = this.bot.findChannel(guild, member.voiceState.channelID) as VoiceChannel,
 					cat: Category | undefined = data.categories.find((c: Category) => c.catID === channel.parentID);
 
 				if (!channel || !cat)	
-					return interaction.createMessage({content: "Could not find channel.", flags: Constants.MessageFlags.EPHEMERAL});
+					return interaction.createFollowup({content: "Could not find channel.", flags: Constants.MessageFlags.EPHEMERAL});
 		
 				const channelObj: Channel | undefined = cat.channels.find((c) => c.channelID === channel.id);
 				if (!channelObj)
-					return interaction.createMessage({content: "That Voice Channel is not a Private Voice Channel!"});
-				if (channelObj.owner !== member.id) return interaction.createMessage({content: "You're not the owner of this voice channel!", flags: Constants.MessageFlags.EPHEMERAL});
+					return interaction.createFollowup({content: "That Voice Channel is not a Private Voice Channel!"});
+				if (channelObj.owner !== member.id) return interaction.createFollowup({content: "You're not the owner of this voice channel!", flags: Constants.MessageFlags.EPHEMERAL});
 				if (!await this.bot.getModule("Main").handlePermission(member, "vc.edit.name", interaction)) return;
 			
 				const newName = interaction.data.options.getString("name", false);
@@ -146,9 +147,9 @@ export default class Voicechannel extends Command {
 
 				try {
 					await channel.edit({ name: newName});
-					return interaction.createMessage({content: `${this.constants.emojis.tick} Successfully changed the name of the channel to \`${newName}\``, flags: Constants.MessageFlags.EPHEMERAL});
+					return interaction.createFollowup({content: `${this.constants.emojis.tick} Successfully changed the name of the channel to \`${newName}\``, flags: Constants.MessageFlags.EPHEMERAL});
 				} catch (e) {
-					return interaction.createMessage({content: `${this.constants.emojis.warning.red} Error trying to edit the channel name! Perhaps insufficient permissions?`, flags: Constants.MessageFlags.EPHEMERAL});
+					return interaction.createFollowup({content: `${this.constants.emojis.warning.red} Error trying to edit the channel name! Perhaps insufficient permissions?`, flags: Constants.MessageFlags.EPHEMERAL});
 				}
 			}
 
@@ -358,22 +359,24 @@ export default class Voicechannel extends Command {
 
 	}
 
-	readonly modalSubmit = async (modal: ModalSubmitInteraction) => {
+	readonly modalSubmit = async (modal: ModalSubmitInteraction<AnyInteractionChannel | Uncached>): Promise<void> => {
 		modal.defer(Constants.MessageFlags.EPHEMERAL);
 
 		switch (modal.data.customID.split("_")[2]) {
 
 		case "setchannelname": {
-			const newName = modal.data.components[0].components[0].value as string;
+			const newName = modal.data.components.getTextInputComponent("voicechannel_" + modal.member?.id + "_channelname")?.value;
 
 			const channel: VoiceChannel = this.bot.findChannel(this.bot.findGuild(modal.guildID as string) as Guild, modal.member!.voiceState!.channelID!) as VoiceChannel;
 
 			try {
 				await channel.edit({ name: newName});
-				return modal.createFollowup({content: `${this.constants.emojis.tick} Successfully changed the name of the channel to \`${newName}\``, flags: Constants.MessageFlags.EPHEMERAL});
-			} catch (e) {
-				return modal.createFollowup({content: `${this.constants.emojis.warning.red} Error trying to edit the channel name! Perhaps insufficient permissions?`, flags: Constants.MessageFlags.EPHEMERAL});
-			}
+				modal.createFollowup({content: `${this.constants.emojis.tick} Successfully changed the name of the channel to \`${newName}\``, flags: Constants.MessageFlags.EPHEMERAL});
+        return;
+      } catch (e) {
+				modal.createFollowup({content: `${this.constants.emojis.warning.red} Error trying to edit the channel name! Perhaps insufficient permissions?`, flags: Constants.MessageFlags.EPHEMERAL});
+        return;
+      }
 			break;
 		}
 		}

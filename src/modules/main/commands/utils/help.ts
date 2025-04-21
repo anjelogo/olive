@@ -3,6 +3,7 @@ import Command from "../../../../Base/Command";
 import Module from "../../../../Base/Module";
 import ExtendedClient from "../../../../Base/Client";
 import { Permnodes } from "../../../../resources/interfaces";
+import { FollowupMessageInteractionResponse, InitialMessagedInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class Help extends Command {
 	
@@ -55,7 +56,7 @@ export default class Help extends Command {
 		}
  ];
 
-	readonly execute = async (interaction: CommandInteraction): Promise<Message | void> => {
+	readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction>> => {
   this.components[1].components = [
    {
     type: Constants.ComponentTypes.BUTTON,
@@ -76,7 +77,7 @@ export default class Help extends Command {
 					}
 				);
 
-		return await interaction.createMessage(
+		return interaction.createFollowup(
 			{
 				embeds: [this.homeEmbed],
 				components: this.components,
@@ -127,7 +128,7 @@ export default class Help extends Command {
 				type: "rich"
 			};
 
-			return await component.editParent(
+			return component.editOriginal(
 				{
 					content: undefined,
 					embeds: [embed],
@@ -200,7 +201,7 @@ export default class Help extends Command {
 				type: "rich"
 			};
 
-			return await component.editParent(
+			return component.editOriginal(
 				{
 					embeds: [embed],
 					components: [
@@ -241,11 +242,11 @@ export default class Help extends Command {
 			const command = this.bot.commands.find((c) => c.commands[0] === (component.data as MessageComponentSelectMenuInteractionData).values.getStrings()[0]);
 
 			if (!command)
-				return component.editParent({content: "Could not find the command!"});
+				return component.editOriginal({content: "Could not find the command!"});
 
 			const helpEmbed = await this.bot.getModule("Main").createHelpEmbed(command);
 
-			return await component.editParent(
+			return component.editOriginal(
 				{
 					embeds: [helpEmbed.embed],
 					components: [
@@ -269,7 +270,7 @@ export default class Help extends Command {
 			const moduleName = (component.data as MessageComponentSelectMenuInteractionData).values.getStrings()[0],
 				perms = this.bot.perms.filter((p) => p.name.split(/[.\-_]/)[0].toLowerCase() === moduleName.toLowerCase());
 
-			return await component.editParent(
+			return component.editOriginal(
 				{
 					components: [
 						{
@@ -315,7 +316,7 @@ export default class Help extends Command {
 				type: "rich"
 			};
 
-			return await component.editParent(
+			return component.editOriginal(
 				{
 					embeds: [embed],
 					components: [
@@ -336,12 +337,12 @@ export default class Help extends Command {
 		}
 
 		case "home": {
-   return await component.editParent(
-    {
-     embeds: [this.homeEmbed],
-     components: this.components
-    }
-   );
+      return component.editOriginal(
+        {
+          embeds: [this.homeEmbed],
+          components: this.components
+        }
+      );
 		}
 
 		}

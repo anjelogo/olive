@@ -1,6 +1,7 @@
-import { Constants, ApplicationCommandTypes, CommandInteraction, ComponentInteraction, Message, ApplicationCommandOptions, ModalSubmitInteraction } from "oceanic.js";
+import { Constants, ApplicationCommandTypes, CommandInteraction, ComponentInteraction, Message, ApplicationCommandOptions, ModalSubmitInteraction, InteractionCallbackResponse, AnyInteractionChannel, Uncached } from "oceanic.js";
 import ExtendedClient from "./Client";
 import { Constants as CustomConstants } from "../resources/interfaces";
+import { FollowupMessageInteractionResponse, InitialMessagedInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export type Options =  ApplicationCommandOptions & {
 	permissions?: string[];
@@ -24,7 +25,7 @@ export default class Command {
 	public bot: ExtendedClient;
 	public constants: CustomConstants;
 	public guildSpecific?: string[];
-	public execute: (interaction: CommandInteraction) => Promise<Message | undefined | void> | undefined;
+	public execute: (interaction: CommandInteraction) => Promise<InitialMessagedInteractionResponse<CommandInteraction | ComponentInteraction> | FollowupMessageInteractionResponse<CommandInteraction | ComponentInteraction> | InteractionCallbackResponse<AnyInteractionChannel | Uncached> | undefined | void> | undefined;
 	public update: (component: ComponentInteraction) => Promise<Message | undefined | void> | undefined;
 	public modalSubmit: (modal: ModalSubmitInteraction) => Promise<Message | undefined | void> | undefined;
 

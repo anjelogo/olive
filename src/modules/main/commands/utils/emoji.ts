@@ -1,6 +1,7 @@
-import { CommandInteraction, Constants, Interaction, Message } from "oceanic.js";
+import { CommandInteraction, Constants } from "oceanic.js";
 import ExtendedClient from "../../../../Base/Client";
 import Command from "../../../../Base/Command";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class Emoji extends Command {
 
@@ -30,7 +31,7 @@ export default class Emoji extends Command {
 
   }
 
-  readonly execute = async (interaction: CommandInteraction): Promise<Message | void> => {
+  readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction>> => {
     await interaction.defer();
 
     const content = interaction.data.options.getString("emoji") as string;

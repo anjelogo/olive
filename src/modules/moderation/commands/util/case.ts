@@ -4,6 +4,7 @@ import ExtendedClient from "../../../../Base/Client";
 import { moduleData, Case as CaseStructure} from "../../main";
 import { moduleData as LoggingModuleData } from "../../../logging/main";
 import { removeCase, resolveCase } from "../../internals/caseHandler";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class Case extends Command {
 
@@ -64,7 +65,7 @@ export default class Case extends Command {
 
 	}
 
-	readonly execute = async (interaction: CommandInteraction): Promise<Message | void> => {
+	readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
 		await interaction.defer(Constants.MessageFlags.EPHEMERAL);
 		
 		const member = interaction.member as Member,

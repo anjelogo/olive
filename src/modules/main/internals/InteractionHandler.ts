@@ -2,8 +2,9 @@ import { CommandInteraction, ComponentInteraction, Constants, Embed, Member, Mes
 import { Options } from "../../../Base/Command";
 import ExtendedClient from "../../../Base/Client";
 import Main from "../main";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
-export const commandHandler = async (bot: ExtendedClient, interaction: CommandInteraction): Promise<Message | void | boolean> => {
+export const commandHandler = async (bot: ExtendedClient, interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void | boolean> => {
 	
 	const member: Member = interaction.member as Member,
 		command = interaction.data.type === Constants.ApplicationCommandTypes.MESSAGE
@@ -13,13 +14,13 @@ export const commandHandler = async (bot: ExtendedClient, interaction: CommandIn
 
 	if (!command) return;
 	if (interaction.channel && interaction.channel.type !== Constants.ChannelTypes.GUILD_TEXT && interaction.data.type === Constants.ApplicationCommandTypes.MESSAGE)
-    return interaction.createMessage({content: `${bot.constants.emojis.x} You can only run these commands in servers!`, flags: Constants.MessageFlags.EPHEMERAL});
+    return interaction.createFollowup({content: `${bot.constants.emojis.x} You can only run these commands in servers!`, flags: Constants.MessageFlags.EPHEMERAL});
 
 	const requirePerms: string[] = [],
 		permissions: string[] = [];
 
 	if (command.devOnly && !bot.constants.config.developers.includes(interaction.member?.id))
-		return interaction.createMessage({content: `${bot.constants.emojis.x} You can't run this command!`});
+		return interaction.createFollowup({content: `${bot.constants.emojis.x} You can't run this command!`});
 
 	if (command.permissions) {
 		for (const p of command.permissions) {
@@ -65,7 +66,7 @@ export const commandHandler = async (bot: ExtendedClient, interaction: CommandIn
 	}
 
 	if (requirePerms.length)
-		return interaction.createMessage({content: `${bot.constants.emojis.x} I need more permissions to run that command.\n\n Permissions neede: \`${requirePerms.join("`, `")}\``});
+		return interaction.createFollowup({content: `${bot.constants.emojis.x} I need more permissions to run that command.\n\n Permissions neede: \`${requirePerms.join("`, `")}\``});
 
 	if (permissions.length)
 		return await mainModule.handlePermission(member, [... new Set(permissions)], interaction);

@@ -11,9 +11,8 @@
   "dependencies": {
     "fs": "0.0.1-security",
     "mongoose": "^7.3.0",
-    "monk": "^7.3.4",
     "node-fetch": "^2.6.1",
-    "oceanic.js": "dev",
+    "oceanic.js": "^1.11.3-dev.d9f2e80",
     "uniqid": "^5.4.0"
   },
   "devDependencies": {
