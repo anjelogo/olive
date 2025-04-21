@@ -2,6 +2,7 @@ import { CommandInteraction, Constants, Message } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import Starboard from "./starboard";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class StarboardContext extends Command { 
 	constructor(bot: ExtendedClient) {
@@ -13,12 +14,12 @@ export default class StarboardContext extends Command {
 		this.type = Constants.ApplicationCommandTypes.USER;
 	}
 
-	public execute = async (interaction: CommandInteraction): Promise<Message | undefined | void> => {
+	public execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
 
 		const member = interaction.data.options.resolved?.members.first();
 
 		if (!member)
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				content: "User not found.",
 				flags: Constants.MessageFlags.EPHEMERAL
 			});

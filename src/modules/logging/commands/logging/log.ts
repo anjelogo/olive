@@ -3,6 +3,7 @@ import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import { upsertCustomData, getCustomData } from "../../../main/internals/CustomDataHandler";
 import { LogChannelStructure, LogChannelTypes, moduleData } from "../../main";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export interface CustomDataStructure {
 	id: string,
@@ -166,7 +167,7 @@ export default class Log extends Command {
 		};
 	}
 
-	readonly execute = async (interaction: CommandInteraction): Promise<Message | void> => {
+	readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
 
 		const guild = this.bot.findGuild(interaction.guildID) as Guild,
 			data = await this.bot.getModuleData("Logging", guild.id) as moduleData,
@@ -183,7 +184,7 @@ export default class Log extends Command {
 				types: channelData?.types ?? []
 			});
 
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				embeds: [this.create(this.bot, interaction)],
 				components: (await this.components(this.bot, interaction)).home
 			});
@@ -193,14 +194,14 @@ export default class Log extends Command {
 			const channelData = data.channels.find((c) => c.channelID === channel.id);
 
 			if (!channelData)
-				return interaction.createMessage({ content: `${this.bot.constants.emojis.cross} This channel is not a log channel` });
+				return interaction.createFollowup({ content: `${this.bot.constants.emojis.cross} This channel is not a log channel` });
 
 			data.channels.splice(data.channels.indexOf(channelData), 1);
 
 			try {
 				await this.bot.updateModuleData("Logging", data, guild);
 
-				return interaction.createMessage({ content: `${this.bot.constants.emojis.tick} Removed log channel`});
+				return interaction.createFollowup({ content: `${this.bot.constants.emojis.tick} Removed log channel`});
 			} catch (e) {
 				await interaction.createMessage({ content: `${this.bot.constants.emojis.cross} An error occured while removing the log channel` });
 				throw new Error(e as string);
@@ -222,7 +223,7 @@ export default class Log extends Command {
 
 		case "addlog": {
 
-			return component.editParent(
+			return component.editOriginal(
 				{
 					components: (await this.components(this.bot, component)).addLog
 				}
@@ -231,7 +232,7 @@ export default class Log extends Command {
 
 		case "removelog": {
 
-			return component.editParent(
+			return component.editOriginal(
 				{
 					components: (await this.components(this.bot, component)).deleteLog
 				}
@@ -244,7 +245,7 @@ export default class Log extends Command {
 
 			const embed = this.create(this.bot, component);
 
-			return await component.editParent(
+			return await component.editOriginal(
 				{
 					content: undefined,
 					embeds: [embed],
@@ -269,15 +270,15 @@ export default class Log extends Command {
 			try {
 				await this.bot.updateModuleData("Logging", moduleData, guild);
 
-				return component.editParent({ content: `${this.bot.constants.emojis.tick} Saved log channel`, embeds: [], components: [] });
+				return component.editOriginal({ content: `${this.bot.constants.emojis.tick} Saved log channel`, embeds: [], components: [] });
 			} catch (e) {
-				await component.editParent({ content: `${this.bot.constants.emojis.cross} Failed to save log channel`, embeds: [], components: [] });
+				await component.editOriginal({ content: `${this.bot.constants.emojis.cross} Failed to save log channel`, embeds: [], components: [] });
 				throw new Error(e as string);
 			}
 		}
 
 		case "home": {
-			return await component.editParent(
+			return await component.editOriginal(
 				{
 					content: undefined,
 					embeds: [this.create(this.bot, component)],
@@ -287,7 +288,7 @@ export default class Log extends Command {
 		}
 
 		case "cancel": {
-			return component.editParent(
+			return component.editOriginal(
 				{
 					content: `${this.bot.constants.emojis.x} Cancelled.`,
 					embeds: [],

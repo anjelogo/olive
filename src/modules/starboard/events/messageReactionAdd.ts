@@ -1,4 +1,4 @@
-import { Channel, Emoji, Guild, Member, Message, PartialEmoji, PossiblyUncachedMessage, TextChannel, Uncached, User } from "oceanic.js";
+import { Channel, PartialEmoji, Guild, Member, Message, PossiblyUncachedMessage, TextChannel, Uncached, User } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
 import { handleStarredMessage } from "../internals/starHandler";
 

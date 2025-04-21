@@ -1,4 +1,4 @@
-import { Emoji, Guild } from "oceanic.js";
+import { PartialEmoji, Guild } from "oceanic.js";
 import Module, { moduleDataStructure } from "../../Base/Module";
 import ExtendedClient from "../../Base/Client";
 
@@ -12,7 +12,7 @@ export interface RolesMessage {
 	channelID: string;
 	roles: {
 		role: string;
-		emote: Partial<Emoji>;
+		emote: PartialEmoji;
 	}[];
 }
 
