@@ -6,7 +6,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: [self-hosted, lxc, nosudo]
+    runs-on: self-hosted
 
     steps:
       - name: 📥 Checkout code
