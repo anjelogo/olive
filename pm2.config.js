@@ -4,7 +4,7 @@ module.exports = {
       name: "olive",
       script: "./index.js",
       cwd: "./dist",
-      env_file: "../.env"
+      env_file: ".env"
     },
   ],
 };
