@@ -87,6 +87,7 @@ export const commandHandler = async (bot: ExtendedClient, interaction: CommandIn
 	} */
 
 	try {
+    await interaction.defer();
 		await command.execute(interaction);
 	} catch (e) {
 		const embed: Embed = {
@@ -121,6 +122,7 @@ export const updateHandler = async (bot: ExtendedClient, component: ComponentInt
 	if (member.id !== authorID) return;
 
 	try {
+    await component.deferUpdate();
 		await command.update(component);
 	} catch (e) {
 		const embed: Embed = {
