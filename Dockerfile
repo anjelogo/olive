@@ -1,12 +1,21 @@
-FROM node:23-alpine-slim AS runner
+# Stage 1: Build
+FROM node:23-alpine-slim AS builder
 
 WORKDIR /app
 
-# Only copy compiled JS and production dependencies
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+RUN npm run build
+
+# Stage 2: Run
+FROM node:23-alpine-slim AS runner
+
+WORKDIR /app
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./
 
 RUN npm ci --only=production
 
-# Start app
 CMD ["node", "dist/index.js"]
