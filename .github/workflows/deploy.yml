@@ -22,4 +22,5 @@ jobs:
 
       - name: 🚀 Restart app with PM2
         run: |
+          cd dist/
           pm2 startOrRestart ../pm2.config.js --only olive
