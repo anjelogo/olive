@@ -11,6 +11,7 @@
   "author": "Anjelo Go",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^16.5.0",
     "fs": "0.0.1-security",
     "mongoose": "^7.3.0",
     "monk": "^7.3.4",

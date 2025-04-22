@@ -4,3 +4,4 @@ build
 src/resources/auth.ts
 src/resources/config.ts
 *.env
+dist
