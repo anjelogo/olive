@@ -117,7 +117,7 @@ export default class Main extends Module {
 				dmChannel: PrivateChannel | undefined = await member.user.createDM() as PrivateChannel;
 
 			if (interaction) 
-				interaction.createMessage({ embeds: [embed], flags: Constants.MessageFlags.EPHEMERAL });
+				interaction.createFollowup({ embeds: [embed], flags: Constants.MessageFlags.EPHEMERAL });
 			else if (dmChannel)
 				dmChannel.createMessage({ embeds: [embed] });
 

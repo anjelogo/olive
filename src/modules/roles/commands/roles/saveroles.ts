@@ -16,8 +16,6 @@ export default class Saveroles extends Command {
 	}
 
 	readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
-		await interaction.defer(Constants.MessageFlags.EPHEMERAL);
-
 		const guild = this.bot.findGuild(interaction.guildID) as Guild,
 			data = await this.bot.getModuleData("Roles", guild.id) as moduleData,
 			savedRoles = data.savedRoles;

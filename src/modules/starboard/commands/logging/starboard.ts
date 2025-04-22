@@ -41,8 +41,6 @@ export default class Starboard extends Command {
 		switch (subcommand) {
 
 		case "view": {
-			await interaction.defer();
-
 			const member = interaction.data.options.getMember("user", true),
 				stars = data.messages.filter((m) => m.authorID === member.id).map((s) => s.stars).length;
 

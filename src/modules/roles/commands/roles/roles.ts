@@ -63,8 +63,6 @@ export default class Roles extends Command {
 	}
 
 	readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
-		await interaction.defer();
-
 		const mainModule: Main = this.bot.getModule("Main"),
 			guild: Guild = this.bot.findGuild(interaction.guildID) as Guild,
 			member: Member = interaction.member as Member,

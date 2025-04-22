@@ -258,8 +258,6 @@ export default class Reactionrole extends Command {
 	}
 
 	readonly execute = async (interaction: (CommandInteraction)): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
-		await interaction.defer();
-
 		const guild = this.bot.findGuild(interaction.guildID) as Guild,
 			channel = interaction.channel as TextChannel,
 			data = await this.bot.getModuleData("Roles", guild.id) as moduleData,
@@ -323,8 +321,6 @@ export default class Reactionrole extends Command {
 		}
 
 		case "addselectreaction": {
-			await component.deferUpdate();
-
 			customData.partial.role = (component.data as MessageComponentSelectMenuInteractionData).values.raw[0];
 
 			return component.editOriginal(
@@ -335,8 +331,6 @@ export default class Reactionrole extends Command {
 		}
 
 		case "add": {
-			await component.deferUpdate();
-
 			const emojiGuild = this.bot.findGuild("868329965991657483") as Guild,
 				emote = emojiGuild.emojis.find((r) => r.id === (component.data as MessageComponentSelectMenuInteractionData).values.raw[0]);
 
@@ -370,8 +364,6 @@ export default class Reactionrole extends Command {
 		}
 
 		case "remove": {
-			await component.deferUpdate();
-
 			const emote = guild.emojis.find((r) => r.id === (component.data as MessageComponentSelectMenuInteractionData).values.raw[0]);
 
 			// TODO: Fix this
@@ -427,8 +419,6 @@ export default class Reactionrole extends Command {
 		}
 
 		case "save": {
-			await component.deferUpdate();
-
 			const obj: RolesMessage = {
 				id: customData.id,
 				channelID: customData.channelID,

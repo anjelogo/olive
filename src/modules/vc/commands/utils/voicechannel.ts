@@ -88,10 +88,6 @@ export default class Voicechannel extends Command {
 	}
 
 	public execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | InteractionCallbackResponse<AnyInteractionChannel | Uncached> | void> => {
-		//Since the voicechannel command takes a bit to load data, we'll defer the interaction.
-		if (interaction.data.options.getSubCommand(true)[1] !== "name")
-			await interaction.defer(Constants.MessageFlags.EPHEMERAL);
-
 		const member = interaction.member as Member,
 			guild = this.bot.findGuild(interaction.guildID) as Guild,
 			data: moduleData = (await this.bot.getModuleData("VC", guild.id) as unknown) as moduleData,

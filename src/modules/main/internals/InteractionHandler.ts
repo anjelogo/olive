@@ -1,20 +1,20 @@
-import { CommandInteraction, ComponentInteraction, Constants, Embed, Member, Message, ModalComponent, ModalSubmitInteraction } from "oceanic.js";
+import { CommandInteraction, ComponentInteraction, Constants, Embed, Member, Message, MessageFlags, ModalSubmitInteraction } from "oceanic.js";
 import { Options } from "../../../Base/Command";
 import ExtendedClient from "../../../Base/Client";
 import Main from "../main";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export const commandHandler = async (bot: ExtendedClient, interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void | boolean> => {
-	
+	await interaction.defer(MessageFlags.EPHEMERAL);
 	const member: Member = interaction.member as Member,
 		command = interaction.data.type === Constants.ApplicationCommandTypes.MESSAGE
 			? bot.commands.filter((c) => c.commands[0] === "Create/Edit Reaction Role")[0]
 			: bot.commands.filter((c) => c.commands.includes(interaction.data.name))[0],
 		mainModule: Main = bot.getModule("Main");	
 
-	if (!command) return;
+	if (!command) return interaction.createFollowup({content: `${bot.constants.emojis.x} I couldn't find that command!`});
 	if (interaction.channel && interaction.channel.type !== Constants.ChannelTypes.GUILD_TEXT && interaction.data.type === Constants.ApplicationCommandTypes.MESSAGE)
-    return interaction.createFollowup({content: `${bot.constants.emojis.x} You can only run these commands in servers!`, flags: Constants.MessageFlags.EPHEMERAL});
+    return interaction.createFollowup({content: `${bot.constants.emojis.x} You can only run these commands in servers!`});
 
 	const requirePerms: string[] = [],
 		permissions: string[] = [];
@@ -87,7 +87,7 @@ export const commandHandler = async (bot: ExtendedClient, interaction: CommandIn
 	} */
 
 	try {
-    await interaction.defer();
+    console.log(`[${command.category}] ${interaction.user.username} ran command ${command.commands[0]}`);
 		await command.execute(interaction);
 	} catch (e) {
 		const embed: Embed = {
@@ -106,7 +106,7 @@ export const commandHandler = async (bot: ExtendedClient, interaction: CommandIn
 			],
 			type: "rich"
 		};
-		interaction.createMessage({ embeds: [embed], flags: Constants.MessageFlags.EPHEMERAL });
+		interaction.createFollowup({ embeds: [embed], flags: Constants.MessageFlags.EPHEMERAL });
 		console.error(e);
 	}
 
@@ -141,7 +141,7 @@ export const updateHandler = async (bot: ExtendedClient, component: ComponentInt
 			],
 			type: "rich"
 		};
-		component.createMessage({ embeds: [embed], flags: Constants.MessageFlags.EPHEMERAL });
+		component.createFollowup({ embeds: [embed], flags: Constants.MessageFlags.EPHEMERAL });
 		throw new Error(e as string);
 	}
 
@@ -175,7 +175,7 @@ export const modalHandler = async (bot: ExtendedClient, modal: ModalSubmitIntera
 			],
 			type: "rich"
 		};
-		modal.createMessage({ embeds: [embed], flags: Constants.MessageFlags.EPHEMERAL });
+		modal.createFollowup({ embeds: [embed], flags: Constants.MessageFlags.EPHEMERAL });
 		throw new Error(e as string);
 	}
 

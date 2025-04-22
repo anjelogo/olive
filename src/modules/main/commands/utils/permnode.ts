@@ -78,8 +78,6 @@ export default class Permnode extends Command {
 	}
 
 	readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
-		await interaction.defer();
-		
 		const guild = this.bot.findGuild(interaction.guildID) as Guild,
 			data: moduleData = (await this.bot.getModuleData("Main", guild.id) as unknown) as moduleData,
 			permissions: Permissions[] = data.permissions,

@@ -56,8 +56,6 @@ export default class Autorole extends Command {
 	}
 
 	readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
-		await interaction.defer();
-
 		const guild: Guild = this.bot.findGuild(interaction.guildID) as Guild,
 			member: Member = interaction.member as Member,
 			data: moduleData = await this.bot.getModuleData("Roles", guild.id) as moduleData,

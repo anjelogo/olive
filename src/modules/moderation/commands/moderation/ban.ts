@@ -38,8 +38,6 @@ export default class Ban extends Command {
 	}
 
 	readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
-		await interaction.defer(Constants.MessageFlags.EPHEMERAL);
-
 		const guild = this.bot.findGuild(interaction.guildID) as Guild,
 			moderator = interaction.member,
 			memberString = interaction.data.options.getUser("user", true);

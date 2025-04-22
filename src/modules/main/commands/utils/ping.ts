@@ -17,7 +17,6 @@ export default class Ping extends Command {
 	}
 
 	readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
-		await interaction.defer();
 		
 		return interaction.createFollowup({
 			content: "Pong 🏓",

@@ -32,8 +32,6 @@ export default class Emoji extends Command {
   }
 
   readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction>> => {
-    await interaction.defer();
-
     const content = interaction.data.options.getString("emoji") as string;
 
     if (!content) return interaction.createFollowup({ content: `${this.bot.constants.emojis.x} Please provide an emoji` });

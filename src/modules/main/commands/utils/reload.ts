@@ -18,8 +18,6 @@ export default class Reload extends Command {
 	}
 
 	readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
-		await interaction.defer(Constants.MessageFlags.EPHEMERAL);
-		
 		return interaction.createFollowup({
 			embeds: [
 				{
