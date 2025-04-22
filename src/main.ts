@@ -11,7 +11,6 @@ import { Constants as CustomConstants, Permnodes } from "./resources/interfaces"
 import { promises as fs } from "fs";
 import { CustomData } from "./modules/main/internals/CustomDataHandler";
 import monk, { IMonkManager } from "monk";
-import { Auth } from "./resources/auth";
 
 interface ExtendedOptions extends ClientOptions {
 	disabledModules?: ("Main" | "VC" | "Roles" | "Starboard" | "Moderation")[];
@@ -47,7 +46,7 @@ export default class Olive extends Client {
 		};
 		this.disabledModules = (options && options.disabledModules) ? [...options.disabledModules] : [];
 
-		this.db = monk(Auth.database.replace("{db}", this.name).replace(" ", "_"));
+		this.db = monk(process.env.DATABASE!.replace("{db}", this.name).replace(" ", "_"));
 	}
 
 	readonly init = async (): Promise<void> => {
