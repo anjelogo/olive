@@ -1,38 +1,29 @@
-name: Build and Deploy to LXC
+name: Build and Deploy with PM2
 
 on:
   push:
-    branches:
-      - main  # or your deploy branch
+    branches: [main]
 
 jobs:
   deploy:
-    runs-on: self-hosted
+    runs-on: [self-hosted, lxc, nosudo]
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
 
-      - name: Set up SSH key
+      - name: 🛠 Install dependencies
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.LXC_SSH_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H ${{ secrets.LXC_HOST }} >> ~/.ssh/known_hosts
+          npm ci
 
-      - name: Build Docker image
-        run: docker build -t olive-app .
-
-      - name: Save image to tar
-        run: docker save olive-app:latest -o olive-app.tar
-
-      - name: Copy Docker image to LXC
+      - name: 🧱 Build TypeScript
         run: |
-          scp -i ~/.ssh/id_ed25519 olive-app.tar ${{ secrets.LXC_USER }}@${{ secrets.LXC_HOST }}:/tmp/
+          npm run build
 
-      - name: Load & run container remotely
+      - name: 📦 Move .env to dist
+        run: cp .env dist/.env
+
+      - name: 🚀 Restart app with PM2
         run: |
-          ssh -i ~/.ssh/id_ed25519 ${{ secrets.LXC_USER }}@${{ secrets.LXC_HOST }} << 'EOF'
-            docker load -i /tmp/olive-app.tar
-            docker stop olive-app || true && docker rm olive-app || true
-            docker run -d --name olive-app -p 3000:3000 olive-app
+          cd dist
+          pm2 startOrRestart ../pm2.config.js --only olive
