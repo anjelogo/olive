@@ -12,7 +12,9 @@ import { promises as fs } from "fs";
 import { CustomData } from "./modules/main/internals/CustomDataHandler";
 import monk, { IMonkManager } from "monk";
 import dotenv from "dotenv";
-dotenv.config();
+dotenv.config({
+  path: "../.env"
+});
 
 interface ExtendedOptions extends ClientOptions {
 	disabledModules?: ("Main" | "VC" | "Roles" | "Starboard" | "Moderation")[];
