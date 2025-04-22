@@ -24,7 +24,7 @@ export default class Ping extends Command {
 			embeds: [
 				{
 					color: this.bot.constants.config.colors.default,
-					description: `**Response Time:** \`${Date.now() - interaction.createdAt.getMilliseconds()}\`ms`,
+					description: `**Response Time:** \`${Date.now() - interaction.createdAt.getTime()}\`ms`,
 				}
 			]
 		});
