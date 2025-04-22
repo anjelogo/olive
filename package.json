@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "pm2": "./node_modules/.bin/pm2 start src/index.ts --watch"
+    "pm2": "./node_modules/.bin/pm2 start src/index.ts --watch",
+    "build": "tsc",
+    "start": "node dist/index.js"
   },
   "author": "Anjelo Go",
   "license": "ISC",
