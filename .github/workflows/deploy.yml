@@ -20,9 +20,6 @@ jobs:
         run: |
           npm run build
 
-      - name: 📦 Move .env to dist
-        run: cp .env dist/.env
-
       - name: 🚀 Restart app with PM2
         run: |
           cd dist
