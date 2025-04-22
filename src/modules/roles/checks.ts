@@ -1,17 +1,17 @@
-import { Guild, Member, Role } from "eris";
-import Bot from "../../main";
+import { Guild, Member, Message, Role, TextChannel } from "oceanic.js";
+import ExtendedClient from "../../Base/Client";
 import Roles, { moduleData, RolesMessage } from "./main";
 
 export default class Checks {
 
-	readonly bot: Bot;
+	readonly bot: ExtendedClient;
 	readonly module: Roles
 
-	constructor(bot: Bot, Module: Roles) {
+	constructor(bot: ExtendedClient, Module: Roles) {
 		this.bot = bot;
 		this.module = Module;
 	}
-
+	
 	readonly run = async (): Promise<string> => {
 
 		const data: moduleData[] = (await this.bot.getAllData(this.module.name) as unknown) as moduleData[],
@@ -103,10 +103,7 @@ export default class Checks {
 				if (guildData.messages.length) {
 
 					for (const msgData of guildData.messages) {
-						const msg = await this.bot.getMessage(msgData.channelID, msgData.id)
-							.catch(async () => {
-								promises.push(await deleteMessage(this, guildData, msgData.id));
-							});
+						const msg = this.bot.findMessage(this.bot.getChannel(msgData.channelID) as TextChannel, msgData.id) as Message;
 
 						if (!msg || (msg && !msgData.roles.length)) {
 							promises.push(await deleteMessage(this, guildData, msgData.id));
@@ -166,20 +163,20 @@ export default class Checks {
 				for (const Roles of guildData.savedRoles.roles) {
 					for (const rid of Roles.roles) {
 						const role: Role = this.bot.findRole(guild, rid) as Role,
-						botMember: Member = this.bot.findMember(guild, this.bot.user.id) as Member,
-						botHighestRoleID = botMember.roles
-							.map((r) => 
-								({
-									name: (this.bot.findRole(guild, r) as Role).name,
-									position: (this.bot.findRole(guild, r) as Role).position
-								}))
-							.sort((a, b) => b.position - a.position).map((r) => r.name),
-						botHighestRole: Role = this.bot.findRole(guild, botHighestRoleID[0]) as Role;
+							botMember: Member = this.bot.findMember(guild, this.bot.user.id) as Member,
+							botHighestRoleID = botMember.roles
+								.map((r) => 
+									({
+										name: (this.bot.findRole(guild, r) as Role).name,
+										position: (this.bot.findRole(guild, r) as Role).position
+									}))
+								.sort((a, b) => b.position - a.position).map((r) => r.name),
+							botHighestRole: Role = this.bot.findRole(guild, botHighestRoleID[0]) as Role;
 				
-					if (!role || (role && botHighestRole && (role.position > botHighestRole.position))) {
-						promises.push(deleteAutoRole(this, guildData, rid));
-						continue;
-					}
+						if (!role || (role && botHighestRole && (role.position > botHighestRole.position))) {
+							promises.push(deleteAutoRole(this, guildData, rid));
+							continue;
+						}
 					}
 				}
 			}
@@ -194,7 +191,7 @@ export default class Checks {
 	readonly checkVersion = async (newVersion: string): Promise<string> => {
 		const data: moduleData[] = (await this.bot.getAllData(this.module.name) as unknown) as moduleData[];
 
-		let promises = [];
+		const promises = [];
 
 		if (data.length) {
 			for (const guildData of data) {
@@ -202,32 +199,32 @@ export default class Checks {
 
 				switch (guildData.version) {
 
-					case undefined:
-					case "1.0": {
-						//Migrates from 1.0 to 1.1
-						if (guildData.version === newVersion) continue;
+				case undefined:
+				case "1.0": {
+					//Migrates from 1.0 to 1.1
+					if (guildData.version === newVersion) continue;
 			
-						const oldDataStruct = {
-								guildID: guildData.guildID,
-								roles: guildData.roles,
-								autoRoles: guildData.autoRoles,
-								messages: guildData.messages
-							},
-							newDataStruct = {
-								version: newVersion,
-								guildID: oldDataStruct.guildID,
-								roles: guildData.roles,
-								autoRoles: guildData.autoRoles,
-								messages: guildData.messages,
-								savedRoles: {
-									enabled: false,
-									roles: []
-								}
+					const oldDataStruct = {
+							guildID: guildData.guildID,
+							roles: guildData.roles,
+							autoRoles: guildData.autoRoles,
+							messages: guildData.messages
+						},
+						newDataStruct = {
+							version: newVersion,
+							guildID: oldDataStruct.guildID,
+							roles: guildData.roles,
+							autoRoles: guildData.autoRoles,
+							messages: guildData.messages,
+							savedRoles: {
+								enabled: false,
+								roles: []
 							}
+						};
 			
-							promises.push(await this.bot.updateModuleData(this.module.name, newDataStruct, guildData.guildID));
-							break;
-					}
+					promises.push(await this.bot.updateModuleData(this.module.name, newDataStruct, guildData.guildID));
+					break;
+				}
 				}
 			}
 		}

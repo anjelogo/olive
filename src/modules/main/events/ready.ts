@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import Bot from "../../../main";
+import ExtendedClient from "../../../Base/Client";
 import Module from "../../../Base/Module";
 
-export const run = async (bot: Bot): Promise<void> => {
+export const run = async (bot: ExtendedClient): Promise<void> => {
 
 	//Load Status
 	bot.editStatus(bot.constants.config.status);

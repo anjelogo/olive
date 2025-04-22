@@ -1,6 +1,6 @@
-import { Emoji, Guild } from "eris";
+import { PartialEmoji, Guild } from "oceanic.js";
 import Module, { moduleDataStructure } from "../../Base/Module";
-import Bot from "../../main";
+import ExtendedClient from "../../Base/Client";
 
 export interface SavedRolesStructure {
 	userID: string;
@@ -12,7 +12,7 @@ export interface RolesMessage {
 	channelID: string;
 	roles: {
 		role: string;
-		emote: Partial<Emoji>;
+		emote: PartialEmoji;
 	}[];
 }
 
@@ -33,7 +33,7 @@ export default class Roles extends Module {
 	readonly path: string;
 	readonly db: boolean;
 
-	constructor(bot: Bot) {
+	constructor(bot: ExtendedClient) {
 		super(bot);
 
 		this.name = "Roles";
@@ -52,7 +52,7 @@ export default class Roles extends Module {
 
 		if (typeof guild === "string") guild = this.bot.findGuild(guild) as Guild;
 
-		const data: moduleData = await this.data(guild) as moduleData,
+		const data: moduleData = await this.data(guild.id) as moduleData,
 			messages = data.messages;
 
 		if (!messages.length) return;

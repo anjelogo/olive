@@ -1,23 +1,23 @@
 import { Category, Channel } from "./interfaces";
-import { GuildChannel, Member, VoiceChannel } from "eris";
-import Bot from "../../../main";
+import { CategoryChannel, Constants, Member, StageChannel, VoiceChannel } from "oceanic.js";
+import ExtendedClient from "../../../Base/Client";
 import { moduleData } from "../main";
 import Logging from "../../logging/main";
 
-export const create = async (bot: Bot, member: Member, channel: VoiceChannel): Promise<void> => {
+export const create = async (bot: ExtendedClient, member: Member, channel: VoiceChannel): Promise<void> => {
 	if (!await bot.getModule("Main").handlePermission(member, "vc.join")) return;
 
-	const data: moduleData = (await bot.getModuleData("VC", channel.guild) as unknown) as moduleData,
+	const data: moduleData = (await bot.getModuleData("VC", channel.guild.id) as unknown) as moduleData,
 		category: Category | undefined = data.categories.find((c: Category) => c.catID === channel.parentID);
 
 	if (!category || (category && category.channelID !== channel.id)) return;
 
-	const parentOverwrites = (bot.findChannel(channel.guild, category.catID) as GuildChannel).permissionOverwrites.map((p) => ({ id: p.id, type: p.type, allow: Number(p.allow.toString()), deny: Number(p.deny.toString())}));
+	const parentOverwrites = (bot.findChannel(channel.guild, category.catID) as CategoryChannel).permissionOverwrites.map((p) => ({ id: p.id, type: p.type, allow: p.allow, deny: p.deny}));
 
 	const voice = await member.guild.createChannel(
-		data.defaultName.channel.replace("{user}", member.username),
-		2,
+		Constants.ChannelTypes.GUILD_VOICE,
 		{
+			name: data.defaultName.channel.replace("{user}", member.username),
 			parentID: channel.parentID as string,
 			permissionOverwrites: [
 				...parentOverwrites
@@ -33,30 +33,46 @@ export const create = async (bot: Bot, member: Member, channel: VoiceChannel): P
 	};
 
 	member.edit({ channelID: voice.id });
-
-	const logging = await bot.getModule("Logging") as Logging;
-	logging.log(channel.guild, "vc", {embeds: [{
-		type: "rich",
-		title: `${member.username}#${member.discriminator}`,
-		description: `Created \`${voice.name}\``,
-		author: {
-			name: "Create New Private Voice Channel",
-			icon_url: member.avatarURL
-		},
-		color: bot.constants.config.colors.default,
-		timestamp: new Date(),
-		footer: {
-			text: `ID: ${member.id}`
-		}
-	}]})
-
 		
 	category.channels.push(newChannel);
 	await bot.updateModuleData("VC", data, channel.guild);
+
+  // send a message to the user
+  try {
+    const dm = await member.user.createDM();
+    await dm.createMessage({
+      embeds: [{
+        description: `You have created \`${voice.name}\`!\n\nYou can lock the channel by using \`/vc lock\` and unlock it by using \`/vc unlock\`.\nView information about the channel by using \`/vc info\`.\n\nLeaving the channel will delete it or transfer ownership to another member if there are other members in the channel.`,
+        author: {
+          name: "Private Voice Channel Created",
+        },
+        color: bot.constants.config.colors.default,
+        timestamp: new Date().toISOString(),
+      }]
+    })
+  } catch (e) {
+    console.error(e);
+  }
+  
+  const logging = await bot.getModule("Logging") as Logging;
+	logging.log(channel.guild, "vc", {embeds: [{
+		type: "rich",
+		title: `${member.username}`,
+		description: `Created \`${voice.name}\``,
+		author: {
+			name: "Create New Private Voice Channel",
+			iconURL: member.avatarURL()
+		},
+		color: bot.constants.config.colors.default,
+		timestamp: new Date().toISOString(),
+		footer: {
+			text: `ID: ${member.id}`
+		}
+	}]});
 };
 
-export const remove = async (bot: Bot, member: Member, channel: VoiceChannel): Promise<void> => {
-	const data: moduleData = (await bot.getModuleData("VC", channel.guild) as unknown) as moduleData,
+export const remove = async (bot: ExtendedClient, member: Member, channel: VoiceChannel | StageChannel): Promise<void> => {
+	const data: moduleData = (await bot.getModuleData("VC", channel.guild.id) as unknown) as moduleData,
 		category: Category | undefined = data.categories.find((c: Category) => c.catID === channel.parentID);
 
 	if (!category) return;
@@ -68,18 +84,18 @@ export const remove = async (bot: Bot, member: Member, channel: VoiceChannel): P
 	const logging = await bot.getModule("Logging") as Logging;
 	logging.log(channel.guild, "vc", {embeds: [{
 		type: "rich",
-		title: `${member.username}#${member.discriminator}`,
+		title: `${member.username}`,
 		description: `Left \`${channel.name}\``,
 		author: {
 			name: "Left Private Voice Channel",
-			icon_url: member.avatarURL
+			iconURL: member.avatarURL()
 		},
 		color: bot.constants.config.colors.red,
-		timestamp: new Date(),
+		timestamp: new Date().toISOString(),
 		footer: {
 			text: `ID: ${member.id}`
 		}
-	}]})
+	}]});
 
 	if (channel.voiceMembers.size <= 0) {
 
@@ -91,11 +107,11 @@ export const remove = async (bot: Bot, member: Member, channel: VoiceChannel): P
 
 		logging.log(channel.guild, "vc", {embeds: [{
 			type: "rich",
-			title: `${member.username}#${member.discriminator}`,
+			title: `${member.username}`,
 			description: `Ended \`${channel.name}\``,
 			author: {
 				name: "Ended Private Voice Channel",
-				icon_url: member.avatarURL
+				iconURL: member.avatarURL()
 			},
 			fields: [
 				{
@@ -104,11 +120,11 @@ export const remove = async (bot: Bot, member: Member, channel: VoiceChannel): P
 				}
 			],
 			color: bot.constants.config.colors.default,
-			timestamp: new Date(),
+			timestamp: new Date().toISOString(),
 			footer: {
 				text: `ID: ${member.id}`
 			}
-		}]})
+		}]});
 		
 	} else if (member.id === channelObj.owner) {
 		const members = channel.voiceMembers.filter((m) => m.id !== member.id).map((m) => m.id),
@@ -120,17 +136,26 @@ export const remove = async (bot: Bot, member: Member, channel: VoiceChannel): P
 
 		logging.log(channel.guild, "vc", {embeds: [{
 			type: "rich",
-			title: `${member.username}#${member.discriminator} -> ${newOwner.username}#${newOwner.discriminator}`,
+			title: `${member.username} -> ${newOwner.username}`,
 			description: `Set \`${newOwner.username}\` the owner of \`${channel.name}\``,
 			author: {
 				name: "Transferred Private Voice Channel Ownership",
-					icon_url: member.avatarURL
-				},
+				iconURL: member.avatarURL()
+			},
 			color: bot.constants.config.colors.default,
-			timestamp: new Date(),
+			timestamp: new Date().toISOString(),
 			footer: {
 				text: `ID: ${member.id}`
 			}
-		}]})
+		}]});
+
+    try {
+      const newOwnerDM = await newOwner.user.createDM();
+      await newOwnerDM.createMessage({content: `${bot.constants.emojis.warning.yellow} You are now the owner of \`${channel.name}\` in \`${channel.guild.name}\`!`});
+      const oldOwnerDM = await member.user.createDM();
+      await oldOwnerDM.createMessage({content: `${bot.constants.emojis.warning.yellow} Ownership of \`${channel.name}\` has been transferred to \`${newOwner.tag}\` for \`${channel.guild.name}\`!`});
+    } catch (e) {
+      console.error(e);
+    }
 	}
 };

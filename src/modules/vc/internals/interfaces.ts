@@ -1,4 +1,4 @@
-import Eris from "eris";
+import { Constants } from "oceanic.js";
 
 export interface Category {
 	catID: string;
@@ -13,8 +13,8 @@ export interface Channel {
 	locked: boolean;
 	parentOverwrites: {
 		id: string;
-		type: Eris.PermissionType;
-		allow: number;
-		deny: number;
+		type: Constants.OverwriteTypes;
+		allow: bigint | string | undefined;
+		deny: bigint	| string | undefined;
 	}[]
 }

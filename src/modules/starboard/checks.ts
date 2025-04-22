@@ -1,13 +1,13 @@
-import { TextChannel } from "eris";
-import Bot from "../../main";
+import { TextChannel } from "oceanic.js";
+import ExtendedClient from "../../Base/Client";
 import Roles, { moduleData } from "./main";
 
 export default class Checks {
 
-	readonly bot: Bot;
+	readonly bot: ExtendedClient;
 	readonly module: Roles
 
-	constructor(bot: Bot, Module: Roles) {
+	constructor(bot: ExtendedClient, Module: Roles) {
 		this.bot = bot;
 		this.module = Module;
 	}
@@ -79,6 +79,6 @@ export default class Checks {
 	}
 
 	readonly checkVersion = async (newVersion: string): Promise<string> => {
-		return `0 Guild(s) Versions Migrated.`;
-    }
+		return "0 Guild(s) Versions Migrated.";
+	}
 }

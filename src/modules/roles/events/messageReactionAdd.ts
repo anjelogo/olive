@@ -1,9 +1,9 @@
-import { Emoji, Guild, Member, Message, PrivateChannel, Role } from "eris";
-import Bot from "../../../main";
+import { Guild, Member, PartialEmoji, PossiblyUncachedMessage, PrivateChannel, Role, Uncached, User } from "oceanic.js";
+import ExtendedClient from "../../../Base/Client";
 import Main from "../../main/main";
 import Roles, { RolesMessage } from "../main";
 
-export const run = async (bot: Bot, msg: Message, emoji: Partial<Emoji>, reactor: Partial<Member>): Promise<void> => {
+export const run = async (bot: ExtendedClient, msg: PossiblyUncachedMessage, reactor: Uncached | Member | User, emoji: PartialEmoji): Promise<void> => {
 
 	if (!msg || !emoji || !reactor || !msg.guildID) return;
 
@@ -23,16 +23,16 @@ export const run = async (bot: Bot, msg: Message, emoji: Partial<Emoji>, reactor
 	if (rData) {
 
 		const role: Role = bot.findRole(guild, rData.role) as Role,
-			dmChannel: PrivateChannel | undefined = await bot.getDMChannel(member.id);
+			dmChannel: PrivateChannel | undefined = await member.user.createDM();
 
 		if (member.roles.includes(role.id)) return;
 
 		try {
 			await member.addRole(role.id);
 			
-			if (dmChannel) dmChannel.createMessage(`${bot.constants.emojis.tick} You have been given the role \`${role.name}\` in \`${guild.name}\`.`);
+			if (dmChannel) dmChannel.createMessage({content: `${bot.constants.emojis.tick} You have been given the role \`${role.name}\` in \`${guild.name}\`.`});
 		} catch (e) {
-			if (dmChannel) dmChannel.createMessage(`${bot.constants.emojis.warning.red} There was a problem while adding your role.`);
+			if (dmChannel) dmChannel.createMessage({content: `${bot.constants.emojis.warning.red} There was a problem while adding your role.`});
 		}
 
 	}	

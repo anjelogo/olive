@@ -1,18 +1,18 @@
-import { Emoji, Guild, Member, Message, PrivateChannel, Role } from "eris";
-import Bot from "../../../main";
+import { Guild, Member, PartialEmoji, PossiblyUncachedMessage, PrivateChannel, Role, Uncached, User } from "oceanic.js";
+import ExtendedClient from "../../../Base/Client";
 import Main from "../../main/main";
 import Roles, { RolesMessage } from "../main";
 
-export const run = async (bot: Bot, msg: Partial<Message>, emoji: Partial<Emoji>, reactor: string): Promise<void> => {
+export const run = async (bot: ExtendedClient, msg: PossiblyUncachedMessage, reactor: Uncached | Member | User, emoji: PartialEmoji): Promise<void> => {
 	if (!msg || !emoji || !reactor || !msg.guildID || !msg.id) return;
 
 	const guild: Guild = bot.findGuild(msg.guildID) as Guild,
-		member: Member = bot.findMember(guild, reactor) as Member,
 		rolesModule: Roles = bot.getModule("Roles"),
 		mainModule: Main = bot.getModule("Main"),
-		msgData: RolesMessage = await rolesModule.getReactionMessage(msg.id, msg.guildID) as RolesMessage;
+		msgData: RolesMessage = await rolesModule.getReactionMessage(msg.id, msg.guildID) as RolesMessage,
+		member = guild.members.get(reactor.id);
 
-	if (!msgData || member.bot) return;
+	if (!member || !msgData || member.bot) return;
 
 	if (!await mainModule.handlePermission(member, "roles.reaction.interact")) return;
 
@@ -22,16 +22,16 @@ export const run = async (bot: Bot, msg: Partial<Message>, emoji: Partial<Emoji>
 	if (rData) {
 
 		const role: Role = bot.findRole(guild, rData.role) as Role,
-			dmChannel: PrivateChannel | undefined = await bot.getDMChannel(member.id);
+			dmChannel: PrivateChannel | undefined = await member.user.createDM();
 
 		if (!member.roles.includes(role.id)) return;
 
 		try {
 			await member.removeRole(role.id);
 			
-			if (dmChannel) dmChannel.createMessage(`${bot.constants.emojis.tick} You have removed the role \`${role.name}\` in \`${guild.name}\`.`);
+			if (dmChannel) dmChannel.createMessage({content: `${bot.constants.emojis.tick} You have removed the role \`${role.name}\` in \`${guild.name}\`.`});
 		} catch (e) {
-			if (dmChannel) dmChannel.createMessage(`${bot.constants.emojis.warning.red} There was a problem while removing your role.`);
+			if (dmChannel) dmChannel.createMessage({content: `${bot.constants.emojis.warning.red} There was a problem while removing your role.`});
 		}
 
 	}

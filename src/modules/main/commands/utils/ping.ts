@@ -1,10 +1,11 @@
-import { CommandInteraction, Message } from "eris";
+import { CommandInteraction, Message } from "oceanic.js";
 import Command from "../../../../Base/Command";
-import Bot from "../../../../main";
+import ExtendedClient from "../../../../Base/Client";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class Ping extends Command {
 	
-	constructor(bot: Bot) {
+	constructor(bot: ExtendedClient) {
 
 		super(bot);
 
@@ -15,15 +16,15 @@ export default class Ping extends Command {
 	
 	}
 
-	readonly execute = async (interaction: CommandInteraction): Promise<Message | void> => {
-		await interaction.defer()
+	readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
+		await interaction.defer();
 		
-		return interaction.createMessage({
+		return interaction.createFollowup({
 			content: "Pong 🏓",
 			embeds: [
 				{
 					color: this.bot.constants.config.colors.default,
-					description: "**Response Time:** `placeholder ms`",
+					description: `**Response Time:** \`${Date.now() - interaction.createdAt.getMilliseconds()}\`ms`,
 				}
 			]
 		});

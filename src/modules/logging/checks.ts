@@ -1,14 +1,14 @@
-import { TextChannel } from "eris";
+import { TextChannel } from "oceanic.js";
 import Module from "../../Base/Module";
-import Bot from "../../main";
+import ExtendedClient from "../../Base/Client";
 import Logging, { moduleData } from "./main";
 
 export default class Checks {
 
-	readonly bot: Bot;
+	readonly bot: ExtendedClient;
 	readonly module: Module;
 
-	constructor (bot: Bot, Module: Logging) {
+	constructor (bot: ExtendedClient, Module: Logging) {
 		this.bot = bot;
 		this.module = Module;
 	}
@@ -18,7 +18,7 @@ export default class Checks {
 			promises = [];
 
 		let deletedGuilds = 0,
-            deletedChannels = 0,
+			deletedChannels = 0,
 			deletedCases = 0,
 			deletedStars = 0,
 			failed = 0;
@@ -34,25 +34,25 @@ export default class Checks {
 			}
 		}
 
-        async function deleteChannel(checks: Checks, guildData: moduleData, channel: string) {
-            if (!channel) return;
+		async function deleteChannel(checks: Checks, guildData: moduleData, channel: string) {
+			if (!channel) return;
 
-            const i = guildData.channels.findIndex((c) => c.channelID === channel);
-            if (i > -1) guildData.channels.splice(i, 1);
+			const i = guildData.channels.findIndex((c) => c.channelID === channel);
+			if (i > -1) guildData.channels.splice(i, 1);
 
-            try {
-                await checks.bot.updateModuleData(checks.module.name, guildData, guildData.guildID);
-                deletedChannels++;
-            } catch (e) {
-                failed++
-            }
-        }
+			try {
+				await checks.bot.updateModuleData(checks.module.name, guildData, guildData.guildID);
+				deletedChannels++;
+			} catch (e) {
+				failed++;
+			}
+		}
 
 		async function deleteCaseMessage(checks: Checks, guildData: moduleData, channelID: string, messageID: string) {
 			if (!messageID) return;
 
-			const i = guildData.channels.find((c) => c.channelID === channelID)!!.cases!!.findIndex((c) => c.messageID === messageID);
-			if (i > -1) guildData.channels.find((c) => c.channelID === channelID)!!.cases!!.splice(i, 1);
+			const i = guildData.channels.find((c) => c.channelID === channelID)!.cases!.findIndex((c) => c.messageID === messageID);
+			if (i > -1) guildData.channels.find((c) => c.channelID === channelID)!.cases!.splice(i, 1);
 
 			try {
 				await checks.bot.updateModuleData(checks.module.name, guildData, guildData.guildID);
@@ -65,8 +65,8 @@ export default class Checks {
 		async function deleteStarMessage(checks: Checks, guildData: moduleData, channelID: string, messageID: string) {
 			if (!messageID) return;
 
-			const i = guildData.channels.find((c) => c.channelID === channelID)!!.stars!!.findIndex((c) => c.messageID === messageID);
-			if (i > -1) guildData.channels.find((c) => c.channelID === channelID)!!.stars!!.splice(i, 1);
+			const i = guildData.channels.find((c) => c.channelID === channelID)!.stars!.findIndex((c) => c.messageID === messageID);
+			if (i > -1) guildData.channels.find((c) => c.channelID === channelID)!.stars!.splice(i, 1);
 
 			try {
 				await checks.bot.updateModuleData(checks.module.name, guildData, guildData.guildID);
@@ -86,12 +86,12 @@ export default class Checks {
 					continue;
 				}
 
-                for (const channel of guildData.channels) {
+				for (const channel of guildData.channels) {
 
-                    const channelObj = this.bot.findChannel(guild, channel.channelID) as TextChannel;
-                    if (!channelObj) {
-                        promises.push(await deleteChannel(this, guildData, channel.channelID));
-                    }
+					const channelObj = this.bot.findChannel(guild, channel.channelID) as TextChannel;
+					if (!channelObj) {
+						promises.push(await deleteChannel(this, guildData, channel.channelID));
+					}
 
 					if (channel.cases) {
 						for (const caseData of channel.cases) {
@@ -115,7 +115,7 @@ export default class Checks {
 						}
 					}
 
-                }
+				}
 			}
 		}
 
@@ -128,7 +128,7 @@ export default class Checks {
 	readonly checkVersion = async (newVersion: string): Promise<string> => {
 		const data: moduleData[] = (await this.bot.getAllData(this.module.name) as unknown) as moduleData[];
 
-		let promises = [];
+		const promises = [];
 
 		if (data.length) {
 			for (const guildData of data) {
@@ -136,24 +136,24 @@ export default class Checks {
 
 				switch (guildData.version) {
 
-					case undefined:
-					case "1.0": {
-						//Migrates from 1.0 to 1.1
-						if (guildData.version === newVersion) continue;
+				case undefined:
+				case "1.0": {
+					//Migrates from 1.0 to 1.1
+					if (guildData.version === newVersion) continue;
 			
-						const oldDataStruct = {
-								guildID: guildData.guildID,
-								channels: guildData.channels
-							},
-							newDataStruct = {
-								version: newVersion,
-								guildID: oldDataStruct.guildID,
-								channels: oldDataStruct.channels
-							}
+					const oldDataStruct = {
+							guildID: guildData.guildID,
+							channels: guildData.channels
+						},
+						newDataStruct = {
+							version: newVersion,
+							guildID: oldDataStruct.guildID,
+							channels: oldDataStruct.channels
+						};
 			
-						promises.push(await this.bot.updateModuleData(this.module.name, newDataStruct, guildData.guildID));
-						break;
-					}
+					promises.push(await this.bot.updateModuleData(this.module.name, newDataStruct, guildData.guildID));
+					break;
+				}
 				}
 			}
 		}

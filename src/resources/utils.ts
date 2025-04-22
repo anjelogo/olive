@@ -1,4 +1,4 @@
-import { Emoji } from "eris";
+import { PartialEmoji } from "oceanic.js";
 
 export const log = (Module: string, message: string): void => {
 	console.log(`[${Module}] ${message}`);
@@ -24,7 +24,7 @@ export const HMS = (time: number): string => {
 		return ("00:00:00:00");
 };
 
-export const resolveEmoji = (emote: string): Partial<Emoji> | undefined => {
+export const resolveEmoji = (emote: string): PartialEmoji | undefined => {
 	const custom = /<a?:.+?:\d+>/g;
 
 	if (emote.match(custom)) {
@@ -35,7 +35,7 @@ export const resolveEmoji = (emote: string): Partial<Emoji> | undefined => {
 
 };
 
-export const parseEmoji = (emote: Partial<Emoji>): string => {
+export const parseEmoji = (emote: PartialEmoji): string => {
 	if (!emote.id || !emote.id)
 		return "❓";
 
@@ -45,4 +45,4 @@ export const parseEmoji = (emote: Partial<Emoji>): string => {
 export const convertSnowflake = (snowflake: string): Date => {
 	const milliseconds = BigInt(snowflake) >> 22n;
 	return new Date(Number(milliseconds) + 1420070400000);
-}
+};

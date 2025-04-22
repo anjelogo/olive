@@ -1,39 +1,42 @@
-import { Constants, Guild, Member, User } from "eris";
-import Bot from "../../../main";
+import { Constants, Guild, Member, Uncached, User } from "oceanic.js";
+import ExtendedClient from "../../../Base/Client";
 import { addCase, getCases } from "../internals/caseHandler";
 import { createLogEntry } from "../internals/logHandler";
 import { Case } from "../main";
 
-export const run = async (bot: Bot, guild: Guild, member: Member | { id: string; user: User }): Promise<void> => {
+export const run = async (bot: ExtendedClient, member: Member | User, guild: Guild | Uncached): Promise<void> => {
 
-    const Cases = await getCases(bot, guild, member.id),
-    audit = await guild.getAuditLog({
-        limit: 1,
-        actionType: Constants.AuditLogActions.MEMBER_KICK
-    })
+	guild = bot.findGuild(guild.id) as Guild;
 
-    if (Cases.filter(c => c.id === audit.entries[0].id).length) return;
+	const user = member instanceof User ? member : member.user,
+		Cases = await getCases(bot, guild as Guild, user.id),
+		audit = await (guild as Guild).getAuditLog({
+			limit: 1,
+			actionType: Constants.AuditLogActionTypes.MEMBER_KICK
+		});
 
-    const timestamp = bot.constants.utils.convertSnowflake(audit.entries[0].id);
+	if (Cases.filter(c => c.id === audit.entries[0].id).length) return;
 
-    if (Date.now() - timestamp > 1000 * 30) return; // 1 minute
+	const timestamp = bot.constants.utils.convertSnowflake(audit.entries[0].id);
 
-    const moderator = bot.findMember(guild, audit.entries[0].user?.id) as Member
+	if (Date.now() - timestamp > 1000 * 30) return; // 1 minute
 
-    if (moderator.id === bot.user.id) return
+	const moderator = bot.findMember(guild as Guild, audit.entries[0].user?.id) as Member;
 
-    const reason = audit.entries[0].reason ?? undefined;
+	if (moderator.id === bot.user.id) return;
 
-    const Case: Case = {
-        id: audit.entries[0].id,
-        userID: member.id,
-        moderatorID: moderator.user.id,
-        action: "kick",
-        timestamp: new Date().toISOString(),
-        reason
-    };
+	const reason = audit.entries[0].reason ?? undefined;
 
-    await createLogEntry(bot, guild, Case, member.user);
-    await addCase(bot, guild, Case);
+	const Case: Case = {
+		id: audit.entries[0].id,
+		userID: user.id,
+		moderatorID: moderator.user.id,
+		action: "kick",
+		timestamp: new Date().toISOString(),
+		reason
+	};
 
-}
+	await createLogEntry(bot, guild as Guild, Case, user);
+	await addCase(bot, guild as Guild, Case);
+
+};

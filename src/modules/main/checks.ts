@@ -1,13 +1,13 @@
 import Module from "../../Base/Module";
-import Bot from "../../main";
+import ExtendedClient from "../../Base/Client";
 import Main, { moduleData } from "./main";
 
 export default class Checks {
 
-	readonly bot: Bot;
+	readonly bot: ExtendedClient;
 	readonly module: Module;
 
-	constructor (bot: Bot, Module: Main) {
+	constructor (bot: ExtendedClient, Module: Main) {
 		this.bot = bot;
 		this.module = Module;
 	}
@@ -45,13 +45,12 @@ export default class Checks {
 		await Promise.all(promises);
 
 		return `${deletedGuilds} Guild(s) Deleted. ${failed} Failed Operation(s).`;
-
 	}
 
 	readonly checkVersion = async (newVersion: string): Promise<string> => {
 		const data: moduleData[] = (await this.bot.getAllData(this.module.name) as unknown) as moduleData[];
 
-		let promises = [];
+		const promises = [];
 
 		if (data.length) {
 			for (const guildData of data) {
@@ -59,26 +58,26 @@ export default class Checks {
 
 				switch (guildData.version) {
 
-					case undefined:
-					case "1.0": {
-						//Migrates from 1.0 to 1.1
-						if (guildData.version === newVersion) continue;
+				case undefined:
+				case "1.0": {
+					//Migrates from 1.0 to 1.1
+					if (guildData.version === newVersion) continue;
 			
-						const oldDataStruct = {
-								guildID: guildData.guildID,
-								permissions: guildData.permissions,
-								disabledModules: guildData.disabledModules
-							},
-							newDataStruct = {
-								version: newVersion,
-								guildID: oldDataStruct.guildID,
-								permissions: oldDataStruct.permissions,
-								disabledModules: oldDataStruct.disabledModules
-							}
+					const oldDataStruct = {
+							guildID: guildData.guildID,
+							permissions: guildData.permissions,
+							disabledModules: guildData.disabledModules
+						},
+						newDataStruct = {
+							version: newVersion,
+							guildID: oldDataStruct.guildID,
+							permissions: oldDataStruct.permissions,
+							disabledModules: oldDataStruct.disabledModules
+						};
 			
-						promises.push(await this.bot.updateModuleData(this.module.name, newDataStruct, guildData.guildID));
-						break;
-					}
+					promises.push(await this.bot.updateModuleData(this.module.name, newDataStruct, guildData.guildID));
+					break;
+				}
 				}
 			}
 		}

@@ -1,18 +1,21 @@
 {
-  "name": "dsbmoduleloader",
-  "version": "1.0.0",
+  "name": "olive-rewrite",
+  "version": "2.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "pm2": "./node_modules/.bin/pm2 start src/index.ts --watch"
+    "pm2": "./node_modules/.bin/pm2 start src/index.ts --watch",
+    "build": "tsc",
+    "start": "node dist/index.js"
   },
-  "author": "anjelo",
+  "author": "Anjelo Go",
   "license": "ISC",
   "dependencies": {
-    "eris": "github:DonovanDMC/eris#everything",
     "fs": "0.0.1-security",
+    "mongoose": "^7.3.0",
     "monk": "^7.3.4",
     "node-fetch": "^2.6.1",
+    "oceanic.js": "^1.11.3-dev.d9f2e80",
     "uniqid": "^5.4.0"
   },
   "devDependencies": {
@@ -24,7 +27,7 @@
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-config-google": "^0.14.0",
     "eslint-plugin-import": "^2.22.1",
-    "ts-node": "^9.1.1",
-    "typescript": "^4.2.4"
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.6"
   }
 }

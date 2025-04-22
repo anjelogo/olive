@@ -1,6 +1,7 @@
-import Eris, {ApplicationCommandOptions, ApplicationCommandTypes, CommandInteraction, ComponentInteraction, Message } from "eris";
-import Bot from "../main";
-import { Constants } from "../resources/interfaces";
+import { Constants, ApplicationCommandTypes, CommandInteraction, ComponentInteraction, Message, ApplicationCommandOptions, ModalSubmitInteraction, InteractionCallbackResponse, AnyInteractionChannel, Uncached } from "oceanic.js";
+import ExtendedClient from "./Client";
+import { Constants as CustomConstants } from "../resources/interfaces";
+import { FollowupMessageInteractionResponse, InitialMessagedInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export type Options =  ApplicationCommandOptions & {
 	permissions?: string[];
@@ -19,15 +20,16 @@ export default class Command {
 	public devOnly: boolean;
 	public category: string;
 	public permissions?: string[];
-	public requirePerms?: keyof typeof Eris.Constants.Permissions;
+	public requirePerms?: keyof typeof Constants.Permissions;
 	public options?: Options[];
-	public bot: Bot;
-	public constants: Constants;
+	public bot: ExtendedClient;
+	public constants: CustomConstants;
 	public guildSpecific?: string[];
-	public execute: (interaction: CommandInteraction) => Promise<Message | undefined | void> | undefined;
+	public execute: (interaction: CommandInteraction) => Promise<InitialMessagedInteractionResponse<CommandInteraction | ComponentInteraction> | FollowupMessageInteractionResponse<CommandInteraction | ComponentInteraction> | InteractionCallbackResponse<AnyInteractionChannel | Uncached> | undefined | void> | undefined;
 	public update: (component: ComponentInteraction) => Promise<Message | undefined | void> | undefined;
+	public modalSubmit: (modal: ModalSubmitInteraction) => Promise<Message | undefined | void> | undefined;
 
-	constructor(bot: Bot) {
+	constructor(bot: ExtendedClient) {
 		this.commands = [];
 		this.description = "No Description Available :(";
 		this.example = "No Example Available :(";
@@ -39,6 +41,7 @@ export default class Command {
 
 		this.execute = () => { return undefined; };
 		this.update = () => { return undefined; };
+		this.modalSubmit = () => { return undefined; };
 	}
 
 }

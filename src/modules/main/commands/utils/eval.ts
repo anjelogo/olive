@@ -1,10 +1,11 @@
-import Eris, { CommandInteraction, Constants, InteractionDataOptionsWithValue, Message } from "eris";
+import Eris, { CommandInteraction, Constants } from "oceanic.js";
 import Command from "../../../../Base/Command";
-import Bot from "../../../../main";
+import ExtendedClient from "../../../../Base/Client";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class Eval extends Command {
 	
-	constructor(bot: Bot) {
+	constructor(bot: ExtendedClient) {
 
 		super(bot);
 
@@ -23,9 +24,9 @@ export default class Eval extends Command {
 	
 	}
 
-	readonly execute = async (interaction: CommandInteraction): Promise<void> => {
+	readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
 
-		const code = (interaction.data.options?.find(o => o.name === "expression") as InteractionDataOptionsWithValue).value as string;
+		const code = (interaction.data.options.getStringOption("expression"))?.value as string;
 
 
 		try {
@@ -37,7 +38,7 @@ export default class Eval extends Command {
 				interaction.reply("Output exceeded 4000 characters");
 			} */
 
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				embeds: [
 					{
 						color: 1416145,
@@ -54,10 +55,10 @@ export default class Eval extends Command {
 						]
 					}
 				],
-				flags: Eris.Constants.MessageFlags.EPHEMERAL
+				flags: Constants.MessageFlags.EPHEMERAL
 			});
 		} catch (e) {
-			return interaction.createMessage({
+			return interaction.createFollowup({
 				embeds: [
 					{
 						color: 14161450,
@@ -74,7 +75,7 @@ export default class Eval extends Command {
 						]
 					}
 				],
-				flags: Eris.Constants.MessageFlags.EPHEMERAL
+				flags: Constants.MessageFlags.EPHEMERAL
 			});
 		}
 	}

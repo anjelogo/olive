@@ -1,15 +1,15 @@
-import { CategoryChannel, Guild, Member, VoiceChannel } from "eris";
-import Bot from "../../main";
+import { CategoryChannel, Guild, Member, VoiceChannel } from "oceanic.js";
+import ExtendedClient from "../../Base/Client";
 import { create } from "./internals/handler";
 import { Category } from "./internals/interfaces";
 import VC, { moduleData } from "./main";
 
 export default class Checks {
 
-	readonly bot: Bot;
+	readonly bot: ExtendedClient;
 	readonly module: VC;
 
-	constructor(bot: Bot, Module: VC) {
+	constructor(bot: ExtendedClient, Module: VC) {
 		this.bot = bot;
 		this.module = Module;
 	}
@@ -124,7 +124,7 @@ export default class Checks {
 	readonly checkVersion = async (newVersion: string): Promise<string> => {
 		const data: moduleData[] = (await this.bot.getAllData(this.module.name) as unknown) as moduleData[];
 
-		let promises = [];
+		const promises = [];
 
 		if (data.length) {
 			for (const guildData of data) {
@@ -132,26 +132,26 @@ export default class Checks {
 
 				switch (guildData.version) {
 
-					case undefined:
-					case "1.0": {
-						//Migrates from 1.0 to 1.1
-						if (guildData.version === newVersion) continue;
+				case undefined:
+				case "1.0": {
+					//Migrates from 1.0 to 1.1
+					if (guildData.version === newVersion) continue;
 			
-						const oldDataStruct = {
-								guildID: guildData.guildID,
-								categories: guildData.categories,
-								defaultName: guildData.defaultName
-							},
-							newDataStruct = {
-								version: newVersion,
-								guildID: oldDataStruct.guildID,
-								categories: oldDataStruct.categories,
-								defaultName: oldDataStruct.defaultName
-							}
+					const oldDataStruct = {
+							guildID: guildData.guildID,
+							categories: guildData.categories,
+							defaultName: guildData.defaultName
+						},
+						newDataStruct = {
+							version: newVersion,
+							guildID: oldDataStruct.guildID,
+							categories: oldDataStruct.categories,
+							defaultName: oldDataStruct.defaultName
+						};
 			
-						promises.push(await this.bot.updateModuleData(this.module.name, newDataStruct, guildData.guildID));
-						break;
-					}
+					promises.push(await this.bot.updateModuleData(this.module.name, newDataStruct, guildData.guildID));
+					break;
+				}
 				}
 			}
 		}

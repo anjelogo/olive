@@ -1,8 +1,8 @@
 import { Permissions, Permission } from "./internals/permissions";
 import { Permnodes } from "../../resources/interfaces";
-import { CommandInteraction, Constants, Embed, EmbedField, Member, PrivateChannel } from "eris";
+import { CommandInteraction, Constants, Embed, EmbedField, Member, PrivateChannel } from "oceanic.js";
 import Module, { moduleDataStructure } from "../../Base/Module";
-import Bot from "../../main";
+import ExtendedClient from "../../Base/Client";
 import Command from "../../Base/Command";
 
 export interface moduleData extends moduleDataStructure {
@@ -23,7 +23,7 @@ export default class Main extends Module {
 	readonly weight: number;
 	readonly db: boolean;
 
-	constructor (bot: Bot) {
+	constructor (bot: ExtendedClient) {
 		super(bot);
 
 		this.name = "Main";
@@ -73,16 +73,16 @@ export default class Main extends Module {
 		return perms;
 	}
 
-	readonly hasPerm = async (member: Member | undefined, perm: string): Promise<boolean> => {
+	readonly hasPerm = async (member: Member | null, perm: string): Promise<boolean> => {
 		if (!member || !perm) return false;
 
 		const masterPerm = `${perm.split(/[.\-_]/)[0]}.*`,
 			permission: Permnodes | undefined = this.bot.perms.find((p: Permnodes) => p.name === perm),
-			moduleData: moduleData = (await this.bot.getModuleData("Main", member.guild) as unknown) as moduleData,
+			moduleData: moduleData = (await this.bot.getModuleData("Main", member.guild.id) as unknown) as moduleData,
 			permissions: Permissions[] = moduleData.permissions;
 
 		if (!permission || !permissions) return false;
-		if (member.permissions.has("administrator")) return true;
+		if (member.permissions.has("ADMINISTRATOR")) return true;
 
 		const perms = [...new Set(await this.getPerms(member))];
 
@@ -114,12 +114,12 @@ export default class Main extends Module {
 				color: this.bot.constants.config.colors.red,
 				type: "rich"
 			},
-				dmChannel: PrivateChannel | undefined = await this.bot.getDMChannel(member.id) as PrivateChannel;
+				dmChannel: PrivateChannel | undefined = await member.user.createDM() as PrivateChannel;
 
 			if (interaction) 
 				interaction.createMessage({ embeds: [embed], flags: Constants.MessageFlags.EPHEMERAL });
 			else if (dmChannel)
-				dmChannel.createMessage({ embed });
+				dmChannel.createMessage({ embeds: [embed] });
 
 			return false;
 		}
@@ -178,7 +178,6 @@ export default class Main extends Module {
 				description: `**${cmd.description}**`,
 				color: this.bot.constants.config.colors.default,
 				fields,
-				type: "rich"
 			}
 		};
 

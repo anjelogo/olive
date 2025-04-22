@@ -1,5 +1,5 @@
 import Module, { moduleDataStructure } from "../../Base/Module";
-import Bot from "../../main";
+import ExtendedClient from "../../Base/Client";
 
 export type CaseActionTypes = ("ban" | "kick" | "timeout" | "warn");
 
@@ -36,7 +36,7 @@ export default class Moderation extends Module {
 	readonly path: string;
 	readonly db: boolean;
 
-	constructor (bot: Bot) {
+	constructor (bot: ExtendedClient) {
 		super(bot);
 
 		this.name = "Moderation";
@@ -51,15 +51,15 @@ export default class Moderation extends Module {
 	}
 
 	readonly moduleData: moduleData = {
-        version: this.version,
+		version: this.version,
 		guildID: "",
-        cases: [],
-        settings: {
-            caseLimit: 100,
-            infractionUntilBan: 9,
-            infractionUntilKick: 5,
-            infractionUntilTimeout: 3
-        }
+		cases: [],
+		settings: {
+			caseLimit: 100,
+			infractionUntilBan: 9,
+			infractionUntilKick: 5,
+			infractionUntilTimeout: 3
+		}
 	}
 
 }

@@ -1,12 +1,15 @@
 import { Auth } from "./resources/auth";
-import Bot from "./main";
+import ExtendedClient from "./Base/Client";
 
-const bot = new Bot(Auth.token, {
-	getAllUsers: true,
+const client = new ExtendedClient({
 	defaultImageFormat: "png",
 	defaultImageSize: 1024,
-	intents: 14063,
-	disabledModules: []
+	disabledModules: [],
+	auth: `Bot ${Auth.token}`,
+	gateway: {
+		getAllUsers:	true,
+		intents: 14063,
+	}
 });
 
-bot.init();
+client.init();

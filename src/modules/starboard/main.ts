@@ -1,6 +1,6 @@
-import { Guild } from "eris";
+import { Guild } from "oceanic.js";
 import Module, { moduleDataStructure } from "../../Base/Module";
-import Bot from "../../main";
+import ExtendedClient from "../../Base/Client";
 
 export interface messageDataStructure {
 	channelID: string;
@@ -20,7 +20,7 @@ export default class Starboard extends Module {
 	readonly path: string;
 	readonly db: boolean;
 
-	constructor (bot: Bot) {
+	constructor (bot: ExtendedClient) {
 		super(bot);
 
 		this.name = "Starboard";
@@ -39,7 +39,7 @@ export default class Starboard extends Module {
 
 		if (typeof guild === "string") guild = this.bot.findGuild(guild) as Guild;
 
-		const data: moduleData = await this.data(guild) as moduleData,
+		const data: moduleData = await this.data(guild.id) as moduleData,
 			messages = data.messages;
 
 		if (!messages.length) return;
@@ -50,7 +50,7 @@ export default class Starboard extends Module {
 	readonly moduleData = {
 		version: this.version,
 		guildID: "",
-        messages: []
+		messages: []
 	}
 
 }

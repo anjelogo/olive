@@ -2,9 +2,9 @@
 
 import { Permnodes, Constants } from "../resources/interfaces";
 import { promises as fs } from "fs";
-import Bot from "../main";
+import ExtendedClient from "./Client";
 import Command from "./Command";
-import { Guild } from "eris";
+import { Guild } from "oceanic.js";
 
 export interface moduleDataStructure {
 	version: string;
@@ -15,14 +15,14 @@ export default class Module {
 
 	readonly name: string;
 	readonly version: string;
-	readonly bot: Bot;
+	readonly bot: ExtendedClient;
 	readonly constants: Constants;
 	readonly path: string;
 	readonly weight: number;
 	readonly db?: boolean;
 	readonly moduleData: unknown;
 
-	constructor (bot: Bot) {
+	constructor (bot: ExtendedClient) {
 
 		this.name = "";
 		this.version = "0.0";
@@ -34,10 +34,10 @@ export default class Module {
 
 	}
 
-	readonly data = async (guild: string | Guild): Promise<unknown> => {
-		if (!this.db || !guild) return;
+	readonly data = async (guildID: string): Promise<unknown> => {
+		if (!this.db || !guildID) return;
 
-		if (typeof guild === "string") guild = this.bot.findGuild(guild) as Guild;
+		const guild = this.bot.findGuild(guildID);
 
 		if (!guild) return;
 
@@ -46,8 +46,8 @@ export default class Module {
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			(this.moduleData as any).guildID = guild.id;
 
-			this.bot.constants.utils.log(this.name, `Module data not found for guild "${guild.name}". Creating now...`);
-			await this.bot.db.get(this.name).insert(this.moduleData);
+			this.bot.constants.utils.log(this.name, `Module data not found for guild "${guild.name}" (${guild.id}). Creating now...`);
+			await this.bot.db.get(this.name).bulkWrite([{ updateOne: { filter: { guildID: guild.id }, update: { $set: this.moduleData }, upsert: true }}]);
 			this.bot.constants.utils.log(this.name, `Module data created for guild "${guild.name}".`);
 		}
 

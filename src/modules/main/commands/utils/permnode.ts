@@ -1,14 +1,15 @@
-import { ActionRow, CommandInteraction, Component, ComponentInteraction, Constants, Embed, EmbedField, Guild, InteractionDataOptionsSubCommand, Member, Message, Role } from "eris";
+import { CommandInteraction, ComponentInteraction, Constants, Embed, EmbedField, Guild, Member, Message, MessageActionRow, Role } from "oceanic.js";
 import Command from "../../../../Base/Command";
-import Bot from "../../../../main";
+import ExtendedClient from "../../../../Base/Client";
 import { Entity } from "../../../../resources/interfaces";
 import { upsertCustomData, getCustomData } from "../../internals/CustomDataHandler";
 import { Permissions } from "../../internals/permissions";
 import { moduleData } from "../../main";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class Permnode extends Command {
 	
-	constructor(bot: Bot) {
+	constructor(bot: ExtendedClient) {
 
 		super(bot);
 
@@ -76,28 +77,30 @@ export default class Permnode extends Command {
 		];
 	}
 
-	readonly execute = async (interaction: CommandInteraction): Promise<Message | void> => {
+	readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
 		await interaction.defer();
 		
 		const guild = this.bot.findGuild(interaction.guildID) as Guild,
-			data: moduleData = (await this.bot.getModuleData("Main", guild) as unknown) as moduleData,
+			data: moduleData = (await this.bot.getModuleData("Main", guild.id) as unknown) as moduleData,
 			permissions: Permissions[] = data.permissions,
-			subcommand = interaction.data.options?.[0]!! as InteractionDataOptionsSubCommand;
+			subcommand = interaction.data.options.raw[0].name;
 
-		switch (subcommand.name) {
+		switch (subcommand) {
 		case "edit": {
-			const entity: Entity | undefined = this.bot.findEntity(guild, subcommand.options?.[0].value!! as string);
+			// UNTESTED - MIGHT NOT WORK
+			// if doesnt work, possible fix: use interaction.data.options.getString("entity", true) instead of interaction.data.resolved.members.map((m) => m.id)[0] || interaction.data.resolved.roles.map((r) => r.id)[0]
+			const entity: Entity | undefined = this.bot.findEntity(guild, interaction.data.resolved.members.map((m) => m.id)[0] || interaction.data.resolved.roles.map((r) => r.id)[0]);
 			
-			if (!entity) return interaction.createMessage("I could not find that entity!");
-			const permnode = this.bot.perms.find((perm) => perm.name === subcommand.options?.[1].value!! as string);
-			if (!permnode) return interaction.createMessage("I could not find that permnode!");
+			if (!entity) return interaction.createFollowup({content: "I could not find that entity!"});
+			const permnode = this.bot.perms.find((perm) => perm.name === interaction.data.options.getString("permission", true));
+			if (!permnode) return interaction.createFollowup({content: "I could not find that permnode!"});
 
-			const value = subcommand.options?.[2].value!! as boolean;
+			const value = interaction.data.options.getBoolean("boolean", true);
 
 			switch (entity.type) {
 
 			case "member": {
-				if (!entity.member) return interaction.createMessage(`${this.bot.constants.emojis.warning.red} An error occured.`);
+				if (!entity.member) return interaction.createFollowup({content: `${this.bot.constants.emojis.warning.red} An error occured.`});
 				const member = entity.member as Member;
 
 				const userData: Permissions | undefined = (permissions.find((p: Permissions) => p.userID === member.id));
@@ -111,7 +114,7 @@ export default class Permnode extends Command {
 					const perms = userData.permissions;
 
 					if (perms.filter((p) => p.permission === permnode.name && p.value === value).length)
-						return interaction.createMessage(`User \`${member.username}\` already has \`${permnode.name}\` set as \`${value}\``);
+						return interaction.createFollowup({content: `User \`${member.username}\` already has \`${permnode.name}\` set as \`${value}\``});
 
 					perms.push({ permission: permnode.name, value });
 				}
@@ -119,11 +122,11 @@ export default class Permnode extends Command {
 				data.permissions = permissions;
 				await this.bot.updateModuleData("Main", data, guild);
 				
-				return interaction.createMessage(`${this.bot.constants.emojis.tick} Successfully applied change(s) to user \`${member.username}\`:\n\n+ \`${permnode.name} (${value.toString()})\``);
+				return interaction.createFollowup({content: `${this.bot.constants.emojis.tick} Successfully applied change(s) to user \`${member.username}\`:\n\n+ \`${permnode.name} (${value.toString()})\``});
 			}
 
 			case "role": {
-				if (!entity.role) return interaction.createMessage(`${this.bot.constants.emojis.warning.red} An error occured.`);
+				if (!entity.role) return interaction.createFollowup({content: `${this.bot.constants.emojis.warning.red} An error occured.`});
 				const role = entity.role as Role;
 
 				const roleData: Permissions | undefined = (permissions.find((p: Permissions) => p.roleID === role.id));
@@ -137,7 +140,7 @@ export default class Permnode extends Command {
 					const perms = roleData.permissions;
 
 					if (perms.filter((p) => p.permission === permnode.name && p.value === value).length)
-						return interaction.createMessage(`Role \`${role.name}\` already has \`${permnode.name}\` set as \`${value}\``);
+						return interaction.createFollowup({content: `Role \`${role.name}\` already has \`${permnode.name}\` set as \`${value}\``});
 
 					perms.push({ permission: permnode.name, value });
 				}
@@ -145,7 +148,7 @@ export default class Permnode extends Command {
 				data.permissions = permissions;
 				await this.bot.updateModuleData("Main", data, guild);
 				
-				return interaction.createMessage(`${this.bot.constants.emojis.tick} Successfully applied change(s) to role \`${role.name}\`:\n\n+ \`${permnode.name} (${value.toString()})\``);
+				return interaction.createFollowup({content: `${this.bot.constants.emojis.tick} Successfully applied change(s) to role \`${role.name}\`:\n\n+ \`${permnode.name} (${value.toString()})\``});
 			}
 
 			}
@@ -156,54 +159,54 @@ export default class Permnode extends Command {
 
 
 		case "remove": {
-			const entity: Entity | undefined = this.bot.findEntity(guild, subcommand.options?.[0].value!! as string);
+			const entity: Entity | undefined = this.bot.findEntity(guild, interaction.data.resolved.members.map((m) => m.id)[0] || interaction.data.resolved.roles.map((r) => r.id)[0]);
 			
-			if (!entity) return interaction.createMessage("I could not find that entity!");
-			const permnode = this.bot.perms.find((perm) => perm.name === subcommand.options?.[1].value!! as string);
-			if (!permnode) return interaction.createMessage("I could not find that permnode!");
+			if (!entity) return interaction.createFollowup({content: "I could not find that entity!"});
+			const permnode = this.bot.perms.find((perm) => perm.name === interaction.data.options.getString("permission", true));
+			if (!permnode) return interaction.createFollowup({content: "I could not find that permnode!"});
 
 			switch (entity.type) {
 
 			case "member": {
-				if (!entity.member) return interaction.createMessage(`${this.bot.constants.emojis.warning.red} An error occured.`);
+				if (!entity.member) return interaction.createFollowup({content: `${this.bot.constants.emojis.warning.red} An error occured.`});
 				const member = entity.member as Member;
 
 				const userData: Permissions | undefined = (permissions.find((p: Permissions) => p.userID === member.id));
 				if (!userData) {
-					return interaction.createMessage(`That user does not have the permission \`${permnode.name}\`!`);
+					return interaction.createFollowup({content: `That user does not have the permission \`${permnode.name}\`!`});
 				} else {
 					const perms = userData.permissions;
 
 					if (!perms.find((p) => p.permission === permnode.name))
-						return interaction.createMessage(`That user does not have the permission \`${permnode.name}\`!`);
+						return interaction.createFollowup({content: `That user does not have the permission \`${permnode.name}\`!`});
 
 					perms.splice(perms.findIndex((p) => p.permission === permnode.name), 1);
 				}
 
 				data.permissions = permissions;
 				await this.bot.updateModuleData("Main", data, guild);
-				return interaction.createMessage(`${this.bot.constants.emojis.tick} Successfully applied change(s) to user \`${member.username}\`:\n\n- \`${permnode.name}\``);
+				return interaction.createFollowup({content: `${this.bot.constants.emojis.tick} Successfully applied change(s) to user \`${member.username}\`:\n\n- \`${permnode.name}\``});
 			}
 
 			case "role": {
-				if (!entity.role) return interaction.createMessage(`${this.bot.constants.emojis.warning.red} An error occured.`);
+				if (!entity.role) return interaction.createFollowup({content: `${this.bot.constants.emojis.warning.red} An error occured.`});
 				const role = entity.role as Role;
 
 				const roleData: Permissions | undefined = (permissions.find((p: Permissions) => p.roleID === role.id));
 				if (!roleData) {
-					return interaction.createMessage(`That role does not have the permission \`${permnode.name}\`!`);
+					return interaction.createFollowup({content: `That role does not have the permission \`${permnode.name}\`!`});
 				} else {
 					const perms = roleData.permissions;
 
 					if (!perms.find((p) => p.permission === permnode.name))
-						return interaction.createMessage(`That role does not have the permission \`${permnode.name}\`!`);
+						return interaction.createFollowup({content: `That role does not have the permission \`${permnode.name}\`!`});
 
 					perms.splice(perms.findIndex((p) => p.permission === permnode.name), 1);
 				}
 
 				data.permissions = permissions;
 				await this.bot.updateModuleData("Main", data, guild);
-				return interaction.createMessage(`${this.bot.constants.emojis.tick} Successfully applied change(s) to role \`${role.name}\`:\n\n- \`${permnode.name}\``);
+				return interaction.createFollowup({content: `${this.bot.constants.emojis.tick} Successfully applied change(s) to role \`${role.name}\`:\n\n- \`${permnode.name}\``});
 			}
 
 			}
@@ -213,14 +216,14 @@ export default class Permnode extends Command {
 		}
 
 		case "view": {
-			const entity: Entity | undefined = this.bot.findEntity(guild, subcommand.options?.[0].value!! as string);
+			const entity: Entity | undefined = this.bot.findEntity(guild, interaction.data.resolved.members.map((m) => m.id)[0] || interaction.data.resolved.roles.map((r) => r.id)[0]);
 			
-			if (!entity) return interaction.createMessage("I could not find that entity!");
+			if (!entity) return interaction.createFollowup({content: "I could not find that entity!"});
 
 			switch (entity.type) {
 
 			case "member": {
-				if (!entity.member) return interaction.createMessage(`${this.bot.constants.emojis.warning.red} An error occured.`);
+				if (!entity.member) return interaction.createFollowup({content: `${this.bot.constants.emojis.warning.red} An error occured.`});
 
 				const member = entity.member as Member,
 					userData: Permissions | undefined = (permissions.find((p: Permissions) => p.userID === member.id)),
@@ -284,14 +287,14 @@ export default class Permnode extends Command {
 
 				const embed: Embed = {
 					type: "rich",
-					description: member.permissions.has("administrator")
+					description: member.permissions.has("ADMINISTRATOR")
 						? `${this.bot.constants.emojis.warning.yellow} This user is a guild administrator! This user will bypass permissions regardless of negated permissions!`
 						: undefined,
 					title: `${member.username}'s Permissions`,
 					fields,
 					color: this.bot.constants.config.colors.default
 				},
-					components: ActionRow[] = roles.length
+					components: MessageActionRow[] = roles.length
 						? [
 							{
 								type: Constants.ComponentTypes.ACTION_ROW,
@@ -299,7 +302,7 @@ export default class Permnode extends Command {
 									{
 										type: Constants.ComponentTypes.BUTTON,
 										style: Constants.ButtonStyles.SECONDARY,
-										custom_id: `permnode_${interaction.member?.id}_viewinheritance`,
+										customID: `permnode_${interaction.member?.id}_viewinheritance`,
 										label: "View inherited permissions"
 									}
 								]
@@ -314,7 +317,7 @@ export default class Permnode extends Command {
 						roles
 					});
 
-				return interaction.createMessage(
+				return interaction.createFollowup(
 					{ 
 						embeds: [embed],
 						components
@@ -323,12 +326,12 @@ export default class Permnode extends Command {
 			}
 
 			case "role": {
-				if (!entity.role) return interaction.createMessage(`${this.bot.constants.emojis.warning.red} An error occured.`);
+				if (!entity.role) return interaction.createFollowup({content: `${this.bot.constants.emojis.warning.red} An error occured.`});
 				const role = entity.role as Role;
 				
 				const roleData: Permissions | undefined = (permissions.find((p: Permissions) => p.roleID === role.id));
 				if (!roleData) {
-					return interaction.createMessage(`${this.bot.constants.emojis.warning.yellow} This role has default permissions.`);
+					return interaction.createFollowup({content: `${this.bot.constants.emojis.warning.yellow} This role has default permissions.`});
 				} else {
 					const allowed = roleData.permissions.filter((p) => p.value === true).map((p) => p.permission),
 						denied = roleData.permissions.filter((p) => p.value === false).map((p) => p.permission);
@@ -348,7 +351,7 @@ export default class Permnode extends Command {
 						type: "rich"
 					};
 
-					return interaction.createMessage({ embeds: [embed] });
+					return interaction.createFollowup({ embeds: [embed] });
 				}
 			}
 
@@ -362,13 +365,13 @@ export default class Permnode extends Command {
 
 	readonly update = async (component: ComponentInteraction): Promise<Message | void> => {
 
-		const data = getCustomData(this.bot, component.message.interaction?.id!!)?.data!! as { entity: string, page: number; roles: any[] },
-			guild = this.bot.findGuild(component.guildID!!) as Guild,
+		const data = getCustomData(this.bot, component.message.interaction?.id as string)?.data as { entity: string, page: number; roles: any[] },
+			guild = this.bot.findGuild(component.guildID) as Guild,
 			member = this.bot.findMember(guild, data.entity) as Member,
-			moduleData: moduleData = (await this.bot.getModuleData("Main", guild) as unknown) as moduleData,
+			moduleData: moduleData = (await this.bot.getModuleData("Main", guild.id) as unknown) as moduleData,
 			permissions: Permissions[] = moduleData.permissions;
 
-		async function constructEmbed(bot: Bot, interaction: (ComponentInteraction | CommandInteraction), id: string) {
+		async function constructEmbed(bot: ExtendedClient, interaction: (ComponentInteraction | CommandInteraction), id: string) {
 			const role: Role = bot.findRole(guild, id) as Role,
 				roleData: Permissions | undefined = (permissions.find((p: Permissions) => p.roleID === role.id)),
 				strings: string[] = [];
@@ -380,7 +383,7 @@ export default class Permnode extends Command {
 				hoist: number;
 			}[] = [];
 
-			if (role.permissions.has("administrator"))
+			if (role.permissions.has("ADMINISTRATOR"))
 				perms.push({ name: "*", description: "Grants access to all module components/commands regardless of negated permissions", value: true, hoist: 0 });
 
 			perms.push(...bot.perms.filter((p) => p.default).map((p) => ({ name: p.name, description: p.description, value: true, hoist: 0 })));
@@ -423,26 +426,26 @@ export default class Permnode extends Command {
 				color: role.color !== 0 ? role.color : bot.constants.config.colors.default,
 				fields
 			},
-				components: ActionRow[] = [
+				components: MessageActionRow[] = [
 					{
-						type: 1,
+						type: Constants.ComponentTypes.ACTION_ROW,
 						components: [
 							{
-								type: 2,
-								style: 2,
-								custom_id: `permnode_${interaction.member?.id}_viewpreviousinheritance`,
+								type: Constants.ComponentTypes.BUTTON,
+								style: Constants.ButtonStyles.PRIMARY,
+								customID: `permnode_${interaction.member?.id}_viewpreviousinheritance`,
 								label: "View Previous",
 								disabled: 1 >= data.page + 1 ? true : false
 							}, {
-								type: 2,
-								style: 2,
-								custom_id: `permnode_${interaction.member?.id}_viewnextinheritance`,
+								type: Constants.ComponentTypes.BUTTON,
+								style: Constants.ButtonStyles.PRIMARY,
+								customID: `permnode_${interaction.member?.id}_viewnextinheritance`,
 								label: "View Next",
 								disabled: data.roles.length <= data.page + 1 ? true : false
 							}, {
-								type: 2,
-								style: 1,
-								custom_id: `permnode_${interaction.member?.id}_viewmemberdefined`,
+								type: Constants.ComponentTypes.BUTTON,
+								style: Constants.ButtonStyles.PRIMARY,
+								customID: `permnode_${interaction.member?.id}_viewmemberdefined`,
 								label: "View Member Permissions"
 							}
 						]
@@ -455,14 +458,12 @@ export default class Permnode extends Command {
 			};
 		}
 
-		switch(component.data.custom_id.split("_")[2]) {
+		switch(component.data.customID.split("_")[2]) {
 
 		case "viewinheritance": {
-			await component.deferUpdate();
-
 			const obj = await constructEmbed(this.bot, component, data.roles[data.page].id);
 
-			return component.editParent({
+			return component.editOriginal({
 				embeds: [obj.embed],
 				components: obj.components
 			});
@@ -470,11 +471,10 @@ export default class Permnode extends Command {
 
 		case "viewnextinheritance": {
 			data.page++;
-			await component.deferUpdate();
 
 			const obj = await constructEmbed(this.bot, component, data.roles[data.page].id);
 
-			return component.editParent({
+			return component.editOriginal({
 				embeds: [obj.embed],
 				components: obj.components
 			});
@@ -482,11 +482,10 @@ export default class Permnode extends Command {
 
 		case "viewpreviousinheritance": {
 			data.page--;
-			await component.deferUpdate();
 
 			const obj = await constructEmbed(this.bot, component, data.roles[data.page].id);
 
-			return component.editParent({
+			return component.editOriginal({
 				embeds: [obj.embed],
 				components: obj.components
 			});
@@ -494,7 +493,6 @@ export default class Permnode extends Command {
 
 		case "viewmemberdefined": {
 			data.page = 0;
-			await component.deferUpdate();
 
 			(component as any).data.options = [
 				{
@@ -509,7 +507,8 @@ export default class Permnode extends Command {
 					]
 				}
 			];
-			return this.execute(component as unknown as CommandInteraction);
+			this.execute(component as unknown as CommandInteraction);
+      return;
 		}
 
 		}

@@ -1,7 +1,7 @@
-import { Guild } from "eris";
-import Bot from "../../../main";
+import { Guild } from "oceanic.js";
+import ExtendedClient from "../../../Base/Client";
 
-export const run = async (bot: Bot, guild: Guild): Promise<void> => {
+export const run = async (bot: ExtendedClient, guild: Guild): Promise<void> => {
 	async function deleteGuild(guild: string) {
 		if (!guild) return;
 

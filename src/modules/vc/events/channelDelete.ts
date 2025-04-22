@@ -1,11 +1,11 @@
-import { CategoryChannel, NewsChannel, TextChannel, VoiceChannel } from "eris";
-import Bot from "../../../main";
+import { Constants, GuildChannel } from "oceanic.js";
+import ExtendedClient from "../../../Base/Client";
 import { moduleData } from "../main";
 
-export const run = async (bot: Bot, channel: (TextChannel | NewsChannel | VoiceChannel | CategoryChannel)): Promise<void> => {
+export const run = async (bot: ExtendedClient, channel: (GuildChannel)): Promise<void> => {
 	if ([0, 5, 13].includes(channel.type)) return;
 
-	const data: moduleData = (await bot.getModuleData("VC", channel.guild) as unknown) as moduleData;
+	const data: moduleData = (await bot.getModuleData("VC", channel.guild.id) as unknown) as moduleData;
 
 	async function deleteCategory(guildData: moduleData, channel: string) {
 		if (!guildData) return;
@@ -20,14 +20,14 @@ export const run = async (bot: Bot, channel: (TextChannel | NewsChannel | VoiceC
 		}
 	}
 
-	if (channel.type === 4) {
+	if (channel.type === Constants.ChannelTypes.GUILD_CATEGORY) {
 		const catData = data.categories.find((c) => c.catID === channel.id);
 		
 		if (catData)
 			await deleteCategory(data, catData.catID);
 	}
 
-	if (channel.type === 2) {
+	if (channel.type === Constants.ChannelTypes.GUILD_VOICE) {
 		const catData = data.categories.find((c) => c.channelID === channel.id);
 		
 		if (catData)

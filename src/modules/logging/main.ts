@@ -1,6 +1,6 @@
-import { Embed, Guild, TextChannel } from "eris";
+import { Embed, Guild, TextChannel } from "oceanic.js";
 import Module, { moduleDataStructure } from "../../Base/Module";
-import Bot from "../../main";
+import ExtendedClient from "../../Base/Client";
 
 export type LogChannelTypes = ("welcome" | "vc" | "moderation" | "starboard");
 
@@ -28,6 +28,8 @@ export interface moduleData extends moduleDataStructure {
 	channels: LogChannelStructure[]
 }
 
+export interface DataType { channelID?: string, caseID?: string; starID?: string; }
+
 export default class Logging extends Module {
 
 	readonly name: string;
@@ -36,7 +38,7 @@ export default class Logging extends Module {
 	readonly weight: number;
 	readonly db: boolean;
 
-	constructor (bot: Bot) {
+	constructor (bot: ExtendedClient) {
 		super(bot);
 
 		this.name = "Logging";
@@ -56,8 +58,8 @@ export default class Logging extends Module {
 		channels: []
 	}
 
-	readonly log = async (guild: Guild, type: LogChannelTypes, payload: {content?: string, embeds?: Embed[]}, data?: { channelID?: string, caseID?: string; starID?: string; }) => {
-		const guildData = await this.bot.getModuleData(this.name, guild) as moduleData;
+	readonly log = async (guild: Guild, type: LogChannelTypes, payload: {content?: string, embeds?: Embed[]}, data?: DataType) => {
+		const guildData = await this.bot.getModuleData(this.name, guild.id) as moduleData;
 
 		if (!guildData) return;
 		if (guildData.channels) {
@@ -65,34 +67,34 @@ export default class Logging extends Module {
 
 			for (const c of channels) {
 				const channel = this.bot.findChannel(guild, c.channelID) as TextChannel,
-					message = await channel.createMessage(payload)
+					message = await channel.createMessage(payload);
 
 				if (type === "moderation") {
 					c.cases ? c.cases.push({
 						channelID: channel.id,
 						messageID: message.id,
-						caseID: data!!.caseID!!
+						caseID: (data as DataType).caseID as string
 					}) : c.cases = [{
 						channelID: channel.id,
 						messageID: message.id,
-						caseID: data!!.caseID!!
-					}]
+						caseID: (data as DataType).caseID as string
+					}];
 
 					await this.bot.updateModuleData(this.name, guildData, guild);
 				}
 
 				if (type === "starboard") {
 					c.stars ? c.stars.push({
-						channelID: data!!.channelID!!,
+						channelID: (data as DataType).channelID as string,
 						messageID: message.id,
-						starID: data!!.starID!!
+						starID: (data as DataType).starID as string,
 					}) : c.stars = [{
-						channelID: data!!.channelID!!,
+						channelID: (data as DataType).channelID as string,
 						messageID: message.id,
-						starID: data!!.starID!!
-					}]
+						starID: (data as DataType).starID as string,
+					}];
 
-					await message.addReaction("⭐");
+					await message.createReaction("⭐");
 					await this.bot.updateModuleData(this.name, guildData, guild);
 				}
 
