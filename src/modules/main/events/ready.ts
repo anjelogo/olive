@@ -1,11 +1,16 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
+import { Constants } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
 import Module from "../../../Base/Module";
 
 export const run = async (bot: ExtendedClient): Promise<void> => {
 
 	//Load Status
-	bot.editStatus(bot.constants.config.status);
+	bot.editStatus("online", [{
+    name: "/help",
+    type: Constants.ActivityTypes.STREAMING,
+    url: "https://twitch.tv/anjelogo"
+  }]);
 
 	//TODO: fix subcommands for everything ig
 
