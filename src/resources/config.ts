@@ -3,6 +3,7 @@ export const developers: Array<string> = ["318942726198525952", "867095724335431
 export const name = "olive";
 export const ownerID = "318942726198525952";
 export const guildID = "793439337063645184";
+export const applicationID = "793787147973820417";
 export const invite = "https://discord.com/oauth2/authorize?client_id={id}&permissions=8&scope=applications.commands%20bot";
 
 export const colors = {
