@@ -46,7 +46,7 @@ export default class Help extends Command {
 				}, {
 					type: Constants.ComponentTypes.BUTTON,
 					style: Constants.ButtonStyles.LINK,
-					url: this.bot.constants.config.invite,
+					url: this.bot.constants.config.invite.replace("{id}", this.bot.application.id),
 					label: "Invite"			
 				}
 			]
