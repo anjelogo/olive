@@ -34,7 +34,41 @@ export default class HistoryContext extends Command {
 			}
 		];
 
-		await new History(this.bot).execute(interaction as unknown as CommandInteraction);
+    // create command interaction options for the history command
+    const cmd = new CommandInteraction(
+      {
+        type: 1,
+        data: {
+          name: "history",
+          options: [
+            {
+              type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
+              name: "view",
+              options: [
+                {
+                  type: Constants.ApplicationCommandOptionTypes.USER,
+                  name: "user",
+                  value: member.id
+                }
+              ]
+            }
+          ],
+          type: Constants.ApplicationCommandTypes.CHAT_INPUT,
+          id: interaction.id,
+        },
+        guild_id: interaction.guildID!,
+        channel_id: interaction.channelID,
+        id: interaction.id,
+        token: interaction.token,
+        version: 1,
+        app_permissions: "0", // Add default permissions
+        application_id: this.bot.user.id, // Use bot's application ID
+        authorizing_integration_owners: {} // Provide an empty object matching Partial<Record<"0" | "1", string>>
+      },
+      this.bot
+    )
+
+		await new History(this.bot).execute(cmd);
     return;
 	}
 }
