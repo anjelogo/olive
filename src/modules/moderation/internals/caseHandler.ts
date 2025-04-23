@@ -83,6 +83,28 @@ export async function resolveCase(bot: ExtendedClient, guild: Guild, caseID: str
 			});
 		}
 
+    // remove punishments
+    switch (caseToResolve.action) {
+      case "timeout":
+        caseToResolve.time = undefined;
+        caseToResolve.resolved = {
+          moderatorID,
+          reason
+        };
+        guild.members.get(caseToResolve.userID)?.edit({
+          communicationDisabledUntil: undefined
+        });
+        break;
+      case "ban":
+        caseToResolve.resolved = {
+          moderatorID,
+          reason
+        };
+        guild.removeBan(caseToResolve.userID, reason).catch(() => {});
+        break;
+    }
+
+
 		await bot.updateModuleData("Moderation", data, guild);
 		await updateLogEntry(bot, guild, caseToResolve);
 	} catch (e) {

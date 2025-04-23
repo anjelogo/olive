@@ -4,6 +4,28 @@ export const log = (Module: string, message: string): void => {
 	console.log(`[${Module}] ${message}`);
 };
 
+export const convertFromUserTime = (time: string): number => {
+  // ex: 10d -> 864000000
+  // support: 10m, 10d, 10h, 10m, 10s
+
+  const timeRegex = /(\d+)([dhms])/g;
+  const timeUnits = {
+    d: 86400000,
+    h: 3600000,
+    m: 60000,
+    s: 1000
+  };
+  let totalTime = 0;
+  let match;
+
+  while ((match = timeRegex.exec(time)) !== null) {
+    const unit = match[2];
+    const value = parseInt(match[1], 10);
+	totalTime += value * timeUnits[unit as keyof typeof timeUnits];
+  }
+  return totalTime;
+}
+
 export const HMS = (time: number): string => {
 	if (time || !isNaN(time)) {
 		time = time / 1000;

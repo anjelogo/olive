@@ -45,10 +45,8 @@ export default class History extends Command {
 	}
 
 	readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
-		await interaction.defer(Constants.MessageFlags.EPHEMERAL);
-		
 		const guild = this.bot.findGuild(interaction.guildID) as Guild,
-			subcommand = interaction.data.options.raw[0].name;
+			subcommand = interaction.data.options.getSubCommand(true)[0];
 
 		const user = interaction.data.options.getUser("user", true);
 

@@ -1,4 +1,4 @@
-import { Embed, Guild, Member } from "oceanic.js";
+import { Embed, Guild, Member, Role, User } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
 import { Case, CaseActionTypes, moduleData } from "../main";
 import { addCase, getCases, resolveCase } from "./caseHandler";
@@ -51,8 +51,12 @@ export async function punish(bot: ExtendedClient, guild: Guild, data: Case): Pro
 			break;
 		case "timeout":
 			dmChannel ? await dmChannel.createMessage({embeds: [embed]}) : null;
+
+      const time = data.time ? new Date(data.time as string).toISOString()
+                             : new Date(Date.now() + 60 * 1000).toISOString();
+
 			member.edit({
-				communicationDisabledUntil: new Date(data.time as string).toISOString()
+				communicationDisabledUntil: time
 			});
 			break;
 		case "ban":
@@ -111,4 +115,53 @@ export async function autoCalculateInfractions(bot: ExtendedClient, member: Memb
 		reason,
 		timestamp: new Date().toISOString(),
 	});
+}
+
+export async function isPunishable(bot: ExtendedClient, moderator: Member, userToPunish: Member): Promise<boolean> {
+  const botMember = bot.findMember(moderator.guild, bot.user.id) as Member,
+    botHighestRoleID = botMember.roles
+      .map((r) => 
+        ({
+          name: (bot.findRole(moderator.guild, r) as Role).name,
+          position: (bot.findRole(moderator.guild, r) as Role).position
+        }))
+      .sort((a, b) => b.position - a.position).map((r) => r.name),
+    botHighestRole = bot.findRole(moderator.guild, botHighestRoleID[0]) as Role,
+    memberHighestRoleID = moderator.roles.length
+      ? moderator.roles
+        .map((r) => 
+          ({
+            name: (bot.findRole(moderator.guild, r) as Role).name,
+            position: (bot.findRole(moderator.guild, r) as Role).position
+          }))
+        .sort((a, b) => b.position - a.position).map((r) => r.name)
+      : [moderator.guild.id],
+    memberHighestRole = bot.findRole(moderator.guild, memberHighestRoleID[0]) as Role,
+    userToPunishHighestRoleID = userToPunish.roles.length
+      ? userToPunish.roles
+        .map((r) => 
+          ({
+            name: (bot.findRole(moderator.guild, r) as Role).name,
+            position: (bot.findRole(moderator.guild, r) as Role).position
+          }))
+        .sort((a, b) => b.position - a.position).map((r) => r.name)
+      : [moderator.guild.id],
+    userToPunishHighestRole = bot.findRole(moderator.guild, userToPunishHighestRoleID[0]) as Role;
+
+  if (moderator.guild.ownerID == userToPunish.id)
+    return false
+  if (userToPunish.id === moderator.id)
+    return false
+  if (userToPunish.id === moderator.guild.ownerID)
+    return false
+  if (userToPunishHighestRole.position > memberHighestRole.position)
+    return false
+  if (userToPunishHighestRole.position === memberHighestRole.position)
+    return false
+  if (userToPunishHighestRole.position > botHighestRole.position)
+    return false
+  if (userToPunishHighestRole.position === botHighestRole.position)
+    return false
+
+  return true;
 }

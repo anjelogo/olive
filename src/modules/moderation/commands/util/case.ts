@@ -66,12 +66,10 @@ export default class Case extends Command {
 	}
 
 	readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
-		await interaction.defer(Constants.MessageFlags.EPHEMERAL);
-		
 		const member = interaction.member as Member,
 			guild = this.bot.findGuild(interaction.guildID!) as Guild,
 			data = await this.bot.getModuleData("Moderation", guild.id) as moduleData,
-			subcommand = interaction.data.options.raw[0].name;
+			subcommand = interaction.data.options.getSubCommand(true)[0];
 
 		const caseID = interaction.data.options.getString("case", true),
 			Case = data.cases.find((c) => c.id === caseID);

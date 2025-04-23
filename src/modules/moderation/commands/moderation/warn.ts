@@ -1,7 +1,7 @@
 import { CommandInteraction, Constants, Guild, Member, Message, Role } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
-import { autoCalculateInfractions, punish } from "../../internals/punishmentHandler";
+import { autoCalculateInfractions, isPunishable, punish } from "../../internals/punishmentHandler";
 import uniqid from "uniqid";
 import { Case } from "../../main";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
@@ -35,7 +35,7 @@ export default class Warn extends Command {
 	readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
 		const guild = this.bot.findGuild(interaction.guildID) as Guild,
 			moderator = interaction.member,
-			memberString = interaction.data.options.getString("user", true);
+			user = interaction.data.options.getUser("user", true);
 
 		if (!moderator)
 			return interaction.createFollowup({
@@ -43,13 +43,13 @@ export default class Warn extends Command {
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
 
-		if (!memberString)
+		if (!user)
 			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.x} You must specify a user to warn!`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
 
-		const userToWarn = this.bot.findMember(guild, memberString) as Member;
+		const userToWarn = this.bot.findMember(guild, user.id) as Member;
 
 		if (!userToWarn)
 			return interaction.createFollowup({
@@ -57,67 +57,12 @@ export default class Warn extends Command {
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
 
-		const botMember = this.bot.findMember(guild, this.bot.user.id) as Member,
-			botHighestRoleID = botMember.roles
-				.map((r) => 
-					({
-						name: (this.bot.findRole(guild, r) as Role).name,
-						position: (this.bot.findRole(guild, r) as Role).position
-					}))
-				.sort((a, b) => b.position - a.position).map((r) => r.name),
-			botHighestRole = this.bot.findRole(guild, botHighestRoleID[0]) as Role,
-			memberHighestRoleID = moderator.roles.length
-				? moderator.roles
-					.map((r) => 
-						({
-							name: (this.bot.findRole(guild, r) as Role).name,
-							position: (this.bot.findRole(guild, r) as Role).position
-						}))
-					.sort((a, b) => b.position - a.position).map((r) => r.name)
-				: [guild.id],
-			memberHighestRole = this.bot.findRole(guild, memberHighestRoleID[0]) as Role,
-			userToWarnHighestRoleID = userToWarn.roles.length
-				? userToWarn.roles
-					.map((r) => 
-						({
-							name: (this.bot.findRole(guild, r) as Role).name,
-							position: (this.bot.findRole(guild, r) as Role).position
-						}))
-					.sort((a, b) => b.position - a.position).map((r) => r.name)
-				: [guild.id],
-			userToWarnHighestRole = this.bot.findRole(guild, userToWarnHighestRoleID[0]) as Role;
-
-		if (userToWarn.id === moderator.id)
-			return interaction.createFollowup({
-				content: `${this.bot.constants.emojis.x} You can't warn yourself!`,
-				flags: Constants.MessageFlags.EPHEMERAL
-			});
-		if (userToWarn.id === guild.ownerID)
-			return interaction.createFollowup({
-				content: `${this.bot.constants.emojis.x} You can't warn the server owner!`,
-				flags: Constants.MessageFlags.EPHEMERAL
-			});
-		if (userToWarnHighestRole.position > memberHighestRole.position)
-			return interaction.createFollowup({
-				content: `${this.bot.constants.emojis.x} You can't warn a user with a higher role than you!`,
-				flags: Constants.MessageFlags.EPHEMERAL
-			});
-    if (userToWarnHighestRole.position === memberHighestRole.position)
+    if (!isPunishable(this.bot, moderator, userToWarn)) {
       return interaction.createFollowup({
-        content: `${this.bot.constants.emojis.x} You can't warn a user with the same role as you!`,
-        flags: Constants.MessageFlags.EPHEMERAL
+        content: `${this.bot.constants.emojis.x} I can't warn that user!`,
       });
-		if (userToWarnHighestRole.position > botHighestRole.position)
-			return interaction.createFollowup({
-				content: `${this.bot.constants.emojis.x} User has a role higher than the bot!`,
-				flags: Constants.MessageFlags.EPHEMERAL
-			});
-		if (userToWarnHighestRole.position === botHighestRole.position)
-			return interaction.createFollowup({
-				content: `${this.bot.constants.emojis.x} User has the same role as the bot!`,
-				flags: Constants.MessageFlags.EPHEMERAL
-			});
-		
+    }
+    
 		let reason = interaction.data.options.getString("reason", false);
 		if (!reason || reason.length < 1) reason = "No reason provided";
 

@@ -1,7 +1,7 @@
 import { CommandInteraction, Constants, Guild, Member, Message, Role } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
-import { autoCalculateInfractions, punish } from "../../internals/punishmentHandler";
+import { autoCalculateInfractions, isPunishable, punish } from "../../internals/punishmentHandler";
 import uniqid from "uniqid";
 import { Case } from "../../main";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
@@ -27,7 +27,12 @@ export default class Timeout extends Command {
 				description: "The reason for the timeout",
 				required: false,
 				type: Constants.ApplicationCommandOptionTypes.STRING,
-			}
+			}, {
+        name: "time",
+        description: "The duration of the timeout",
+        required: false,
+        type: Constants.ApplicationCommandOptionTypes.STRING,
+      }
 		];
 
 	}
@@ -35,7 +40,7 @@ export default class Timeout extends Command {
 	readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
 		const guild = this.bot.findGuild(interaction.guildID) as Guild,
 			moderator = interaction.member,
-			memberString = interaction.data.options.getString("user", true);
+			user = interaction.data.options.getUser("user", true);
 
 		if (!moderator)
 			return interaction.createFollowup({
@@ -43,13 +48,13 @@ export default class Timeout extends Command {
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
 
-		if (!memberString)
+		if (!user)
 			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.x} You must specify a user to timeout!`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
 
-		const userToTimeOut = this.bot.findMember(guild, memberString) as Member;
+		const userToTimeOut = this.bot.findMember(guild, user.id) as Member;
 
 		if (!userToTimeOut)
 			return interaction.createFollowup({
@@ -57,69 +62,18 @@ export default class Timeout extends Command {
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
 
-		const botMember = this.bot.findMember(guild, this.bot.user.id) as Member,
-			botHighestRoleID = botMember.roles
-				.map((r) => 
-					({
-						name: (this.bot.findRole(guild, r) as Role).name,
-						position: (this.bot.findRole(guild, r) as Role).position
-					}))
-				.sort((a, b) => b.position - a.position).map((r) => r.name),
-			botHighestRole = this.bot.findRole(guild, botHighestRoleID[0]) as Role,
-			memberHighestRoleID = moderator.roles.length
-				? moderator.roles
-					.map((r) => 
-						({
-							name: (this.bot.findRole(guild, r) as Role).name,
-							position: (this.bot.findRole(guild, r) as Role).position
-						}))
-					.sort((a, b) => b.position - a.position).map((r) => r.name)
-				: [guild.id],
-			memberHighestRole = this.bot.findRole(guild, memberHighestRoleID[0]) as Role,
-			userToTimeOutHighestRoleID = userToTimeOut.roles.length
-				? userToTimeOut.roles
-					.map((r) => 
-						({
-							name: (this.bot.findRole(guild, r) as Role).name,
-							position: (this.bot.findRole(guild, r) as Role).position
-						}))
-					.sort((a, b) => b.position - a.position).map((r) => r.name)
-				: [guild.id],
-			userToTimeOutHighestRole = this.bot.findRole(guild, userToTimeOutHighestRoleID[0]) as Role;
-
-		if (userToTimeOut.id === moderator.id)
-			return interaction.createFollowup({
-				content: `${this.bot.constants.emojis.x} You can't time yourself out!`,
-				flags: Constants.MessageFlags.EPHEMERAL
-			});
-		if (userToTimeOut.id === guild.ownerID)
-			return interaction.createFollowup({
-				content: `${this.bot.constants.emojis.x} You can't time the server owner out!`,
-				flags: Constants.MessageFlags.EPHEMERAL
-			});
-		if (userToTimeOutHighestRole.position > memberHighestRole.position)
-			return interaction.createFollowup({
-				content: `${this.bot.constants.emojis.x} You can't put a user with a higher role than you on time out!`,
-				flags: Constants.MessageFlags.EPHEMERAL
-			});
-    if (userToTimeOutHighestRole.position === memberHighestRole.position)
+    if (!isPunishable(this.bot, moderator, userToTimeOut)) {
       return interaction.createFollowup({
-        content: `${this.bot.constants.emojis.x} You can't put a user with the same role as you on time out!`,
-        flags: Constants.MessageFlags.EPHEMERAL
+        content: `${this.bot.constants.emojis.x} I can't time that user out!`,
       });
-		if (userToTimeOutHighestRole.position > botHighestRole.position)
-			return interaction.createFollowup({
-				content: `${this.bot.constants.emojis.x} User has a role higher than the bot!`,
-				flags: Constants.MessageFlags.EPHEMERAL
-			});
-		if (userToTimeOutHighestRole.position === botHighestRole.position)
-			return interaction.createFollowup({
-				content: `${this.bot.constants.emojis.x} User has the same role as the bot!`,
-				flags: Constants.MessageFlags.EPHEMERAL
-			});
+    }
 		
 		let reason = interaction.data.options.getString("reason", false);
 		if (!reason || reason.length < 1) reason = "No reason provided";
+
+    let time = interaction.data.options.getString("time", false);
+
+    if (time) time = this.bot.constants.utils.convertFromUserTime(time);
 
 		//punish user using the punish function in ../../internals/punishmentHandler.ts
 		const caseData: Case = {
@@ -127,7 +81,8 @@ export default class Timeout extends Command {
 			userID: userToTimeOut.id,
 			moderatorID: moderator.id,
 			action: "timeout",
-			timestamp: new Date().toISOString()
+			timestamp: new Date().toISOString(),
+      time: time ? time : undefined
 		};
 
 		if (reason) caseData.reason = reason;
