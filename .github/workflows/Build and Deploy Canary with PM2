@@ -1,0 +1,36 @@
+name: Build and Deploy Canary with PM2
+
+on:
+  push:
+    branches: [canary]
+
+jobs:
+  deploy:
+    runs-on: [self-hosted,canary]
+    env:
+      BOT_TOKEN_CANARY: ${{ secrets.BOT_TOKEN_CANARY }}
+      BOT_DB: ${{ secrets.BOT_DB }}
+
+    steps:
+      - name: 👤 Show current user
+        run: whoami
+    
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🛠 Install dependencies
+        run: |
+          npm ci
+
+      - name: 🧱 Build TypeScript
+        run: |
+          npm run build
+
+      - name: 🔗 Create Environment Variables
+        run: |
+          echo "TOKEN=${BOT_TOKEN_CANARY}" >> .env
+          echo "DATABASE=${BOT_DB}" >> .env
+
+      - name: 🚀 Restart app with PM2
+        run: |
+          pm2 startOrRestart pm2.config.js --only olive
