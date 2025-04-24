@@ -13,6 +13,5 @@ export const colors = {
 };
 
 export const status = {
-	name: "[CANARY] /help",
-	type: 3
+	text: "[CANARY] /help",
 };

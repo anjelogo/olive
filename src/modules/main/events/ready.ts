@@ -7,7 +7,7 @@ export const run = async (bot: ExtendedClient): Promise<void> => {
 
 	//Load Status
 	bot.editStatus("online", [{
-    name: "/help",
+    name: bot.constants.config.status.text,
     type: Constants.ActivityTypes.STREAMING,
     url: "https://twitch.tv/anjelogo"
   }]);
