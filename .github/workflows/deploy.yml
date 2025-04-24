@@ -28,8 +28,8 @@ jobs:
 
       - name: 🔗 Create Environment Variables
         run: |
-          echo "TOKEN=${ BOT_TOKEN }" >> .env
-          echo "DATABASE=${ BOT_DB }" >> .env
+          echo "TOKEN=${BOT_TOKEN}" >> .env
+          echo "DATABASE=${BOT_DB}" >> .env
 
       - name: 🚀 Restart app with PM2
         run: |
