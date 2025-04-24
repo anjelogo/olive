@@ -6,7 +6,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: self-hosted
+    runs-on: [self-hosted,prod]
     env:
       BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
       BOT_DB: ${{ secrets.BOT_DB }}
