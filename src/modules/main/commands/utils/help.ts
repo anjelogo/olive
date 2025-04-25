@@ -156,7 +156,8 @@ export default class Help extends Command {
           ...(await this.actionRow(this.bot, interaction)).home,
           ...(await this.actionRow(this.bot, interaction)).commands
         ])
-      ]
+      ],
+      flags: Constants.MessageFlags.IS_COMPONENTS_V2
     })
 
 	}
@@ -181,56 +182,6 @@ export default class Help extends Command {
           });
 				}
 			}
-
-			// const desc = `You can view more help/information on a command using \`${this.bot.constants.config.prefix}help <command>\`.`;
-
-			// const embed: Embed = {
-			// 	title: "List of commands",
-			// 	color: this.bot.constants.config.colors.default,
-			// 	description: desc,
-			// 	fields,
-			// 	footer: {
-			// 		text: `${commands.length.toString()} Commands | ${fields.length.toString()} Categories`
-			// 	},
-			// 	type: "rich"
-			// };
-
-			// return component.editOriginal(
-			// 	{
-			// 		content: undefined,
-			// 		embeds: [embed],
-			// 		components: [
-			// 			{
-			// 				type: Constants.ComponentTypes.ACTION_ROW,
-			// 				components: [
-			// 					{
-			// 						type: Constants.ComponentTypes.STRING_SELECT,
-			// 						customID: `help_${component.member?.id}_commandmenu`,
-			// 						placeholder: "Choose a command",
-			// 						minValues: 1,
-			// 						maxValues: 1,
-			// 						options: commands.map((c) => ({ label: c.commands[0].replace(/^\w/, c => c.toUpperCase()), value: c.commands[0], description: c.description }))
-			// 					}
-			// 				]
-			// 			}, {
-			// 				type: Constants.ComponentTypes.ACTION_ROW,
-			// 				components: [
-			// 					{
-			// 						type: Constants.ComponentTypes.BUTTON,
-			// 						style: Constants.ButtonStyles.PRIMARY,
-			// 						label: "Permissions List",
-			// 						customID: `help_${component.member?.id}_permissionembed`
-			// 					}, {
-			// 						type: Constants.ComponentTypes.BUTTON,
-			// 						style: Constants.ButtonStyles.PRIMARY,
-			// 						label: "Back to Main Menu",
-			// 						customID: `help_${component.member?.id}_home`
-			// 					}
-			// 				]
-			// 			}
-			// 		]
-			// 	}
-			// );
 
       return component.editOriginal({
         components: [
@@ -278,53 +229,6 @@ export default class Help extends Command {
           });
         }
       }
-
-			// const embed: Embed = {
-			// 	title: "Permission Nodes",
-			// 	description: `This is a list of all available permission nodes.\nYou can view more help/information on a permission using \`${this.bot.constants.config.prefix}help <permission>\`.\n\n*\`permission\`* = Available to all users by default.`,
-			// 	fields,
-			// 	color: this.bot.constants.config.colors.default,
-			// 	footer: {
-			// 		text: `${this.bot.perms.length} Permissions | ${fields.length} Categories`
-			// 	},
-			// 	type: "rich"
-			// };
-
-			// return component.editOriginal(
-			// 	{
-			// 		embeds: [embed],
-			// 		components: [
-			// 			{
-			// 				type: Constants.ComponentTypes.ACTION_ROW,
-			// 				components: [
-			// 					{
-			// 						type: Constants.ComponentTypes.STRING_SELECT,
-			// 						customID: `help_${component.member?.id}_modulecomponent`,
-			// 						placeholder: "Choose a module",
-			// 						minValues: 1,
-			// 						maxValues: 1,
-			// 						options: this.bot.modules.map((m: Module) => ({ label: m.name, value: m.name }))
-			// 					}
-			// 				]
-			// 			}, {
-			// 				type: Constants.ComponentTypes.ACTION_ROW,
-			// 				components: [
-			// 					{
-			// 						type: Constants.ComponentTypes.BUTTON,
-			// 						style: Constants.ButtonStyles.PRIMARY,
-			// 						label: "Permissions List",
-			// 						customID: `help_${component.member?.id}_permissionembed`
-			// 					}, {
-			// 						type: Constants.ComponentTypes.BUTTON,
-			// 						style: Constants.ButtonStyles.PRIMARY,
-			// 						label: "Back to Main Menu",
-			// 						customID: `help_${component.member?.id}_home`
-			// 					}
-			// 				]
-			// 			}
-			// 		]
-			// 	}
-			// );
 
       return component.editOriginal({
         components: [
