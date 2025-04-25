@@ -261,7 +261,7 @@ export default class Help extends Command {
                     placeholder: "Choose a module",
                     minValues: 1,
                     maxValues: 1,
-                    options: [...new Set(this.bot.perms.map((p) => p.name.split(/[.\-_]/)[0]))].map((m) => ({ label: m, value: m }))
+                    options: this.bot.modules.map((m) => ({ label: m.name, value: m.name }))
                   }
                 ]
               },
