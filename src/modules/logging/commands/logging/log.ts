@@ -35,11 +35,12 @@ export default class Log extends Command {
 
 	}
 
-	private typesAvailable = async (bot: ExtendedClient, interaction: (CommandInteraction | ComponentInteraction)) => {
-		const customData = getCustomData(bot, interaction instanceof CommandInteraction ? interaction.id : interaction.message.interactionMetadata?.id as string)?.data as CustomDataStructure,
-			validTypes: LogChannelTypes[] = ["vc", "welcome", "moderation", "starboard"];
+  private validTypes = ["vc", "welcome", "moderation", "starboard"] as const;
 
-		return validTypes.filter(t => !customData.types.includes(t));
+	private typesAvailable = async (bot: ExtendedClient, interaction: (CommandInteraction | ComponentInteraction)) => {
+		const customData = getCustomData(bot, interaction instanceof CommandInteraction ? interaction.id : interaction.message.interactionMetadata?.id as string)?.data as CustomDataStructure;
+
+		return this.validTypes.filter(t => !customData.types.includes(t));
 	}
 
 	private createContainer = (bot: ExtendedClient, interaction: (CommandInteraction | ComponentInteraction), actionRow: MessageActionRow[]) => {
@@ -89,7 +90,7 @@ export default class Log extends Command {
 							type: Constants.ComponentTypes.BUTTON,
 							style: Constants.ButtonStyles.SECONDARY,
 							label: "Remove Log",
-							disabled: (await this.typesAvailable(this.bot, interaction)).length > 1,
+							disabled: this.validTypes.filter(t => !customData.types.includes(t)).length === this.validTypes.length,
 							customID: `log_${interaction.member?.id}_removelog`
 						}, {
 							type: Constants.ComponentTypes.BUTTON,
@@ -113,9 +114,9 @@ export default class Log extends Command {
 							type: Constants.ComponentTypes.STRING_SELECT,
 							placeholder: "Select a logging type",
 							customID: `log_${interaction.member?.id}_addlogtype`,
-							maxValues: 2,
+							maxValues: (await this.typesAvailable(this.bot, interaction)).length,
 							minValues: 1,
-							options: (await this.typesAvailable(this.bot, interaction)).map((t) => ({ label: t, value: t}) )
+							options: (await this.typesAvailable(this.bot, interaction)).map((t) => ({ label: t, value: t}))
 						}
 					]
 				}, {
@@ -174,9 +175,9 @@ export default class Log extends Command {
 		const guild = this.bot.findGuild(interaction.guildID) as Guild,
 			data = await this.bot.getModuleData("Logging", guild.id) as moduleData,
 			channel = interaction.channel as (TextChannel),
-			subcommand = interaction.data.options.raw?.[0];
+			subcommand = interaction.data.options.getSubCommand(true)[0];
 
-		switch (subcommand.name) {
+		switch (subcommand) {
 
 		case "modify": {
 			const channelData: (LogChannelStructure | undefined) = data.channels.find((c) => c.channelID === channel.id);
@@ -278,7 +279,8 @@ export default class Log extends Command {
 		}
 
     case "addlogtype": {
-			customData.types = [...customData.types, ...(component.data as MessageComponentSelectMenuInteractionData).values.raw as LogChannelTypes[]];
+
+			customData.types = [...customData.types, ...(component.data as MessageComponentSelectMenuInteractionData).values.getStrings() as LogChannelTypes[]];
       return await component.editOriginal(
 				{
 					components: [(this.createContainer(this.bot, component, (await this.actionRow(this.bot, component)).home))]
@@ -286,7 +288,7 @@ export default class Log extends Command {
 			);
     }
     case "removelogtype":
-	    customData.types = customData.types.filter((t) => !(component.data as MessageComponentSelectMenuInteractionData).values.raw.includes(t as string));
+	    customData.types = customData.types.filter((t) => !(component.data as MessageComponentSelectMenuInteractionData).values.getStrings().includes(t as string));
 		case "home": {
 			return await component.editOriginal(
 				{
