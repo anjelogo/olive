@@ -81,13 +81,8 @@ export default class Help extends Command {
               style: Constants.ButtonStyles.PRIMARY,
               label: "View Commands",
               customID: `help_${interaction.member?.id}_commandembed`,
-            }
-          ]
-        },
-        await this.bot.getModule("Main").hasPerm(interaction.member, "main.permnode.view") && {
-          type: Constants.ComponentTypes.ACTION_ROW,
-          components: [
-            {
+            },
+            await this.bot.getModule("Main").hasPerm(interaction.member, "main.permnode.view") && {
               type: Constants.ComponentTypes.BUTTON,
               style: Constants.ButtonStyles.PRIMARY,
               label: "View Permissions",
