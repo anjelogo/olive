@@ -238,6 +238,9 @@ export default class Help extends Command {
         }
       }
 
+      // combine all the fields into one string
+      const combinedFields = fields.map((f) => f.content).join("\n\n");
+
       return component.editOriginal({
         components: [
           {
@@ -249,9 +252,12 @@ export default class Help extends Command {
               },
               {
                 type: Constants.ComponentTypes.TEXT_DISPLAY,
-                content: `This is a list of all available permission nodes.\nYou can view more help/information on a permission using \`</help:${(await this.bot.application.getGlobalCommands()).find(g => g.name == "help")?.id}>\`.`
+                content: `This is a list of all available permission nodes.\nYou can view more help/information on a permission using </help:${(await this.bot.application.getGlobalCommands()).find(g => g.name == "help")?.id}>.`
               },
-              ...fields,
+              {
+                type: Constants.ComponentTypes.TEXT_DISPLAY,
+                content: combinedFields
+              },
               {
                 type: Constants.ComponentTypes.ACTION_ROW,
                 components: [
