@@ -192,6 +192,19 @@ export default class Help extends Command {
                 content: `You can view more help/information on a command using \`</help:${(await this.bot.application.getGlobalCommands()).find(g => g.name == "help")?.id}>\`.`
               },
               ...fields,
+              {
+                type: Constants.ComponentTypes.ACTION_ROW,
+                components: [
+                  {
+                    type: Constants.ComponentTypes.STRING_SELECT,
+                    customID: `help_${component.member?.id}_commandmenu`,
+                    placeholder: "Choose a command",
+                    minValues: 1,
+                    maxValues: 1,
+                    options: commands.map((c) => ({ label: c.commands[0], value: c.commands[0], description: c.description }))
+                  }
+                ]
+              },
               ...(await this.actionRow(this.bot, component)).back_to_home
             ]
           }
@@ -239,6 +252,19 @@ export default class Help extends Command {
                 content: `This is a list of all available permission nodes.\nYou can view more help/information on a permission using \`</help:${(await this.bot.application.getGlobalCommands()).find(g => g.name == "help")?.id}>\`.`
               },
               ...fields,
+              {
+                type: Constants.ComponentTypes.ACTION_ROW,
+                components: [
+                  {
+                    type: Constants.ComponentTypes.STRING_SELECT,
+                    customID: `help_${component.member?.id}_modulecomponent`,
+                    placeholder: "Choose a module",
+                    minValues: 1,
+                    maxValues: 1,
+                    options: [...new Set(this.bot.perms.map((p) => p.name.split(/[.\-_]/)[0]))].map((m) => ({ label: m, value: m }))
+                  }
+                ]
+              },
               ...(await this.actionRow(this.bot, component)).back_to_home
             ]
           }
