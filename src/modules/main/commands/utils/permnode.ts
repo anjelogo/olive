@@ -1,4 +1,4 @@
-import { CommandInteraction, ComponentInteraction, Constants, Embed, EmbedField, Guild, Member, Message, MessageActionRow, Role } from "oceanic.js";
+import { CommandInteraction, ComponentInteraction, Constants, ContainerComponent, Embed, EmbedField, Guild, Member, Message, MessageActionRow, Role } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import { Entity } from "../../../../resources/interfaces";
@@ -81,7 +81,7 @@ export default class Permnode extends Command {
 		const guild = this.bot.findGuild(interaction.guildID) as Guild,
 			data: moduleData = (await this.bot.getModuleData("Main", guild.id) as unknown) as moduleData,
 			permissions: Permissions[] = data.permissions,
-			subcommand = interaction.data.options.raw[0].name;
+			subcommand = interaction.data.options.getSubCommand(true)[0];
 
 		switch (subcommand) {
 		case "edit": {
@@ -220,141 +220,144 @@ export default class Permnode extends Command {
 
 			switch (entity.type) {
 
-			case "member": {
-				if (!entity.member) return interaction.createFollowup({content: `${this.bot.constants.emojis.warning.red} An error occured.`});
+      case "member": {
+        if (!entity.member) return interaction.createFollowup({content: `${this.bot.constants.emojis.warning.red} An error occurred.`});
 
-				const member = entity.member as Member,
-					userData: Permissions | undefined = (permissions.find((p: Permissions) => p.userID === member.id)),
-					strings: string[] = [];
+        const member = entity.member as Member,
+          userData: Permissions | undefined = (permissions.find((p: Permissions) => p.userID === member.id)),
+          strings: string[] = [];
 
-				let perms: {
-					name: string;
-					description: string;
-					value: boolean;
-					hoist: number;
-				}[] = [];
+        let perms: {
+          name: string;
+          description: string;
+          value: boolean;
+          hoist: number;
+        }[] = [];
 
-				perms.push(...this.bot.perms.filter((p) => p.default).map((p) => ({ name: p.name, description: p.description, value: true, hoist: 0 })));
+        perms.push(...this.bot.perms.filter((p) => p.default).map((p) => ({ name: p.name, description: p.description, value: true, hoist: 0 })));
 
-				if (userData) {
-					const userPerms = [...userData.permissions];
-					for (const perm of userPerms) {
-						const permnode = this.bot.perms.find((p) => p.name === perm.permission);
-						perms.push({ name: perm.permission, value: perm.value, description: permnode ? permnode.description : "Unknown", hoist: perm.value ? 0 : 1 });
-					}
-				}
+        if (userData) {
+          const userPerms = [...userData.permissions];
+          for (const perm of userPerms) {
+            const permnode = this.bot.perms.find((p) => p.name === perm.permission);
+            perms.push({ name: perm.permission, value: perm.value, description: permnode ? permnode.description : "Unknown", hoist: perm.value ? 0 : 1 });
+          }
+        }
 
-				perms.sort((a, b) => a.hoist - b.hoist);
+        perms.sort((a, b) => a.hoist - b.hoist);
 
-				for (const perm of perms) {
-					perms.map((p) => p.name);
-					const dupes = perms.filter((p) => p.name === perm.name);
-					if (dupes.length) {
-						const i = perms.findIndex((p) => p.name === perm.name && p.value === true);
-						if (i > -1) perms.splice(i, 1);
-					}
-				}
+        for (const perm of perms) {
+          perms.map((p) => p.name);
+          const dupes = perms.filter((p) => p.name === perm.name);
+          if (dupes.length) {
+            const i = perms.findIndex((p) => p.name === perm.name && p.value === true);
+            if (i > -1) perms.splice(i, 1);
+          }
+        }
 
-				perms = [...new Set(perms)];
+        perms = [...new Set(perms)];
 
-				for (const perm of perms) {
-					strings.push(`${perm.value ? this.bot.constants.emojis.tick : this.bot.constants.emojis.x} \`${perm.name}\` - **${perm.description.toString()}**`);
-				}
+        for (const perm of perms) {
+          strings.push(`${perm.value ? this.bot.constants.emojis.tick : this.bot.constants.emojis.x} \`${perm.name}\` - **${perm.description.toString()}**`);
+        }
 
-				const roles: {
-					name: string;
-					id: string;
-				}[] = [],
-					fields: EmbedField[] = [
-						{
-							name: "User Defined Permissions",
-							value: strings.join("\n")
-						}
-					];
+        const roles: {
+          name: string;
+          id: string;
+        }[] = [],
+          components: MessageActionRow[] = roles.length
+            ? [
+              {
+                type: Constants.ComponentTypes.ACTION_ROW,
+                components: [
+                  {
+                    type: Constants.ComponentTypes.BUTTON,
+                    style: Constants.ButtonStyles.SECONDARY,
+                    customID: `permnode_${interaction.member?.id}_viewinheritance`,
+                    label: "View inherited permissions"
+                  }
+                ]
+              }
+            ]
+            : [];
 
-				if (member.roles.length) {
-					for (const r of member.roles) {
-						const roleData: Permissions | undefined = (permissions.find((p: Permissions) => p.roleID === r));
+        if (member.roles.length) {
+          for (const r of member.roles) {
+            const roleData: Permissions | undefined = (permissions.find((p: Permissions) => p.roleID === r));
 
-						if (!roleData) continue;
+            if (!roleData) continue;
 
-						const role: Role = this.bot.findRole(guild, r) as Role;
-						roles.push({ name: role.name, id: role.id });
-					}
-				}
+            const role: Role = this.bot.findRole(guild, r) as Role;
+            roles.push({ name: role.name, id: role.id });
+          }
+        }
 
-				const embed: Embed = {
-					type: "rich",
-					description: member.permissions.has("ADMINISTRATOR")
-						? `${this.bot.constants.emojis.warning.yellow} This user is a guild administrator! This user will bypass permissions regardless of negated permissions!`
-						: undefined,
-					title: `${member.username}'s Permissions`,
-					fields,
-					color: this.bot.constants.config.colors.default
-				},
-					components: MessageActionRow[] = roles.length
-						? [
-							{
-								type: Constants.ComponentTypes.ACTION_ROW,
-								components: [
-									{
-										type: Constants.ComponentTypes.BUTTON,
-										style: Constants.ButtonStyles.SECONDARY,
-										customID: `permnode_${interaction.member?.id}_viewinheritance`,
-										label: "View inherited permissions"
-									}
-								]
-							}
-						]
-						: [];
+        const container: ContainerComponent = {
+          type: Constants.ComponentTypes.CONTAINER,
+          components: [
+            {
+              type: Constants.ComponentTypes.TEXT_DISPLAY,
+              content: member.permissions.has("ADMINISTRATOR")
+                ? `# ${member.username}'s Permissions\n## ${this.bot.constants.emojis.warning.yellow} This user is a guild administrator! This user will bypass permissions regardless of negated permissions!`
+                : `# ${member.username}'s Permissions`,
+            },
+            {
+              type: Constants.ComponentTypes.TEXT_DISPLAY,
+              content: strings.join("\n")
+            }
+          ]
+        };
 
-				if (roles.length)
-					upsertCustomData(this.bot, interaction, {
-						entity: member.id,
-						page: 0,
-						roles
-					});
+        if (roles.length)
+          upsertCustomData(this.bot, interaction, {
+            entity: member.id,
+            page: 0,
+            roles
+          });
 
-				return interaction.createFollowup(
-					{ 
-						embeds: [embed],
-						components
-					}
-				);
-			}
+        return interaction.createFollowup(
+          {
+            components: [
+              container,
+              ...components
+            ],
+            flags: Constants.MessageFlags.IS_COMPONENTS_V2
+          },
+        );
+      }
 
 			case "role": {
-				if (!entity.role) return interaction.createFollowup({content: `${this.bot.constants.emojis.warning.red} An error occured.`});
-				const role = entity.role as Role;
-				
-				const roleData: Permissions | undefined = (permissions.find((p: Permissions) => p.roleID === role.id));
-				if (!roleData) {
-					return interaction.createFollowup({content: `${this.bot.constants.emojis.warning.yellow} This role has default permissions.`});
-				} else {
-					const allowed = roleData.permissions.filter((p) => p.value === true).map((p) => p.permission),
-						denied = roleData.permissions.filter((p) => p.value === false).map((p) => p.permission);
+        if (!entity.role) return interaction.createFollowup({content: `${this.bot.constants.emojis.warning.red} An error occurred.`});
+        const role = entity.role as Role;
+        
+        const roleData: Permissions | undefined = (permissions.find((p: Permissions) => p.roleID === role.id));
+        const allowed = roleData ? roleData.permissions.filter((p) => p.value === true).map((p) => p.permission) : [];
+        const denied = roleData ? roleData.permissions.filter((p) => p.value === false).map((p) => p.permission) : [];
 
-					const embed: Embed = {
-						color: this.bot.constants.config.colors.default,
-						title: `${role.name}'s Permissions`,
-						fields: [
-							{
-								name: "Allowed",
-								value: `${allowed.length ? `\`${allowed.join("`, `")}\`` : "Default"}`
-							}, {
-								name: "Denied",
-								value: `${denied.length ? `\`${denied.join("`, `")}\`` : "Default (None)"}`
-							}
-						],
-						type: "rich"
-					};
+        const container: ContainerComponent = {
+          type: Constants.ComponentTypes.CONTAINER,
+          components: [
+            {
+              type: Constants.ComponentTypes.TEXT_DISPLAY,
+              content: `# ${role.name}'s Permissions`
+            },
+            {
+              type: Constants.ComponentTypes.TEXT_DISPLAY,
+              content: `## Allowed\n${allowed.length ? `\`${allowed.join("`, `")}\`` : "Default"}`
+            },
+            {
+              type: Constants.ComponentTypes.TEXT_DISPLAY,
+              content: `## Denied\n${denied.length ? `\`${denied.join("`, `")}\`` : "Default (None)"}`
+            }
+          ]
+        };
 
-					return interaction.createFollowup({ embeds: [embed] });
+        return interaction.createFollowup({
+          components: [container],
+          flags: Constants.MessageFlags.IS_COMPONENTS_V2
+        });
 				}
 			}
-
-			}
-
 			break;
 		}
 
@@ -369,147 +372,154 @@ export default class Permnode extends Command {
 			moduleData: moduleData = (await this.bot.getModuleData("Main", guild.id) as unknown) as moduleData,
 			permissions: Permissions[] = moduleData.permissions;
 
-		async function constructEmbed(bot: ExtendedClient, interaction: (ComponentInteraction | CommandInteraction), id: string) {
-			const role: Role = bot.findRole(guild, id) as Role,
-				roleData: Permissions | undefined = (permissions.find((p: Permissions) => p.roleID === role.id)),
-				strings: string[] = [];
+    async function constructEmbed(bot: ExtendedClient, interaction: (ComponentInteraction | CommandInteraction), id: string) {
+      const role: Role = bot.findRole(guild, id) as Role,
+        roleData: Permissions | undefined = (permissions.find((p: Permissions) => p.roleID === role.id)),
+        strings: string[] = [];
 
-			let perms: {
-				name: string;
-				description: string;
-				value: boolean;
-				hoist: number;
-			}[] = [];
+      let perms: {
+        name: string;
+        description: string;
+        value: boolean;
+        hoist: number;
+      }[] = [];
 
-			if (role.permissions.has("ADMINISTRATOR"))
-				perms.push({ name: "*", description: "Grants access to all module components/commands regardless of negated permissions", value: true, hoist: 0 });
+      if (role.permissions.has("ADMINISTRATOR"))
+        perms.push({ name: "*", description: "Grants access to all module components/commands regardless of negated permissions", value: true, hoist: 0 });
 
-			perms.push(...bot.perms.filter((p) => p.default).map((p) => ({ name: p.name, description: p.description, value: true, hoist: 0 })));
+      perms.push(...bot.perms.filter((p) => p.default).map((p) => ({ name: p.name, description: p.description, value: true, hoist: 0 })));
 
-			if (roleData) {
-				const rolePerms = [...roleData.permissions];
-				for (const perm of rolePerms) {
-					const permnode = bot.perms.find((p) => p.name === perm.permission);
-					perms.push({ name: perm.permission, value: perm.value, description: permnode ? permnode.description : "Unknown", hoist: perm.value ? 0 : 1 });
-				}
-			}
+      if (roleData) {
+        const rolePerms = [...roleData.permissions];
+        for (const perm of rolePerms) {
+          const permnode = bot.perms.find((p) => p.name === perm.permission);
+          perms.push({ name: perm.permission, value: perm.value, description: permnode ? permnode.description : "Unknown", hoist: perm.value ? 0 : 1 });
+        }
+      }
 
-			perms.sort((a, b) => a.hoist - b.hoist);
+      perms.sort((a, b) => a.hoist - b.hoist);
 
-			for (const perm of perms) {
-				perms.map((p) => p.name);
-				const dupes = perms.filter((p) => p.name === perm.name);
-				if (dupes.length) {
-					const i = perms.findIndex((p) => p.name === perm.name && p.value === true);
-					if (i > -1) perms.splice(i, 1);
-				}
-			}
+      for (const perm of perms) {
+        perms.map((p) => p.name);
+        const dupes = perms.filter((p) => p.name === perm.name);
+        if (dupes.length) {
+          const i = perms.findIndex((p) => p.name === perm.name && p.value === true);
+          if (i > -1) perms.splice(i, 1);
+        }
+      }
 
-			perms = [...new Set(perms)];
+      perms = [...new Set(perms)];
 
-			for (const perm of perms) {
-				strings.push(`${perm.value ? bot.constants.emojis.tick : bot.constants.emojis.x} \`${perm.name}\` - **${perm.description.toString()}**`);
-			}
+      for (const perm of perms) {
+        strings.push(`${perm.value ? bot.constants.emojis.tick : bot.constants.emojis.x} \`${perm.name}\` - **${perm.description.toString()}**`);
+      }
 
-			const fields: EmbedField[] = [
-				{
-					name: "Permissions",
-					value: strings.join("\n")
-				}
-			];
+      const container: ContainerComponent = {
+        type: Constants.ComponentTypes.CONTAINER,
+        components: [
+          {
+            type: Constants.ComponentTypes.TEXT_DISPLAY,
+            content: `# ${member.username}'s Inherited Permissions (${role.name})`
+          },
+          {
+            type: Constants.ComponentTypes.TEXT_DISPLAY,
+            content: strings.join("\n")
+          }
+        ]
+      };
 
-			const embed: Embed = {
-				type: "rich",
-				title: `${member.username}'s Inherited Permissions (${role.name})`,
-				color: role.color !== 0 ? role.color : bot.constants.config.colors.default,
-				fields
-			},
-				components: MessageActionRow[] = [
-					{
-						type: Constants.ComponentTypes.ACTION_ROW,
-						components: [
-							{
-								type: Constants.ComponentTypes.BUTTON,
-								style: Constants.ButtonStyles.PRIMARY,
-								customID: `permnode_${interaction.member?.id}_viewpreviousinheritance`,
-								label: "View Previous",
-								disabled: 1 >= data.page + 1 ? true : false
-							}, {
-								type: Constants.ComponentTypes.BUTTON,
-								style: Constants.ButtonStyles.PRIMARY,
-								customID: `permnode_${interaction.member?.id}_viewnextinheritance`,
-								label: "View Next",
-								disabled: data.roles.length <= data.page + 1 ? true : false
-							}, {
-								type: Constants.ComponentTypes.BUTTON,
-								style: Constants.ButtonStyles.PRIMARY,
-								customID: `permnode_${interaction.member?.id}_viewmemberdefined`,
-								label: "View Member Permissions"
-							}
-						]
-					}
-				];
-			
-			return {
-				embed,
-				components
-			};
+      const components: MessageActionRow[] = [
+        {
+          type: Constants.ComponentTypes.ACTION_ROW,
+          components: [
+            {
+              type: Constants.ComponentTypes.BUTTON,
+              style: Constants.ButtonStyles.PRIMARY,
+              customID: `permnode_${interaction.member?.id}_viewpreviousinheritance`,
+              label: "View Previous",
+              disabled: 1 >= data.page + 1 ? true : false
+            }, {
+              type: Constants.ComponentTypes.BUTTON,
+              style: Constants.ButtonStyles.PRIMARY,
+              customID: `permnode_${interaction.member?.id}_viewnextinheritance`,
+              label: "View Next",
+              disabled: data.roles.length <= data.page + 1 ? true : false
+            }, {
+              type: Constants.ComponentTypes.BUTTON,
+              style: Constants.ButtonStyles.PRIMARY,
+              customID: `permnode_${interaction.member?.id}_viewmemberdefined`,
+              label: "View Member Permissions"
+            }
+          ]
+        }
+      ];
+
+      return {
+        container,
+        components
+      };
 		}
 
-		switch(component.data.customID.split("_")[2]) {
+    switch(component.data.customID.split("_")[2]) {
 
-		case "viewinheritance": {
-			const obj = await constructEmbed(this.bot, component, data.roles[data.page].id);
+    case "viewinheritance": {
+      const obj = await constructEmbed(this.bot, component, data.roles[data.page].id);
 
-			return component.editOriginal({
-				embeds: [obj.embed],
-				components: obj.components
-			});
-		}
+      return component.editOriginal({
+        components: [
+          obj.container,
+          ...obj.components
+        ]
+      });
+    }
 
-		case "viewnextinheritance": {
-			data.page++;
+    case "viewnextinheritance": {
+      data.page++;
 
-			const obj = await constructEmbed(this.bot, component, data.roles[data.page].id);
+      const obj = await constructEmbed(this.bot, component, data.roles[data.page].id);
 
-			return component.editOriginal({
-				embeds: [obj.embed],
-				components: obj.components
-			});
-		}
+      return component.editOriginal({
+        components: [
+          obj.container,
+          ...obj.components
+        ]
+      });
+    }
 
-		case "viewpreviousinheritance": {
-			data.page--;
+    case "viewpreviousinheritance": {
+      data.page--;
 
-			const obj = await constructEmbed(this.bot, component, data.roles[data.page].id);
+      const obj = await constructEmbed(this.bot, component, data.roles[data.page].id);
 
-			return component.editOriginal({
-				embeds: [obj.embed],
-				components: obj.components
-			});
-		}
+      return component.editOriginal({
+        components: [
+          obj.container,
+          ...obj.components
+        ]
+      });
+    }
 
-		case "viewmemberdefined": {
-			data.page = 0;
+    case "viewmemberdefined": {
+      data.page = 0;
 
-			(component as any).data.options = [
-				{
-					name: "view",
-					type: 1,
-					options: [
-						{
-							name: "entity",
-							type: 9,
-							value: member.id
-						}
-					]
-				}
-			];
-			this.execute(component as unknown as CommandInteraction);
+      (component as any).data.options = [
+        {
+          name: "view",
+          type: 1,
+          options: [
+            {
+              name: "entity",
+              type: 9,
+              value: member.id
+            }
+          ]
+        }
+      ];
+      this.execute(component as unknown as CommandInteraction);
       return;
-		}
+    }
 
-		}
+    }
 
 	}
 
