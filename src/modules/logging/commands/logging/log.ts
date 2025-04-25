@@ -36,7 +36,7 @@ export default class Log extends Command {
 	}
 
 	private typesAvailable = async (bot: ExtendedClient, interaction: (CommandInteraction | ComponentInteraction)) => {
-		const customData = getCustomData(bot, interaction instanceof CommandInteraction ? interaction.id : interaction.message.interaction?.id as string)?.data as CustomDataStructure,
+		const customData = getCustomData(bot, interaction instanceof CommandInteraction ? interaction.id : interaction.message.interactionMetadata?.id as string)?.data as CustomDataStructure,
 			validTypes: LogChannelTypes[] = ["vc", "welcome", "moderation", "starboard"];
 
 		return validTypes.filter(t => !customData.types.includes(t));
@@ -72,7 +72,7 @@ export default class Log extends Command {
 			deleteLog: MessageActionRow[]
 		}
 	> => {
-		const customData = getCustomData(bot, interaction instanceof CommandInteraction ? interaction.id : interaction.message.interaction?.id as string)?.data as CustomDataStructure;
+		const customData = getCustomData(bot, interaction instanceof CommandInteraction ? interaction.id : interaction.message.interactionMetadata?.id as string)?.data as CustomDataStructure;
 
 		return {
 			home: [
@@ -142,7 +142,7 @@ export default class Log extends Command {
 						{
 							type: Constants.ComponentTypes.STRING_SELECT,
 							placeholder: "Select a logging type",
-							customID: `log_${interaction.member?.id}_addlogtype`,
+							customID: `log_${interaction.member?.id}_removelogtype`,
 							maxValues: 2,
 							minValues: 1,
 							options: customData.types.map((t) => ({ label: t, value: t }))
@@ -218,7 +218,7 @@ export default class Log extends Command {
 	readonly update = async (component: ComponentInteraction): Promise<Message | void> => {
 		
 		const guild = this.bot.findGuild(component.guildID) as Guild,
-			customData = await getCustomData(this.bot, component.message.interaction?.id as string)?.data as CustomDataStructure,
+			customData = await getCustomData(this.bot, component.message.interactionMetadata?.id as string)?.data as CustomDataStructure,
 			moduleData = await this.bot.getModuleData("Logging", guild.id) as moduleData;
 
 		switch (component.data.customID.split("_")[2]) {
@@ -277,8 +277,16 @@ export default class Log extends Command {
 			}
 		}
 
-    case "addlogtype": 
+    case "addlogtype": {
 			customData.types = [...customData.types, ...(component.data as MessageComponentSelectMenuInteractionData).values.raw as LogChannelTypes[]];
+      return await component.editOriginal(
+				{
+					components: [(this.createContainer(this.bot, component, (await this.actionRow(this.bot, component)).home))]
+				}
+			);
+    }
+    case "removelogtype":
+	    customData.types = customData.types.filter((t) => !(component.data as MessageComponentSelectMenuInteractionData).values.raw.includes(t as string));
 		case "home": {
 			return await component.editOriginal(
 				{
