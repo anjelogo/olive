@@ -24,13 +24,13 @@ export default class Help extends Command {
       components: [
         {
           type: Constants.ComponentTypes.TEXT_DISPLAY,
-          content: `# ${bot.user.globalName} 🌴`
+          content: `# ${bot.user.username} 🌴`
         }, {
           type: Constants.ComponentTypes.TEXT_DISPLAY,
-          content: `**${bot.user.globalName}** is a multi-purpose bot that includes a variety of modules to help your community thrive! Get start by viewing a list of commands by clicking on the button below!`
+          content: `**${bot.user.username}** is a multi-purpose bot that includes a variety of modules to help your community thrive! Get start by viewing a list of commands by clicking on the button below!`
         },
-      ],
-      ...actionRow
+        ...actionRow
+      ]
     }
     return container;
   }
