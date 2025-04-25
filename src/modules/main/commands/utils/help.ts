@@ -84,7 +84,7 @@ export default class Help extends Command {
             }
           ]
         },
-        await this.bot.getModule("Main").hasPerm(interaction.member, "main.permnode.view") ?? {
+        await this.bot.getModule("Main").hasPerm(interaction.member, "main.permnode.view") && {
           type: Constants.ComponentTypes.ACTION_ROW,
           components: [
             {
