@@ -68,8 +68,18 @@ export default class Emoji extends Command {
     }
 
     return interaction.createFollowup({
-      content: `${this.bot.constants.emojis.tick} Emoji(s): "${createdEmojis.map(e => `<${e?.animated ? "a" : ""}:${e?.name}:${e?.id}>`).join(", ")}" added to the server`,
-      flags: Constants.MessageFlags.EPHEMERAL
+      components: [
+        {
+          type: Constants.ComponentTypes.CONTAINER,
+          components: [{
+            type: Constants.ComponentTypes.TEXT_DISPLAY,
+            content: `# Emojis Created!`,
+          }, {
+            type: Constants.ComponentTypes.TEXT_DISPLAY,
+            content: `# Emojis:\n${createdEmojis.map((e) => `<:${e?.name}:${e?.id}>`).join(", ")}`,
+          }]
+        }
+      ]
     });
   }
 

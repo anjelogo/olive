@@ -19,30 +19,31 @@ export default class Reload extends Command {
 
 	readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
 		return interaction.createFollowup({
-			embeds: [
-				{
-					color: 1416145,
-					description: "Are you sure you want to reload the bot's application commands?",
-				}
-			],
 			components: [
-				{
-					type: Constants.ComponentTypes.ACTION_ROW,
-					components: [
-						{
-							type: Constants.ComponentTypes.BUTTON,
-							style: Constants.ButtonStyles.SUCCESS,
-							label: "Yes",
-							customID: `reload_${interaction.member?.id}_yes`
-						}, {
-							type: Constants.ComponentTypes.BUTTON,
-							style: Constants.ButtonStyles.DANGER,
-							label: "No",
-							customID: `reload_${interaction.member?.id}_no`
-						}
-					]
-				}
-			]
+  			{
+          type: Constants.ComponentTypes.CONTAINER,
+          components: [{
+            type: Constants.ComponentTypes.TEXT_DISPLAY,
+            content: `# Are you sure you want to reload the bot's application commands?`,
+          }, {
+  					type: Constants.ComponentTypes.ACTION_ROW,
+  					components: [
+  						{
+  							type: Constants.ComponentTypes.BUTTON,
+  							style: Constants.ButtonStyles.SUCCESS,
+  							label: "Yes",
+  							customID: `reload_${interaction.member?.id}_yes`
+  						}, {
+  							type: Constants.ComponentTypes.BUTTON,
+  							style: Constants.ButtonStyles.DANGER,
+  							label: "No",
+  							customID: `reload_${interaction.member?.id}_no`
+  						}
+  					]
+          }]
+        }
+			],
+      flags: Constants.MessageFlags.IS_COMPONENTS_V2
 		});
 	}
 
@@ -55,13 +56,15 @@ readonly update = async (component: ComponentInteraction): Promise<Message | voi
 			await this.bot.reload();
 
 			return component.editOriginal({
-				embeds: [
-					{
-						color: 1416145,
-						description: "Successfully reloaded the bot's application commands.",
-					}
-				],
-				components: []
+				components: [
+          {
+            type: Constants.ComponentTypes.CONTAINER,
+            components: [{
+    					type: Constants.ComponentTypes.TEXT_DISPLAY,
+              content: `# Successfully reloaded the bot's application commands.`,
+    				}]
+          }
+        ]
 			});
 		} catch (e) {
 			throw new Error(e as string);
@@ -70,13 +73,15 @@ readonly update = async (component: ComponentInteraction): Promise<Message | voi
 
 	case "no": {
 		return component.editOriginal({
-			embeds: [
-				{
-					color: 1416145,
-					description: "Cancelled request to reload bot's application commands.",
-				}
-			],
-			components: []
+			components: [
+        {
+          type: Constants.ComponentTypes.CONTAINER,
+          components: [{
+            type: Constants.ComponentTypes.TEXT_DISPLAY,
+            content: `# Cancelled reloading the bot's application commands.`,
+          }]
+        }
+      ]
 		});
 	}
 

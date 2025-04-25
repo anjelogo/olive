@@ -26,7 +26,7 @@ export default class Eval extends Command {
 
 	readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
 
-		const code = (interaction.data.options.getStringOption("expression"))?.value as string;
+		const code = (interaction.data.options.getStringOption("expression", true)).value as string;
 
 
 		try {
@@ -39,43 +39,49 @@ export default class Eval extends Command {
 			} */
 
 			return interaction.createFollowup({
-				embeds: [
-					{
-						color: 1416145,
-						description: `**Returns** ${typeof (evaled)}`,
-						fields: [
-							{
-								name: "📥 Input",
-								value: `\`\`\`xl\n${code}\n\`\`\``
-							},
-							{
-								name: "📤 Output",
-								value: `\`\`\`xl\n${evaled}\n\`\`\``
-							}
-						]
-					}
-				],
-				flags: Constants.MessageFlags.EPHEMERAL
+        components: [
+          {
+            type: Constants.ComponentTypes.CONTAINER,
+            components: [
+              {
+                type: Constants.ComponentTypes.TEXT_DISPLAY,
+                content: `# Evaluation Successful!\n## Type: ${typeof (evaled)}`,
+              }, {
+                type: Constants.ComponentTypes.TEXT_DISPLAY,
+                content: `# 📥 Input:\n\`${code}\``,
+              }, {
+                type: Constants.ComponentTypes.SEPARATOR,
+              }, {
+                type: Constants.ComponentTypes.TEXT_DISPLAY,
+                content: `# 📤 Output:\n\`${evaled}\``,
+              }
+            ]
+          }
+        ],
+        flags: Constants.MessageFlags.IS_COMPONENTS_V2
 			});
 		} catch (e) {
 			return interaction.createFollowup({
-				embeds: [
-					{
-						color: 14161450,
-						description: "**Returns** Error",
-						fields: [
-							{
-								name: "📥 Input",
-								value: `\`\`\`xl\n${code}\n\`\`\``
-							},
-							{
-								name: "Error",
-								value: `\`\`\`xl\n${e}\n\`\`\``
-							}
-						]
-					}
-				],
-				flags: Constants.MessageFlags.EPHEMERAL
+        components: [
+          {
+            type: Constants.ComponentTypes.CONTAINER,
+            components: [
+              {
+                type: Constants.ComponentTypes.TEXT_DISPLAY,
+                content: `# Evaluation Failed!`,
+              }, {
+                type: Constants.ComponentTypes.TEXT_DISPLAY,
+                content: `# 📥 Input:\n\`${code}\``,
+              }, {
+                type: Constants.ComponentTypes.SEPARATOR,
+              }, {
+                type: Constants.ComponentTypes.TEXT_DISPLAY,
+                content: `# 📤 Error:\n\`${e}\``,
+              }
+            ]
+          }
+        ],
+        flags: Constants.MessageFlags.IS_COMPONENTS_V2
 			});
 		}
 	}
