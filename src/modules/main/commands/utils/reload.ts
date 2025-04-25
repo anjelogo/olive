@@ -24,7 +24,7 @@ export default class Reload extends Command {
           type: Constants.ComponentTypes.CONTAINER,
           components: [{
             type: Constants.ComponentTypes.TEXT_DISPLAY,
-            content: `# Are you sure you want to reload the bot's application commands?`,
+            content: `## Are you sure you want to reload the bot's application commands?`,
           }, {
   					type: Constants.ComponentTypes.ACTION_ROW,
   					components: [
@@ -61,7 +61,7 @@ readonly update = async (component: ComponentInteraction): Promise<Message | voi
             type: Constants.ComponentTypes.CONTAINER,
             components: [{
     					type: Constants.ComponentTypes.TEXT_DISPLAY,
-              content: `# Successfully reloaded the bot's application commands.`,
+              content: `## Successfully reloaded the bot's application commands.`,
     				}]
           }
         ]
@@ -78,7 +78,7 @@ readonly update = async (component: ComponentInteraction): Promise<Message | voi
           type: Constants.ComponentTypes.CONTAINER,
           components: [{
             type: Constants.ComponentTypes.TEXT_DISPLAY,
-            content: `# Cancelled reloading the bot's application commands.`,
+            content: `## Cancelled reloading the bot's application commands.`,
           }]
         }
       ]

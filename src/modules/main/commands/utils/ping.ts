@@ -24,7 +24,7 @@ export default class Ping extends Command {
         components: [
           {
             type: Constants.ComponentTypes.TEXT_DISPLAY,
-            content: `# Pong! 🏓\n Latency: \`${Date.now() - interaction.createdAt.getTime()}ms\``,
+            content: `## Pong! 🏓\n Latency: \`${Date.now() - interaction.createdAt.getTime()}ms\``,
           }
         ]}
       ],

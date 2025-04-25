@@ -48,12 +48,12 @@ export default class Eval extends Command {
                 content: `# Evaluation Successful!\n## Type: ${typeof (evaled)}`,
               }, {
                 type: Constants.ComponentTypes.TEXT_DISPLAY,
-                content: `# 📥 Input:\n\`${code}\``,
+                content: `## 📥 Input:\n\`${code}\``,
               }, {
                 type: Constants.ComponentTypes.SEPARATOR,
               }, {
                 type: Constants.ComponentTypes.TEXT_DISPLAY,
-                content: `# 📤 Output:\n\`${evaled}\``,
+                content: `## 📤 Output:\n\`${evaled}\``,
               }
             ]
           }
@@ -71,12 +71,12 @@ export default class Eval extends Command {
                 content: `# Evaluation Failed!`,
               }, {
                 type: Constants.ComponentTypes.TEXT_DISPLAY,
-                content: `# 📥 Input:\n\`${code}\``,
+                content: `## 📥 Input:\n\`${code}\``,
               }, {
                 type: Constants.ComponentTypes.SEPARATOR,
               }, {
                 type: Constants.ComponentTypes.TEXT_DISPLAY,
-                content: `# 📤 Error:\n\`${e}\``,
+                content: `## 📤 Error:\n\`${e}\``,
               }
             ]
           }
