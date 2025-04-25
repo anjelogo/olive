@@ -126,12 +126,12 @@ export default class Log extends Command {
 							type: Constants.ComponentTypes.BUTTON,
 							style: Constants.ButtonStyles.PRIMARY,
 							label: "Back",
-							customID: `reactionrole_${interaction.member?.id}_home`
+							customID: `log_${interaction.member?.id}_home`
 						}, {
 							type: Constants.ComponentTypes.BUTTON,
 							style: Constants.ButtonStyles.DANGER,
 							label: "Cancel",
-							customID: `reactionrole_${interaction.member?.id}_cancel`
+							customID: `log_${interaction.member?.id}_cancel`
 						}
 					]
 				}
@@ -157,12 +157,12 @@ export default class Log extends Command {
 							type: Constants.ComponentTypes.BUTTON,
 							style: Constants.ButtonStyles.PRIMARY,
 							label: "Back",
-							customID: `reactionrole_${interaction.member?.id}_home`
+							customID: `log_${interaction.member?.id}_home`
 						}, {
 							type: Constants.ComponentTypes.BUTTON,
 							style: Constants.ButtonStyles.DANGER,
 							label: "Cancel",
-							customID: `reactionrole_${interaction.member?.id}_cancel`
+							customID: `log_${interaction.member?.id}_cancel`
 						}
 					]
 				}
