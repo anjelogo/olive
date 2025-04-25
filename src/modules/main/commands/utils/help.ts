@@ -217,7 +217,7 @@ export default class Help extends Command {
 
       fields.push({
         type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: `# Administrator\n\`*\` (All Permissions)`
+        content: `## Administrator\n\`*\` (All Permissions)`
       });
 
       for (const perm of this.bot.perms) {
@@ -239,7 +239,7 @@ export default class Help extends Command {
       }
 
       // combine all the fields into one string
-      const combinedFields = fields.map((f) => f.content).join("\n\n");
+      const combinedFields = fields.map((f) => f.content).join("\n");
 
       return component.editOriginal({
         components: [
