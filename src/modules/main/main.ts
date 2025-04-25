@@ -126,64 +126,6 @@ export default class Main extends Module {
 		else return true;
 	}
 
-	public createHelpEmbed = (cmd: Command, content?: string): helpEmbed => {
-		let usage: string;
-
-		const	optStrings: string[] = [],
-			fields: EmbedField[] = [];
-
-		if (cmd.commands.length > 1) {
-			fields[fields.length] = {
-				name: "Aliases",
-				value: `${cmd.commands.slice(1).join(", ")}`
-			};
-		}
-
-		optStrings.length > 0 ? usage = `${cmd.commands[0]} ${optStrings.join(" ")}` : usage = `${cmd.commands[0]}`;
-
-		fields[fields.length] = {
-			name: "Usage",
-			value: `\`${usage}\``
-		};
-
-		if (cmd.example) {
-			fields[fields.length] = {
-				name: "Example",
-				value: `\`${cmd.example}\``
-			};
-		}
-
-		if (cmd.permissions) {
-			let perms: string[] = [...cmd.permissions];
-
-			/* 			if (cmd.subcommands) {
-				for (const scmd of cmd.subcommands) {
-					if (scmd.permissions)
-						perms = [...perms, ...scmd.permissions];
-				}
-			} */
-
-			perms = [...new Set(perms)];
-
-			fields[fields.length] = {
-				name: "Permissions",
-				value: `\`${perms.join("`, `")}\``
-			};
-		}
-
-		const obj = {
-			content: content ? content : "",
-			embed: {
-				title: cmd.commands[0],
-				description: `**${cmd.description}**`,
-				color: this.bot.constants.config.colors.default,
-				fields,
-			}
-		};
-
-		return obj;
-	}
-
 	readonly moduleData = {
 		version: this.version,
 		guildID: this.bot.constants.config.guildID,
