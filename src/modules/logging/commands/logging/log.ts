@@ -302,7 +302,7 @@ export default class Log extends Command {
 				{
 					components: [{
             type: Constants.ComponentTypes.TEXT_DISPLAY,
-            content: `${this.bot.constants.emojis.cross} Cancelled log channel creation`
+            content: `${this.bot.constants.emojis.cross} Cancelled log channel modifications`
           }]
 				}
 			);
