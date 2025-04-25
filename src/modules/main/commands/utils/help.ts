@@ -173,7 +173,7 @@ export default class Help extends Command {
 				else {
           fields.push({
             type: Constants.ComponentTypes.TEXT_DISPLAY,
-            content: `# ${command.category}:\n\`${command.commands[0]}\``
+            content: `## ${command.category}:\n\`${command.commands[0]}\``
           });
 				}
 			}
@@ -192,7 +192,7 @@ export default class Help extends Command {
                 content: `You can view more help/information on a command using \`</help:${(await this.bot.application.getGlobalCommands()).find(g => g.name == "help")?.id}>\`.`
               },
               ...fields,
-              ...(await this.actionRow(this.bot, component)).back_from_command
+              ...(await this.actionRow(this.bot, component)).back_to_home
             ]
           }
         ]
@@ -213,14 +213,14 @@ export default class Help extends Command {
         const Module: string = this.bot.modules.find((m: Module) => m.name.toLowerCase() === perm.name.split(/[.\-_]/)[0].toLowerCase())
           ? this.bot.modules.find((m: Module) => m.name.toLowerCase() === perm.name.split(/[.\-_]/)[0].toLowerCase()).name
           : perm.name.split(/[.\-_]/)[0].replace(/^\w/, c => c.toUpperCase()),
-          field: TextDisplayComponent | undefined = fields.find((f) => f.content.startsWith(`# ${Module}`));
+          field: TextDisplayComponent | undefined = fields.find((f) => f.content.startsWith(`## ${Module}`));
 
         if (field) {
           field.content += perm.default ? `, *\`${perm.name}\`*` : `, \`${perm.name}\``;
         } else {
           fields.push({
             type: Constants.ComponentTypes.TEXT_DISPLAY,
-            content: `# ${Module}\n\`${perm.name}\``
+            content: `## ${Module}\n\`${perm.name}\``
           });
         }
       }
@@ -239,7 +239,7 @@ export default class Help extends Command {
                 content: `This is a list of all available permission nodes.\nYou can view more help/information on a permission using \`</help:${(await this.bot.application.getGlobalCommands()).find(g => g.name == "help")?.id}>\`.`
               },
               ...fields,
-              ...(await this.actionRow(this.bot, component)).back_from_command
+              ...(await this.actionRow(this.bot, component)).back_to_home
             ]
           }
         ]
@@ -370,7 +370,8 @@ export default class Help extends Command {
       });
     }
 
-		case "home": {
+    case "home":
+		case "help": {
       return component.editOriginal(
         {
           components: [
