@@ -1,4 +1,4 @@
-import { ComponentInteraction, Constants, CommandInteraction, Embed, Message, Guild, TextChannel, MessageActionRow, MessageComponentSelectMenuInteractionData, ContainerComponent } from "oceanic.js";
+import { ComponentInteraction, Constants, CommandInteraction, Embed, Message, Guild, TextChannel, MessageActionRow, MessageComponentSelectMenuInteractionData } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import { upsertCustomData, getCustomData } from "../../../main/internals/CustomDataHandler";
@@ -42,29 +42,27 @@ export default class Log extends Command {
 		return validTypes.filter(t => !customData.types.includes(t));
 	}
 
-	private createContainer = (bot: ExtendedClient, interaction: (CommandInteraction | ComponentInteraction), actionRow: MessageActionRow[]) => {
-    const customData = getCustomData(bot, interaction instanceof CommandInteraction ? interaction.id : interaction.message.interactionMetadata!.id)?.data as CustomDataStructure,
-  		container: ContainerComponent = {
-        type: Constants.ComponentTypes.CONTAINER,
-        components: [
-          {
-            type: Constants.ComponentTypes.TEXT_DISPLAY,
-            content: "# Log Channel Information"
-          }, {
-            type: Constants.ComponentTypes.TEXT_DISPLAY,
-            content: "## Currently Logging"
-          }, {
-            type: Constants.ComponentTypes.TEXT_DISPLAY,
-            content: customData.types.length ? customData.types.map(t => `\`${t}\``).join(", ") : "None"
-          },
-          ...actionRow
-        ]
-      }
+	private create = (bot: ExtendedClient, interaction: (CommandInteraction | ComponentInteraction)) => {
+		const customData = getCustomData(bot, interaction instanceof CommandInteraction ? interaction.id : interaction.message.interaction?.id as string)?.data as CustomDataStructure,
+			embed: Embed = {
+				type: "rich",
+				title: "Log Channel Information",
+				color: this.bot.constants.config.colors.default,
+				fields: [
+					{
+						name: "Currently Logging",
+						value: customData.types.length ? customData.types.map(t => `\`${t}\``).join(", ") : "None"
+					}
+				],
+				footer: {
+					text: interaction.channelID
+				}
+			};
 
-    return container;
+		return embed;
 	}
 
-	private actionRow = async (bot: ExtendedClient, interaction: (CommandInteraction | ComponentInteraction)):
+	private components = async (bot: ExtendedClient, interaction: (CommandInteraction | ComponentInteraction)):
 	Promise<
 		{
 			home: MessageActionRow[],
@@ -187,8 +185,8 @@ export default class Log extends Command {
 			});
 
 			return interaction.createFollowup({
-        components: [(this.createContainer(this.bot, interaction, (await this.actionRow(this.bot, interaction)).home))],
-        flags: Constants.MessageFlags.IS_COMPONENTS_V2
+				embeds: [this.create(this.bot, interaction)],
+				components: (await this.components(this.bot, interaction)).home
 			});
 		}
 
@@ -227,8 +225,8 @@ export default class Log extends Command {
 
 			return component.editOriginal(
 				{
-          components: [(this.createContainer(this.bot, component, (await this.actionRow(this.bot, component)).addLog))]
-        }
+					components: (await this.components(this.bot, component)).addLog
+				}
 			);
 		}
 
@@ -236,10 +234,26 @@ export default class Log extends Command {
 
 			return component.editOriginal(
 				{
-					components: [(this.createContainer(this.bot, component, (await this.actionRow(this.bot, component)).deleteLog))]
+					components: (await this.components(this.bot, component)).deleteLog
 				}
 			);
 		}
+
+		case "addlogtype": {
+
+			customData.types = [...customData.types, ...(component.data as MessageComponentSelectMenuInteractionData).values.raw as LogChannelTypes[]];
+
+			const embed = this.create(this.bot, component);
+
+			return await component.editOriginal(
+				{
+					content: undefined,
+					embeds: [embed],
+					components: (await this.components(this.bot, component)).home
+				}
+			);
+		}
+
 		case "save": {
 
 			const obj: LogChannelStructure = {
@@ -256,33 +270,19 @@ export default class Log extends Command {
 			try {
 				await this.bot.updateModuleData("Logging", moduleData, guild);
 
-				return component.editOriginal({
-          components: [
-            {
-              type: Constants.ComponentTypes.TEXT_DISPLAY,
-              content: `${this.bot.constants.emojis.tick} Saved log channel`,
-            }
-          ]
-        });
+				return component.editOriginal({ content: `${this.bot.constants.emojis.tick} Saved log channel`, embeds: [], components: [] });
 			} catch (e) {
-				await component.editOriginal({
-            components: [
-              {
-                type: Constants.ComponentTypes.TEXT_DISPLAY,
-                content: `${this.bot.constants.emojis.cross} An error occured while saving the log channel`,
-              }
-            ]
-          });
+				await component.editOriginal({ content: `${this.bot.constants.emojis.cross} Failed to save log channel`, embeds: [], components: [] });
 				throw new Error(e as string);
 			}
 		}
 
-    case "addlogtype": 
-			customData.types = [...customData.types, ...(component.data as MessageComponentSelectMenuInteractionData).values.raw as LogChannelTypes[]];
 		case "home": {
 			return await component.editOriginal(
 				{
-					components: [(this.createContainer(this.bot, component, (await this.actionRow(this.bot, component)).home))]
+					content: undefined,
+					embeds: [this.create(this.bot, component)],
+					components: (await this.components(this.bot, component)).home
 				}
 			);
 		}
@@ -290,10 +290,9 @@ export default class Log extends Command {
 		case "cancel": {
 			return component.editOriginal(
 				{
-					components: [{
-            type: Constants.ComponentTypes.TEXT_DISPLAY,
-            content: `${this.bot.constants.emojis.cross} Cancelled log channel creation`
-          }]
+					content: `${this.bot.constants.emojis.x} Cancelled.`,
+					embeds: [],
+					components: []
 				}
 			);
 		}
