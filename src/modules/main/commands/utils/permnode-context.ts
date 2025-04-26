@@ -15,27 +15,27 @@ export default class PermnodeContext extends Command {
     this.type = Constants.ApplicationCommandTypes.USER;
   }
 
-    public execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
+  public execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
 
-      const member = interaction.data.resolved.members.find((m: Member) => m.id === interaction.data.targetID);
+    const member = interaction.data.resolved.members.find((m: Member) => m.id === interaction.data.targetID);
 
-      if (!member) return await interaction.createFollowup({content: "Member not found"});
+    if (!member) return await interaction.createFollowup({content: "Member not found"});
+    
+    const interactionData = {
+      type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
+      name: "view",
+      options: [
+        {
+          type: Constants.ApplicationCommandOptionTypes.STRING,
+          name: "entity",
+          value: member.id
+        }
+      ],
+      getSubCommand: () => "view"
+    };
 
-      
-      const interactionData = {
-        type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
-        name: "view",
-        options: [
-          {
-            type: Constants.ApplicationCommandOptionTypes.STRING,
-            name: "entity",
-            value: member.id
-          }
-        ]
-      };
-
-      const mockInteraction = Object.assign({}, interaction, { data: interactionData });
-      await new Permnode(this.bot).execute(mockInteraction as unknown as CommandInteraction);
-      return;
-    }
+    const mockInteraction = Object.assign({}, interaction, { data: interactionData });
+    await new Permnode(this.bot).execute(mockInteraction as CommandInteraction);
+    return;
+  }
 }
