@@ -7,11 +7,11 @@ export const applicationID = "867783060962934814";
 export const invite = "https://discord.com/oauth2/authorize?client_id={id}&permissions=8&scope=applications.commands%20bot";
 
 export const colors = {
-	default: 8421376,
-	red: 16711680,
-	green: 3329330
+  default: 8421376,
+  red: 16711680,
+  green: 3329330
 };
 
 export const status = {
-	text: "[CANARY] /help",
+  text: "[CANARY] /help",
 };
