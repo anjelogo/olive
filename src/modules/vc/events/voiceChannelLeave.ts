@@ -4,6 +4,6 @@ import ExtendedClient from "../../../Base/Client";
 
 export const run = async (bot: ExtendedClient, member: Member, channel: VoiceChannel): Promise<void> => {
 
-	await remove(bot, member, channel);
+  await remove(bot, member, channel);
 
 };

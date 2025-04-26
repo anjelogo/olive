@@ -10,7 +10,7 @@ export default class Emoji extends Command {
     super(bot);
 
     this.commands = ["emoji"];
-    this.description = "Copy an emoji and save it in the server"
+    this.description = "Copy an emoji and save it in the server";
     this.example = "emoji copy <emoji>";
     this.options = [
       {
@@ -27,7 +27,7 @@ export default class Emoji extends Command {
           }
         ]
       }
-    ]
+    ];
 
   }
 
@@ -43,7 +43,7 @@ export default class Emoji extends Command {
 
     if (!emojis) return interaction.createFollowup({ content: `${this.bot.constants.emojis.x} Please provide a valid emoji` });
 
-    let createdEmojis = [];
+    const createdEmojis = [];
 
     for (const emoji of emojis) {
       const emojiName = emoji.split(":")[1].replace(">", "");
@@ -73,7 +73,7 @@ export default class Emoji extends Command {
           type: Constants.ComponentTypes.CONTAINER,
           components: [{
             type: Constants.ComponentTypes.TEXT_DISPLAY,
-            content: `# Emojis Created!`,
+            content: "# Emojis Created!",
           }, {
             type: Constants.ComponentTypes.TEXT_DISPLAY,
             content: `# Emojis:\n${createdEmojis.map((e) => `<:${e?.name}:${e?.id}>`).join(", ")}`,

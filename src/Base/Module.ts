@@ -4,7 +4,6 @@ import { Permnodes, Constants } from "../resources/interfaces";
 import { promises as fs } from "fs";
 import ExtendedClient from "./Client";
 import Command from "./Command";
-import { Guild } from "oceanic.js";
 
 export interface moduleDataStructure {
 	version: string;

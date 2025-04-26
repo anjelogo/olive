@@ -1,22 +1,23 @@
-import { CommandInteraction, ComponentInteraction, Constants, ContainerComponent, Embed, EmbedField, Message, MessageActionRow, MessageComponentSelectMenuInteractionData, TextDisplayComponent } from "oceanic.js";
+import { CommandInteraction, ComponentInteraction, Constants, ContainerComponent, Message, MessageActionRow, MessageActionRowComponent, MessageComponentSelectMenuInteractionData, TextDisplayComponent } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import Module from "../../../../Base/Module";
 import ExtendedClient from "../../../../Base/Client";
 import { Permnodes } from "../../../../resources/interfaces";
-import { FollowupMessageInteractionResponse, InitialMessagedInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
+import Main from "../../main";
 
 export default class Help extends Command {
-	
-	constructor(bot: ExtendedClient) {
+  
+  constructor(bot: ExtendedClient) {
 
-		super(bot);
+    super(bot);
 
-		this.commands = ["help"];
-		this.description = "View information about the bot";
-		this.example = "help";
-		this.permissions = ["main.help"];
+    this.commands = ["help"];
+    this.description = "View information about the bot";
+    this.example = "help";
+    this.permissions = ["main.help"];
 
-	}
+  }
 
   private createContainer = (bot: ExtendedClient, interaction: (CommandInteraction | ComponentInteraction), actionRow: MessageActionRow[]) => {
     const container: ContainerComponent = {
@@ -31,7 +32,7 @@ export default class Help extends Command {
         },
         ...actionRow
       ]
-    }
+    };
     return container;
   }
 
@@ -46,31 +47,31 @@ export default class Help extends Command {
     return {
       home: [
         {
-    			type: Constants.ComponentTypes.ACTION_ROW,
-    			components: [
-    				{
-    					type: Constants.ComponentTypes.BUTTON,
-    					style: Constants.ButtonStyles.LINK,
-    					url: "https://discord.gg/DEhvVXdVvv",
-    					label: "Support Server"			
-    				}, {
-    					type: Constants.ComponentTypes.BUTTON,
-    					style: Constants.ButtonStyles.LINK,
-    					url: "https://discord.gg/DEhvVXdVvv",
-    					label: "Website"			
-    				}, {
-    					type: Constants.ComponentTypes.BUTTON,
-    					style: Constants.ButtonStyles.LINK,
-    					url: "https://discord.gg/DEhvVXdVvv",
-    					label: "Donate"			
-    				}, {
-    					type: Constants.ComponentTypes.BUTTON,
-    					style: Constants.ButtonStyles.LINK,
-    					url: this.bot.constants.config.invite.replace("{id}", this.bot.constants.config.applicationID),
-    					label: "Invite"			
-    				}
-    			]
-    		}
+          type: Constants.ComponentTypes.ACTION_ROW,
+          components: [
+            {
+              type: Constants.ComponentTypes.BUTTON,
+              style: Constants.ButtonStyles.LINK,
+              url: "https://discord.gg/DEhvVXdVvv",
+              label: "Support Server"      
+            }, {
+              type: Constants.ComponentTypes.BUTTON,
+              style: Constants.ButtonStyles.LINK,
+              url: "https://discord.gg/DEhvVXdVvv",
+              label: "Website"      
+            }, {
+              type: Constants.ComponentTypes.BUTTON,
+              style: Constants.ButtonStyles.LINK,
+              url: "https://discord.gg/DEhvVXdVvv",
+              label: "Donate"      
+            }, {
+              type: Constants.ComponentTypes.BUTTON,
+              style: Constants.ButtonStyles.LINK,
+              url: this.bot.constants.config.invite.replace("{id}", this.bot.constants.config.applicationID),
+              label: "Invite"      
+            }
+          ]
+        }
       ],
       commands: [
         {
@@ -82,12 +83,12 @@ export default class Help extends Command {
               label: "View Commands",
               customID: `help_${interaction.member?.id}_commandembed`,
             },
-            await this.bot.getModule("Main").hasPerm(interaction.member, "main.permnode.view") && {
+            (await (this.bot.getModule("Main") as Main).hasPerm(interaction.member, "main.permnode.view") && {
               type: Constants.ComponentTypes.BUTTON,
               style: Constants.ButtonStyles.PRIMARY,
               label: "View Permissions",
               customID: `help_${interaction.member?.id}_permissionembed`,
-            }
+            }) as unknown as MessageActionRowComponent
           ]
         }
       ],
@@ -141,10 +142,10 @@ export default class Help extends Command {
         }
       ]
 
-    }
+    };
   };
 
-	readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction>> => {
+  readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction>> => {
     return interaction.createFollowup({
       components: [
         this.createContainer(this.bot, interaction, [
@@ -153,30 +154,30 @@ export default class Help extends Command {
         ])
       ],
       flags: Constants.MessageFlags.IS_COMPONENTS_V2
-    })
+    });
 
-	}
+  }
 
-	readonly update = async (component: ComponentInteraction): Promise<Message | void> => {
+  readonly update = async (component: ComponentInteraction): Promise<Message | void> => {
 
-		switch (component.data.customID.split("_")[2]) {
+    switch (component.data.customID.split("_")[2]) {
 
-		case "commandembed": {
+    case "commandembed": {
 
-			const commands: Command[] = this.bot.commands.filter((c) => !c.devOnly),
+      const commands: Command[] = this.bot.commands.filter((c) => !c.devOnly),
         fields: TextDisplayComponent[] = [];
 
-			for (const command of commands) {
-				const field = fields.find((f) => f.content.includes(command.category));
-				if (field)
-					fields[fields.indexOf(field)].content += `, \`${command.commands[0]}\``;
-				else {
+      for (const command of commands) {
+        const field = fields.find((f) => f.content.includes(command.category));
+        if (field)
+          fields[fields.indexOf(field)].content += `, \`${command.commands[0]}\``;
+        else {
           fields.push({
             type: Constants.ComponentTypes.TEXT_DISPLAY,
             content: `## ${command.category}:\n\`${command.commands[0]}\``
           });
-				}
-			}
+        }
+      }
 
       return component.editOriginal({
         components: [
@@ -185,7 +186,7 @@ export default class Help extends Command {
             components: [
               {
                 type: Constants.ComponentTypes.TEXT_DISPLAY,
-                content: `# List of commands`
+                content: "# List of commands"
               },
               {
                 type: Constants.ComponentTypes.TEXT_DISPLAY,
@@ -209,15 +210,15 @@ export default class Help extends Command {
             ]
           }
         ]
-      })
-		}
+      });
+    }
 
-		case "permissionembed": {
+    case "permissionembed": {
       const fields: TextDisplayComponent[] = [];
 
       fields.push({
         type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: `## Administrator\n\`*\` (All Permissions)`
+        content: "## Administrator\n`*` (All Permissions)"
       });
 
       for (const perm of this.bot.perms) {
@@ -248,7 +249,7 @@ export default class Help extends Command {
             components: [
               {
                 type: Constants.ComponentTypes.TEXT_DISPLAY,
-                content: `# Permission Nodes`
+                content: "# Permission Nodes"
               },
               {
                 type: Constants.ComponentTypes.TEXT_DISPLAY,
@@ -275,10 +276,10 @@ export default class Help extends Command {
             ]
           }
         ]
-      })
-		}
+      });
+    }
 
-		case "commandmenu": {
+    case "commandmenu": {
       const command = this.bot.commands.find((c) => c.commands[0] === (component.data as MessageComponentSelectMenuInteractionData).values.getStrings()[0]);
     
       if (!command)
@@ -336,16 +337,16 @@ export default class Help extends Command {
           }
         ]
       });
-		}
+    }
 
-		case "modulecomponent": {
-			const moduleName = (component.data as MessageComponentSelectMenuInteractionData).values.getStrings()[0],
-				perms = this.bot.perms.filter((p) => p.name.split(/[.\-_]/)[0].toLowerCase() === moduleName.toLowerCase());
+    case "modulecomponent": {
+      const moduleName = (component.data as MessageComponentSelectMenuInteractionData).values.getStrings()[0],
+        perms = this.bot.perms.filter((p) => p.name.split(/[.\-_]/)[0].toLowerCase() === moduleName.toLowerCase());
 
-			return component.editOriginal(
-				{
-					components: [
-						{
+      return component.editOriginal(
+        {
+          components: [
+            {
               type: Constants.ComponentTypes.CONTAINER,
               components: [
                 {
@@ -364,10 +365,10 @@ export default class Help extends Command {
                 ...(await this.actionRow(this.bot, component)).back_from_permission
               ]
             }
-					]
-				}
-			);
-		}
+          ]
+        }
+      );
+    }
 
     case "permissionmenu": {
       const permnode: Permnodes = this.bot.perms.find((p) => p.name === ((component.data as MessageComponentSelectMenuInteractionData).values.getStrings()[0])) as Permnodes;
@@ -403,7 +404,7 @@ export default class Help extends Command {
     }
 
     case "home":
-		case "help": {
+    case "help": {
       return component.editOriginal(
         {
           components: [
@@ -414,6 +415,6 @@ export default class Help extends Command {
           ]
         }
       );
-		}
-	}
-}}
+    }
+    }
+  }}

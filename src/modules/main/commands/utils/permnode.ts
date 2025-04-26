@@ -1,4 +1,4 @@
-import { CommandInteraction, ComponentInteraction, Constants, ContainerComponent, Embed, EmbedField, Guild, Member, Message, MessageActionRow, Role } from "oceanic.js";
+import { CommandInteraction, ComponentInteraction, Constants, ContainerComponent, Guild, Member, Message, MessageActionRow, Role } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import { Entity } from "../../../../resources/interfaces";
@@ -8,217 +8,217 @@ import { moduleData } from "../../main";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class Permnode extends Command {
-	
-	constructor(bot: ExtendedClient) {
+  
+  constructor(bot: ExtendedClient) {
 
-		super(bot);
+    super(bot);
 
-		this.commands = ["permnode", "permnodes", "permissions", "permission", "perms", "perm"];
-		this.description = "Edit Permissions";
-		this.example = "permnode set user abdoul permnode.view true";
-		this.permissions = ["main.permnode.view"];
+    this.commands = ["permnode", "permnodes", "permissions", "permission", "perms", "perm"];
+    this.description = "Edit Permissions";
+    this.example = "permnode set user abdoul permnode.view true";
+    this.permissions = ["main.permnode.view"];
 
-		this.options = [
-			{
-				name: "edit",
-				description: "Edit permissions for a user/role",
-				permissions: ["main.permnode.edit"],
-				type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
-				options: [
-					{
-						name: "entity",
-						description: "The user or role you want to edit",
-						type: Constants.ApplicationCommandOptionTypes.MENTIONABLE,
-						required: true,
-					}, {
-						name: "permission",
-						description: "The permission you want to allow/deny",
-						type: Constants.ApplicationCommandOptionTypes.STRING,
-						required: true,
-					}, {
-						name: "boolean",
-						description: "Allow or deny the permission",
-						type: Constants.ApplicationCommandOptionTypes.BOOLEAN,
-						required: true
-					}
-				]
-			}, {
-				name: "remove",
-				description: "Remove permissions from a user/role",
-				permissions: ["main.permnode.remove"],
-				type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
-				options: [
-					{
-						name: "entity",
-						description: "The user or role you want to edit",
-						type: Constants.ApplicationCommandOptionTypes.MENTIONABLE,
-						required: true,
-					}, {
-						name: "permission",
-						description: "The permission you want to remove",
-						type: Constants.ApplicationCommandOptionTypes.STRING,
-						required: true,
-					}
-				]
-			}, {
-				name: "view",
-				description: "View user/role's permissions",
-				permissions: ["main.permnode.view"],
-				type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
-				options: [
-					{
-						name: "entity",
-						description: "The user or role",
-						type: Constants.ApplicationCommandOptionTypes.MENTIONABLE,
-						required: true,
-					}
-				]
-			}
-		];
-	}
+    this.options = [
+      {
+        name: "edit",
+        description: "Edit permissions for a user/role",
+        permissions: ["main.permnode.edit"],
+        type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
+        options: [
+          {
+            name: "entity",
+            description: "The user or role you want to edit",
+            type: Constants.ApplicationCommandOptionTypes.MENTIONABLE,
+            required: true,
+          }, {
+            name: "permission",
+            description: "The permission you want to allow/deny",
+            type: Constants.ApplicationCommandOptionTypes.STRING,
+            required: true,
+          }, {
+            name: "boolean",
+            description: "Allow or deny the permission",
+            type: Constants.ApplicationCommandOptionTypes.BOOLEAN,
+            required: true
+          }
+        ]
+      }, {
+        name: "remove",
+        description: "Remove permissions from a user/role",
+        permissions: ["main.permnode.remove"],
+        type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
+        options: [
+          {
+            name: "entity",
+            description: "The user or role you want to edit",
+            type: Constants.ApplicationCommandOptionTypes.MENTIONABLE,
+            required: true,
+          }, {
+            name: "permission",
+            description: "The permission you want to remove",
+            type: Constants.ApplicationCommandOptionTypes.STRING,
+            required: true,
+          }
+        ]
+      }, {
+        name: "view",
+        description: "View user/role's permissions",
+        permissions: ["main.permnode.view"],
+        type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
+        options: [
+          {
+            name: "entity",
+            description: "The user or role",
+            type: Constants.ApplicationCommandOptionTypes.MENTIONABLE,
+            required: true,
+          }
+        ]
+      }
+    ];
+  }
 
-	readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
-		const guild = this.bot.findGuild(interaction.guildID) as Guild,
-			data: moduleData = (await this.bot.getModuleData("Main", guild.id) as unknown) as moduleData,
-			permissions: Permissions[] = data.permissions,
-			subcommand = interaction.data.options.getSubCommand(true)[0];
+  readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
+    const guild = this.bot.findGuild(interaction.guildID) as Guild,
+      data: moduleData = (await this.bot.getModuleData("Main", guild.id) as unknown) as moduleData,
+      permissions: Permissions[] = data.permissions,
+      subcommand = interaction.data.options.getSubCommand(true)[0];
 
-		switch (subcommand) {
-		case "edit": {
-			// UNTESTED - MIGHT NOT WORK
-			// if doesnt work, possible fix: use interaction.data.options.getString("entity", true) instead of interaction.data.resolved.members.map((m) => m.id)[0] || interaction.data.resolved.roles.map((r) => r.id)[0]
-			const entity: Entity | undefined = this.bot.findEntity(guild, interaction.data.resolved.members.map((m) => m.id)[0] || interaction.data.resolved.roles.map((r) => r.id)[0]);
-			
-			if (!entity) return interaction.createFollowup({content: "I could not find that entity!"});
-			const permnode = this.bot.perms.find((perm) => perm.name === interaction.data.options.getString("permission", true));
-			if (!permnode) return interaction.createFollowup({content: "I could not find that permnode!"});
+    switch (subcommand) {
+    case "edit": {
+      // UNTESTED - MIGHT NOT WORK
+      // if doesnt work, possible fix: use interaction.data.options.getString("entity", true) instead of interaction.data.resolved.members.map((m) => m.id)[0] || interaction.data.resolved.roles.map((r) => r.id)[0]
+      const entity: Entity | undefined = this.bot.findEntity(guild, interaction.data.resolved.members.map((m) => m.id)[0] || interaction.data.resolved.roles.map((r) => r.id)[0]);
+      
+      if (!entity) return interaction.createFollowup({content: "I could not find that entity!"});
+      const permnode = this.bot.perms.find((perm) => perm.name === interaction.data.options.getString("permission", true));
+      if (!permnode) return interaction.createFollowup({content: "I could not find that permnode!"});
 
-			const value = interaction.data.options.getBoolean("boolean", true);
+      const value = interaction.data.options.getBoolean("boolean", true);
 
-			switch (entity.type) {
+      switch (entity.type) {
 
-			case "member": {
-				if (!entity.member) return interaction.createFollowup({content: `${this.bot.constants.emojis.warning.red} An error occured.`});
-				const member = entity.member as Member;
+      case "member": {
+        if (!entity.member) return interaction.createFollowup({content: `${this.bot.constants.emojis.warning.red} An error occured.`});
+        const member = entity.member as Member;
 
-				const userData: Permissions | undefined = (permissions.find((p: Permissions) => p.userID === member.id));
-				if (!userData) {
-					const newPerm: Permissions = {
-						userID: member.id,
-						permissions: [{ permission: permnode.name, value }]
-					};
-					permissions.push(newPerm);
-				} else {
-					const perms = userData.permissions;
+        const userData: Permissions | undefined = (permissions.find((p: Permissions) => p.userID === member.id));
+        if (!userData) {
+          const newPerm: Permissions = {
+            userID: member.id,
+            permissions: [{ permission: permnode.name, value }]
+          };
+          permissions.push(newPerm);
+        } else {
+          const perms = userData.permissions;
 
-					if (perms.filter((p) => p.permission === permnode.name && p.value === value).length)
-						return interaction.createFollowup({content: `User \`${member.username}\` already has \`${permnode.name}\` set as \`${value}\``});
+          if (perms.filter((p) => p.permission === permnode.name && p.value === value).length)
+            return interaction.createFollowup({content: `User \`${member.username}\` already has \`${permnode.name}\` set as \`${value}\``});
 
-					perms.push({ permission: permnode.name, value });
-				}
+          perms.push({ permission: permnode.name, value });
+        }
 
-				data.permissions = permissions;
-				await this.bot.updateModuleData("Main", data, guild);
-				
-				return interaction.createFollowup({content: `${this.bot.constants.emojis.tick} Successfully applied change(s) to user \`${member.username}\`:\n\n+ \`${permnode.name} (${value.toString()})\``});
-			}
+        data.permissions = permissions;
+        await this.bot.updateModuleData("Main", data, guild);
+        
+        return interaction.createFollowup({content: `${this.bot.constants.emojis.tick} Successfully applied change(s) to user \`${member.username}\`:\n\n+ \`${permnode.name} (${value.toString()})\``});
+      }
 
-			case "role": {
-				if (!entity.role) return interaction.createFollowup({content: `${this.bot.constants.emojis.warning.red} An error occured.`});
-				const role = entity.role as Role;
+      case "role": {
+        if (!entity.role) return interaction.createFollowup({content: `${this.bot.constants.emojis.warning.red} An error occured.`});
+        const role = entity.role as Role;
 
-				const roleData: Permissions | undefined = (permissions.find((p: Permissions) => p.roleID === role.id));
-				if (!roleData) {
-					const newPerm: Permissions = {
-						roleID: role.id,
-						permissions: [{ permission: permnode.name, value }]
-					};
-					permissions.push(newPerm);
-				} else {
-					const perms = roleData.permissions;
+        const roleData: Permissions | undefined = (permissions.find((p: Permissions) => p.roleID === role.id));
+        if (!roleData) {
+          const newPerm: Permissions = {
+            roleID: role.id,
+            permissions: [{ permission: permnode.name, value }]
+          };
+          permissions.push(newPerm);
+        } else {
+          const perms = roleData.permissions;
 
-					if (perms.filter((p) => p.permission === permnode.name && p.value === value).length)
-						return interaction.createFollowup({content: `Role \`${role.name}\` already has \`${permnode.name}\` set as \`${value}\``});
+          if (perms.filter((p) => p.permission === permnode.name && p.value === value).length)
+            return interaction.createFollowup({content: `Role \`${role.name}\` already has \`${permnode.name}\` set as \`${value}\``});
 
-					perms.push({ permission: permnode.name, value });
-				}
+          perms.push({ permission: permnode.name, value });
+        }
 
-				data.permissions = permissions;
-				await this.bot.updateModuleData("Main", data, guild);
-				
-				return interaction.createFollowup({content: `${this.bot.constants.emojis.tick} Successfully applied change(s) to role \`${role.name}\`:\n\n+ \`${permnode.name} (${value.toString()})\``});
-			}
+        data.permissions = permissions;
+        await this.bot.updateModuleData("Main", data, guild);
+        
+        return interaction.createFollowup({content: `${this.bot.constants.emojis.tick} Successfully applied change(s) to role \`${role.name}\`:\n\n+ \`${permnode.name} (${value.toString()})\``});
+      }
 
-			}
-
-
-			break;
-		}
+      }
 
 
-		case "remove": {
-			const entity: Entity | undefined = this.bot.findEntity(guild, interaction.data.resolved.members.map((m) => m.id)[0] || interaction.data.resolved.roles.map((r) => r.id)[0]);
-			
-			if (!entity) return interaction.createFollowup({content: "I could not find that entity!"});
-			const permnode = this.bot.perms.find((perm) => perm.name === interaction.data.options.getString("permission", true));
-			if (!permnode) return interaction.createFollowup({content: "I could not find that permnode!"});
-
-			switch (entity.type) {
-
-			case "member": {
-				if (!entity.member) return interaction.createFollowup({content: `${this.bot.constants.emojis.warning.red} An error occured.`});
-				const member = entity.member as Member;
-
-				const userData: Permissions | undefined = (permissions.find((p: Permissions) => p.userID === member.id));
-				if (!userData) {
-					return interaction.createFollowup({content: `That user does not have the permission \`${permnode.name}\`!`});
-				} else {
-					const perms = userData.permissions;
-
-					if (!perms.find((p) => p.permission === permnode.name))
-						return interaction.createFollowup({content: `That user does not have the permission \`${permnode.name}\`!`});
-
-					perms.splice(perms.findIndex((p) => p.permission === permnode.name), 1);
-				}
-
-				data.permissions = permissions;
-				await this.bot.updateModuleData("Main", data, guild);
-				return interaction.createFollowup({content: `${this.bot.constants.emojis.tick} Successfully applied change(s) to user \`${member.username}\`:\n\n- \`${permnode.name}\``});
-			}
-
-			case "role": {
-				if (!entity.role) return interaction.createFollowup({content: `${this.bot.constants.emojis.warning.red} An error occured.`});
-				const role = entity.role as Role;
-
-				const roleData: Permissions | undefined = (permissions.find((p: Permissions) => p.roleID === role.id));
-				if (!roleData) {
-					return interaction.createFollowup({content: `That role does not have the permission \`${permnode.name}\`!`});
-				} else {
-					const perms = roleData.permissions;
-
-					if (!perms.find((p) => p.permission === permnode.name))
-						return interaction.createFollowup({content: `That role does not have the permission \`${permnode.name}\`!`});
-
-					perms.splice(perms.findIndex((p) => p.permission === permnode.name), 1);
-				}
-
-				data.permissions = permissions;
-				await this.bot.updateModuleData("Main", data, guild);
-				return interaction.createFollowup({content: `${this.bot.constants.emojis.tick} Successfully applied change(s) to role \`${role.name}\`:\n\n- \`${permnode.name}\``});
-			}
-
-			}
+      break;
+    }
 
 
-			break;
-		}
+    case "remove": {
+      const entity: Entity | undefined = this.bot.findEntity(guild, interaction.data.resolved.members.map((m) => m.id)[0] || interaction.data.resolved.roles.map((r) => r.id)[0]);
+      
+      if (!entity) return interaction.createFollowup({content: "I could not find that entity!"});
+      const permnode = this.bot.perms.find((perm) => perm.name === interaction.data.options.getString("permission", true));
+      if (!permnode) return interaction.createFollowup({content: "I could not find that permnode!"});
 
-		case "view": {
-			const entity: Entity | undefined = this.bot.findEntity(guild, interaction.data.resolved.members.map((m) => m.id)[0] || interaction.data.resolved.roles.map((r) => r.id)[0]);
-			
-			if (!entity) return interaction.createFollowup({content: "I could not find that entity!"});
+      switch (entity.type) {
 
-			switch (entity.type) {
+      case "member": {
+        if (!entity.member) return interaction.createFollowup({content: `${this.bot.constants.emojis.warning.red} An error occured.`});
+        const member = entity.member as Member;
+
+        const userData: Permissions | undefined = (permissions.find((p: Permissions) => p.userID === member.id));
+        if (!userData) {
+          return interaction.createFollowup({content: `That user does not have the permission \`${permnode.name}\`!`});
+        } else {
+          const perms = userData.permissions;
+
+          if (!perms.find((p) => p.permission === permnode.name))
+            return interaction.createFollowup({content: `That user does not have the permission \`${permnode.name}\`!`});
+
+          perms.splice(perms.findIndex((p) => p.permission === permnode.name), 1);
+        }
+
+        data.permissions = permissions;
+        await this.bot.updateModuleData("Main", data, guild);
+        return interaction.createFollowup({content: `${this.bot.constants.emojis.tick} Successfully applied change(s) to user \`${member.username}\`:\n\n- \`${permnode.name}\``});
+      }
+
+      case "role": {
+        if (!entity.role) return interaction.createFollowup({content: `${this.bot.constants.emojis.warning.red} An error occured.`});
+        const role = entity.role as Role;
+
+        const roleData: Permissions | undefined = (permissions.find((p: Permissions) => p.roleID === role.id));
+        if (!roleData) {
+          return interaction.createFollowup({content: `That role does not have the permission \`${permnode.name}\`!`});
+        } else {
+          const perms = roleData.permissions;
+
+          if (!perms.find((p) => p.permission === permnode.name))
+            return interaction.createFollowup({content: `That role does not have the permission \`${permnode.name}\`!`});
+
+          perms.splice(perms.findIndex((p) => p.permission === permnode.name), 1);
+        }
+
+        data.permissions = permissions;
+        await this.bot.updateModuleData("Main", data, guild);
+        return interaction.createFollowup({content: `${this.bot.constants.emojis.tick} Successfully applied change(s) to role \`${role.name}\`:\n\n- \`${permnode.name}\``});
+      }
+
+      }
+
+
+      break;
+    }
+
+    case "view": {
+      const entity: Entity | undefined = this.bot.findEntity(guild, interaction.data.resolved.members.map((m) => m.id)[0] || interaction.data.resolved.roles.map((r) => r.id)[0]);
+      
+      if (!entity) return interaction.createFollowup({content: "I could not find that entity!"});
+
+      switch (entity.type) {
 
       case "member": {
         if (!entity.member) return interaction.createFollowup({content: `${this.bot.constants.emojis.warning.red} An error occurred.`});
@@ -326,7 +326,7 @@ export default class Permnode extends Command {
         );
       }
 
-			case "role": {
+      case "role": {
         if (!entity.role) return interaction.createFollowup({content: `${this.bot.constants.emojis.warning.red} An error occurred.`});
         const role = entity.role as Role;
         
@@ -356,21 +356,21 @@ export default class Permnode extends Command {
           components: [container],
           flags: Constants.MessageFlags.IS_COMPONENTS_V2
         });
-				}
-			}
-			break;
-		}
+      }
+      }
+      break;
+    }
 
-		}
-	}
+    }
+  }
 
-	readonly update = async (component: ComponentInteraction): Promise<Message | void> => {
+  readonly update = async (component: ComponentInteraction): Promise<Message | void> => {
 
-		const data = getCustomData(this.bot, component.message.interaction?.id as string)?.data as { entity: string, page: number; roles: any[] },
-			guild = this.bot.findGuild(component.guildID) as Guild,
-			member = this.bot.findMember(guild, data.entity) as Member,
-			moduleData: moduleData = (await this.bot.getModuleData("Main", guild.id) as unknown) as moduleData,
-			permissions: Permissions[] = moduleData.permissions;
+    const data = getCustomData(this.bot, component.message.interactionMetadata?.id as string)?.data as { entity: string, page: number; roles: { name: string; id: string }[] },
+      guild = this.bot.findGuild(component.guildID) as Guild,
+      member = this.bot.findMember(guild, data.entity) as Member,
+      moduleData: moduleData = (await this.bot.getModuleData("Main", guild.id) as unknown) as moduleData,
+      permissions: Permissions[] = moduleData.permissions;
 
     async function constructEmbed(bot: ExtendedClient, interaction: (ComponentInteraction | CommandInteraction), id: string) {
       const role: Role = bot.findRole(guild, id) as Role,
@@ -458,7 +458,7 @@ export default class Permnode extends Command {
         container,
         components
       };
-		}
+    }
 
     switch(component.data.customID.split("_")[2]) {
 
@@ -502,25 +502,25 @@ export default class Permnode extends Command {
     case "viewmemberdefined": {
       data.page = 0;
 
-      (component as any).data.options = [
-        {
-          name: "view",
-          type: 1,
-          options: [
-            {
-              name: "entity",
-              type: 9,
-              value: member.id
-            }
-          ]
-        }
-      ];
-      this.execute(component as unknown as CommandInteraction);
+      const interactionData = {
+        name: "view",
+        type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
+        options: [
+          {
+            name: "entity",
+            type: Constants.ApplicationCommandOptionTypes.STRING,
+            value: member.id
+          }
+        ]
+      };
+      
+      const mockInteraction = Object.assign({}, component, { data: interactionData });
+      this.execute(mockInteraction as unknown as CommandInteraction);
       return;
     }
 
     }
 
-	}
+  }
 
 }

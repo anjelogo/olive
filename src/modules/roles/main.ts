@@ -3,73 +3,73 @@ import Module, { moduleDataStructure } from "../../Base/Module";
 import ExtendedClient from "../../Base/Client";
 
 export interface SavedRolesStructure {
-	userID: string;
-	roles: string[];
+  userID: string;
+  roles: string[];
 }
 
 export interface RolesMessage {
-	id: string;
-	channelID: string;
-	roles: {
-		role: string;
-		emote: PartialEmoji;
-	}[];
+  id: string;
+  channelID: string;
+  roles: {
+    role: string;
+    emote: PartialEmoji;
+  }[];
 }
 
 export interface moduleData extends moduleDataStructure {
-	roles: string[];
-	autoRoles: string[];
-	messages: RolesMessage[];
-	savedRoles: {
-		enabled: boolean;
-		roles: SavedRolesStructure[];
-	};
+  roles: string[];
+  autoRoles: string[];
+  messages: RolesMessage[];
+  savedRoles: {
+    enabled: boolean;
+    roles: SavedRolesStructure[];
+  };
 }
 
 export default class Roles extends Module {
 
-	readonly name: string;
-	readonly version: string;
-	readonly path: string;
-	readonly db: boolean;
+  readonly name: string;
+  readonly version: string;
+  readonly path: string;
+  readonly db: boolean;
 
-	constructor(bot: ExtendedClient) {
-		super(bot);
+  constructor(bot: ExtendedClient) {
+    super(bot);
 
-		this.name = "Roles";
-		this.version = "1.1";
-		this.path = "modules/roles";
-		this.db = true;
+    this.name = "Roles";
+    this.version = "1.1";
+    this.path = "modules/roles";
+    this.db = true;
 
-	}
+  }
 
-	public run = async (): Promise<void> => {
-		await this.load();
-	}
+  public run = async (): Promise<void> => {
+    await this.load();
+  }
 
-	readonly getReactionMessage = async (id: string, guild: string | Guild): Promise<RolesMessage | undefined> => {
-		if (!id || !guild) return;
+  readonly getReactionMessage = async (id: string, guild: string | Guild): Promise<RolesMessage | undefined> => {
+    if (!id || !guild) return;
 
-		if (typeof guild === "string") guild = this.bot.findGuild(guild) as Guild;
+    if (typeof guild === "string") guild = this.bot.findGuild(guild) as Guild;
 
-		const data: moduleData = await this.data(guild.id) as moduleData,
-			messages = data.messages;
+    const data: moduleData = await this.data(guild.id) as moduleData,
+      messages = data.messages;
 
-		if (!messages.length) return;
+    if (!messages.length) return;
 
-		return messages.find((m) => m.id === id);
-	}
+    return messages.find((m) => m.id === id);
+  }
 
-	readonly moduleData = {
-		version: this.version,
-		guildID: "",
-		roles: [],
-		autoRoles: [],
-		messages: [],
-		savedRoles: {
-			enabled: false,
-			roles: []
-		}
-	}
+  readonly moduleData = {
+    version: this.version,
+    guildID: "",
+    roles: [],
+    autoRoles: [],
+    messages: [],
+    savedRoles: {
+      enabled: false,
+      roles: []
+    }
+  }
 
 }

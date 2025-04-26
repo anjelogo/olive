@@ -99,7 +99,7 @@ export default class ExtendedClient extends Olive {
 		return (obj.type === "undefined") ? undefined : obj;
 	}
 
-	readonly getModule = (name: string): Module | any => {
+	readonly getModule = (name: string): Module => {
 		const Module = this.modules.find((m: Module) => m.name === name);
 
 		return Module;
@@ -117,7 +117,7 @@ export default class ExtendedClient extends Olive {
 		return await this.db.get(name).find({});
 	}
 
-	readonly updateModuleData = async (name: string, data: any, guild: string | Guild): Promise<unknown> => {
+	readonly updateModuleData = async (name: string, data: unknown, guild: string | Guild): Promise<unknown> => {
 		const Module: Module = this.getModule(name);
 
 		if (typeof guild === "string") guild = this.findGuild(guild) as Guild;

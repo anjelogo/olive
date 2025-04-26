@@ -31,35 +31,35 @@ export interface moduleData extends moduleDataStructure {
 
 export default class Moderation extends Module {
 
-	readonly name: string;
-	readonly version: string;
-	readonly path: string;
-	readonly db: boolean;
+  readonly name: string;
+  readonly version: string;
+  readonly path: string;
+  readonly db: boolean;
 
-	constructor (bot: ExtendedClient) {
-		super(bot);
+  constructor (bot: ExtendedClient) {
+    super(bot);
 
-		this.name = "Moderation";
-		this.version = "1.1";
-		this.path = "modules/moderation";
-		this.db = true;
+    this.name = "Moderation";
+    this.version = "1.1";
+    this.path = "modules/moderation";
+    this.db = true;
 
-	}
+  }
 
-	public run = async (): Promise<void> => {
-		await this.load();
-	}
+  public run = async (): Promise<void> => {
+    await this.load();
+  }
 
-	readonly moduleData: moduleData = {
-		version: this.version,
-		guildID: "",
-		cases: [],
-		settings: {
-			caseLimit: 100,
-			infractionUntilBan: 9,
-			infractionUntilKick: 5,
-			infractionUntilTimeout: 3
-		}
-	}
+  readonly moduleData: moduleData = {
+    version: this.version,
+    guildID: "",
+    cases: [],
+    settings: {
+      caseLimit: 100,
+      infractionUntilBan: 9,
+      infractionUntilKick: 5,
+      infractionUntilTimeout: 3
+    }
+  }
 
 }
