@@ -1,4 +1,4 @@
-import { CommandInteraction, Constants } from "oceanic.js";
+import { CommandInteraction, Constants, InteractionOptionsWrapper } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import Reactionrole from "./reactionrole";
@@ -15,25 +15,27 @@ export default class ReactionroleContext extends Command {
   }
 
   public execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
-
     const message = interaction.data.resolved.messages.first();
-
     if (!message) return interaction.createFollowup({content: "Message not found", flags: Constants.MessageFlags.EPHEMERAL});
 
-    const interactionData = {
-      type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
-      name: "modify",
-      options: [
+    interaction.data.options = new InteractionOptionsWrapper(
+      [
         {
-          type: Constants.ApplicationCommandOptionTypes.STRING,
-          name: "messageid",
-          value: message.id
+          type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
+          name: "modify",
+          options: [
+            {
+              type: Constants.ApplicationCommandOptionTypes.STRING,
+              name: "messageid",
+              value: message.id
+            }
+          ]
         }
-      ]
-    };
+      ],
+      interaction.data.options.resolved
+    );
 
-    const mockInteraction = Object.assign({}, interaction, { data: interactionData });
-    await new Reactionrole(this.bot).execute(mockInteraction as unknown as CommandInteraction);
+    await new Reactionrole(this.bot).execute(interaction as unknown as CommandInteraction);
     return;
   }
 }

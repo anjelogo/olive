@@ -1,4 +1,4 @@
-import { CommandInteraction, Constants } from "oceanic.js";
+import { CommandInteraction, Constants, InteractionOptionsWrapper } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import History from "./history";
@@ -16,24 +16,27 @@ export default class HistoryContext extends Command {
   }
 
   public execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
-
     const member = interaction.data.resolved.members.first();
     if (!member) return interaction.createFollowup({content: "Member not found"});
 
-    const interactionData = {
-      name: "view",
-      type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
-      options: [
+    interaction.data.options = new InteractionOptionsWrapper(
+      [
         {
-          name: "user",
-          type: Constants.ApplicationCommandOptionTypes.USER,
-          value: member.user.id,
+          type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
+          name: "view",
+          options: [
+            {
+              type: Constants.ApplicationCommandOptionTypes.MENTIONABLE,
+              name: "user",
+              value: member.id
+            }
+          ]
         }
-      ]
-    };
+      ],
+      interaction.data.options.resolved
+    );
 
-    const mockInteraction = Object.assign({}, interaction, { data: interactionData });
-    await new History(this.bot).execute(mockInteraction as CommandInteraction);
+    await new History(this.bot).execute(interaction);
     return;
   }
 }

@@ -1,4 +1,4 @@
-import { CommandInteraction, Constants } from "oceanic.js";
+import { CommandInteraction, Constants, InteractionOptionsWrapper } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import Voicechannel from "./voicechannel";
@@ -16,19 +16,11 @@ export default class VoicechannelContext extends Command {
   }
 
   public execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
+    const member = interaction.data.resolved.members.first();
+    if (!member) return await interaction.createFollowup({content: "Member not found"});
 
-    const member = interaction.data.options.resolved?.members.first();
-
-    if (!member)
-      return interaction.createFollowup({
-        content: "User not found.",
-        flags: Constants.MessageFlags.EPHEMERAL
-      });
-
-    const interactionData = {
-      type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND_GROUP,
-      name: "set",
-      options: [
+    interaction.data.options = new InteractionOptionsWrapper(
+      [
         {
           type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
           name: "owner",
@@ -40,11 +32,11 @@ export default class VoicechannelContext extends Command {
             }
           ]
         }
-      ]
-    };
+      ],
+      interaction.data.options.resolved
+    );
 
-    const mockInteraction = Object.assign({}, interaction, { data: interactionData });
-    await new Voicechannel(this.bot).execute(mockInteraction as CommandInteraction);
+    await new Voicechannel(this.bot).execute(interaction);
     return;
   }
 }

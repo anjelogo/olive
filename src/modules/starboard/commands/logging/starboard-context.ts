@@ -1,4 +1,4 @@
-import { CommandInteraction, Constants } from "oceanic.js";
+import { CommandInteraction, Constants, InteractionOptionsWrapper } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import Starboard from "./starboard";
@@ -15,28 +15,26 @@ export default class StarboardContext extends Command {
   }
 
   public execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
+    const member = interaction.data.resolved.members.first();
+    if (!member) return await interaction.createFollowup({content: "Member not found"});
 
-    const member = interaction.data.options.resolved?.members.first();
-
-    if (!member)
-      return interaction.createFollowup({
-        content: "User not found.",
-        flags: Constants.MessageFlags.EPHEMERAL
-      });
-
-    const interactionData = {
-      type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND_GROUP,
-      name: "view",
-      options: [
+    interaction.data.options = new InteractionOptionsWrapper(
+      [
         {
-          type: Constants.ApplicationCommandOptionTypes.STRING,
-          name: "user",
-          value: member.id
+          type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
+          name: "view",
+          options: [
+            {
+              type: Constants.ApplicationCommandOptionTypes.MENTIONABLE,
+              name: "user",
+              value: member.id
+            }
+          ]
         }
-      ]
-    };
+      ],
+      interaction.data.options.resolved
+    );
 
-    const mockInteraction = Object.assign({}, interaction, { data: interactionData });
-    return await new Starboard(this.bot).execute(mockInteraction as unknown as CommandInteraction);
+    return await new Starboard(this.bot).execute(interaction);
   }
 }
