@@ -26,7 +26,7 @@ export default class PermnodeContext extends Command {
       name: "view",
       options: [
         {
-          type: Constants.ApplicationCommandOptionTypes.STRING,
+          type: Constants.ApplicationCommandOptionTypes.USER,
           name: "entity",
           value: member.id
         }
@@ -37,12 +37,38 @@ export default class PermnodeContext extends Command {
     const mockInteraction = Object.assign({}, interaction, {
       data: {
         ...interactionData,
+        resolved: {
+          users: {
+            [member.id]: {
+              id: member.user.id,
+              username: member.user.username,
+              discriminator: member.user.discriminator,
+              avatar: member.user.avatar,
+              bot: member.user.bot ?? false,
+              system: member.user.system ?? false,
+              publicFlags: member.user.publicFlags ?? 0,
+            },
+          },
+          members: {
+            [member.id]: {
+              id: member.id,
+              roles: member.roles,
+              nick: member.nick,
+              avatar: member.avatar,
+              joinedAt: member.joinedAt,
+              premiumSince: member.premiumSince,
+              communicationDisabledUntil: member.communicationDisabledUntil,
+            },
+          },
+        },
+        targetID: member.id,
         options: {
-          getSubCommand: () => "view", // Mimic the expected method
-          raw: interactionData.options // Provide raw options if needed
-        }
-      }
+          getSubCommand: () => "view",
+          raw: interactionData.options,
+        },
+      },
     });
+    
     await new Permnode(this.bot).execute(mockInteraction as CommandInteraction);
     return;
   }

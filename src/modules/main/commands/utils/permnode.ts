@@ -325,7 +325,6 @@ export default class Permnode extends Command {
           },
         );
       }
-
       case "role": {
         if (!entity.role) return interaction.createFollowup({content: `${this.bot.constants.emojis.warning.red} An error occurred.`});
         const role = entity.role as Role;
@@ -355,6 +354,12 @@ export default class Permnode extends Command {
         return interaction.createFollowup({
           components: [container],
           flags: Constants.MessageFlags.IS_COMPONENTS_V2
+        });
+      }
+      default: {
+        console.log(interaction);
+        return interaction.createFollowup({
+          content: `${this.bot.constants.emojis.warning.red} This command is not available for this entity type.`,
         });
       }
       }
@@ -513,7 +518,7 @@ export default class Permnode extends Command {
           }
         ]
       };
-      
+
       const mockInteraction = Object.assign({}, component, { data: interactionData });
       this.execute(mockInteraction as unknown as CommandInteraction);
       return;
