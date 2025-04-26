@@ -34,7 +34,15 @@ export default class PermnodeContext extends Command {
       getSubCommand: () => "view"
     };
 
-    const mockInteraction = Object.assign({}, interaction, { data: interactionData });
+    const mockInteraction = Object.assign({}, interaction, {
+      data: {
+        ...interactionData,
+        options: {
+          getSubCommand: () => "view", // Mimic the expected method
+          raw: interactionData.options // Provide raw options if needed
+        }
+      }
+    });
     await new Permnode(this.bot).execute(mockInteraction as CommandInteraction);
     return;
   }
