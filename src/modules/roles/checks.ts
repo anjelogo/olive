@@ -99,11 +99,15 @@ export default class Checks {
           continue;
         }
 
+        // VV NEEDS TO BE FIXED VV
+        // only checks cached messages, so if the bot is restarted, it will not find the message
+
         //Reaction Roles
         if (guildData.messages.length) {
 
           for (const msgData of guildData.messages) {
-            const msg = this.bot.findMessage(this.bot.getChannel(msgData.channelID) as TextChannel, msgData.id) as Message;
+            const channel: TextChannel = this.bot.findChannel(guild, msgData.channelID) as TextChannel,
+              msg: Message = await channel.getMessage(msgData.id) as Message;
 
             if (!msg || (msg && !msgData.roles.length)) {
               promises.push(await deleteMessage(this, guildData, msgData.id));

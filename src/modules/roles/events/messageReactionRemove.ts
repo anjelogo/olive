@@ -1,22 +1,27 @@
-import { Guild, Member, PartialEmoji, PossiblyUncachedMessage, PrivateChannel, Role, Uncached, User } from "oceanic.js";
+import { Constants, EventReaction, Guild, Member, PossiblyUncachedMessage, PrivateChannel, Role, Uncached, User } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
 import Main from "../../main/main";
 import Roles, { RolesMessage } from "../main";
 
-export const run = async (bot: ExtendedClient, msg: PossiblyUncachedMessage, reactor: Uncached | Member | User, emoji: PartialEmoji): Promise<void> => {
-  if (!msg || !emoji || !reactor || !msg.guildID || !msg.id) return;
+export const run = async (bot: ExtendedClient, msg: PossiblyUncachedMessage, reactor: User | Member | Uncached, emoji: EventReaction): Promise<void> => {
+  console.log("Reaction removed", msg, reactor, emoji);
+  
+  if (!msg || !emoji || !reactor) return;
+  
+  const channel = bot.getChannel(msg.channelID);
+  if (!channel || channel.type !== Constants.ChannelTypes.GUILD_TEXT) return;
 
-  const guild: Guild = bot.findGuild(msg.guildID) as Guild,
+  const guild: Guild = bot.findGuild(channel.guildID) as Guild,
     rolesModule = bot.getModule("Roles") as Roles,
     mainModule = bot.getModule("Main") as Main,
-    msgData: RolesMessage = await rolesModule.getReactionMessage(msg.id, msg.guildID) as RolesMessage,
+    msgData: RolesMessage = await rolesModule.getReactionMessage(msg.id, guild.id) as RolesMessage,
     member = guild.members.get(reactor.id);
 
   if (!member || !msgData || member.bot) return;
 
   if (!await mainModule.handlePermission(member, "roles.reaction.interact")) return;
 
-  const emote = emoji.id,
+  const emote = emoji.emoji.id,
     rData = msgData.roles.find((r) => r.emote.id === emote);
   
   if (rData) {

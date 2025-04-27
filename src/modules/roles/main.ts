@@ -55,6 +55,8 @@ export default class Roles extends Module {
     const data: moduleData = await this.data(guild.id) as moduleData,
       messages = data.messages;
 
+    console.log("Messages", messages);
+
     if (!messages.length) return;
 
     return messages.find((m) => m.id === id);

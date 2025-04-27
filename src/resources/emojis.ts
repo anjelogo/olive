@@ -1,21 +1,21 @@
 export default {
-  tick: "<:tick:755157442970648576>",
-  x: "<:no:755158099622494298>",
+  tick: "<:tick:1365657365340225657>",
+  x: "<:no:1365657354175119420>",
   warning: {
-    yellow:  "<:warning_yellow:755157694247338025>",
-    red: "<:warning_red:755157775536881697>"
+    yellow:  "<:warning_yellow:1365657369635328101>",
+    red: "<:warning_red:1365657367957737472>"
   },
-  online: "<:online:758231502537359390>",
-  idle: "<:idle:758231657861087243>",
-  dnd: "<:dnd:758231739670986752>",
+  online: "<:online:1365657361976528976>",
+  idle: "<:idle:1365657352635678811>",
+  dnd: "<:dnd:1365657345459228872>",
   offline: "<:offline:758231600495460352>",
-  patreon: "<:patreon:759687760033480755>",
-  developer: "<:developer:758233244389998602>",
+  patreon: "<:patreon:1365657363792789564>",
+  developer: "<:developer:1365657341332291625>",
   verified: "<:verified:777729006283390977>",
   friend: {
-    accepted: "<:friend:758233853374234624>",
-    pending: "<:friendpending:762850540400541708>",
-    requested: "<:friendrequest:762850356870250536>"
+    accepted: "<:friend:1365657347044671552>",
+    pending: "<:friendpending:1365657349544742973>",
+    requested: "<:friendrequest:1365657351108952124>"
   },
   on: "<:on:765449749519532052>",
   off: "<:off:765449781673721876>",

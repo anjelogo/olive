@@ -35,7 +35,7 @@ export default class ReactionroleContext extends Command {
       interaction.data.options.resolved
     );
 
-    await new Reactionrole(this.bot).execute(interaction as unknown as CommandInteraction);
+    await new Reactionrole(this.bot).execute(interaction);
     return;
   }
 }

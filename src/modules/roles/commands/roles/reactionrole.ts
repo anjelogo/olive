@@ -1,4 +1,4 @@
-import { MessageActionRow, CommandInteraction, ComponentInteraction, Constants, Embed, Guild, Member, Message, Role, TextChannel, MessageComponentSelectMenuInteractionData, SelectOption, PartialEmoji } from "oceanic.js";
+import { MessageActionRow, CommandInteraction, ComponentInteraction, Constants, Guild, Member, Message, Role, TextChannel, MessageComponentSelectMenuInteractionData, SelectOption, PartialEmoji, ContainerComponent } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import { upsertCustomData, getCustomData } from "../../../main/internals/CustomDataHandler";
@@ -27,7 +27,7 @@ export default class Reactionrole extends Command {
 
     this.commands = ["reactionrole"];
     this.description = "Create/edit reactionroles";
-    this.example = "reactionrole create 867761105245831188";
+    this.example = "reactionrole modify 867761105245831188";
     this.options = [
       {
         type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
@@ -48,8 +48,9 @@ export default class Reactionrole extends Command {
   }
 
   private roles = async (bot: ExtendedClient, interaction: (CommandInteraction | ComponentInteraction)): Promise<Role[]> => {
-
-    const customData = await getCustomData(bot, (interaction as CommandInteraction).id)?.data as CustomDataStructure,
+    const interactionID = interaction instanceof CommandInteraction ? interaction.id : interaction.message.interactionMetadata?.id;
+    if (!interactionID) throw new Error("Interaction ID is undefined");
+    const customData = getCustomData(bot, interactionID)?.data as CustomDataStructure,
       guild = bot.findGuild(interaction.guildID) as Guild,
       member = interaction.member as Member,
       botMember = this.bot.findMember(guild, this.bot.user.id) as Member,
@@ -93,7 +94,33 @@ export default class Reactionrole extends Command {
     return [...new Set(roles)];
   }
 
-  private components = async (bot: ExtendedClient, interaction: (CommandInteraction | ComponentInteraction)):
+  private createContainer = (bot: ExtendedClient, interaction: (CommandInteraction | ComponentInteraction), actionRow: MessageActionRow[]) => {
+    const interactionID = interaction instanceof CommandInteraction ? interaction.id : interaction.message.interactionMetadata?.id;
+    if (!interactionID) throw new Error("Interaction ID is undefined");
+    const customData = getCustomData(bot, interactionID)?.data as CustomDataStructure,
+      container: ContainerComponent = {
+        type: Constants.ComponentTypes.CONTAINER,
+        components: [
+          {
+            type: Constants.ComponentTypes.TEXT_DISPLAY,
+            content: "# Reaction Role Information"
+          }, {
+            type: Constants.ComponentTypes.TEXT_DISPLAY,
+            content: "## Current Roles"
+          }, {
+            type: Constants.ComponentTypes.TEXT_DISPLAY,
+            content: customData.reactionRoles.length
+              ? customData.reactionRoles.map((r) => `${this.bot.constants.utils.parseEmoji(r.emote)} - ${(this.bot.findRole(interaction.guild as Guild, r.role) as Role).mention}`).join("\n")
+              : "No roles added yet."
+          },
+          ...actionRow
+        ]
+      };
+
+    return container;
+  }
+
+  private actionRow = async (bot: ExtendedClient, interaction: (CommandInteraction | ComponentInteraction)):
   Promise<
     {
       home: MessageActionRow[];
@@ -102,7 +129,7 @@ export default class Reactionrole extends Command {
       removeSelectRole: MessageActionRow[];
     }
   > => {
-    const customData = await getCustomData(bot, (interaction as CommandInteraction).id)?.data as CustomDataStructure,
+    const customData = getCustomData(bot, interaction instanceof CommandInteraction ? interaction.id : interaction.message.interactionMetadata?.id as string)?.data as CustomDataStructure,
       guild = bot.findGuild(interaction.guildID) as Guild,
       emotes: PartialEmoji[] = Object.values(this.bot.constants.emojis.numbers)
         .map((e) => this.bot.constants.utils.resolveEmoji(e))
@@ -145,12 +172,11 @@ export default class Reactionrole extends Command {
           type: Constants.ComponentTypes.ACTION_ROW,
           components: [
             {
-              type: Constants.ComponentTypes.STRING_SELECT,
+              type: Constants.ComponentTypes.ROLE_SELECT,
               placeholder: "Choose role",
               customID: `reactionrole_${interaction.member?.id}_addselectreaction`,
               maxValues: 1,
               minValues: 1,
-              options: (await this.roles(bot, interaction)).map((r) => ({ label: r.name, value: r.id }))
             }
           ]
         },
@@ -234,29 +260,6 @@ export default class Reactionrole extends Command {
     };
   }
 
-  private create(bot: ExtendedClient, interaction: (CommandInteraction | ComponentInteraction), msg: Message): Embed {
-    const customData = getCustomData(bot, (interaction as CommandInteraction).id)?.data as CustomDataStructure,
-      guild = bot.findGuild(interaction.guildID) as Guild,
-      embed = {
-        title: "Reaction Role Editor",
-        color: this.bot.constants.config.colors.default,
-        description: msg.content,
-        fields: [
-          {
-            name: "Reaction Roles",
-            value: customData.reactionRoles.length
-              ? customData.reactionRoles.map((r) => `${this.bot.constants.utils.parseEmoji(r.emote)} - ${(this.bot.findRole(guild, r.role) as Role).mention}`).join("\n")
-              :  "No Reaction Roles"
-          }
-        ],
-        footer: {
-          text: msg.id
-        }
-      };
-
-    return embed;
-  }
-
   readonly execute = async (interaction: (CommandInteraction)): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
     const guild = this.bot.findGuild(interaction.guildID) as Guild,
       channel = interaction.channel as TextChannel,
@@ -268,11 +271,27 @@ export default class Reactionrole extends Command {
     try {
       message = this.bot.findMessage(this.bot.getChannel(channel.id) as TextChannel, messageid);
     } catch (e) {
-      return interaction.createFollowup({content: "I could not find a message with that ID."});
+      return interaction.createFollowup(
+        {
+          components: [
+            {
+              type: Constants.ComponentTypes.TEXT_DISPLAY,
+              content: "I could not find that message."
+            }
+          ],
+        }
+      );
     }
 
     if (!message)
-      return interaction.createFollowup({content: "I could not find a message with that ID."});
+      return interaction.createFollowup({
+        components: [
+          {
+            type: Constants.ComponentTypes.TEXT_DISPLAY,
+            content: "I could not find that message."
+          }
+        ],
+      });
 
     const msgData: RolesMessage | undefined = data.messages.find((m) => m.id === (message as Message).id);
 
@@ -286,18 +305,16 @@ export default class Reactionrole extends Command {
       }
     });
 
-    return interaction.createFollowup(
-      {
-        embeds: [this.create(this.bot, interaction, message)],
-        components: (await this.components(this.bot, interaction)).home
-      }
-    );
+    return interaction.createFollowup({
+      components: [(this.createContainer(this.bot, interaction, (await this.actionRow(this.bot, interaction)).home))],
+      flags: Constants.MessageFlags.IS_COMPONENTS_V2
+    });
   }
 
   readonly update = async (component: ComponentInteraction): Promise<Message | void> => {
 
     const guild = this.bot.findGuild(component.guildID) as Guild,
-      customData = await getCustomData(this.bot, component.message.interaction?.id as string)?.data as CustomDataStructure,
+      customData = await getCustomData(this.bot, component.message.interactionMetadata?.id as string)?.data as CustomDataStructure,
       moduleData = await this.bot.getModuleData("Roles", guild.id) as moduleData;
 
     switch (component.data.customID.split("_")[2]) {
@@ -306,7 +323,7 @@ export default class Reactionrole extends Command {
 
       return component.editOriginal(
         {
-          components: (await this.components(this.bot, component)).addSelectRole
+          components: [(this.createContainer(this.bot, component, (await this.actionRow(this.bot, component)).addSelectRole))],
         }
       );
     }
@@ -315,44 +332,34 @@ export default class Reactionrole extends Command {
 
       return await component.editOriginal(
         {
-          components: (await this.components(this.bot, component)).removeSelectRole
+          components: [(this.createContainer(this.bot, component, (await this.actionRow(this.bot, component)).removeSelectRole))],
         }
       );
     }
 
     case "addselectreaction": {
-      customData.partial.role = (component.data as MessageComponentSelectMenuInteractionData).values.raw[0];
+      customData.partial.role = (component.data as MessageComponentSelectMenuInteractionData).resolved.roles.first()?.id;
 
       return component.editOriginal(
         {
-          components: (await this.components(this.bot, component)).addSelectReaction
+          components: [(this.createContainer(this.bot, component, (await this.actionRow(this.bot, component)).addSelectReaction))],
         }
       );
     }
 
     case "add": {
-      let message: Message | undefined;
+      const emojiGuild = this.bot.findGuild(this.bot.constants.config.emojiGuild) as Guild,
+        emoji = emojiGuild.emojis.find((e) => e.id === (component.data as MessageComponentSelectMenuInteractionData).values.getStrings()[0]);
 
-      try {
-        message = this.bot.findMessage(this.bot.getChannel(customData.channelID) as TextChannel, customData.id);
-      } catch (e) {
-        return component.editOriginal({ content: "I could not find that message." });
-      }
-
-      if (!message)
-        return component.editOriginal({ content: "I could not find that message." });
+      customData.partial.emote = emoji as PartialEmoji;
 
       customData.reactionRoles.push(customData.partial as { role: string; emote: PartialEmoji; });
 
       customData.partial = {};
 
-      const embed = this.create(this.bot, component, message);
-
       return await component.editOriginal(
         {
-          content: undefined,
-          embeds: [embed],
-          components: (await this.components(this.bot, component)).home
+          components: [(this.createContainer(this.bot, component, (await this.actionRow(this.bot, component)).home))],
         }
       );
     }
@@ -373,13 +380,9 @@ export default class Reactionrole extends Command {
 
       customData.partial = {};
 
-      const embed = this.create(this.bot, component, message);
-
       return await component.editOriginal(
         {
-          content: undefined,
-          embeds: [embed],
-          components: (await this.components(this.bot, component)).home
+          components: [(this.createContainer(this.bot, component, (await this.actionRow(this.bot, component)).home))],
         }
       );
     }
@@ -400,9 +403,7 @@ export default class Reactionrole extends Command {
 
       return await component.editOriginal(
         {
-          content: undefined,
-          embeds: [this.create(this.bot, component, message)],
-          components: (await this.components(this.bot, component)).home
+          components: [(this.createContainer(this.bot, component, (await this.actionRow(this.bot, component)).home))],
         }
       );
     }
@@ -421,13 +422,14 @@ export default class Reactionrole extends Command {
       moduleData.messages.push(obj);
 
       try {
-        await component.editOriginal(
-          {
-            content: `${this.bot.constants.emojis.tick} Message is being constructed...`,
-            embeds: [],
-            components: []
-          }
-        );
+        await component.editOriginal({
+          components: [
+            {
+              type: Constants.ComponentTypes.TEXT_DISPLAY,
+              content: `${this.bot.constants.emojis.tick} Message is being updated`
+            }
+          ]
+        });
         await this.bot.updateModuleData("Roles", moduleData, guild);
 
         const message = this.bot.findMessage(this.bot.getChannel(customData.channelID) as TextChannel, customData.id),
@@ -442,15 +444,23 @@ export default class Reactionrole extends Command {
 
           await message?.createReaction(emote);
         }
-        return await component.editOriginal(
-          {
-            content: `${this.bot.constants.emojis.tick} Successfully edited Reactions Roles for Message: \`${customData.id}\``,
-            embeds: [],
-            components: []
-          }
-        );
+        return component.editOriginal({
+          components: [
+            {
+              type: Constants.ComponentTypes.TEXT_DISPLAY,
+              content: `${this.bot.constants.emojis.tick} Saved reaction roles`,
+            }
+          ]
+        });
       } catch (e) {
-        component.editOriginal({ content: "There was an error while editing." });
+        await component.editOriginal({
+          components: [
+            {
+              type: Constants.ComponentTypes.TEXT_DISPLAY,
+              content: `${this.bot.constants.emojis.cross} An error occured while editing`,
+            }
+          ]
+        });
         throw new Error(e as string);
       }
     }
@@ -458,9 +468,10 @@ export default class Reactionrole extends Command {
     case "cancel": {
       return component.editOriginal(
         {
-          content: `${this.bot.constants.emojis.x} Cancelled.`,
-          embeds: [],
-          components: []
+          components: [{
+            type: Constants.ComponentTypes.TEXT_DISPLAY,
+            content: `${this.bot.constants.emojis.cross} Cancelled reaction roles`
+          }]
         }
       );
     }
