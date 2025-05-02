@@ -118,7 +118,7 @@ export const updateHandler = async (bot: ExtendedClient, component: ComponentInt
 
   const member = component.member as Member;
   
-  if (!["0", authorID].includes(member.id)) return;
+  if (!["0", member.id].includes(authorID)) return;
 
   try {
     await component.deferUpdate();
