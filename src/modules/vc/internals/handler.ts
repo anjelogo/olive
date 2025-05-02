@@ -144,14 +144,15 @@ export const createLogEntry = async (
         content: "## Joined Private Voice Channel",
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
-        spacing: Constants.SeparatorSpacingSize.LARGE,
+        spacing: Constants.SeparatorSpacingSize.SMALL,
         divider: false
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
         content: `${member.username} joined the channel \`${channel.name}\``,
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
-        divider: true
+        divider: true,
+        spacing: Constants.SeparatorSpacingSize.LARGE
       }, {
         type: Constants.ComponentTypes.SECTION,
         components: [
@@ -177,14 +178,15 @@ export const createLogEntry = async (
         content: "## Created Private Voice Channel",
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
-        spacing: Constants.SeparatorSpacingSize.LARGE,
+        spacing: Constants.SeparatorSpacingSize.SMALL,
         divider: false
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
         content: `${member.username} created the channel \`${channel.name}\``,
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
-        divider: true
+        divider: true,
+        spacing: Constants.SeparatorSpacingSize.LARGE
       }, {
         type: Constants.ComponentTypes.SECTION,
         components: [
@@ -210,14 +212,15 @@ export const createLogEntry = async (
         content: "## Left Private Voice Channel",
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
-        spacing: Constants.SeparatorSpacingSize.LARGE,
+        spacing: Constants.SeparatorSpacingSize.SMALL,
         divider: false
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
         content: `${member.username} left the channel \`${channel.name}\``,
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
-        divider: true
+        divider: true,
+        spacing: Constants.SeparatorSpacingSize.LARGE
       }, {
         type: Constants.ComponentTypes.SECTION,
         components: [
@@ -245,7 +248,7 @@ export const createLogEntry = async (
         content: "## Ended Private Voice Channel",
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
-        spacing: Constants.SeparatorSpacingSize.LARGE,
+        spacing: Constants.SeparatorSpacingSize.SMALL,
         divider: false
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
@@ -258,21 +261,8 @@ export const createLogEntry = async (
         content: `${options?.createdAt ? `${bot.constants.utils.HMS(Date.now() - options.createdAt)} ago` : "Unknown"}`,
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
-        divider: true
-      }, {
-        type: Constants.ComponentTypes.SECTION,
-        components: [
-          {
-            type: Constants.ComponentTypes.TEXT_DISPLAY,
-            content: "View more information about the channel.",
-          }
-        ],
-        accessory: {
-          type: Constants.ComponentTypes.BUTTON,
-          style: Constants.ButtonStyles.PRIMARY,
-          customID: `vc_info_${channel.id}`,
-          label: "View",
-        }
+        divider: true,
+        spacing: Constants.SeparatorSpacingSize.LARGE
       }
     ];
     break;
@@ -285,7 +275,7 @@ export const createLogEntry = async (
         content: "## Transferred Ownership",
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
-        spacing: Constants.SeparatorSpacingSize.LARGE,
+        spacing: Constants.SeparatorSpacingSize.SMALL,
         divider: false
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
