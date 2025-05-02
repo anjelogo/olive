@@ -137,7 +137,7 @@ export const createLogEntry = async (
       components: [
         {
           type: Constants.ComponentTypes.TEXT_DISPLAY,
-          content: `-# ${new Date().toLocaleString("en-US")} | User ID: ${member.id}`,
+          content: `-# <t:${Date.now()}:f> | User ID: ${member.id}`,
         }
       ],
       accentColor: containerColors[type]
@@ -157,7 +157,7 @@ export const createLogEntry = async (
         divider: false
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: `${member.username} joined the channel \`${channel.name}\``,
+        content: `${member.id} joined the channel \`${channel.name}\``,
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
         divider: true,
@@ -177,7 +177,7 @@ export const createLogEntry = async (
         divider: false
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: `<@${member.username}> created the channel \`${channel.name}\``,
+        content: `<@${member.id}> created the channel \`${channel.name}\``,
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
         divider: true,
@@ -197,7 +197,7 @@ export const createLogEntry = async (
         divider: false
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: `<@${member.username}> left the channel \`${channel.name}\``,
+        content: `<@${member.id}> left the channel \`${channel.name}\``,
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
         divider: true,
@@ -219,7 +219,7 @@ export const createLogEntry = async (
         divider: false
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: `<@${member.username}> ended the channel \`${channel.name}\``,
+        content: `<@${member.id}> ended the channel \`${channel.name}\``,
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
         divider: false,
@@ -253,7 +253,7 @@ export const createLogEntry = async (
         content: `### ${member.username} -> ${options.newOwner.username}`,
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: `Set <@${options.newOwner.username}> the owner of \`${channel.name}\``,
+        content: `Set <@${options.newOwner.id}> the owner of \`${channel.name}\``,
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
         divider: true,
