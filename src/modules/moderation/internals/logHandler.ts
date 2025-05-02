@@ -14,43 +14,49 @@ export async function createLogEntry(bot: ExtendedClient, guild: Guild, data: Ca
     logging = bot.getModule("Logging") as Logging,
     member = partialUser ?? bot.findMember(guild, data.userID) as Member,
     moderator = bot.findMember(guild, data.moderatorID) as Member,
-    // embed = {
-    //   title: `User ${actions[data.action]}`,
-    //   author: {
-    //     name: member.username as string,
-    //     icon_url: member.avatarURL
-    //   },
-    //   fields: [
-    //     {
-    //       name: "Moderator",
-    //       value: moderator.mention,
-    //       inline: true
-    //     }, {
-    //       name: "Punishment Duration",
-    //       value: ["ban", "timeout"].some((a) => a === data.action) ? (data.time ? `\`${bot.constants.utils.HMS(data.time)}\`` : "Permanent") : "No Duration",
-    //       inline: true
-    //     }, {
-    //       name: "Reason",
-    //       value: data.reason ?? "No reason provided."
-    //     }
-    //   ],
-    //   timestamp: data.timestamp,
-    //   footer: {
-    //     text: `Case ID: ${data.id}`
-    //   },
-    //   color: bot.constants.config.colors.red
-    // };
     components: MessageComponent[] = [{
       type: Constants.ComponentTypes.CONTAINER,
       components: [
         {
           type: Constants.ComponentTypes.TEXT_DISPLAY,
-          content: `# User ${actions[data.action]}\n##${member.username} (${member.id})`,
+          content: `## User <@${member.id}> ${actions[data.action]}`
+        }, {
+          type: Constants.ComponentTypes.SEPARATOR,
+          spacing: Constants.SeparatorSpacingSize.LARGE,
+          divider: false
         }, {
           type: Constants.ComponentTypes.TEXT_DISPLAY,
-          content: `## Moderator:\n-# ${moderator.mention} (${moderator.id})\n## Punishment Duration:\n-# ${["ban", "timeout"].some((a) => a === data.action) ? (data.time ? `\`${bot.constants.utils.HMS(data.time)}\`` : "Permanent") : "No Duration"}\n-# Reason: ${data.reason ?? "No reason provided."}`,
+          content: "### Moderator:",
+        }, {
+          type: Constants.ComponentTypes.TEXT_DISPLAY,
+          content: `<@${moderator.id}> (${moderator.id})`
+        }, {
+          type: Constants.ComponentTypes.SEPARATOR,
+          spacing: Constants.SeparatorSpacingSize.SMALL,
+          divider: false
+        }, {
+          type: Constants.ComponentTypes.TEXT_DISPLAY,
+          content: "### Punishment Duration:"
+        }, {
+          type: Constants.ComponentTypes.TEXT_DISPLAY,
+          content: `${["ban", "timeout"].some((a) => a === data.action) ? (data.time ? `\`${bot.constants.utils.HMS(data.time)}\`` : "Permanent") : "No Duration"}`
+        }, {
+          type: Constants.ComponentTypes.SEPARATOR,
+          spacing: Constants.SeparatorSpacingSize.SMALL,
+          divider: false
+        }, {
+          type: Constants.ComponentTypes.TEXT_DISPLAY,
+          content: `## Reason:\n-# ${data.reason ?? "No reason provided."}`
+        }, {
+          type: Constants.ComponentTypes.SEPARATOR,
+          divider: true,
+          spacing: Constants.SeparatorSpacingSize.LARGE
+        }, {
+          type: Constants.ComponentTypes.TEXT_DISPLAY,
+          content: `${bot.constants.emojis.administrator} <t:${Math.floor(Date.now() / 1000)}:f> • ||Case: ${data.id}||`
         }
-      ]
+      ],
+      accentColor: bot.constants.config.colors.red
     }];
     
 
@@ -81,36 +87,57 @@ export async function updateLogEntry(bot: ExtendedClient, guild: Guild, data: Ca
 
         if (!message) continue;
 
-        const oldEmbed = message.embeds[0],
-          moderator = bot.findMember(guild, data.moderatorID) as Member;
-
-        if (!oldEmbed.fields) continue;
-        if (!data.resolved) continue;
+        const originalModerator = bot.findMember(guild, data.moderatorID) as Member,
+          resolvedModerator = bot.findMember(guild, data.resolved?.moderatorID) as Member,
+          components: MessageComponent[] = [{
+            type: Constants.ComponentTypes.CONTAINER,
+            components: [
+              {
+                type: Constants.ComponentTypes.TEXT_DISPLAY,
+                content: `## User <@${data.userID}> ${data.resolved ? "Case Resolved" : "Case Updated"}`,
+              }, {
+                type: Constants.ComponentTypes.SEPARATOR,
+                spacing: Constants.SeparatorSpacingSize.LARGE,
+                divider: false
+              }, {
+                type: Constants.ComponentTypes.TEXT_DISPLAY,
+                content: "### Moderator:",
+              }, {
+                type: Constants.ComponentTypes.TEXT_DISPLAY,
+                content: `~~<@${originalModerator.id}>~~ <@${resolvedModerator.id}>`
+              }, {
+                type: Constants.ComponentTypes.SEPARATOR,
+                spacing: Constants.SeparatorSpacingSize.SMALL,
+                divider: false
+              }, {
+                type: Constants.ComponentTypes.TEXT_DISPLAY,
+                content: "### Punishment Duration:"
+              }, {
+                type: Constants.ComponentTypes.TEXT_DISPLAY,
+                content: `${["ban", "timeout"].some((a) => a === data.action) ? (data.time ? `\`${bot.constants.utils.HMS(data.time)}\`` : "Permanent") : "No Duration"}`
+              }, {
+                type: Constants.ComponentTypes.SEPARATOR,
+                spacing: Constants.SeparatorSpacingSize.SMALL,
+                divider: false
+              }, {
+                type: Constants.ComponentTypes.TEXT_DISPLAY,
+                content: `## Reason:\n-# ${data.resolved?.reason ?? data.reason ?? "No reason provided."}`
+              }, {
+                type: Constants.ComponentTypes.SEPARATOR,
+                divider: true,
+                spacing: Constants.SeparatorSpacingSize.LARGE
+              }, {
+                type: Constants.ComponentTypes.TEXT_DISPLAY,
+                content: `${bot.constants.emojis.administrator} <t:${Math.floor(Date.now() / 1000)}:f> • ||Case: ${data.id}||`
+              }
+            ],
+            accentColor: bot.constants.config.colors.green
+          }];
+        
 
         await message.edit({
-          embeds: [
-            {
-              title: `${oldEmbed.title} (Resolved)`,
-              color: bot.constants.config.colors.green,
-              author: oldEmbed.author,
-              fields: [
-                {
-                  name: "Moderator",
-                  value: `~~${oldEmbed.fields[0].value}~~\n${moderator.mention}`,
-                  inline: true
-                }, {
-                  name: "Punishment Duration",
-                  value: `~~${oldEmbed.fields[1].value}~~\nResolved`,
-                  inline: true
-                }, {
-                  name: "Reason",
-                  value: `~~${oldEmbed.fields[2].value}~~\n${data.resolved.reason}`
-                }
-              ],
-              footer: oldEmbed.footer,
-              timestamp: oldEmbed.timestamp
-            }
-          ]
+          components,
+          flags: Constants.MessageFlags.IS_COMPONENTS_V2
         });
       }
     }
