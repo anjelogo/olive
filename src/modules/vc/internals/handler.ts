@@ -177,7 +177,7 @@ export const createLogEntry = async (
         divider: false
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: `${member.username} created the channel \`${channel.name}\``,
+        content: `<@${member.username}> created the channel \`${channel.name}\``,
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
         divider: true,
@@ -197,7 +197,7 @@ export const createLogEntry = async (
         divider: false
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: `${member.username} left the channel \`${channel.name}\``,
+        content: `<@${member.username}> left the channel \`${channel.name}\``,
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
         divider: true,
@@ -219,7 +219,7 @@ export const createLogEntry = async (
         divider: false
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: `${member.username} ended the channel \`${channel.name}\``,
+        content: `<@${member.username}> ended the channel \`${channel.name}\``,
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
         divider: false,
@@ -253,7 +253,7 @@ export const createLogEntry = async (
         content: `### ${member.username} -> ${options.newOwner.username}`,
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: `${member.username} -> ${options.newOwner.username}\nSet ${options.newOwner.username} the owner of \`${channel.name}\``,
+        content: `Set <@${options.newOwner.username}> the owner of \`${channel.name}\``,
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
         divider: true,
