@@ -113,14 +113,12 @@ export const commandHandler = async (bot: ExtendedClient, interaction: CommandIn
 };
 
 export const updateHandler = async (bot: ExtendedClient, component: ComponentInteraction, authorID: string): Promise<Message | void> => {
-  console.log(authorID);
-
   const command = bot.commands.filter((c) => c.commands.includes(component.data.customID.split("_")[0]))[0];
   if (!command) return;
 
   const member = component.member as Member;
   
-  if (member.id !== "0" && member.id !== authorID) return;
+  if (!["0", authorID].includes(member.id)) return;
 
   try {
     await component.deferUpdate();

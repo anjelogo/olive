@@ -256,7 +256,8 @@ export const createLogEntry = async (
         content: `${member.username} -> ${options.newOwner.username}\nSet ${options.newOwner.username} the owner of \`${channel.name}\``,
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
-        divider: true
+        divider: true,
+        spacing: Constants.SeparatorSpacingSize.LARGE
       }
     ];
     break;
@@ -310,7 +311,7 @@ export const createLogEntry = async (
             type: Constants.ComponentTypes.BUTTON,
             style: Constants.ButtonStyles.SECONDARY,
             customID: `voicechannel_0_information_${channel.id}`,
-            label: "View Channel Information",
+            label: "View Info",
           }
         } : {
           type: Constants.ComponentTypes.TEXT_DISPLAY,
