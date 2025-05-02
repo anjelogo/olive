@@ -39,22 +39,19 @@ export default class Kick extends Command {
 
     if (!moderator)
       return interaction.createFollowup({
-        content: `${this.bot.constants.emojis.x} I couldn't find you in the server!`,
-        flags: Constants.MessageFlags.EPHEMERAL
+        content: `${this.bot.constants.emojis.x} I couldn't find you in the server!`
       });
       
     if (!user)
       return interaction.createFollowup({
-        content: `${this.bot.constants.emojis.x} You must specify a user to kick!`,
-        flags: Constants.MessageFlags.EPHEMERAL
+        content: `${this.bot.constants.emojis.x} You must specify a user to kick!`
       });
 
     const userToKick = this.bot.findMember(guild, user.id) as Member;
 
     if (!userToKick)
       return interaction.createFollowup({
-        content: `${this.bot.constants.emojis.x} I couldn't find that user!`,
-        flags: Constants.MessageFlags.EPHEMERAL
+        content: `${this.bot.constants.emojis.x} I couldn't find that user!`
       });
 
     if (!isPunishable(this.bot, moderator, userToKick)) {
@@ -81,7 +78,7 @@ export default class Kick extends Command {
     await autoCalculateInfractions(this.bot, userToKick);
 
     return interaction.createFollowup({
-      content: `${this.bot.constants.emojis.check} Kicked \`${userToKick.username}#${userToKick.discriminator}\` for \`${reason}\``
+      content: `${this.bot.constants.emojis.check} Kicked <@${userToKick.id}> for \`${reason}\``
     });
   }
 

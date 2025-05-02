@@ -44,22 +44,19 @@ export default class Timeout extends Command {
 
     if (!moderator)
       return interaction.createFollowup({
-        content: `${this.bot.constants.emojis.x} I couldn't find you in the server!`,
-        flags: Constants.MessageFlags.EPHEMERAL
+        content: `${this.bot.constants.emojis.x} I couldn't find you in the server!`
       });
 
     if (!user)
       return interaction.createFollowup({
-        content: `${this.bot.constants.emojis.x} You must specify a user to timeout!`,
-        flags: Constants.MessageFlags.EPHEMERAL
+        content: `${this.bot.constants.emojis.x} You must specify a user to timeout!`
       });
 
     const userToTimeOut = this.bot.findMember(guild, user.id) as Member;
 
     if (!userToTimeOut)
       return interaction.createFollowup({
-        content: `${this.bot.constants.emojis.x} I couldn't find that user!`,
-        flags: Constants.MessageFlags.EPHEMERAL
+        content: `${this.bot.constants.emojis.x} I couldn't find that user!`
       });
 
     if (!isPunishable(this.bot, moderator, userToTimeOut)) {
@@ -91,7 +88,7 @@ export default class Timeout extends Command {
     await autoCalculateInfractions(this.bot, userToTimeOut);
 
     return interaction.createFollowup({
-      content: `${this.bot.constants.emojis.check} Placed \`${userToTimeOut.username}#${userToTimeOut.discriminator}\` on Time Out for \`${reason}\``
+      content: `${this.bot.constants.emojis.check} Placed <@${userToTimeOut.id}> on Time Out for \`${reason}\``
     });
   }
 

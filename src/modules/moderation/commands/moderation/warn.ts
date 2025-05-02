@@ -39,22 +39,19 @@ export default class Warn extends Command {
 
     if (!moderator)
       return interaction.createFollowup({
-        content: `${this.bot.constants.emojis.x} You must specify a user to warn!`,
-        flags: Constants.MessageFlags.EPHEMERAL
+        content: `${this.bot.constants.emojis.x} You must specify a user to warn!`
       });
 
     if (!user)
       return interaction.createFollowup({
-        content: `${this.bot.constants.emojis.x} You must specify a user to warn!`,
-        flags: Constants.MessageFlags.EPHEMERAL
+        content: `${this.bot.constants.emojis.x} You must specify a user to warn!`
       });
 
     const userToWarn = this.bot.findMember(guild, user.id) as Member;
 
     if (!userToWarn)
       return interaction.createFollowup({
-        content: `${this.bot.constants.emojis.x} I couldn't find that user!`,
-        flags: Constants.MessageFlags.EPHEMERAL
+        content: `${this.bot.constants.emojis.x} I couldn't find that user!`
       });
 
     if (!isPunishable(this.bot, moderator, userToWarn)) {
@@ -81,8 +78,7 @@ export default class Warn extends Command {
     await autoCalculateInfractions(this.bot, userToWarn);
 
     return interaction.createFollowup({
-      content: `${this.bot.constants.emojis.check} Warned \`${userToWarn.username}#${userToWarn.discriminator}\` for \`${reason}\``,
-      flags: Constants.MessageFlags.EPHEMERAL
+      content: `${this.bot.constants.emojis.check} Warned <@${userToWarn.id}> for \`${reason}\``
     });
   }
 

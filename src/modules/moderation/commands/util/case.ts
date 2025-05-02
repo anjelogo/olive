@@ -97,21 +97,18 @@ export default class Case extends Command {
 
         if (!logCase)
           return interaction.createFollowup({
-            content: `${this.bot.constants.emojis.x} I could not find that case.`,
-            flags: Constants.MessageFlags.EPHEMERAL
+            content: `${this.bot.constants.emojis.x} I could not find that case.`
           });
 
         const logMessage = this.bot.findMessage(this.bot.getChannel(logCase.channelID) as TextChannel, logCase.messageID);
 
         if (!logMessage)
           return interaction.createFollowup({
-            content: `${this.bot.constants.emojis.x} I could not find that case.`,
-            flags: Constants.MessageFlags.EPHEMERAL
+            content: `${this.bot.constants.emojis.x} I could not find that case.`
           });
 
         return interaction.createFollowup({
-          embeds: [logMessage.embeds[0]],
-          flags: Constants.MessageFlags.EPHEMERAL
+          embeds: [logMessage.embeds[0]]
         });
 
       }
@@ -122,8 +119,7 @@ export default class Case extends Command {
     case "resolve": {
       if (Case.resolved)
         return interaction.createFollowup({
-          content: `${this.bot.constants.emojis.x} That case has already been resolved.`,
-          flags: Constants.MessageFlags.EPHEMERAL
+          content: `${this.bot.constants.emojis.x} That case has already been resolved.`
         });
 
       let reason = interaction.data.options.getString("reason", false);
@@ -132,8 +128,7 @@ export default class Case extends Command {
       await resolveCase(this.bot, guild, Case.id, member.id, reason as string);
       
       return interaction.createFollowup({
-        content: `${this.bot.constants.emojis.check} Case \`${Case.id}\` has been resolved.`,
-        flags: Constants.MessageFlags.EPHEMERAL
+        content: `${this.bot.constants.emojis.check} Case \`${Case.id}\` has been resolved.`
       });
     }
 
@@ -141,8 +136,7 @@ export default class Case extends Command {
       await removeCase(this.bot, guild, Case.id);
 
       return interaction.createFollowup({
-        content: `${this.bot.constants.emojis.check} Case \`${Case.id}\` has been deleted.`,
-        flags: Constants.MessageFlags.EPHEMERAL
+        content: `${this.bot.constants.emojis.check} Case \`${Case.id}\` has been deleted.`
       });
     }
 

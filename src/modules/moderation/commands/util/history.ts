@@ -52,16 +52,14 @@ export default class History extends Command {
 
     if (!user)
       return interaction.createFollowup({
-        content: `${this.bot.constants.emojis.x} I couldn't find that user!`,
-        flags: Constants.MessageFlags.EPHEMERAL
+        content: `${this.bot.constants.emojis.x} I couldn't find that user!`
       });
 
     const cases = await getCases(this.bot, guild, user.id);
 
     if (!cases)
       return interaction.createFollowup({
-        content: `${this.bot.constants.emojis.x} I couldn't find any cases for that user!`,
-        flags: Constants.MessageFlags.EPHEMERAL
+        content: `${this.bot.constants.emojis.x} I couldn't find any cases for that user!`
       });
 
     switch (subcommand) {
@@ -102,8 +100,7 @@ export default class History extends Command {
 
       return interaction.createFollowup({
         content: undefined,
-        embeds: [embed],
-        flags: Constants.MessageFlags.EPHEMERAL
+        embeds: [embed]
       });
     }
 
@@ -113,8 +110,7 @@ export default class History extends Command {
       }
 
       return interaction.createFollowup({
-        content: `${this.bot.constants.emojis.check} Successfully cleared the moderation history of ${user.mention}`,
-        flags: Constants.MessageFlags.EPHEMERAL
+        content: `${this.bot.constants.emojis.check} Successfully cleared the moderation history of ${user.mention}`
       });
     }
     }

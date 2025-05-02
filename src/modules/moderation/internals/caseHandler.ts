@@ -1,4 +1,4 @@
-import { Guild, User } from "oceanic.js";
+import { Constants, Guild, User } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
 import { Case, moduleData } from "../main";
 import { updateLogEntry } from "./logHandler";
@@ -44,14 +44,14 @@ export async function removeCase(bot: ExtendedClient, guild: Guild, caseID: stri
   }
 }
 
-export async function resolveCase(bot: ExtendedClient, guild: Guild, caseID: string, moderatorID: string, reason: string): Promise<void> {
+export async function resolveCase(bot: ExtendedClient, guild: Guild, caseID: string, moderatorID: string, reason: string): Promise<boolean> {
   const data = await bot.getModuleData("Moderation", guild.id) as moduleData;
 
-  if (!data) return;
+  if (!data) return false;
 
   const caseToResolve = data.cases.find((c) => c.id === caseID);
 
-  if (!caseToResolve) return;
+  if (!caseToResolve) return false;
 
   caseToResolve.resolved = {
     moderatorID,
@@ -65,20 +65,31 @@ export async function resolveCase(bot: ExtendedClient, guild: Guild, caseID: str
 
     if (dmChannel) {
       await dmChannel.createMessage({
-        embeds: [{
-          title: "Your case has been resolved by a moderator.",
-          description: `A case of yours: \`${caseToResolve.action} (${caseToResolve.id})\` has been resolved.`,
-          fields: [
+        components: [{
+          type: Constants.ComponentTypes.CONTAINER,
+          components: [
             {
-              name: "Reason",
-              value: reason
+              type: Constants.ComponentTypes.TEXT_DISPLAY,
+              content: `## Your case has been resolved by <@${moderatorID}>`
+            }, {
+              type: Constants.ComponentTypes.SEPARATOR,
+              spacing: Constants.SeparatorSpacingSize.LARGE,
+              divider: false
+            }, {
+              type: Constants.ComponentTypes.TEXT_DISPLAY,
+              content: "### Reason:"
+            }, {
+              type: Constants.ComponentTypes.TEXT_DISPLAY,
+              content: reason
+            }, {
+              type: Constants.ComponentTypes.SEPARATOR,
+              divider: true,
+              spacing: Constants.SeparatorSpacingSize.LARGE
+            }, {
+              type: Constants.ComponentTypes.TEXT_DISPLAY,
+              content: `${bot.constants.emojis.administrator} <t:${Math.floor(Date.now() / 1000)}:f> • ||Case: ${caseToResolve.id}||`
             }
-          ],
-          color: bot.constants.config.colors.default,
-          timestamp: new Date().toISOString(),
-          footer: {
-            text: `Case ID: ${caseToResolve.id}`
-          }
+          ]
         }]
       });
     }
@@ -110,7 +121,8 @@ export async function resolveCase(bot: ExtendedClient, guild: Guild, caseID: str
 
     await bot.updateModuleData("Moderation", data, guild);
     await updateLogEntry(bot, guild, caseToResolve);
+    return true;
   } catch (e) {
-    // eslint-disable-next-line no-console
+    throw new Error(`Could not resolve case: ${e}`);
   }
 }
