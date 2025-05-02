@@ -43,35 +43,66 @@ export const create = async (bot: ExtendedClient, member: Member, channel: Voice
   // send a message to the user
   try {
     const dm = await member.user.createDM();
+    // await dm.createMessage({
+    //   embeds: [{
+    //     description: `You have created \`${voice.name}\`!\n\nYou can lock the channel by using \`/vc lock\` and unlock it by using \`/vc unlock\`.\nView information about the channel by using \`/vc info\`.\n\nLeaving the channel will delete it or transfer ownership to another member if there are other members in the channel.`,
+    //     author: {
+    //       name: "Private Voice Channel Created",
+    //     },
+    //     color: bot.constants.config.colors.default,
+    //     timestamp: new Date().toISOString(),
+    //   }]
+    // });
     await dm.createMessage({
-      embeds: [{
-        description: `You have created \`${voice.name}\`!\n\nYou can lock the channel by using \`/vc lock\` and unlock it by using \`/vc unlock\`.\nView information about the channel by using \`/vc info\`.\n\nLeaving the channel will delete it or transfer ownership to another member if there are other members in the channel.`,
-        author: {
-          name: "Private Voice Channel Created",
-        },
-        color: bot.constants.config.colors.default,
-        timestamp: new Date().toISOString(),
-      }]
+      components: [
+        {
+          type: Constants.ComponentTypes.CONTAINER,
+          components: [
+            {
+              type: Constants.ComponentTypes.TEXT_DISPLAY,
+              content: `You have created \`${voice.name}\`!\n\nYou can lock the channel by using \`/vc lock\` and unlock it by using \`/vc unlock\`.\nView information about the channel by using \`/vc info\`.\n\nLeaving the channel will delete it or transfer ownership to another member if there are other members in the channel.`,
+            }, {
+              type: Constants.ComponentTypes.TEXT_DISPLAY,
+              content: `-# Created at: ${new Date().toLocaleString("en-US")} | User ID: ${member.id}`,
+            }
+          ],
+          accentColor: bot.constants.config.colors.default,
+        }
+      ]
     });
   } catch (e) {
     console.error(e);
   }
   
   const logging =  bot.getModule("Logging") as Logging;
-  logging.log(channel.guild, "vc", {embeds: [{
-    type: "rich",
-    title: `${member.username}`,
-    description: `Created \`${voice.name}\``,
-    author: {
-      name: "Create New Private Voice Channel",
-      iconURL: member.avatarURL()
-    },
-    color: bot.constants.config.colors.default,
-    timestamp: new Date().toISOString(),
-    footer: {
-      text: `ID: ${member.id}`
+  // logging.log(channel.guild, "vc", {embeds: [{
+  //   type: "rich",
+  //   title: `${member.username}`,
+  //   description: `Created \`${voice.name}\``,
+  //   author: {
+  //     name: "Create New Private Voice Channel",
+  //     iconURL: member.avatarURL()
+  //   },
+  //   color: bot.constants.config.colors.default,
+  //   timestamp: new Date().toISOString(),
+  //   footer: {
+  //     text: `ID: ${member.id}`
+  //   }
+  // }]});
+  logging.log(channel.guild, "vc", [
+    {
+      type: Constants.ComponentTypes.CONTAINER,
+      components: [
+        {
+          type: Constants.ComponentTypes.TEXT_DISPLAY,
+          content: `# Created Private Voice Channel\n##${member.username} created the channel\n### \`${voice.name}\``,
+        }, {
+          type: Constants.ComponentTypes.TEXT_DISPLAY,
+          content: `-# Created at: ${new Date().toLocaleString("en-US")} | User ID: ${member.id}`,
+        }
+      ]
     }
-  }]});
+  ]);
 };
 
 export const remove = async (bot: ExtendedClient, member: Member, channel: VoiceChannel | StageChannel): Promise<void> => {
@@ -85,20 +116,35 @@ export const remove = async (bot: ExtendedClient, member: Member, channel: Voice
   if (!channelObj) return;
 
   const logging = bot.getModule("Logging") as Logging;
-  logging.log(channel.guild, "vc", {embeds: [{
-    type: "rich",
-    title: `${member.username}`,
-    description: `Left \`${channel.name}\``,
-    author: {
-      name: "Left Private Voice Channel",
-      iconURL: member.avatarURL()
-    },
-    color: bot.constants.config.colors.red,
-    timestamp: new Date().toISOString(),
-    footer: {
-      text: `ID: ${member.id}`
+  // logging.log(channel.guild, "vc", {embeds: [{
+  //   type: "rich",
+  //   title: `${member.username}`,
+  //   description: `Left \`${channel.name}\``,
+  //   author: {
+  //     name: "Left Private Voice Channel",
+  //     iconURL: member.avatarURL()
+  //   },
+  //   color: bot.constants.config.colors.red,
+  //   timestamp: new Date().toISOString(),
+  //   footer: {
+  //     text: `ID: ${member.id}`
+  //   }
+  // }]});
+
+  logging.log(channel.guild, "vc", [
+    {
+      type: Constants.ComponentTypes.CONTAINER,
+      components: [
+        {
+          type: Constants.ComponentTypes.TEXT_DISPLAY,
+          content: `# Left Private Voice Channel\n##${member.username} left the channel\n### \`${channel.name}\``,
+        }, {
+          type: Constants.ComponentTypes.TEXT_DISPLAY,
+          content: `-# Left at: ${new Date().toLocaleString("en-US")} | User ID: ${member.id}`,
+        }
+      ]
     }
-  }]});
+  ]);
 
   if (channel.voiceMembers.size <= 0) {
 
@@ -108,26 +154,41 @@ export const remove = async (bot: ExtendedClient, member: Member, channel: Voice
     if (i > -1) category.channels.splice(i, 1);
     await bot.updateModuleData("VC", data, channel.guild);
 
-    logging.log(channel.guild, "vc", {embeds: [{
-      type: "rich",
-      title: `${member.username}`,
-      description: `Ended \`${channel.name}\``,
-      author: {
-        name: "Ended Private Voice Channel",
-        iconURL: member.avatarURL()
-      },
-      fields: [
-        {
-          name: "Time Elapsed",
-          value: bot.constants.utils.HMS(Date.now() - channelObj.createdAt)
-        }
-      ],
-      color: bot.constants.config.colors.default,
-      timestamp: new Date().toISOString(),
-      footer: {
-        text: `ID: ${member.id}`
+    // logging.log(channel.guild, "vc", {embeds: [{
+    //   type: "rich",
+    //   title: `${member.username}`,
+    //   description: `Ended \`${channel.name}\``,
+    //   author: {
+    //     name: "Ended Private Voice Channel",
+    //     iconURL: member.avatarURL()
+    //   },
+    //   fields: [
+    //     {
+    //       name: "Time Elapsed",
+    //       value: bot.constants.utils.HMS(Date.now() - channelObj.createdAt)
+    //     }
+    //   ],
+    //   color: bot.constants.config.colors.default,
+    //   timestamp: new Date().toISOString(),
+    //   footer: {
+    //     text: `ID: ${member.id}`
+    //   }
+    // }]});
+
+    logging.log(channel.guild, "vc", [
+      {
+        type: Constants.ComponentTypes.CONTAINER,
+        components: [
+          {
+            type: Constants.ComponentTypes.TEXT_DISPLAY,
+            content: `# Ended Private Voice Channel\n##${member.username} ended the channel\n### \`${channel.name}\``,
+          }, {
+            type: Constants.ComponentTypes.TEXT_DISPLAY,
+            content: `-# Ended at: ${new Date().toLocaleString("en-US")} | User ID: ${member.id}`,
+          }
+        ]
       }
-    }]});
+    ]);
     
   } else if (member.id === channelObj.owner) {
     const members = channel.voiceMembers.filter((m) => m.id !== member.id).map((m) => m.id),
@@ -137,20 +198,34 @@ export const remove = async (bot: ExtendedClient, member: Member, channel: Voice
 
     await bot.updateModuleData("VC", data, channel.guild);
 
-    logging.log(channel.guild, "vc", {embeds: [{
-      type: "rich",
-      title: `${member.username} -> ${newOwner.username}`,
-      description: `Set \`${newOwner.username}\` the owner of \`${channel.name}\``,
-      author: {
-        name: "Transferred Private Voice Channel Ownership",
-        iconURL: member.avatarURL()
-      },
-      color: bot.constants.config.colors.default,
-      timestamp: new Date().toISOString(),
-      footer: {
-        text: `ID: ${member.id}`
+    // logging.log(channel.guild, "vc", {embeds: [{
+    //   type: "rich",
+    //   title: `${member.username} -> ${newOwner.username}`,
+    //   description: `Set \`${newOwner.username}\` the owner of \`${channel.name}\``,
+    //   author: {
+    //     name: "Transferred Private Voice Channel Ownership",
+    //     iconURL: member.avatarURL()
+    //   },
+    //   color: bot.constants.config.colors.default,
+    //   timestamp: new Date().toISOString(),
+    //   footer: {
+    //     text: `ID: ${member.id}`
+    //   }
+    // }]});
+    logging.log(channel.guild, "vc", [
+      {
+        type: Constants.ComponentTypes.CONTAINER,
+        components: [
+          {
+            type: Constants.ComponentTypes.TEXT_DISPLAY,
+            content: `# Transferred Ownership\n##${member.username} -> ${newOwner.username}\n### Set ${newOwner.username} the owner of <#${channel.id}>`,
+          }, {
+            type: Constants.ComponentTypes.TEXT_DISPLAY,
+            content: `-# Transferred at: ${new Date().toLocaleString("en-US")} | User ID: ${member.id}`,
+          }
+        ]
       }
-    }]});
+    ]);
 
     try {
       const newOwnerDM = await newOwner.user.createDM();

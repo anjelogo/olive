@@ -93,7 +93,7 @@ export const updateStarredMessage = async (bot: ExtendedClient, guild: Guild, me
     await bot.updateModuleData("Starboard", data, guild);
     await updateLogEntry(bot, guild, message.id);
   } catch (e) {
-    return console.log(e);
+    throw new Error(e as string);
   }
 };
 

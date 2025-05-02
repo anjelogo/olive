@@ -1,4 +1,4 @@
-import { Embed, Guild, TextChannel } from "oceanic.js";
+import { Constants, Guild, MessageComponent, TextChannel } from "oceanic.js";
 import Module, { moduleDataStructure } from "../../Base/Module";
 import ExtendedClient from "../../Base/Client";
 
@@ -58,7 +58,7 @@ export default class Logging extends Module {
     channels: []
   }
 
-  readonly log = async (guild: Guild, type: LogChannelTypes, payload: {content?: string, embeds?: Embed[]}, data?: DataType) => {
+  readonly log = async (guild: Guild, type: LogChannelTypes, components: MessageComponent[], data?: DataType) => {
     const guildData = await this.bot.getModuleData(this.name, guild.id) as moduleData;
 
     if (!guildData) return;
@@ -67,7 +67,10 @@ export default class Logging extends Module {
 
       for (const c of channels) {
         const channel = this.bot.findChannel(guild, c.channelID) as TextChannel,
-          message = await channel.createMessage(payload);
+          message = await channel.createMessage({
+            components,
+            flags: Constants.MessageFlags.IS_COMPONENTS_V2
+          });
 
         if (type === "moderation") {
           c.cases ? c.cases.push({

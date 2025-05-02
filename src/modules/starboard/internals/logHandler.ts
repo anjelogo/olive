@@ -1,4 +1,4 @@
-import { Guild, Message, TextChannel } from "oceanic.js";
+import { Constants, ContainerComponent, Guild, Message, MessageComponent, TextChannel } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
 import Logging from "../../logging/main";
 import { messageDataStructure, moduleData } from "../main";
@@ -17,28 +17,57 @@ export const createLogEntry = async (bot: ExtendedClient, guild: Guild, message:
     stars = messageData.stars.length <= 3 ? star.small : messageData.stars.length <= 10 ? star.medium : star.large;
 
   // TODO: When revamping logging, use components v2 instead of embeds
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const loggingObj: any = {
-    content: `${stars} **${messageData.stars.length}** <#${message.channelID}>\n(${messageData.messageID})`,
-    embeds: [{  
-      author: {
-        name: message.author.username,
-        iconURL: message.author.avatarURL()
-      },
-      description: message.content ?? undefined,
-      fields: [
+  const loggingObj: MessageComponent[] = [
+    {
+      type: Constants.ComponentTypes.CONTAINER,
+      components: [
         {
-          name: "Source",
-          value: `[Jump to message](https://discordapp.com/channels/${guild.id}/${message.channelID}/${message.id})`
+          type: Constants.ComponentTypes.SECTION,
+          components: [
+            {
+              type: Constants.ComponentTypes.TEXT_DISPLAY,
+              content: `# ${stars} ${messageData.stars.length} ${message.author.username}\n## <#${message.channelID}>`,
+            }
+          ],
+          accessory: {
+            type: Constants.ComponentTypes.THUMBNAIL,
+            media: {
+              url: message.author.avatarURL() ?? "",
+            }
+          }
+        }, {
+          type: Constants.ComponentTypes.SEPARATOR,
+          divider: true
+        }, {
+          type: Constants.ComponentTypes.TEXT_DISPLAY,
+          content: `${message.content}`
+        }, {
+          type: Constants.ComponentTypes.TEXT_DISPLAY,
+          content: `-# Jump to message: [Click Here](https://discordapp.com/channels/${guild.id}/${message.channelID}/${message.id})`
         }
-      ],
-      timestamp: new Date().toISOString(),
-      color: 16448210
-    }]
-  };
+      ]
+        
+    }
+  ];
 
-  if (message.attachments.size)
-    loggingObj.embeds[0].image = { url: message.attachments.first()?.url ?? "" };
+  if (message.attachments.size) {
+    const attachment = message.attachments.first();
+
+    if (!attachment) return;
+
+    (loggingObj[0] as ContainerComponent).components = [
+      ...(loggingObj[0] as ContainerComponent).components,
+      {
+        type: Constants.ComponentTypes.MEDIA_GALLERY,
+        items: [
+          {
+            media: { url: attachment.url },
+            description: "Attachment",
+          }
+        ]
+      }
+    ];
+  }
 
   logging.log(guild, "starboard", loggingObj, {
     channelID: message.channelID,

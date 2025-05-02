@@ -1,5 +1,5 @@
 import { Category, Channel } from "../internals/interfaces";
-import { Member, StageChannel, Uncached, VoiceChannel } from "oceanic.js";
+import { Constants, Member, StageChannel, Uncached, VoiceChannel } from "oceanic.js";
 import { create, remove } from "../internals/handler";
 import ExtendedClient from "../../../Base/Client";
 import { moduleData } from "../main";
@@ -29,20 +29,34 @@ export const run = async (bot: ExtendedClient, member: Member, channel: Uncached
     if (await mainModule.handlePermission(member, "vc.join")) {
       //get logging module
       const logging = bot.getModule("Logging") as Logging;
-      logging.log(realChannel.guild, "vc", {embeds: [{
-        type: "rich",
-        title: `${member.username}`,
-        description: `Joined \`${realChannel.name}\``,
-        author: {
-          name: "Joined Private Voice Channel",
-          iconURL: member.avatarURL()
-        },
-        color: bot.constants.config.colors.green,
-        timestamp: new Date().toISOString(),
-        footer: {
-          text: `ID: ${member.id}`
+      // logging.log(realChannel.guild, "vc", {embeds: [{
+      //   type: "rich",
+      //   title: `${member.username}`,
+      //   description: `Joined \`${realChannel.name}\``,
+      //   author: {
+      //     name: "Joined Private Voice Channel",
+      //     iconURL: member.avatarURL()
+      //   },
+      //   color: bot.constants.config.colors.green,
+      //   timestamp: new Date().toISOString(),
+      //   footer: {
+      //     text: `ID: ${member.id}`
+      //   }
+      // }]});
+      logging.log(realChannel.guild, "vc", [
+        {
+          type: Constants.ComponentTypes.CONTAINER,
+          components: [
+            {
+              type: Constants.ComponentTypes.TEXT_DISPLAY,
+              content: `# Joined Private Voice Channel\n##${member.username} joined the channel\n### \`${realChannel.name}\``,
+            }, {
+              type: Constants.ComponentTypes.TEXT_DISPLAY,
+              content: `-# Joined at: ${new Date().toLocaleString("en-US")} | User ID: ${member.id}`,
+            }
+          ]
         }
-      }]});
+      ]);
     }
     else 
       member.edit({ channelID: null });

@@ -1,4 +1,4 @@
-import { Member } from "oceanic.js";
+import { ComponentTypes, Member } from "oceanic.js";
 import ExtendedClient  from "../../../Base/Client";
 import Logging from "../main";
 
@@ -6,19 +6,20 @@ export const run = async (bot: ExtendedClient, member: Member): Promise<void> =>
 
   const logging = bot.getModule("Logging") as Logging;
 
-  logging.log(member.guild, "welcome", {embeds: [{
-    type: "rich",
-    title: `${member.username}`,
-    description: "Joined the server",
-    author: {
-      name: "Joined Server",
-      iconURL: member.avatarURL()
-    },
-    color: bot.constants.config.colors.green,
-    timestamp: new Date().toISOString(),
-    footer: {
-      text: `ID: ${member.id}`
+  logging.log(member.guild, "welcome", [
+    {
+      type: ComponentTypes.CONTAINER,
+      accentColor: bot.constants.config.colors.green,
+      components: [
+        {
+          type: ComponentTypes.TEXT_DISPLAY,
+          content: `# Joined the Server\n\n### ${member.user.username} joined the server!`,
+        }, {
+          type: ComponentTypes.TEXT_DISPLAY,
+          content: `-# Joined at: ${new Date().toLocaleString("en-US")} | User ID: ${member.user.id}`,
+        }
+      ]
     }
-  }]});
+  ]);
 
 };
