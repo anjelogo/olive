@@ -360,7 +360,8 @@ export const createLogEntry = async (
             }
           }
         },
-        ...textFields.slice(0, 1),
+        // remove the first element from textFields
+        ...textFields.slice(1),
         ...baseContainer.components
       ]
     }
