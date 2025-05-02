@@ -263,7 +263,7 @@ export const createLogEntry = async (
     break;
   }
   case "information": {
-    if (!options?.owner || !options?.createdAt || !options?.locked) {
+    if (options?.owner == undefined || options?.createdAt == undefined || options?.locked == undefined) {
       throw new Error(`Missing required options for information log entry: ${options?.owner}, ${options?.createdAt}, ${options?.locked}`);
       return;
     }
