@@ -119,7 +119,7 @@ export const updateHandler = async (bot: ExtendedClient, component: ComponentInt
 
   const member = component.member as Member;
   
-  if (member.id !== authorID) return;
+  if (member.id !== "0" && member.id !== authorID) return;
 
   try {
     await component.deferUpdate();

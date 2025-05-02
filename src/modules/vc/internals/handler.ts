@@ -124,6 +124,14 @@ export const createLogEntry = async (
   }
 ): Promise<MessageComponent[] | void> => {
   const logging = bot.getModule("Logging") as Logging,
+    containerColors = {
+      join: bot.constants.config.colors.green,
+      leave: bot.constants.config.colors.red,
+      create: undefined,
+      end: undefined,
+      newOwner: undefined,
+      information: undefined
+    },
     baseContainer: ContainerComponent = {
       type: Constants.ComponentTypes.CONTAINER,
       components: [
@@ -131,7 +139,8 @@ export const createLogEntry = async (
           type: Constants.ComponentTypes.TEXT_DISPLAY,
           content: `-# ${new Date().toLocaleString("en-US")} | User ID: ${member.id}`,
         }
-      ]
+      ],
+      accentColor: containerColors[type]
     };
 
   let textFields: ContainerComponent["components"] = [];
@@ -153,20 +162,6 @@ export const createLogEntry = async (
         type: Constants.ComponentTypes.SEPARATOR,
         divider: true,
         spacing: Constants.SeparatorSpacingSize.LARGE
-      }, {
-        type: Constants.ComponentTypes.SECTION,
-        components: [
-          {
-            type: Constants.ComponentTypes.TEXT_DISPLAY,
-            content: "View more information about the channel.",
-          }
-        ],
-        accessory: {
-          type: Constants.ComponentTypes.BUTTON,
-          style: Constants.ButtonStyles.SECONDARY,
-          customID: `voicechannel_information_${channel.id}`,
-          label: "View",
-        }
       }
     ];
     break;
@@ -187,20 +182,6 @@ export const createLogEntry = async (
         type: Constants.ComponentTypes.SEPARATOR,
         divider: true,
         spacing: Constants.SeparatorSpacingSize.LARGE
-      }, {
-        type: Constants.ComponentTypes.SECTION,
-        components: [
-          {
-            type: Constants.ComponentTypes.TEXT_DISPLAY,
-            content: "View more information about the channel.",
-          }
-        ],
-        accessory: {
-          type: Constants.ComponentTypes.BUTTON,
-          style: Constants.ButtonStyles.SECONDARY,
-          customID: `voicechannel_information_${channel.id}`,
-          label: "View",
-        }
       }
     ];
     break;
@@ -221,20 +202,6 @@ export const createLogEntry = async (
         type: Constants.ComponentTypes.SEPARATOR,
         divider: true,
         spacing: Constants.SeparatorSpacingSize.LARGE
-      }, {
-        type: Constants.ComponentTypes.SECTION,
-        components: [
-          {
-            type: Constants.ComponentTypes.TEXT_DISPLAY,
-            content: "View more information about the channel.",
-          }
-        ],
-        accessory: {
-          type: Constants.ComponentTypes.BUTTON,
-          style: Constants.ButtonStyles.SECONDARY,
-          customID: `voicechannel_information_${channel.id}`,
-          label: "View",
-        }
       }
     ];
     break;
@@ -290,20 +257,6 @@ export const createLogEntry = async (
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
         divider: true
-      }, {
-        type: Constants.ComponentTypes.SECTION,
-        components: [
-          {
-            type: Constants.ComponentTypes.TEXT_DISPLAY,
-            content: "View more information about the channel.",
-          }
-        ],
-        accessory: {
-          type: Constants.ComponentTypes.BUTTON,
-          style: Constants.ButtonStyles.SECONDARY,
-          customID: `voicechannel_information_${channel.id}`,
-          label: "View",
-        }
       }
     ];
     break;
@@ -350,15 +303,18 @@ export const createLogEntry = async (
     {
       ...baseContainer,
       components: [
-        {
+        !["information", "end"].includes(type) ? {
           type: Constants.ComponentTypes.SECTION,
           components: [textFields[0] as TextDisplayComponent],
           accessory: {
-            type: Constants.ComponentTypes.THUMBNAIL,
-            media: {
-              url: member.avatarURL()
-            }
+            type: Constants.ComponentTypes.BUTTON,
+            style: Constants.ButtonStyles.SECONDARY,
+            customID: `voicechannel_0_information_${channel.id}`,
+            label: "View",
           }
+        } : {
+          type: Constants.ComponentTypes.TEXT_DISPLAY,
+          content: (textFields[0] as TextDisplayComponent).content,
         },
         // remove the first element from textFields
         ...textFields.slice(1),

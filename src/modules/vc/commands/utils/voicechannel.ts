@@ -331,11 +331,11 @@ export default class Voicechannel extends Command {
   readonly update = async (component: ComponentInteraction): Promise<Message | void> => {
     console.log("Component Interaction", component.data.customID);
 
-    switch (component.data.customID.split("_")[1]) {
+    switch (component.data.customID.split("_")[2]) {
 
     case "information": {
       // validate the channel
-      const channelID = component.data.customID.split("_")[2],
+      const channelID = component.data.customID.split("_")[3],
         channel: VoiceChannel = this.bot.findChannel(this.bot.findGuild(component.guildID as string) as Guild, channelID) as VoiceChannel;
 
       if (!channel) return;
