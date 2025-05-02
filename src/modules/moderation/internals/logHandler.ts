@@ -1,4 +1,4 @@
-import { Guild, Member, TextChannel, User } from "oceanic.js";
+import { Constants, Guild, Member, MessageComponent, TextChannel, User } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
 import Logging, { moduleData } from "../../logging/main";
 import { Case } from "../main";
@@ -14,34 +14,47 @@ export async function createLogEntry(bot: ExtendedClient, guild: Guild, data: Ca
     logging = bot.getModule("Logging") as Logging,
     member = partialUser ?? bot.findMember(guild, data.userID) as Member,
     moderator = bot.findMember(guild, data.moderatorID) as Member,
-    embed = {
-      title: `User ${actions[data.action]}`,
-      author: {
-        name: member.username as string,
-        icon_url: member.avatarURL
-      },
-      fields: [
+    // embed = {
+    //   title: `User ${actions[data.action]}`,
+    //   author: {
+    //     name: member.username as string,
+    //     icon_url: member.avatarURL
+    //   },
+    //   fields: [
+    //     {
+    //       name: "Moderator",
+    //       value: moderator.mention,
+    //       inline: true
+    //     }, {
+    //       name: "Punishment Duration",
+    //       value: ["ban", "timeout"].some((a) => a === data.action) ? (data.time ? `\`${bot.constants.utils.HMS(data.time)}\`` : "Permanent") : "No Duration",
+    //       inline: true
+    //     }, {
+    //       name: "Reason",
+    //       value: data.reason ?? "No reason provided."
+    //     }
+    //   ],
+    //   timestamp: data.timestamp,
+    //   footer: {
+    //     text: `Case ID: ${data.id}`
+    //   },
+    //   color: bot.constants.config.colors.red
+    // };
+    components: MessageComponent[] = [{
+      type: Constants.ComponentTypes.CONTAINER,
+      components: [
         {
-          name: "Moderator",
-          value: moderator.mention,
-          inline: true
+          type: Constants.ComponentTypes.TEXT_DISPLAY,
+          content: `# User ${actions[data.action]}\n##${member.username} (${member.id})`,
         }, {
-          name: "Punishment Duration",
-          value: ["ban", "timeout"].some((a) => a === data.action) ? (data.time ? `\`${bot.constants.utils.HMS(data.time)}\`` : "Permanent") : "No Duration",
-          inline: true
-        }, {
-          name: "Reason",
-          value: data.reason ?? "No reason provided."
+          type: Constants.ComponentTypes.TEXT_DISPLAY,
+          content: `## Moderator:\n-# ${moderator.mention} (${moderator.id})\n## Punishment Duration:\n-# ${["ban", "timeout"].some((a) => a === data.action) ? (data.time ? `\`${bot.constants.utils.HMS(data.time)}\`` : "Permanent") : "No Duration"}\n-# Reason: ${data.reason ?? "No reason provided."}`,
         }
-      ],
-      timestamp: data.timestamp,
-      footer: {
-        text: `Case ID: ${data.id}`
-      },
-      color: bot.constants.config.colors.red
-    };
+      ]
+    }];
+    
 
-  logging.log(guild, "moderation", { embeds: [embed] }, { caseID: data.id });
+  logging.log(guild, "moderation", components, { caseID: data.id });
 }
 
 export async function updateLogEntry(bot: ExtendedClient, guild: Guild, data: Case) {
