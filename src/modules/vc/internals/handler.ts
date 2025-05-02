@@ -306,7 +306,7 @@ export const createLogEntry = async (
         ],
         accessory: {
           type: Constants.ComponentTypes.BUTTON,
-          style: Constants.ButtonStyles.PRIMARY,
+          style: Constants.ButtonStyles.SECONDARY,
           customID: `vc_information_${channel.id}`,
           label: "View",
         }
