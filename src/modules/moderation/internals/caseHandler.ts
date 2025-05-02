@@ -80,7 +80,7 @@ export async function resolveCase(bot: ExtendedClient, guild: Guild, caseID: str
               content: "### Reason:"
             }, {
               type: Constants.ComponentTypes.TEXT_DISPLAY,
-              content: reason
+              content: reason ?? "No reason provided."
             }, {
               type: Constants.ComponentTypes.SEPARATOR,
               divider: true,
