@@ -49,12 +49,13 @@ export const run = async (bot: ExtendedClient, member: Member, channel: Uncached
           components: [
             {
               type: Constants.ComponentTypes.TEXT_DISPLAY,
-              content: `# Joined Private Voice Channel\n##${member.username} joined the channel\n### \`${realChannel.name}\``,
+              content: `# Joined Private Voice Channel\n## ${member.username} joined the channel\n### \`${realChannel.name}\``,
             }, {
               type: Constants.ComponentTypes.TEXT_DISPLAY,
               content: `-# Joined at: ${new Date().toLocaleString("en-US")} | User ID: ${member.id}`,
             }
-          ]
+          ],
+          accentColor: bot.constants.config.colors.green,
         }
       ]);
     }

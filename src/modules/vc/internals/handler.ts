@@ -95,12 +95,13 @@ export const create = async (bot: ExtendedClient, member: Member, channel: Voice
       components: [
         {
           type: Constants.ComponentTypes.TEXT_DISPLAY,
-          content: `# Created Private Voice Channel\n##${member.username} created the channel\n### \`${voice.name}\``,
+          content: `# Created Private Voice Channel\n## ${member.username} created the channel\n### \`${voice.name}\``,
         }, {
           type: Constants.ComponentTypes.TEXT_DISPLAY,
           content: `-# Created at: ${new Date().toLocaleString("en-US")} | User ID: ${member.id}`,
         }
-      ]
+      ],
+      accentColor: bot.constants.config.colors.default,
     }
   ]);
 };
@@ -137,12 +138,13 @@ export const remove = async (bot: ExtendedClient, member: Member, channel: Voice
       components: [
         {
           type: Constants.ComponentTypes.TEXT_DISPLAY,
-          content: `# Left Private Voice Channel\n##${member.username} left the channel\n### \`${channel.name}\``,
+          content: `# Left Private Voice Channel\n## ${member.username} left the channel\n### \`${channel.name}\``,
         }, {
           type: Constants.ComponentTypes.TEXT_DISPLAY,
           content: `-# Left at: ${new Date().toLocaleString("en-US")} | User ID: ${member.id}`,
         }
-      ]
+      ],
+      accentColor: bot.constants.config.colors.red,
     }
   ]);
 
@@ -181,12 +183,13 @@ export const remove = async (bot: ExtendedClient, member: Member, channel: Voice
         components: [
           {
             type: Constants.ComponentTypes.TEXT_DISPLAY,
-            content: `# Ended Private Voice Channel\n##${member.username} ended the channel\n### \`${channel.name}\``,
+            content: `# Ended Private Voice Channel\n## ${member.username} ended the channel\n### \`${channel.name}\``,
           }, {
             type: Constants.ComponentTypes.TEXT_DISPLAY,
             content: `-# Ended at: ${new Date().toLocaleString("en-US")} | User ID: ${member.id}`,
           }
-        ]
+        ],
+        accentColor: bot.constants.config.colors.default,
       }
     ]);
     
@@ -218,12 +221,13 @@ export const remove = async (bot: ExtendedClient, member: Member, channel: Voice
         components: [
           {
             type: Constants.ComponentTypes.TEXT_DISPLAY,
-            content: `# Transferred Ownership\n##${member.username} -> ${newOwner.username}\n### Set ${newOwner.username} the owner of <#${channel.id}>`,
+            content: `# Transferred Ownership\n## ${member.username} -> ${newOwner.username}\n### Set ${newOwner.username} the owner of <#${channel.id}>`,
           }, {
             type: Constants.ComponentTypes.TEXT_DISPLAY,
             content: `-# Transferred at: ${new Date().toLocaleString("en-US")} | User ID: ${member.id}`,
           }
-        ]
+        ],
+        accentColor: bot.constants.config.colors.default,
       }
     ]);
 
