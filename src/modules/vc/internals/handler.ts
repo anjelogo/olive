@@ -1,5 +1,5 @@
 import { Category, Channel } from "./interfaces";
-import { CategoryChannel, Constants, ContainerComponent, Member, MessageComponent, StageChannel, VoiceChannel } from "oceanic.js";
+import { CategoryChannel, Constants, ContainerComponent, Member, MessageComponent, StageChannel, TextDisplayComponent, VoiceChannel } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
 import { moduleData } from "../main";
 import Logging from "../../logging/main";
@@ -164,7 +164,7 @@ export const createLogEntry = async (
         accessory: {
           type: Constants.ComponentTypes.BUTTON,
           style: Constants.ButtonStyles.SECONDARY,
-          customID: `voicechannel_info_${channel.id}`,
+          customID: `voicechannel_information_${channel.id}`,
           label: "View",
         }
       }
@@ -198,7 +198,7 @@ export const createLogEntry = async (
         accessory: {
           type: Constants.ComponentTypes.BUTTON,
           style: Constants.ButtonStyles.SECONDARY,
-          customID: `voicechannel_info_${channel.id}`,
+          customID: `voicechannel_information_${channel.id}`,
           label: "View",
         }
       }
@@ -232,7 +232,7 @@ export const createLogEntry = async (
         accessory: {
           type: Constants.ComponentTypes.BUTTON,
           style: Constants.ButtonStyles.SECONDARY,
-          customID: `voicechannel_info_${channel.id}`,
+          customID: `voicechannel_information_${channel.id}`,
           label: "View",
         }
       }
@@ -309,7 +309,7 @@ export const createLogEntry = async (
     break;
   }
   case "information": {
-    if (!options?.owner || !options.createdAt || !options.locked) return;
+    if (!options?.owner || !options?.createdAt || !options?.locked) return;
 
     textFields = [
       {
@@ -350,7 +350,17 @@ export const createLogEntry = async (
     {
       ...baseContainer,
       components: [
-        ...textFields,
+        {
+          type: Constants.ComponentTypes.SECTION,
+          components: [textFields[0] as TextDisplayComponent],
+          accessory: {
+            type: Constants.ComponentTypes.THUMBNAIL,
+            media: {
+              url: member.avatarURL()
+            }
+          }
+        },
+        ...textFields.slice(0, 1),
         ...baseContainer.components
       ]
     }

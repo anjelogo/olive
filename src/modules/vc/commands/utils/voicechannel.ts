@@ -13,7 +13,7 @@ export default class Voicechannel extends Command {
 
     super(bot);
 
-    this.commands = ["voicechannel", "vc"];
+    this.commands = ["voicechannel"];
     this.description = "The main Voicechannel command";
     this.example = "voicechannel";
     this.permissions = ["vc.view"];
@@ -312,8 +312,12 @@ export default class Voicechannel extends Command {
       if (!channelObj)
         return interaction.createFollowup({content: "That's not a Private Voice Channel!", flags: Constants.MessageFlags.EPHEMERAL});
       
-      const owner: Member | undefined = this.bot.findMember(guild, channelObj.owner),
-        components = await createLogEntry(this.bot, "information", channel as VoiceChannel, member, { skipLog: true, owner, locked: channelObj.locked, createdAt: channelObj.createdAt });
+      const owner: Member | undefined = this.bot.findMember(guild, channelObj.owner);
+
+      if (!owner)
+        return interaction.createFollowup({content: "Could not find the owner of this channel!", flags: Constants.MessageFlags.EPHEMERAL});
+
+      const components = await createLogEntry(this.bot, "information", channel as VoiceChannel, member, { skipLog: true, owner, locked: channelObj.locked, createdAt: channelObj.createdAt });
 
 
       return interaction.createFollowup({ components: components as MessageComponent[], flags: Constants.MessageFlags.IS_COMPONENTS_V2 });
@@ -325,10 +329,11 @@ export default class Voicechannel extends Command {
   }
 
   readonly update = async (component: ComponentInteraction): Promise<Message | void> => {
-    
+    console.log("Component Interaction", component.data.customID);
+
     switch (component.data.customID.split("_")[1]) {
 
-    case "info": {
+    case "information": {
       // validate the channel
       const channelID = component.data.customID.split("_")[2],
         channel: VoiceChannel = this.bot.findChannel(this.bot.findGuild(component.guildID as string) as Guild, channelID) as VoiceChannel;
