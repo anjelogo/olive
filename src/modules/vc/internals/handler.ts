@@ -1,5 +1,5 @@
 import { Category, Channel } from "./interfaces";
-import { CategoryChannel, Constants, Member, StageChannel, VoiceChannel } from "oceanic.js";
+import { CategoryChannel, Constants, ContainerComponent, Member, MessageComponent, StageChannel, VoiceChannel } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
 import { moduleData } from "../main";
 import Logging from "../../logging/main";
@@ -43,16 +43,6 @@ export const create = async (bot: ExtendedClient, member: Member, channel: Voice
   // send a message to the user
   try {
     const dm = await member.user.createDM();
-    // await dm.createMessage({
-    //   embeds: [{
-    //     description: `You have created \`${voice.name}\`!\n\nYou can lock the channel by using \`/vc lock\` and unlock it by using \`/vc unlock\`.\nView information about the channel by using \`/vc info\`.\n\nLeaving the channel will delete it or transfer ownership to another member if there are other members in the channel.`,
-    //     author: {
-    //       name: "Private Voice Channel Created",
-    //     },
-    //     color: bot.constants.config.colors.default,
-    //     timestamp: new Date().toISOString(),
-    //   }]
-    // });
     await dm.createMessage({
       components: [
         {
@@ -74,35 +64,7 @@ export const create = async (bot: ExtendedClient, member: Member, channel: Voice
     console.error(e);
   }
   
-  const logging =  bot.getModule("Logging") as Logging;
-  // logging.log(channel.guild, "vc", {embeds: [{
-  //   type: "rich",
-  //   title: `${member.username}`,
-  //   description: `Created \`${voice.name}\``,
-  //   author: {
-  //     name: "Create New Private Voice Channel",
-  //     iconURL: member.avatarURL()
-  //   },
-  //   color: bot.constants.config.colors.default,
-  //   timestamp: new Date().toISOString(),
-  //   footer: {
-  //     text: `ID: ${member.id}`
-  //   }
-  // }]});
-  logging.log(channel.guild, "vc", [
-    {
-      type: Constants.ComponentTypes.CONTAINER,
-      components: [
-        {
-          type: Constants.ComponentTypes.TEXT_DISPLAY,
-          content: `# Created Private Voice Channel\n### ${member.username} created the channel \`${voice.name}\``,
-        }, {
-          type: Constants.ComponentTypes.TEXT_DISPLAY,
-          content: `-# Created at: ${new Date().toLocaleString("en-US")} | User ID: ${member.id}`,
-        }
-      ]
-    }
-  ]);
+  await createLogEntry(bot, "create", voice, member);
 };
 
 export const remove = async (bot: ExtendedClient, member: Member, channel: VoiceChannel | StageChannel): Promise<void> => {
@@ -115,37 +77,7 @@ export const remove = async (bot: ExtendedClient, member: Member, channel: Voice
 
   if (!channelObj) return;
 
-  const logging = bot.getModule("Logging") as Logging;
-  // logging.log(channel.guild, "vc", {embeds: [{
-  //   type: "rich",
-  //   title: `${member.username}`,
-  //   description: `Left \`${channel.name}\``,
-  //   author: {
-  //     name: "Left Private Voice Channel",
-  //     iconURL: member.avatarURL()
-  //   },
-  //   color: bot.constants.config.colors.red,
-  //   timestamp: new Date().toISOString(),
-  //   footer: {
-  //     text: `ID: ${member.id}`
-  //   }
-  // }]});
-
-  logging.log(channel.guild, "vc", [
-    {
-      type: Constants.ComponentTypes.CONTAINER,
-      components: [
-        {
-          type: Constants.ComponentTypes.TEXT_DISPLAY,
-          content: `# Left Private Voice Channel\n### ${member.username} left the channel \`${channel.name}\``,
-        }, {
-          type: Constants.ComponentTypes.TEXT_DISPLAY,
-          content: `-# Left at: ${new Date().toLocaleString("en-US")} | User ID: ${member.id}`,
-        }
-      ],
-      accentColor: bot.constants.config.colors.red,
-    }
-  ]);
+  await createLogEntry(bot, "leave", channel, member);
 
   if (channel.voiceMembers.size <= 0) {
 
@@ -155,41 +87,7 @@ export const remove = async (bot: ExtendedClient, member: Member, channel: Voice
     if (i > -1) category.channels.splice(i, 1);
     await bot.updateModuleData("VC", data, channel.guild);
 
-    // logging.log(channel.guild, "vc", {embeds: [{
-    //   type: "rich",
-    //   title: `${member.username}`,
-    //   description: `Ended \`${channel.name}\``,
-    //   author: {
-    //     name: "Ended Private Voice Channel",
-    //     iconURL: member.avatarURL()
-    //   },
-    //   fields: [
-    //     {
-    //       name: "Time Elapsed",
-    //       value: bot.constants.utils.HMS(Date.now() - channelObj.createdAt)
-    //     }
-    //   ],
-    //   color: bot.constants.config.colors.default,
-    //   timestamp: new Date().toISOString(),
-    //   footer: {
-    //     text: `ID: ${member.id}`
-    //   }
-    // }]});
-
-    logging.log(channel.guild, "vc", [
-      {
-        type: Constants.ComponentTypes.CONTAINER,
-        components: [
-          {
-            type: Constants.ComponentTypes.TEXT_DISPLAY,
-            content: `# Ended Private Voice Channel\n### ${member.username} ended the channel \`${channel.name}\`\n ## Time Elapsed:\n### ${bot.constants.utils.HMS(Date.now() - channelObj.createdAt)}`,
-          }, {
-            type: Constants.ComponentTypes.TEXT_DISPLAY,
-            content: `-# Ended at: ${new Date().toLocaleString("en-US")} | User ID: ${member.id}`,
-          }
-        ]
-      }
-    ]);
+    await createLogEntry(bot, "leave", channel, member);
     
   } else if (member.id === channelObj.owner) {
     const members = channel.voiceMembers.filter((m) => m.id !== member.id).map((m) => m.id),
@@ -199,34 +97,7 @@ export const remove = async (bot: ExtendedClient, member: Member, channel: Voice
 
     await bot.updateModuleData("VC", data, channel.guild);
 
-    // logging.log(channel.guild, "vc", {embeds: [{
-    //   type: "rich",
-    //   title: `${member.username} -> ${newOwner.username}`,
-    //   description: `Set \`${newOwner.username}\` the owner of \`${channel.name}\``,
-    //   author: {
-    //     name: "Transferred Private Voice Channel Ownership",
-    //     iconURL: member.avatarURL()
-    //   },
-    //   color: bot.constants.config.colors.default,
-    //   timestamp: new Date().toISOString(),
-    //   footer: {
-    //     text: `ID: ${member.id}`
-    //   }
-    // }]});
-    logging.log(channel.guild, "vc", [
-      {
-        type: Constants.ComponentTypes.CONTAINER,
-        components: [
-          {
-            type: Constants.ComponentTypes.TEXT_DISPLAY,
-            content: `# Transferred Ownership\n## ${member.username} -> ${newOwner.username}\n### Set ${newOwner.username} the owner of <#${channel.id}>`,
-          }, {
-            type: Constants.ComponentTypes.TEXT_DISPLAY,
-            content: `-# Transferred at: ${new Date().toLocaleString("en-US")} | User ID: ${member.id}`,
-          }
-        ]
-      }
-    ]);
+    await createLogEntry(bot, "newOwner", channel, member, { newOwner });
 
     try {
       const newOwnerDM = await newOwner.user.createDM();
@@ -236,5 +107,215 @@ export const remove = async (bot: ExtendedClient, member: Member, channel: Voice
     } catch (e) {
       console.error(e);
     }
+  }
+};
+
+export const createLogEntry = async (
+  bot: ExtendedClient,
+  type: ("join" | "newOwner" | "leave" | "create" | "information"),
+  channel: VoiceChannel | StageChannel,
+  member: Member,
+  options?: {
+    newOwner? : Member,
+    locked?: boolean,
+    createdAt?: number,
+    owner?: Member,
+    skipLog?: boolean
+  }
+): Promise<MessageComponent[] | void> => {
+  const logging = bot.getModule("Logging") as Logging,
+    baseContainer: ContainerComponent = {
+      type: Constants.ComponentTypes.CONTAINER,
+      components: [
+        {
+          type: Constants.ComponentTypes.TEXT_DISPLAY,
+          content: `-# ${new Date().toLocaleString("en-US")} | User ID: ${member.id}`,
+        }
+      ]
+    };
+
+  let textFields: ContainerComponent["components"] = [];
+
+  switch (type) {
+  case "join": {
+    textFields = [
+      {
+        type: Constants.ComponentTypes.TEXT_DISPLAY,
+        content: "## Joined Private Voice Channel",
+      }, {
+        type: Constants.ComponentTypes.SEPARATOR,
+        spacing: Constants.SeparatorSpacingSize.LARGE
+      }, {
+        type: Constants.ComponentTypes.TEXT_DISPLAY,
+        content: `${member.username} joined the channel \`${channel.name}\``,
+      }, {
+        type: Constants.ComponentTypes.SEPARATOR,
+        divider: true
+      }, {
+        type: Constants.ComponentTypes.SECTION,
+        components: [
+          {
+            type: Constants.ComponentTypes.TEXT_DISPLAY,
+            content: "View more information about the channel.",
+          }
+        ],
+        accessory: {
+          type: Constants.ComponentTypes.BUTTON,
+          style: Constants.ButtonStyles.PRIMARY,
+          customID: `vc_info_${channel.id}`,
+          label: "View",
+        }
+      }
+    ];
+    break;
+  }
+  case "create": {
+    textFields = [
+      {
+        type: Constants.ComponentTypes.TEXT_DISPLAY,
+        content: "## Created Private Voice Channel",
+      }, {
+        type: Constants.ComponentTypes.SEPARATOR,
+        spacing: Constants.SeparatorSpacingSize.LARGE
+      }, {
+        type: Constants.ComponentTypes.TEXT_DISPLAY,
+        content: `${member.username} created the channel \`${channel.name}\``,
+      }, {
+        type: Constants.ComponentTypes.SEPARATOR,
+        divider: true
+      }, {
+        type: Constants.ComponentTypes.SECTION,
+        components: [
+          {
+            type: Constants.ComponentTypes.TEXT_DISPLAY,
+            content: "View more information about the channel.",
+          }
+        ],
+        accessory: {
+          type: Constants.ComponentTypes.BUTTON,
+          style: Constants.ButtonStyles.PRIMARY,
+          customID: `vc_info_${channel.id}`,
+          label: "View",
+        }
+      }
+    ];
+    break;
+  }
+  case "leave": {
+    textFields = [
+      {
+        type: Constants.ComponentTypes.TEXT_DISPLAY,
+        content: "## Left Private Voice Channel",
+      }, {
+        type: Constants.ComponentTypes.SEPARATOR,
+        spacing: Constants.SeparatorSpacingSize.LARGE
+      }, {
+        type: Constants.ComponentTypes.TEXT_DISPLAY,
+        content: `${member.username} left the channel \`${channel.name}\``,
+      }, {
+        type: Constants.ComponentTypes.SEPARATOR,
+        divider: true
+      }, {
+        type: Constants.ComponentTypes.SECTION,
+        components: [
+          {
+            type: Constants.ComponentTypes.TEXT_DISPLAY,
+            content: "View more information about the channel.",
+          }
+        ],
+        accessory: {
+          type: Constants.ComponentTypes.BUTTON,
+          style: Constants.ButtonStyles.PRIMARY,
+          customID: `vc_info_${channel.id}`,
+          label: "View",
+        }
+      }
+    ];
+    break;
+  }
+  case "newOwner": {
+    if (!options?.newOwner) return;
+    textFields = [
+      {
+        type: Constants.ComponentTypes.TEXT_DISPLAY,
+        content: "## Transferred Ownership",
+      }, {
+        type: Constants.ComponentTypes.SEPARATOR,
+        spacing: Constants.SeparatorSpacingSize.LARGE
+      }, {
+        type: Constants.ComponentTypes.TEXT_DISPLAY,
+        content: `### ${member.username} -> ${options.newOwner.username}`,
+      }, {
+        type: Constants.ComponentTypes.TEXT_DISPLAY,
+        content: `${member.username} -> ${options.newOwner.username}\nSet ${options.newOwner.username} the owner of \`${channel.name}\``,
+      }, {
+        type: Constants.ComponentTypes.SEPARATOR,
+        divider: true
+      }, {
+        type: Constants.ComponentTypes.SECTION,
+        components: [
+          {
+            type: Constants.ComponentTypes.TEXT_DISPLAY,
+            content: "View more information about the channel.",
+          }
+        ],
+        accessory: {
+          type: Constants.ComponentTypes.BUTTON,
+          style: Constants.ButtonStyles.PRIMARY,
+          customID: `vc_info_${channel.id}`,
+          label: "View",
+        }
+      }
+    ];
+    break;
+  }
+  case "information": {
+    if (!options?.owner || !options.createdAt || !options.locked) return;
+
+    textFields = [
+      {
+        type: Constants.ComponentTypes.TEXT_DISPLAY,
+        content: "# Private Voice Channel Information",
+      }, {
+        type: Constants.ComponentTypes.SEPARATOR,
+        divider: true
+      }, {
+        type: Constants.ComponentTypes.TEXT_DISPLAY,
+        content: `${options.locked ? ":lock:" : ":unlock:"} ${(channel as VoiceChannel).name}`,
+      }, {
+        type: Constants.ComponentTypes.TEXT_DISPLAY,
+        content: "Owner:",
+      }, {
+        type: Constants.ComponentTypes.TEXT_DISPLAY,
+        content: `${options.owner ? `<@${options.owner.id}>` : "Unknown"}`,
+      }, {
+        type: Constants.ComponentTypes.TEXT_DISPLAY,
+        content: "Time Elapsed:",
+      }, {
+        type: Constants.ComponentTypes.TEXT_DISPLAY,
+        content: `${options.createdAt ? `${bot.constants.utils.HMS(Date.now() - options.createdAt)} ago` : "Unknown"}`,
+      },
+    ];
+    break;
+  }
+  default:
+    return;
+  }
+
+  const components: MessageComponent[] = [
+    {
+      ...baseContainer,
+      components: [
+        ...textFields,
+        ...baseContainer.components
+      ]
+    }
+  ];
+
+  if (options?.skipLog) {
+    return components;
+  } else {
+    await logging.log(channel.guild, "vc", components);
+    return components;
   }
 };

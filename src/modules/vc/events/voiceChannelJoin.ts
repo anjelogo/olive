@@ -1,9 +1,8 @@
 import { Category, Channel } from "../internals/interfaces";
-import { Constants, Member, VoiceChannel } from "oceanic.js";
-import { create } from "../internals/handler";
+import { Member, VoiceChannel } from "oceanic.js";
+import { create, createLogEntry } from "../internals/handler";
 import ExtendedClient from "../../../Base/Client";
 import { moduleData } from "../main";
-import Logging from "../../logging/main";
 import Main from "../../main/main";
 
 export const run = async (bot: ExtendedClient, member: Member, channel: VoiceChannel): Promise<void> => {
@@ -21,38 +20,8 @@ export const run = async (bot: ExtendedClient, member: Member, channel: VoiceCha
   const channelObj = cat.channels.find((c: Channel) => c.channelID === channel.id);
 
   if (channelObj) {
-    if (await mainModule.handlePermission(member, "vc.join")) {
-      //get logging module
-      const logging =  bot.getModule("Logging") as Logging;
-      // logging.log(channel.guild, "vc", {embeds: [{
-      //   type: "rich",
-      //   title: `${member.username}`,
-      //   description: `Joined \`${channel.name}\``,
-      //   author: {
-      //     name: "Joined Private Voice Channel",
-      //     iconURL: member.avatarURL()
-      //   },
-      //   color: bot.constants.config.colors.green,
-      //   timestamp: new Date().toISOString(),
-      //   footer: {
-      //     text: `ID: ${member.id}`
-      //   }
-      // }]});
-      logging.log(channel.guild, "vc", [
-        {
-          type: Constants.ComponentTypes.CONTAINER,
-          components: [
-            {
-              type: Constants.ComponentTypes.TEXT_DISPLAY,
-              content: `# Joined Private Voice Channel\n### ${member.username} joined the channel \`${channel.name}\``,
-            }, {
-              type: Constants.ComponentTypes.TEXT_DISPLAY,
-              content: `-# Joined at: ${new Date().toLocaleString("en-US")} | User ID: ${member.id}`,
-            }
-          ]
-        }
-      ]);
-    }
+    if (await mainModule.handlePermission(member, "vc.join"))
+      createLogEntry(bot, "join", channel, member);
     else 
       member.edit({ channelID: null });
   }

@@ -1,11 +1,11 @@
-import { CommandInteraction, Constants, Guild, Member, Role, VoiceChannel, ModalSubmitInteraction, InteractionCallbackResponse, AnyInteractionChannel, Uncached } from "oceanic.js";
+import { CommandInteraction, Constants, Guild, Member, Role, VoiceChannel, ModalSubmitInteraction, InteractionCallbackResponse, AnyInteractionChannel, Uncached, ComponentInteraction, Message, MessageComponent } from "oceanic.js";
 import { Category, Channel } from "../../internals/interfaces";
 import { moduleData } from "../../main";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
-import Logging from "../../../logging/main";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Main from "../../../main/main";
+import { createLogEntry } from "../../internals/handler";
 
 export default class Voicechannel extends Command {
   
@@ -152,7 +152,7 @@ export default class Voicechannel extends Command {
       }
 
       case "owner": {
-        const newOwner = interaction.data.options.getUser("member", true);
+        const newOwner = interaction.data.options.getMember("member", true);
 
         if (!member.voiceState?.channelID)
           return interaction.createFollowup({content: "You need to be in a Private Voice channel to run this command!", flags: Constants.MessageFlags.EPHEMERAL});
@@ -177,39 +177,10 @@ export default class Voicechannel extends Command {
         try {
           await this.bot.updateModuleData("VC", data, guild);
 
-          const logging = this.bot.getModule("Logging") as Logging;
-          // logging.log(channel.guild, "vc", {embeds: [{
-          //   type: "rich",
-          //   title: `${member.username}#${member.discriminator} -> ${newOwner.username}#${newOwner.discriminator}`,
-          //   description: `Set \`${newOwner.username}\` the owner of \`${channel.name}\``,
-          //   author: {
-          //     name: "Transferred Private Voice Channel Ownership",
-          //     iconURL: member.avatarURL()
-          //   },
-          //   color: this.bot.constants.config.colors.default,
-          //   timestamp: new Date().toISOString(),
-          //   footer: {
-          //     text: `ID: ${member.id}`
-          //   }
-          // }]});
-          logging.log(channel.guild, "vc", [
-            {
-              type: Constants.ComponentTypes.CONTAINER,
-              components: [
-                {
-                  type: Constants.ComponentTypes.TEXT_DISPLAY,
-                  content: `# Transferred Ownership\n##${member.username} -> ${newOwner.username}\n### Set ${newOwner.username} the owner of <#${channel.id}>`,
-                }, {
-                  type: Constants.ComponentTypes.TEXT_DISPLAY,
-                  content: `-# Transferred at: ${new Date().toLocaleString("en-US")} | User ID: ${member.id}`,
-                }
-              ]
-            }
-          ]);
-
+          await createLogEntry(this.bot, "newOwner", channel, member, { newOwner });
 
           // message the new owner
-          const newOwnerDM = await newOwner.createDM();
+          const newOwnerDM = await newOwner.user.createDM();
           await newOwnerDM.createMessage({content: `${this.constants.emojis.warning.yellow} You are now the owner of \`${channel.name}\` in \`${channel.guild.name}\`!`});
 
           return interaction.createFollowup({content: `${this.constants.emojis.tick} Successfully transferred ownership of Private Channel to \`${newOwner.username}\``, flags: Constants.MessageFlags.EPHEMERAL});
@@ -330,11 +301,6 @@ export default class Voicechannel extends Command {
         channel = this.bot.getChannel(member.voiceState.channelID);
       else if (!channel)
         return interaction.createFollowup({content: "Specify or join a private voice channel to the information of a channel!", flags: Constants.MessageFlags.EPHEMERAL});
-      
-      const status = {
-        locked: ":lock: Locked",
-        unlocked: ":unlock: Unlocked"
-      };
 
       const cat: Category | undefined = data.categories.find((c: Category) => c.catID === channel?.parentID);
 
@@ -345,47 +311,48 @@ export default class Voicechannel extends Command {
         
       if (!channelObj)
         return interaction.createFollowup({content: "That's not a Private Voice Channel!", flags: Constants.MessageFlags.EPHEMERAL});
+      
+      const owner: Member | undefined = this.bot.findMember(guild, channelObj.owner),
+        components = await createLogEntry(this.bot, "information", channel as VoiceChannel, member, { skipLog: true, owner, locked: channelObj.locked, createdAt: channelObj.createdAt });
+
+
+      return interaction.createFollowup({ components: components as MessageComponent[], flags: Constants.MessageFlags.IS_COMPONENTS_V2 });
         
-      const owner: Member | undefined = this.bot.findMember(guild, channelObj.owner);
-      // embed: Embed = {
-      //   title: channel?.name,
-      //   fields: [
-      //     {
-      //       name: "Owner",
-      //       value: owner ? owner.mention : "Error! Could not find VC Owner"
-      //     }, {
-      //       name: "Status",
-      //       value: status[channelObj.locked ? "locked" : "unlocked"]
-      //     }, {
-      //       name: "Time Elapsed",
-      //       value: this.bot.constants.utils.HMS(Date.now() - channelObj.createdAt)
-      //     }
-      //   ],
-      //   color: this.bot.constants.config.colors.default,
-      //   type: "rich"
-      // };
-
-      return interaction.createFollowup({
-        components: [
-          {
-            type: Constants.ComponentTypes.CONTAINER,
-            components: [
-              {
-                type: Constants.ComponentTypes.TEXT_DISPLAY,
-                content: `# Private Voice Channel Information\n##${channel?.name}\n### Owner: ${owner ? owner.mention : "Error! Could not find VC Owner"}`,
-              }, {
-                type: Constants.ComponentTypes.TEXT_DISPLAY,
-                content: `-# Status: ${status[channelObj.locked ? "locked" : "unlocked"]} | Time Elapsed: ${this.bot.constants.utils.HMS(Date.now() - channelObj.createdAt)}`,
-              }
-            ]
-          }
-        ],
-        flags: Constants.MessageFlags.IS_COMPONENTS_V2
-      });
     }
 
     }
 
+  }
+
+  readonly update = async (component: ComponentInteraction): Promise<Message | void> => {
+    
+    switch (component.data.customID.split("_")[1]) {
+
+    case "info": {
+      // validate the channel
+      const channelID = component.data.customID.split("_")[2],
+        channel: VoiceChannel = this.bot.findChannel(this.bot.findGuild(component.guildID as string) as Guild, channelID) as VoiceChannel;
+
+      if (!channel) return;
+
+      const channelObj: Channel | undefined = (await this.bot.getModuleData("VC", channel.guild.id) as moduleData).categories.find((c) => c.catID === channel.parentID)?.channels.find((c) => c.channelID === channel.id);
+
+      if (!channelObj) return;
+
+      const owner = this.bot.findMember(channel.guild, channelObj.owner),
+        components = await createLogEntry(this.bot, "information", channel, component.member as Member, { skipLog: true, owner, locked: channelObj.locked, createdAt: channelObj.createdAt});
+
+      if (!components) return;
+
+      await component.createFollowup({ components, flags: Constants.MessageFlags.IS_COMPONENTS_V2 });
+
+      break;
+    }
+    default: {
+      component.createFollowup({content: `${this.bot.constants.emojis.x} Unknown Command`, flags: Constants.MessageFlags.EPHEMERAL});
+    }
+
+    }
   }
 
   readonly modalSubmit = async (modal: ModalSubmitInteraction<AnyInteractionChannel | Uncached>): Promise<void> => {
