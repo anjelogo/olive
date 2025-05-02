@@ -1,4 +1,4 @@
-import { CommandInteraction, Constants, Guild, Member, Role, VoiceChannel, ModalSubmitInteraction, InteractionCallbackResponse, AnyInteractionChannel, Uncached, ComponentInteraction, Message, MessageComponent } from "oceanic.js";
+import { CommandInteraction, Constants, Guild, Member, Role, VoiceChannel, ModalSubmitInteraction, InteractionCallbackResponse, AnyInteractionChannel, Uncached, ComponentInteraction, MessageComponent } from "oceanic.js";
 import { Category, Channel } from "../../internals/interfaces";
 import { moduleData } from "../../main";
 import Command from "../../../../Base/Command";
@@ -328,9 +328,7 @@ export default class Voicechannel extends Command {
 
   }
 
-  readonly update = async (component: ComponentInteraction): Promise<Message | void> => {
-    console.log("Component Interaction", component.data.customID);
-
+  readonly update = async (component: ComponentInteraction): Promise<FollowupMessageInteractionResponse<ComponentInteraction> | void> => {
     switch (component.data.customID.split("_")[2]) {
 
     case "information": {
@@ -338,16 +336,16 @@ export default class Voicechannel extends Command {
       const channelID = component.data.customID.split("_")[3],
         channel: VoiceChannel = this.bot.findChannel(this.bot.findGuild(component.guildID as string) as Guild, channelID) as VoiceChannel;
 
-      if (!channel) return;
+      if (!channel) return component.createFollowup({ content: `${this.bot.constants.emojis.x} Channel not found`, flags: Constants.MessageFlags.EPHEMERAL });
 
       const channelObj: Channel | undefined = (await this.bot.getModuleData("VC", channel.guild.id) as moduleData).categories.find((c) => c.catID === channel.parentID)?.channels.find((c) => c.channelID === channel.id);
 
-      if (!channelObj) return;
+      if (!channelObj) return component.createFollowup({ content: `${this.bot.constants.emojis.x} Channel Data not found`, flags: Constants.MessageFlags.EPHEMERAL });
 
       const owner = this.bot.findMember(channel.guild, channelObj.owner),
         components = await createLogEntry(this.bot, "information", channel, component.member as Member, { skipLog: true, owner, locked: channelObj.locked, createdAt: channelObj.createdAt});
 
-      if (!components) return;
+      if (!components) return component.createFollowup({ content: `${this.bot.constants.emojis.x} Error creating information`, flags: Constants.MessageFlags.EPHEMERAL });
 
       await component.createFollowup({ components, flags: Constants.MessageFlags.IS_COMPONENTS_V2 });
 

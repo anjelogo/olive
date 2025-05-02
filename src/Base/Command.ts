@@ -26,7 +26,7 @@ export default class Command {
   public constants: CustomConstants;
   public guildSpecific?: string[];
   public execute: (interaction: CommandInteraction) => Promise<InitialMessagedInteractionResponse<CommandInteraction | ComponentInteraction> | FollowupMessageInteractionResponse<CommandInteraction | ComponentInteraction> | InteractionCallbackResponse<AnyInteractionChannel | Uncached> | undefined | void> | undefined;
-  public update: (component: ComponentInteraction) => Promise<Message | undefined | void> | undefined;
+  public update: (component: ComponentInteraction) => Promise<FollowupMessageInteractionResponse<CommandInteraction | ComponentInteraction> | Message | undefined | void> | undefined;
   public modalSubmit: (modal: ModalSubmitInteraction) => Promise<Message | undefined | void> | undefined;
 
   constructor(bot: ExtendedClient) {
