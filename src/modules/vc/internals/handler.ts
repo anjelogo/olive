@@ -137,7 +137,7 @@ export const createLogEntry = async (
       components: [
         {
           type: Constants.ComponentTypes.TEXT_DISPLAY,
-          content: `-# ${bot.constants.emojis.moderate} <t:${Date.now()}:f>`,
+          content: `-# ${bot.constants.emojis.moderate} <t:${Math.floor(Date.now() / 1000)}:f>`,
         }
       ],
       accentColor: containerColors[type]
