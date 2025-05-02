@@ -310,7 +310,7 @@ export const createLogEntry = async (
             type: Constants.ComponentTypes.BUTTON,
             style: Constants.ButtonStyles.SECONDARY,
             customID: `voicechannel_0_information_${channel.id}`,
-            label: "View",
+            label: "View Channel Information",
           }
         } : {
           type: Constants.ComponentTypes.TEXT_DISPLAY,
