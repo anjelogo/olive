@@ -1,4 +1,4 @@
-import { CommandInteraction, Constants, Embed, Guild, Member, Role, VoiceChannel, ModalSubmitInteraction, InteractionCallbackResponse, AnyInteractionChannel, Uncached } from "oceanic.js";
+import { CommandInteraction, Constants, Guild, Member, Role, VoiceChannel, ModalSubmitInteraction, InteractionCallbackResponse, AnyInteractionChannel, Uncached } from "oceanic.js";
 import { Category, Channel } from "../../internals/interfaces";
 import { moduleData } from "../../main";
 import Command from "../../../../Base/Command";
@@ -177,21 +177,36 @@ export default class Voicechannel extends Command {
         try {
           await this.bot.updateModuleData("VC", data, guild);
 
-          const logging = await this.bot.getModule("Logging") as Logging;
-          logging.log(channel.guild, "vc", {embeds: [{
-            type: "rich",
-            title: `${member.username}#${member.discriminator} -> ${newOwner.username}#${newOwner.discriminator}`,
-            description: `Set \`${newOwner.username}\` the owner of \`${channel.name}\``,
-            author: {
-              name: "Transferred Private Voice Channel Ownership",
-              iconURL: member.avatarURL()
-            },
-            color: this.bot.constants.config.colors.default,
-            timestamp: new Date().toISOString(),
-            footer: {
-              text: `ID: ${member.id}`
+          const logging = this.bot.getModule("Logging") as Logging;
+          // logging.log(channel.guild, "vc", {embeds: [{
+          //   type: "rich",
+          //   title: `${member.username}#${member.discriminator} -> ${newOwner.username}#${newOwner.discriminator}`,
+          //   description: `Set \`${newOwner.username}\` the owner of \`${channel.name}\``,
+          //   author: {
+          //     name: "Transferred Private Voice Channel Ownership",
+          //     iconURL: member.avatarURL()
+          //   },
+          //   color: this.bot.constants.config.colors.default,
+          //   timestamp: new Date().toISOString(),
+          //   footer: {
+          //     text: `ID: ${member.id}`
+          //   }
+          // }]});
+          logging.log(channel.guild, "vc", [
+            {
+              type: Constants.ComponentTypes.CONTAINER,
+              components: [
+                {
+                  type: Constants.ComponentTypes.TEXT_DISPLAY,
+                  content: `# Transferred Ownership\n##${member.username} -> ${newOwner.username}\n### Set ${newOwner.username} the owner of <#${channel.id}>`,
+                }, {
+                  type: Constants.ComponentTypes.TEXT_DISPLAY,
+                  content: `-# Transferred at: ${new Date().toLocaleString("en-US")} | User ID: ${member.id}`,
+                }
+              ]
             }
-          }]});
+          ]);
+
 
           // message the new owner
           const newOwnerDM = await newOwner.createDM();
@@ -331,26 +346,42 @@ export default class Voicechannel extends Command {
       if (!channelObj)
         return interaction.createFollowup({content: "That's not a Private Voice Channel!", flags: Constants.MessageFlags.EPHEMERAL});
         
-      const owner: Member | undefined = this.bot.findMember(guild, channelObj.owner),
-        embed: Embed = {
-          title: channel?.name,
-          fields: [
-            {
-              name: "Owner",
-              value: owner ? owner.mention : "Error! Could not find VC Owner"
-            }, {
-              name: "Status",
-              value: status[channelObj.locked ? "locked" : "unlocked"]
-            }, {
-              name: "Time Elapsed",
-              value: this.bot.constants.utils.HMS(Date.now() - channelObj.createdAt)
-            }
-          ],
-          color: this.bot.constants.config.colors.default,
-          type: "rich"
-        };
+      const owner: Member | undefined = this.bot.findMember(guild, channelObj.owner);
+      // embed: Embed = {
+      //   title: channel?.name,
+      //   fields: [
+      //     {
+      //       name: "Owner",
+      //       value: owner ? owner.mention : "Error! Could not find VC Owner"
+      //     }, {
+      //       name: "Status",
+      //       value: status[channelObj.locked ? "locked" : "unlocked"]
+      //     }, {
+      //       name: "Time Elapsed",
+      //       value: this.bot.constants.utils.HMS(Date.now() - channelObj.createdAt)
+      //     }
+      //   ],
+      //   color: this.bot.constants.config.colors.default,
+      //   type: "rich"
+      // };
 
-      return interaction.createFollowup({ embeds: [embed] });
+      return interaction.createFollowup({
+        components: [
+          {
+            type: Constants.ComponentTypes.CONTAINER,
+            components: [
+              {
+                type: Constants.ComponentTypes.TEXT_DISPLAY,
+                content: `# Private Voice Channel Information\n##${channel?.name}\n### Owner: ${owner ? owner.mention : "Error! Could not find VC Owner"}`,
+              }, {
+                type: Constants.ComponentTypes.TEXT_DISPLAY,
+                content: `-# Status: ${status[channelObj.locked ? "locked" : "unlocked"]} | Time Elapsed: ${this.bot.constants.utils.HMS(Date.now() - channelObj.createdAt)}`,
+              }
+            ]
+          }
+        ],
+        flags: Constants.MessageFlags.IS_COMPONENTS_V2
+      });
     }
 
     }
