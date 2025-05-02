@@ -164,7 +164,7 @@ export const createLogEntry = async (
         accessory: {
           type: Constants.ComponentTypes.BUTTON,
           style: Constants.ButtonStyles.SECONDARY,
-          customID: `vc_info_${channel.id}`,
+          customID: `voicechannel_info_${channel.id}`,
           label: "View",
         }
       }
@@ -178,7 +178,7 @@ export const createLogEntry = async (
         content: "## Created Private Voice Channel",
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
-        spacing: Constants.SeparatorSpacingSize.LARGE,
+        spacing: Constants.SeparatorSpacingSize.SMALL,
         divider: false
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
@@ -198,7 +198,7 @@ export const createLogEntry = async (
         accessory: {
           type: Constants.ComponentTypes.BUTTON,
           style: Constants.ButtonStyles.SECONDARY,
-          customID: `vc_info_${channel.id}`,
+          customID: `voicechannel_info_${channel.id}`,
           label: "View",
         }
       }
@@ -212,7 +212,7 @@ export const createLogEntry = async (
         content: "## Left Private Voice Channel",
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
-        spacing: Constants.SeparatorSpacingSize.LARGE,
+        spacing: Constants.SeparatorSpacingSize.SMALL,
         divider: false
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
@@ -232,7 +232,7 @@ export const createLogEntry = async (
         accessory: {
           type: Constants.ComponentTypes.BUTTON,
           style: Constants.ButtonStyles.SECONDARY,
-          customID: `vc_info_${channel.id}`,
+          customID: `voicechannel_info_${channel.id}`,
           label: "View",
         }
       }
@@ -248,7 +248,7 @@ export const createLogEntry = async (
         content: "## Ended Private Voice Channel",
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
-        spacing: Constants.SeparatorSpacingSize.LARGE,
+        spacing: Constants.SeparatorSpacingSize.SMALL,
         divider: false
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
@@ -279,7 +279,7 @@ export const createLogEntry = async (
         content: "## Transferred Ownership",
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
-        spacing: Constants.SeparatorSpacingSize.LARGE,
+        spacing: Constants.SeparatorSpacingSize.SMALL,
         divider: false
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
@@ -301,7 +301,7 @@ export const createLogEntry = async (
         accessory: {
           type: Constants.ComponentTypes.BUTTON,
           style: Constants.ButtonStyles.SECONDARY,
-          customID: `vc_information_${channel.id}`,
+          customID: `voicechannel_information_${channel.id}`,
           label: "View",
         }
       }
@@ -321,20 +321,20 @@ export const createLogEntry = async (
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
         divider: false,
-        spacing: Constants.SeparatorSpacingSize.LARGE
+        spacing: Constants.SeparatorSpacingSize.SMALL
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: "Owner:",
+        content: "## Owner:",
+      }, {
+        type: Constants.ComponentTypes.TEXT_DISPLAY,
+        content: `${options.owner ? `<@${options.owner.id}>` : "Unknown"}`,
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
         divider: false,
         spacing: Constants.SeparatorSpacingSize.SMALL
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: `${options.owner ? `<@${options.owner.id}>` : "Unknown"}`,
-      }, {
-        type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: "Time Elapsed:",
+        content: "## Time Elapsed:",
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
         content: `${options.createdAt ? `${bot.constants.utils.HMS(Date.now() - options.createdAt)} ago` : "Unknown"}`,
