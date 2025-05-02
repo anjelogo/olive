@@ -229,7 +229,7 @@ export const createLogEntry = async (
         content: "### Elapsed Time:",
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: `${options?.createdAt ? `${bot.constants.utils.HMS(Date.now() - options.createdAt)} ago` : "Unknown"}`,
+        content: `${options?.createdAt ? `${bot.constants.utils.HMS(Date.now() - options.createdAt)}` : "Unknown"}`,
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
         divider: true,
@@ -294,7 +294,7 @@ export const createLogEntry = async (
         content: "## Time Elapsed:",
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: `${options.createdAt ? `${bot.constants.utils.HMS(Date.now() - options.createdAt)} ago` : "Unknown"}`,
+        content: `${options.createdAt ? `${bot.constants.utils.HMS(Date.now() - options.createdAt)}` : "Unknown"}`,
       },
     ];
     break;
