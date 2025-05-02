@@ -157,7 +157,7 @@ export const createLogEntry = async (
         divider: false
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: `${member.id} joined the channel \`${channel.name}\``,
+        content: `<@${member.id}> joined the channel \`${channel.name}\``,
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
         divider: true,
