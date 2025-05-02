@@ -144,7 +144,7 @@ export const createLogEntry = async (
         content: "## Joined Private Voice Channel",
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
-        spacing: Constants.SeparatorSpacingSize.SMALL,
+        spacing: Constants.SeparatorSpacingSize.LARGE,
         divider: false
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
@@ -163,7 +163,7 @@ export const createLogEntry = async (
         ],
         accessory: {
           type: Constants.ComponentTypes.BUTTON,
-          style: Constants.ButtonStyles.PRIMARY,
+          style: Constants.ButtonStyles.SECONDARY,
           customID: `vc_info_${channel.id}`,
           label: "View",
         }
@@ -178,7 +178,7 @@ export const createLogEntry = async (
         content: "## Created Private Voice Channel",
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
-        spacing: Constants.SeparatorSpacingSize.SMALL,
+        spacing: Constants.SeparatorSpacingSize.LARGE,
         divider: false
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
@@ -197,7 +197,7 @@ export const createLogEntry = async (
         ],
         accessory: {
           type: Constants.ComponentTypes.BUTTON,
-          style: Constants.ButtonStyles.PRIMARY,
+          style: Constants.ButtonStyles.SECONDARY,
           customID: `vc_info_${channel.id}`,
           label: "View",
         }
@@ -212,7 +212,7 @@ export const createLogEntry = async (
         content: "## Left Private Voice Channel",
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
-        spacing: Constants.SeparatorSpacingSize.SMALL,
+        spacing: Constants.SeparatorSpacingSize.LARGE,
         divider: false
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
@@ -231,7 +231,7 @@ export const createLogEntry = async (
         ],
         accessory: {
           type: Constants.ComponentTypes.BUTTON,
-          style: Constants.ButtonStyles.PRIMARY,
+          style: Constants.ButtonStyles.SECONDARY,
           customID: `vc_info_${channel.id}`,
           label: "View",
         }
@@ -248,11 +248,15 @@ export const createLogEntry = async (
         content: "## Ended Private Voice Channel",
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
-        spacing: Constants.SeparatorSpacingSize.SMALL,
+        spacing: Constants.SeparatorSpacingSize.LARGE,
         divider: false
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
         content: `${member.username} ended the channel \`${channel.name}\``,
+      }, {
+        type: Constants.ComponentTypes.SEPARATOR,
+        divider: false,
+        spacing: Constants.SeparatorSpacingSize.SMALL
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
         content: "### Elapsed Time:",
@@ -275,7 +279,7 @@ export const createLogEntry = async (
         content: "## Transferred Ownership",
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
-        spacing: Constants.SeparatorSpacingSize.SMALL,
+        spacing: Constants.SeparatorSpacingSize.LARGE,
         divider: false
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
@@ -312,14 +316,19 @@ export const createLogEntry = async (
         type: Constants.ComponentTypes.TEXT_DISPLAY,
         content: "# Private Voice Channel Information",
       }, {
-        type: Constants.ComponentTypes.SEPARATOR,
-        divider: true
-      }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
         content: `${options.locked ? ":lock:" : ":unlock:"} ${(channel as VoiceChannel).name}`,
       }, {
+        type: Constants.ComponentTypes.SEPARATOR,
+        divider: false,
+        spacing: Constants.SeparatorSpacingSize.LARGE
+      }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
         content: "Owner:",
+      }, {
+        type: Constants.ComponentTypes.SEPARATOR,
+        divider: false,
+        spacing: Constants.SeparatorSpacingSize.SMALL
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
         content: `${options.owner ? `<@${options.owner.id}>` : "Unknown"}`,
