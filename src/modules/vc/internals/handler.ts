@@ -263,7 +263,10 @@ export const createLogEntry = async (
     break;
   }
   case "information": {
-    if (!options?.owner || !options?.createdAt || !options?.locked) return;
+    if (!options?.owner || !options?.createdAt || !options?.locked) {
+      throw new Error("Missing required options for information log entry: ${options?.owner}, ${options?.createdAt}, ${options?.locked}");
+      return;
+    }
 
     textFields = [
       {
