@@ -87,7 +87,7 @@ export const remove = async (bot: ExtendedClient, member: Member, channel: Voice
     if (i > -1) category.channels.splice(i, 1);
     await bot.updateModuleData("VC", data, channel.guild);
 
-    await createLogEntry(bot, "leave", channel, member);
+    await createLogEntry(bot, "end", channel, member, { createdAt: channelObj.createdAt });
     
   } else if (member.id === channelObj.owner) {
     const members = channel.voiceMembers.filter((m) => m.id !== member.id).map((m) => m.id),
@@ -112,7 +112,7 @@ export const remove = async (bot: ExtendedClient, member: Member, channel: Voice
 
 export const createLogEntry = async (
   bot: ExtendedClient,
-  type: ("join" | "newOwner" | "leave" | "create" | "information"),
+  type: ("join" | "newOwner" | "leave" | "create" | "end" | "information"),
   channel: VoiceChannel | StageChannel,
   member: Member,
   options?: {
@@ -144,7 +144,8 @@ export const createLogEntry = async (
         content: "## Joined Private Voice Channel",
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
-        spacing: Constants.SeparatorSpacingSize.LARGE
+        spacing: Constants.SeparatorSpacingSize.LARGE,
+        divider: false
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
         content: `${member.username} joined the channel \`${channel.name}\``,
@@ -176,7 +177,8 @@ export const createLogEntry = async (
         content: "## Created Private Voice Channel",
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
-        spacing: Constants.SeparatorSpacingSize.LARGE
+        spacing: Constants.SeparatorSpacingSize.LARGE,
+        divider: false
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
         content: `${member.username} created the channel \`${channel.name}\``,
@@ -208,10 +210,52 @@ export const createLogEntry = async (
         content: "## Left Private Voice Channel",
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
-        spacing: Constants.SeparatorSpacingSize.LARGE
+        spacing: Constants.SeparatorSpacingSize.LARGE,
+        divider: false
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
         content: `${member.username} left the channel \`${channel.name}\``,
+      }, {
+        type: Constants.ComponentTypes.SEPARATOR,
+        divider: true
+      }, {
+        type: Constants.ComponentTypes.SECTION,
+        components: [
+          {
+            type: Constants.ComponentTypes.TEXT_DISPLAY,
+            content: "View more information about the channel.",
+          }
+        ],
+        accessory: {
+          type: Constants.ComponentTypes.BUTTON,
+          style: Constants.ButtonStyles.PRIMARY,
+          customID: `vc_info_${channel.id}`,
+          label: "View",
+        }
+      }
+    ];
+    break;
+  }
+  case "end": {
+    if (!options?.createdAt) return;
+
+    textFields = [
+      {
+        type: Constants.ComponentTypes.TEXT_DISPLAY,
+        content: "## Ended Private Voice Channel",
+      }, {
+        type: Constants.ComponentTypes.SEPARATOR,
+        spacing: Constants.SeparatorSpacingSize.LARGE,
+        divider: false
+      }, {
+        type: Constants.ComponentTypes.TEXT_DISPLAY,
+        content: `${member.username} ended the channel \`${channel.name}\``,
+      }, {
+        type: Constants.ComponentTypes.TEXT_DISPLAY,
+        content: "### Elapsed Time:",
+      }, {
+        type: Constants.ComponentTypes.TEXT_DISPLAY,
+        content: `${options?.createdAt ? `${bot.constants.utils.HMS(Date.now() - options.createdAt)} ago` : "Unknown"}`,
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
         divider: true
@@ -241,7 +285,8 @@ export const createLogEntry = async (
         content: "## Transferred Ownership",
       }, {
         type: Constants.ComponentTypes.SEPARATOR,
-        spacing: Constants.SeparatorSpacingSize.LARGE
+        spacing: Constants.SeparatorSpacingSize.LARGE,
+        divider: false
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
         content: `### ${member.username} -> ${options.newOwner.username}`,
@@ -262,7 +307,7 @@ export const createLogEntry = async (
         accessory: {
           type: Constants.ComponentTypes.BUTTON,
           style: Constants.ButtonStyles.PRIMARY,
-          customID: `vc_info_${channel.id}`,
+          customID: `vc_information_${channel.id}`,
           label: "View",
         }
       }
