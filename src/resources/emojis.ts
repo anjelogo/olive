@@ -6,6 +6,7 @@ export default {
     red: "<:warning_red:1365657367957737472>"
   },
   online: "<:online:1365657361976528976>",
+  moderate: "<:moderate:1366560737111183380>",
   idle: "<:idle:1365657352635678811>",
   dnd: "<:dnd:1365657345459228872>",
   offline: "<:offline:758231600495460352>",
