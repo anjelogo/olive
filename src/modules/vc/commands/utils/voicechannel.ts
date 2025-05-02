@@ -203,8 +203,7 @@ export default class Voicechannel extends Command {
                   type: Constants.ComponentTypes.TEXT_DISPLAY,
                   content: `-# Transferred at: ${new Date().toLocaleString("en-US")} | User ID: ${member.id}`,
                 }
-              ],
-              accentColor: this.bot.constants.config.colors.default,
+              ]
             }
           ]);
 

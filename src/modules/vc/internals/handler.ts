@@ -95,13 +95,12 @@ export const create = async (bot: ExtendedClient, member: Member, channel: Voice
       components: [
         {
           type: Constants.ComponentTypes.TEXT_DISPLAY,
-          content: `# Created Private Voice Channel\n## ${member.username} created the channel\n### \`${voice.name}\``,
+          content: `# Created Private Voice Channel\n### ${member.username} created the channel \`${voice.name}\``,
         }, {
           type: Constants.ComponentTypes.TEXT_DISPLAY,
           content: `-# Created at: ${new Date().toLocaleString("en-US")} | User ID: ${member.id}`,
         }
-      ],
-      accentColor: bot.constants.config.colors.default,
+      ]
     }
   ]);
 };
@@ -138,7 +137,7 @@ export const remove = async (bot: ExtendedClient, member: Member, channel: Voice
       components: [
         {
           type: Constants.ComponentTypes.TEXT_DISPLAY,
-          content: `# Left Private Voice Channel\n## ${member.username} left the channel\n### \`${channel.name}\``,
+          content: `# Left Private Voice Channel\n### ${member.username} left the channel \`${channel.name}\``,
         }, {
           type: Constants.ComponentTypes.TEXT_DISPLAY,
           content: `-# Left at: ${new Date().toLocaleString("en-US")} | User ID: ${member.id}`,
@@ -183,13 +182,12 @@ export const remove = async (bot: ExtendedClient, member: Member, channel: Voice
         components: [
           {
             type: Constants.ComponentTypes.TEXT_DISPLAY,
-            content: `# Ended Private Voice Channel\n## ${member.username} ended the channel\n### \`${channel.name}\``,
+            content: `# Ended Private Voice Channel\n### ${member.username} ended the channel \`${channel.name}\`\n ## Time Elapsed:\n### ${bot.constants.utils.HMS(Date.now() - channelObj.createdAt)}`,
           }, {
             type: Constants.ComponentTypes.TEXT_DISPLAY,
             content: `-# Ended at: ${new Date().toLocaleString("en-US")} | User ID: ${member.id}`,
           }
-        ],
-        accentColor: bot.constants.config.colors.default,
+        ]
       }
     ]);
     
@@ -226,8 +224,7 @@ export const remove = async (bot: ExtendedClient, member: Member, channel: Voice
             type: Constants.ComponentTypes.TEXT_DISPLAY,
             content: `-# Transferred at: ${new Date().toLocaleString("en-US")} | User ID: ${member.id}`,
           }
-        ],
-        accentColor: bot.constants.config.colors.default,
+        ]
       }
     ]);
 
