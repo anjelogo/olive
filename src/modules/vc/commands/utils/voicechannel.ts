@@ -347,7 +347,7 @@ export default class Voicechannel extends Command {
 
       if (!components) return component.createFollowup({ content: `${this.bot.constants.emojis.x} Error creating information`, flags: Constants.MessageFlags.EPHEMERAL });
 
-      await component.createFollowup({ components, flags: Constants.MessageFlags.IS_COMPONENTS_V2 });
+      await component.createFollowup({ components, flags: Constants.MessageFlags.IS_COMPONENTS_V2 | Constants.MessageFlags.EPHEMERAL });
 
       break;
     }
