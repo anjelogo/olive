@@ -90,7 +90,8 @@ export async function resolveCase(bot: ExtendedClient, guild: Guild, caseID: str
               content: `${bot.constants.emojis.administrator} <t:${Math.floor(Date.now() / 1000)}:f> • ||Case: ${caseToResolve.id}||`
             }
           ]
-        }]
+        }],
+        flags: Constants.MessageFlags.IS_COMPONENTS_V2
       });
     }
 
