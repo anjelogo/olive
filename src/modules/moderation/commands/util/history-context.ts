@@ -26,7 +26,7 @@ export default class HistoryContext extends Command {
           name: "view",
           options: [
             {
-              type: Constants.ApplicationCommandOptionTypes.MENTIONABLE,
+              type: Constants.ApplicationCommandOptionTypes.USER,
               name: "user",
               value: member.id
             }
