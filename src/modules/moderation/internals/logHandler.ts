@@ -120,7 +120,7 @@ export async function updateLogEntry(bot: ExtendedClient, guild: Guild, data: Ca
                 divider: false
               }, {
                 type: Constants.ComponentTypes.TEXT_DISPLAY,
-                content: `### Reason:\n~~${data.resolved?.reason ?? data.reason ?? "No reason provided."}~~\n${data.resolved ? data.resolved.reason : "No resolve reason provided."}`
+                content: `### Reason:\n~~${data.reason ?? "No reason provided."}~~\n${data.resolved ? data.resolved.reason : "No resolve reason provided."}`
               }, {
                 type: Constants.ComponentTypes.SEPARATOR,
                 divider: true,
