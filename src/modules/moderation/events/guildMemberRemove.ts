@@ -15,6 +15,8 @@ export const run = async (bot: ExtendedClient, member: Member | User, guild: Gui
       actionType: Constants.AuditLogActionTypes.MEMBER_KICK
     });
 
+  if (!audit.entries.length) return;
+
   if (Cases.filter(c => c.id === audit.entries[0].id).length) return;
 
   const timestamp = bot.constants.utils.convertSnowflake(audit.entries[0].id);
