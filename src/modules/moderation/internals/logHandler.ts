@@ -22,7 +22,7 @@ export async function createLogEntry(bot: ExtendedClient, guild: Guild, data: Ca
           content: `## User <@${member.id}> ${actions[data.action]}`
         }, {
           type: Constants.ComponentTypes.SEPARATOR,
-          spacing: Constants.SeparatorSpacingSize.LARGE,
+          spacing: Constants.SeparatorSpacingSize.SMALL,
           divider: false
         }, {
           type: Constants.ComponentTypes.TEXT_DISPLAY,
@@ -97,7 +97,7 @@ export async function updateLogEntry(bot: ExtendedClient, guild: Guild, data: Ca
                 content: `## User <@${data.userID}> ${data.resolved ? "Case Resolved" : "Case Updated"}`,
               }, {
                 type: Constants.ComponentTypes.SEPARATOR,
-                spacing: Constants.SeparatorSpacingSize.LARGE,
+                spacing: Constants.SeparatorSpacingSize.SMALL,
                 divider: false
               }, {
                 type: Constants.ComponentTypes.TEXT_DISPLAY,
