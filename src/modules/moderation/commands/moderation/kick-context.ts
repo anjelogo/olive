@@ -1,18 +1,20 @@
 import { CommandInteraction, Constants, InteractionOptionsWrapper } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
-import History from "./history";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
+import Kick from "./kick";
 
-export default class HistoryContext extends Command {
-    
+export default class BanContext extends Command {
+
   constructor(bot: ExtendedClient) {
+
     super(bot);
 
-    this.commands = ["View History"];
-    this.permissions = ["moderation.history.view", "moderation.history.*"];
-    this.example = null;
+    this.commands = ["Kick Member"];
+    this.description = "Kicks the member from the server";
+    this.permissions = ["moderation.punish.kick", "moderation.punish.*"];
     this.type = Constants.ApplicationCommandTypes.USER;
+
   }
 
   public execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
@@ -22,21 +24,15 @@ export default class HistoryContext extends Command {
     interaction.data.options = new InteractionOptionsWrapper(
       [
         {
-          type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
-          name: "view",
-          options: [
-            {
-              type: Constants.ApplicationCommandOptionTypes.USER,
-              name: "user",
-              value: member.id
-            }
-          ]
+          type: Constants.ApplicationCommandOptionTypes.USER,
+          name: "user",
+          value: member.id
         }
       ],
       interaction.data.options.resolved
     );
 
-    await new History(this.bot).execute(interaction);
+    await new Kick(this.bot).execute(interaction);
     return;
   }
 }

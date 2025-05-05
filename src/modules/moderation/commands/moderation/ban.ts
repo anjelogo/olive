@@ -44,19 +44,22 @@ export default class Ban extends Command {
 
     if (!moderator)
       return interaction.createFollowup({
-        content: `${this.bot.constants.emojis.x} I couldn't find you in the server!`
+        content: `${this.bot.constants.emojis.x} I couldn't find you in the server!`,
+        flags: Constants.MessageFlags.EPHEMERAL
       });
 
     if (!user)
       return interaction.createFollowup({
-        content: `${this.bot.constants.emojis.x} You must specify a user to ban!`
+        content: `${this.bot.constants.emojis.x} You must specify a user to ban!`,
+        flags: Constants.MessageFlags.EPHEMERAL
       });
 
     const userToBan = this.bot.findMember(guild, user.id) as Member;
 
     if (!userToBan)
       return interaction.createFollowup({
-        content: `${this.bot.constants.emojis.x} I couldn't find that user!`
+        content: `${this.bot.constants.emojis.x} I couldn't find that user!`,
+        flags: Constants.MessageFlags.EPHEMERAL
       });
 
     if (!isPunishable(this.bot, moderator, userToBan)) {
@@ -86,7 +89,7 @@ export default class Ban extends Command {
     await autoCalculateInfractions(this.bot, userToBan);
 
     return interaction.createFollowup({
-      content: `${this.bot.constants.emojis.tick} Banned <@${userToBan.id}> for \`${reason}\``
+      content: `${this.bot.constants.emojis.check} Banned \`${userToBan.username}#${userToBan.discriminator}\` for \`${reason}\``
     });
   }
 
