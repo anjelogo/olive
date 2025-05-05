@@ -59,7 +59,7 @@ export async function punish(bot: ExtendedClient, guild: Guild, data: Case): Pro
       const time = data.time ? new Date(data.time as string).toISOString()
         : new Date(Date.now() + 60 * 1000).toISOString();
 
-      member.edit({
+      await member.edit({
         communicationDisabledUntil: time
       });
 
@@ -67,12 +67,12 @@ export async function punish(bot: ExtendedClient, guild: Guild, data: Case): Pro
       break;
     }
     case "ban":
-      guild.createBan(data.userID, { reason: reason });
+      await guild.createBan(data.userID, { reason: reason });
 
       dmChannel ? await dmChannel.createMessage({embeds: [embed]}) : null;
       break;
     case "kick":
-      guild.removeMember(data.userID, reason);
+      await guild.removeMember(data.userID, reason);
 
       dmChannel ? await dmChannel.createMessage({embeds: [embed]}) : null;
       break;
