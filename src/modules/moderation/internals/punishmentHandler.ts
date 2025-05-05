@@ -44,29 +44,37 @@ export async function punish(bot: ExtendedClient, guild: Guild, data: Case): Pro
     await addCase(bot, guild, data);
     await createLogEntry(bot, guild, data);
 
+    // check for permissions
+    const botMember = bot.findMember(guild, bot.user.id) as Member;
+    if (!botMember.permissions.has("BAN_MEMBERS", "KICK_MEMBERS")) {
+      throw new Error(`${bot.constants.emojis.x} I don't have permission to punish this user.`);
+    }
+
     switch (data.action) {
 
     case "warn":
       dmChannel ? await dmChannel.createMessage({embeds: [embed]}) : null;
       break;
     case "timeout": {
-      dmChannel ? await dmChannel.createMessage({embeds: [embed]}) : null;
-
       const time = data.time ? new Date(data.time as string).toISOString()
         : new Date(Date.now() + 60 * 1000).toISOString();
 
       member.edit({
         communicationDisabledUntil: time
       });
+
+      dmChannel ? await dmChannel.createMessage({embeds: [embed]}) : null;
       break;
     }
     case "ban":
-      dmChannel ? await dmChannel.createMessage({embeds: [embed]}) : null;
       guild.createBan(data.userID, { reason: reason });
+
+      dmChannel ? await dmChannel.createMessage({embeds: [embed]}) : null;
       break;
     case "kick":
-      dmChannel ? await dmChannel.createMessage({embeds: [embed]}) : null;
       guild.removeMember(data.userID, reason);
+
+      dmChannel ? await dmChannel.createMessage({embeds: [embed]}) : null;
       break;
     }
 
