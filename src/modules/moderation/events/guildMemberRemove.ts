@@ -3,6 +3,7 @@ import ExtendedClient from "../../../Base/Client";
 import { addCase, getCases } from "../internals/caseHandler";
 import { createLogEntry } from "../internals/logHandler";
 import { Case } from "../main";
+import { autoCalculateInfractions } from "../internals/punishmentHandler";
 
 export const run = async (bot: ExtendedClient, member: Member | User, guild: Guild | Uncached): Promise<void> => {
 
@@ -40,5 +41,6 @@ export const run = async (bot: ExtendedClient, member: Member | User, guild: Gui
 
   await createLogEntry(bot, guild as Guild, Case, user);
   await addCase(bot, guild as Guild, Case);
+  await autoCalculateInfractions(bot, member as Member);
 
 };
