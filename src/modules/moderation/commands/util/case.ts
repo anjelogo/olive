@@ -128,7 +128,7 @@ export default class Case extends Command {
       await resolveCase(this.bot, guild, Case.id, member.id, reason as string);
       
       return interaction.createFollowup({
-        content: `${this.bot.constants.emojis.check} Case \`${Case.id}\` has been resolved.`
+        content: `${this.bot.constants.emojis.tick} Case \`${Case.id}\` has been resolved.`
       });
     }
 
@@ -136,7 +136,7 @@ export default class Case extends Command {
       await removeCase(this.bot, guild, Case.id);
 
       return interaction.createFollowup({
-        content: `${this.bot.constants.emojis.check} Case \`${Case.id}\` has been deleted.`
+        content: `${this.bot.constants.emojis.tick} Case \`${Case.id}\` has been deleted.`
       });
     }
 

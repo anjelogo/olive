@@ -77,7 +77,7 @@ export async function punish(bot: ExtendedClient, guild: Guild, data: Case): Pro
 }
 
 export async function autoCalculateInfractions(bot: ExtendedClient, member: Member): Promise<void> {
-  const history = await getCases(bot, member.guild, member.id),
+  const history = (await getCases(bot, member.guild, member.id)).filter((c) => !c.resolved),
     guildSettings = await bot.getModuleData("Moderation", member.guild.id) as moduleData,
     hierarchy = {
       warn: 1,

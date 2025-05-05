@@ -7,7 +7,7 @@ export default {
   },
   online: "<:online:1365657361976528976>",
   moderate: "<:moderate:1366560737111183380>",
-  administator: "<:admin:1366560580608987218>",
+  administrator: "<:admin:1366560580608987218>",
   user: "<:user:1366560622707216514",
   idle: "<:idle:1365657352635678811>",
   dnd: "<:dnd:1365657345459228872>",

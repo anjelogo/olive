@@ -46,7 +46,7 @@ export async function createLogEntry(bot: ExtendedClient, guild: Guild, data: Ca
           divider: false
         }, {
           type: Constants.ComponentTypes.TEXT_DISPLAY,
-          content: `## Reason:\n-# ${data.reason ?? "No reason provided."}`
+          content: `### Reason:\n${data.reason ?? "No reason provided."}`
         }, {
           type: Constants.ComponentTypes.SEPARATOR,
           divider: true,
@@ -81,10 +81,9 @@ export async function updateLogEntry(bot: ExtendedClient, guild: Guild, data: Ca
     if (cases.length) {
       for (const Case of cases) {
         if (!Case) continue;
-        const channel = bot.getChannel(Case.channelID);
+        const channel = bot.getChannel(Case.channelID) as TextChannel;
         if (!channel) continue;
-        const message = bot.findMessage(channel as TextChannel, Case.messageID);
-
+        const message = await channel.getMessage(Case.messageID);
         if (!message) continue;
 
         const originalModerator = bot.findMember(guild, data.moderatorID) as Member,
@@ -121,7 +120,7 @@ export async function updateLogEntry(bot: ExtendedClient, guild: Guild, data: Ca
                 divider: false
               }, {
                 type: Constants.ComponentTypes.TEXT_DISPLAY,
-                content: `## Reason:\n-# ${data.resolved?.reason ?? data.reason ?? "No reason provided."}`
+                content: `### Reason:\n~~${data.resolved?.reason ?? data.reason ?? "No reason provided."}~~\n${data.resolved ? data.resolved.reason : "No resolve reason provided."}`
               }, {
                 type: Constants.ComponentTypes.SEPARATOR,
                 divider: true,

@@ -110,7 +110,7 @@ export default class History extends Command {
       }
 
       return interaction.createFollowup({
-        content: `${this.bot.constants.emojis.check} Successfully cleared the moderation history of ${user.mention}`
+        content: `${this.bot.constants.emojis.tick} Successfully cleared the moderation history of ${user.mention}`
       });
     }
     }
