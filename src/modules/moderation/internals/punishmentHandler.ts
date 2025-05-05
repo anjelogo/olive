@@ -6,39 +6,41 @@ import uniqid from "uniqid";
 import { createLogEntry } from "./logHandler";
 
 export async function punish(bot: ExtendedClient, guild: Guild, data: Case): Promise<void> {
-  const action = {
-      warn: "You were warned in {guild}.",
-      timeout: "You have been put on timeout in {guild}.",
-      kick: "You have been kicked from {guild}.",
-      ban: "You have been banned from {guild}."
-    },
-    moderator = bot.findMember(guild, data.moderatorID) as Member,
-    dmChannel = await bot.findUser(data.userID)?.createDM(),
-    member = bot.findMember(guild, data.userID) as Member,
-    reason = data.reason ?? "No reason provided.",
-    embed: Embed = {
-      type: "rich",
-      title: action[data.action].replace("{guild}", guild.name),
-      fields: [
-        {
-          name: "Moderator",
-          value: moderator.mention,
-          inline: true
-        }, {
-          name: "Punishment Duration",
-          value: data.time ? `\`${bot.constants.utils.HMS(data.time)}\`` : "Permanent",
-          inline: true
-        }, {
-          name: "Reason",
-          value: reason
-        }
-      ],
-      footer: {
-        text: `Case ID: ${data.id}`
-      },
-      timestamp: new Date().toISOString(),
-      color: bot.constants.config.colors.default
-    };
+  // const action = {
+  //     warn: "You were warned in {guild}.",
+  //     timeout: "You have been put on timeout in {guild}.",
+  //     kick: "You have been kicked from {guild}.",
+  //     ban: "You have been banned from {guild}."
+  //   },
+  //   moderator = bot.findMember(guild, data.moderatorID) as Member,
+  //   dmChannel = await bot.findUser(data.userID)?.createDM(),
+  //   member = bot.findMember(guild, data.userID) as Member,
+  //   reason = data.reason ?? "No reason provided.",
+  //   embed: Embed = {
+  //     type: "rich",
+  //     title: action[data.action].replace("{guild}", guild.name),
+  //     fields: [
+  //       {
+  //         name: "Moderator",
+  //         value: moderator.mention,
+  //         inline: true
+  //       }, {
+  //         name: "Punishment Duration",
+  //         value: data.time ? `\`${bot.constants.utils.HMS(data.time)}\`` : "Permanent",
+  //         inline: true
+  //       }, {
+  //         name: "Reason",
+  //         value: reason
+  //       }
+  //     ],
+  //     footer: {
+  //       text: `Case ID: ${data.id}`
+  //     },
+  //     timestamp: new Date().toISOString(),
+  //     color: bot.constants.config.colors.default
+  //   };
+  const member = bot.findMember(guild, data.userID) as Member,
+    reason = data.reason ?? "No reason provided.";
 
   try {
     await addCase(bot, guild, data);
@@ -53,7 +55,7 @@ export async function punish(bot: ExtendedClient, guild: Guild, data: Case): Pro
     switch (data.action) {
 
     case "warn":
-      dmChannel ? await dmChannel.createMessage({embeds: [embed]}) : null;
+      //dmChannel ? await dmChannel.createMessage({embeds: [embed]}) : null;
       break;
     case "timeout": {
       const time = data.time ? new Date(data.time as string).toISOString()
@@ -63,18 +65,18 @@ export async function punish(bot: ExtendedClient, guild: Guild, data: Case): Pro
         communicationDisabledUntil: time
       });
 
-      dmChannel ? await dmChannel.createMessage({embeds: [embed]}) : null;
+      //dmChannel ? await dmChannel.createMessage({embeds: [embed]}) : null;
       break;
     }
     case "ban":
       await guild.createBan(data.userID, { reason: reason });
 
-      dmChannel ? await dmChannel.createMessage({embeds: [embed]}) : null;
+      //dmChannel ? await dmChannel.createMessage({embeds: [embed]}) : null;
       break;
     case "kick":
       await guild.removeMember(data.userID, reason);
 
-      dmChannel ? await dmChannel.createMessage({embeds: [embed]}) : null;
+      //dmChannel ? await dmChannel.createMessage({embeds: [embed]}) : null;
       break;
     }
 
