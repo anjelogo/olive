@@ -1,4 +1,4 @@
-import { CommandInteraction, Constants, Guild } from "oceanic.js";
+import { CommandInteraction, Constants, Guild, MessageComponent } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import { getCases, removeCase } from "../../internals/caseHandler";
@@ -82,25 +82,45 @@ export default class History extends Command {
         arr.push(string);
       }
 
-      const embed = {
-        title: `History for ${user.tag}`,
-        description: "`[W]` - Warn\n`[K]` - Kick\n`[T]` - Timeout\n`[B]` - Ban",
-        fields: [
-          {
-            name: `Cases (${arr.length})`,
-            value: arr.length ? arr.join(", ") : "None"
-          }
-        ],
-        color: this.bot.constants.config.colors.default,
-        footer: {
-          text: `Infractions: ${infractions}`,
-        }, 
-        timestamp: new Date().toISOString()
-      };
+      const components: MessageComponent[] = [
+        {
+          type: Constants.ComponentTypes.CONTAINER,
+          components: [
+            {
+              type: Constants.ComponentTypes.TEXT_DISPLAY,
+              content: `History for ${user.username}`
+            }, {
+              type: Constants.ComponentTypes.SEPARATOR,
+              spacing: Constants.SeparatorSpacingSize.SMALL,
+              divider: false
+            }, {
+              type: Constants.ComponentTypes.TEXT_DISPLAY,
+              content: "`[W]` - Warn\n`[K]` - Kick\n`[T]` - Timeout\n`[B]` - Ban"
+            }, {
+              type: Constants.ComponentTypes.SEPARATOR,
+              spacing: Constants.SeparatorSpacingSize.SMALL,
+              divider: false
+            }, {
+              type: Constants.ComponentTypes.TEXT_DISPLAY,
+              content: `Cases (${arr.length})`
+            }, {
+              type: Constants.ComponentTypes.TEXT_DISPLAY,
+              content: arr.length ? arr.join(", ") : "None"
+            }, {
+              type: Constants.ComponentTypes.SEPARATOR,
+              divider: true,
+              spacing: Constants.SeparatorSpacingSize.LARGE
+            }, {
+              type: Constants.ComponentTypes.TEXT_DISPLAY,
+              content: `${this.bot.constants.emojis.administrator} <t:${Math.floor(Date.now() / 1000)}:f> • Infractions: ${infractions}`
+            }
+          ]
+        }
+      ];
 
       return interaction.createFollowup({
-        content: undefined,
-        embeds: [embed]
+        components,
+        flags: Constants.MessageFlags.IS_COMPONENTS_V2
       });
     }
 

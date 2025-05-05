@@ -76,8 +76,7 @@ export default class Case extends Command {
 
     if (!Case)
       return interaction.createFollowup({
-        content: `${this.bot.constants.emojis.x} I could not find that case.`,
-        flags: Constants.MessageFlags.EPHEMERAL
+        content: `${this.bot.constants.emojis.x} I could not find that case.`
       });
 
     switch (subcommand) {
@@ -100,7 +99,18 @@ export default class Case extends Command {
             content: `${this.bot.constants.emojis.x} I could not find that case.`
           });
 
-        const logMessage = this.bot.findMessage(this.bot.getChannel(logCase.channelID) as TextChannel, logCase.messageID);
+        const logChannel = this.bot.getChannel(logCase.channelID) as TextChannel;
+        if (!logChannel)
+          return interaction.createFollowup({
+            content: `${this.bot.constants.emojis.x} I could not find that channel.`
+          });
+
+        const logMessage = await logChannel.getMessage(logCase.messageID);
+
+        if (!logMessage)
+          return interaction.createFollowup({
+            content: `${this.bot.constants.emojis.x} I could not find that message.`
+          });
 
         if (!logMessage)
           return interaction.createFollowup({
@@ -108,7 +118,8 @@ export default class Case extends Command {
           });
 
         return interaction.createFollowup({
-          embeds: [logMessage.embeds[0]]
+          components: logMessage.components,
+          flags: Constants.MessageFlags.IS_COMPONENTS_V2
         });
 
       }
