@@ -78,7 +78,7 @@ export default class Warn extends Command {
     await autoCalculateInfractions(this.bot, userToWarn);
 
     return interaction.createFollowup({
-      content: `${this.bot.constants.emojis.check} Warned <@${userToWarn.id}> for \`${reason}\``
+      content: `${this.bot.constants.emojis.tick} Warned <@${userToWarn.id}> for \`${reason}\``
     });
   }
 

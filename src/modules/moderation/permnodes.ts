@@ -20,6 +20,10 @@ export default [
     description: "Grants the ability to kick members",
     default: false
   }, {
+    name: "moderation.punish.warn",
+    description: "Grants the ability to warn members",
+    default: false
+  }, {
     name: "moderation.punish.timeout",
     description: "Grants the ability to timeout members",
     default: false

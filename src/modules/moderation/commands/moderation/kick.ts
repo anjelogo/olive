@@ -78,7 +78,7 @@ export default class Kick extends Command {
     await autoCalculateInfractions(this.bot, userToKick);
 
     return interaction.createFollowup({
-      content: `${this.bot.constants.emojis.check} Kicked <@${userToKick.id}> for \`${reason}\``
+      content: `${this.bot.constants.emojis.tick} Kicked <@${userToKick.id}> for \`${reason}\``
     });
   }
 

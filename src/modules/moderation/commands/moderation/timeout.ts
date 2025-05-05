@@ -88,7 +88,7 @@ export default class Timeout extends Command {
     await autoCalculateInfractions(this.bot, userToTimeOut);
 
     return interaction.createFollowup({
-      content: `${this.bot.constants.emojis.check} Placed <@${userToTimeOut.id}> on Time Out for \`${reason}\``
+      content: `${this.bot.constants.emojis.tick} Placed <@${userToTimeOut.id}> on Time Out for \`${reason}\``
     });
   }
 
