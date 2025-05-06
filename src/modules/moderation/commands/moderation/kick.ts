@@ -47,14 +47,14 @@ export default class Kick extends Command {
         content: `${this.bot.constants.emojis.x} You must specify a user to kick!`
       });
 
-    const userToKick = this.bot.findMember(guild, user.id) as Member;
+    const memberToKick = this.bot.findMember(guild, user.id) as Member;
 
-    if (!userToKick)
+    if (!memberToKick)
       return interaction.createFollowup({
         content: `${this.bot.constants.emojis.x} I couldn't find that user!`
       });
 
-    if (!isPunishable(this.bot, moderator, userToKick)) {
+    if (!isPunishable(this.bot, moderator, memberToKick)) {
       return interaction.createFollowup({
         content: `${this.bot.constants.emojis.x} I can't kick that user!`,
       });
@@ -66,7 +66,7 @@ export default class Kick extends Command {
     //punish user using the punish function in ../../internals/punishmentHandler.ts
     const caseData: Case = {
       id: uniqid(),
-      userID: userToKick.id,
+      userID: memberToKick.id,
       moderatorID: moderator.id,
       action: "kick",
       timestamp: new Date().toISOString()
@@ -75,10 +75,10 @@ export default class Kick extends Command {
     if (reason) caseData.reason = reason;
 
     await punish(this.bot, guild, caseData);
-    await autoCalculateInfractions(this.bot, userToKick);
+    await autoCalculateInfractions(this.bot, guild.id, memberToKick.user);
 
     return interaction.createFollowup({
-      content: `${this.bot.constants.emojis.tick} Kicked <@${userToKick.id}> for \`${reason}\``
+      content: `${this.bot.constants.emojis.tick} Kicked <@${memberToKick.id}> for \`${reason}\``
     });
   }
 

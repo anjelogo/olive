@@ -52,14 +52,14 @@ export default class Timeout extends Command {
         content: `${this.bot.constants.emojis.x} You must specify a user to timeout!`
       });
 
-    const userToTimeOut = this.bot.findMember(guild, user.id) as Member;
+    const memberToTimeOut = this.bot.findMember(guild, user.id) as Member;
 
-    if (!userToTimeOut)
+    if (!memberToTimeOut)
       return interaction.createFollowup({
         content: `${this.bot.constants.emojis.x} I couldn't find that user!`
       });
 
-    if (!isPunishable(this.bot, moderator, userToTimeOut)) {
+    if (!isPunishable(this.bot, moderator, memberToTimeOut)) {
       return interaction.createFollowup({
         content: `${this.bot.constants.emojis.x} I can't time that user out!`,
       });
@@ -75,7 +75,7 @@ export default class Timeout extends Command {
     //punish user using the punish function in ../../internals/punishmentHandler.ts
     const caseData: Case = {
       id: uniqid(),
-      userID: userToTimeOut.id,
+      userID: memberToTimeOut.id,
       moderatorID: moderator.id,
       action: "timeout",
       timestamp: new Date().toISOString(),
@@ -85,10 +85,10 @@ export default class Timeout extends Command {
     if (reason) caseData.reason = reason;
 
     await punish(this.bot, guild, caseData);
-    await autoCalculateInfractions(this.bot, userToTimeOut);
+    await autoCalculateInfractions(this.bot, guild.id, memberToTimeOut.user);
 
     return interaction.createFollowup({
-      content: `${this.bot.constants.emojis.tick} Placed <@${userToTimeOut.id}> on Time Out for \`${reason}\``
+      content: `${this.bot.constants.emojis.tick} Placed <@${memberToTimeOut.id}> on Time Out for \`${reason}\``
     });
   }
 

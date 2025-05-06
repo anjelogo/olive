@@ -47,14 +47,14 @@ export default class Warn extends Command {
         content: `${this.bot.constants.emojis.x} You must specify a user to warn!`
       });
 
-    const userToWarn = this.bot.findMember(guild, user.id) as Member;
+    const memberToWarn = this.bot.findMember(guild, user.id) as Member;
 
-    if (!userToWarn)
+    if (!memberToWarn)
       return interaction.createFollowup({
         content: `${this.bot.constants.emojis.x} I couldn't find that user!`
       });
 
-    if (!isPunishable(this.bot, moderator, userToWarn)) {
+    if (!isPunishable(this.bot, moderator, memberToWarn)) {
       return interaction.createFollowup({
         content: `${this.bot.constants.emojis.x} I can't warn that user!`,
       });
@@ -66,7 +66,7 @@ export default class Warn extends Command {
     //punish user using the punish function in ../../internals/punishmentHandler.ts
     const caseData: Case = {
       id: uniqid(),
-      userID: userToWarn.id,
+      userID: memberToWarn.id,
       moderatorID: moderator.id,
       action: "warn",
       timestamp: new Date().toISOString()
@@ -75,10 +75,10 @@ export default class Warn extends Command {
     if (reason) caseData.reason = reason;
 
     await punish(this.bot, guild, caseData);
-    await autoCalculateInfractions(this.bot, userToWarn);
+    await autoCalculateInfractions(this.bot, guild.id, memberToWarn.user);
 
     return interaction.createFollowup({
-      content: `${this.bot.constants.emojis.tick} Warned <@${userToWarn.id}> for \`${reason}\``
+      content: `${this.bot.constants.emojis.tick} Warned <@${memberToWarn.id}> for \`${reason}\``
     });
   }
 

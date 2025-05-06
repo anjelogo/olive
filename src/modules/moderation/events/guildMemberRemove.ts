@@ -9,6 +9,8 @@ export const run = async (bot: ExtendedClient, member: Member | User, guild: Gui
 
   guild = bot.findGuild(guild.id) as Guild;
 
+  if (!guild) return;
+
   const user = member instanceof User ? member : member.user,
     Cases = await getCases(bot, guild as Guild, user.id),
     audit = await (guild as Guild).getAuditLog({
@@ -41,6 +43,6 @@ export const run = async (bot: ExtendedClient, member: Member | User, guild: Gui
 
   await createLogEntry(bot, guild as Guild, Case, user);
   await addCase(bot, guild as Guild, Case);
-  await autoCalculateInfractions(bot, member as Member);
+  await autoCalculateInfractions(bot, guild.id, user);
 
 };

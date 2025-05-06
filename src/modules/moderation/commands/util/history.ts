@@ -68,9 +68,9 @@ export default class History extends Command {
 
       const hierarchy = {
           warn: 1,
-          timeout: 2,
-          kick: 2,
-          ban: 3
+          timeout: 3,
+          kick: 6,
+          ban: 12
         },
         arr = [];
 
@@ -88,7 +88,7 @@ export default class History extends Command {
           components: [
             {
               type: Constants.ComponentTypes.TEXT_DISPLAY,
-              content: `History for ${user.username}`
+              content: `## History for ${user.username}`
             }, {
               type: Constants.ComponentTypes.SEPARATOR,
               spacing: Constants.SeparatorSpacingSize.SMALL,
@@ -102,7 +102,7 @@ export default class History extends Command {
               divider: false
             }, {
               type: Constants.ComponentTypes.TEXT_DISPLAY,
-              content: `Cases (${arr.length})`
+              content: `### Cases (${arr.length}):`
             }, {
               type: Constants.ComponentTypes.TEXT_DISPLAY,
               content: arr.length ? arr.join(", ") : "None"

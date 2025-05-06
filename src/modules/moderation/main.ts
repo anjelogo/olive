@@ -56,8 +56,8 @@ export default class Moderation extends Module {
     cases: [],
     settings: {
       caseLimit: 100,
-      infractionUntilBan: 9,
-      infractionUntilKick: 5,
+      infractionUntilBan: 12,
+      infractionUntilKick: 6,
       infractionUntilTimeout: 3
     }
   }

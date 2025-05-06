@@ -1,4 +1,4 @@
-import { Embed, Guild, Member, Role } from "oceanic.js";
+import { Embed, Guild, Member, Role, User } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
 import { Case, CaseActionTypes, moduleData } from "../main";
 import { addCase, getCases, resolveCase } from "./caseHandler";
@@ -39,106 +39,127 @@ export async function punish(bot: ExtendedClient, guild: Guild, data: Case): Pro
   //     timestamp: new Date().toISOString(),
   //     color: bot.constants.config.colors.default
   //   };
-  const member = bot.findMember(guild, data.userID) as Member,
+  const user = bot.findUser(data.userID) as User,
     reason = data.reason ?? "No reason provided.";
 
-  try {
-    await addCase(bot, guild, data);
-    await createLogEntry(bot, guild, data);
-
-    // check for permissions
-    const botMember = bot.findMember(guild, bot.user.id) as Member;
-    if (!botMember.permissions.has("BAN_MEMBERS", "KICK_MEMBERS")) {
-      throw new Error(`${bot.constants.emojis.x} I don't have permission to punish this user.`);
-    }
-
-    switch (data.action) {
-
-    case "warn":
-      //dmChannel ? await dmChannel.createMessage({embeds: [embed]}) : null;
-      break;
-    case "timeout": {
-      const time = data.time ? new Date(data.time as string).toISOString()
-        : new Date(Date.now() + 60 * 1000).toISOString();
-
-      await member.edit({
-        communicationDisabledUntil: time
-      });
-
-      //dmChannel ? await dmChannel.createMessage({embeds: [embed]}) : null;
-      break;
-    }
-    case "ban":
-      await guild.createBan(data.userID, { reason: reason });
-
-      //dmChannel ? await dmChannel.createMessage({embeds: [embed]}) : null;
-      break;
-    case "kick":
-      await guild.removeMember(data.userID, reason);
-
-      //dmChannel ? await dmChannel.createMessage({embeds: [embed]}) : null;
-      break;
-    }
-
-  } catch (e) {
-    throw new Error(e as string);
+  if (!user) {
+    throw new Error(`${bot.constants.emojis.x} I can't find that user.`);
   }
+
+  // try {
+  await addCase(bot, guild, data);
+  if (["ban", "kick"].includes(data.action)) {
+    await createLogEntry(bot, guild, data, user);
+  } else {
+    await createLogEntry(bot, guild, data);
+  }
+
+  // check for permissions
+  const botMember = bot.findMember(guild, bot.user.id) as Member;
+  if (!botMember.permissions.has("MODERATE_MEMBERS")) {
+    throw new Error(`${bot.constants.emojis.x} I don't have permission to punish this user.`);
+  }
+
+  switch (data.action) {
+
+  case "warn":
+    //dmChannel ? await dmChannel.createMessage({embeds: [embed]}) : null;
+    break;
+  case "timeout": {
+    const time = data.time ? new Date(data.time as string).toISOString()
+        : new Date(Date.now() + 60 * 1000).toISOString(),
+      member = bot.findMember(guild, user.id) as Member;
+
+    await member.edit({
+      communicationDisabledUntil: time
+    });
+
+    //dmChannel ? await dmChannel.createMessage({embeds: [embed]}) : null;
+    break;
+  }
+  case "ban":
+    await guild.createBan(user.id, { reason: reason });
+
+    //dmChannel ? await dmChannel.createMessage({embeds: [embed]}) : null;
+    break;
+  case "kick":
+    await guild.removeMember(user.id, reason);
+
+    //dmChannel ? await dmChannel.createMessage({embeds: [embed]}) : null;
+    break;
+  }
+
+  // } catch (e) {
+  //   throw new Error(e as string);
+  // }
 
 }
 
-export async function autoCalculateInfractions(bot: ExtendedClient, member: Member): Promise<void> {
-  const history = (await getCases(bot, member.guild, member.id)),
-    guildSettings = await bot.getModuleData("Moderation", member.guild.id) as moduleData,
+export async function autoCalculateInfractions(bot: ExtendedClient, guildID: string, user: User): Promise<void> {
+
+  const guild = bot.guilds.get(guildID) as Guild;
+
+  if (!guild) {
+    throw new Error(`${bot.constants.emojis.x} I can't find that server.`);
+  }
+  
+  const history = (await getCases(bot, guild, user.id)).filter(c => !c.resolved),
+    guildSettings = await bot.getModuleData("Moderation", guild.id) as moduleData,
     hierarchy = {
       warn: 1,
-      timeout: 2,
-      kick: 2,
-      ban: 3
+      timeout: 3,
+      kick: 6,
+      ban: 12
     };
 	
   let punishment: CaseActionTypes | undefined,
     reason,
     infractions = 0;
 
+  history.sort((a, b) => {
+    if (a.timestamp > b.timestamp) return 1;
+    if (a.timestamp < b.timestamp) return -1;
+    return 0;
+  });
+
   if (history.filter(c => c.action === "ban").length) return;
     
   for (const Case of history) infractions += hierarchy[Case.action];
 
-  //no infractions
   if (infractions < guildSettings.settings.infractionUntilTimeout) return;
-  
-  //timeout
-  if (infractions >= guildSettings.settings.infractionUntilTimeout && infractions < guildSettings.settings.infractionUntilKick) punishment = "timeout";
-  
-  //kick
+  else if (infractions >= guildSettings.settings.infractionUntilTimeout && infractions < guildSettings.settings.infractionUntilKick) punishment = "timeout";
   else if (infractions >= guildSettings.settings.infractionUntilKick && infractions < guildSettings.settings.infractionUntilBan) punishment = "kick";
-
-  //ban
   else if (infractions >= guildSettings.settings.infractionUntilBan) punishment = "ban";
 
   if (!punishment) return;
 
-  if (history.filter((c) => c.action === "timeout" && !c.resolved).length) {
-    switch (punishment) {
-    case "kick":
-      reason = "[**AUTO-MOD**] Timeout removed for kick.";
-      await resolveCase(bot, member.guild, history.filter((c) => c.action === "timeout" && !c.resolved)[0].id, member.id, reason);
-      break;
-    case "ban":
-      await resolveCase(bot, member.guild, history.filter((c) => c.action === "timeout" && !c.resolved)[0].id, member.id, "[**AUTO-MOD**] Timeout removed for ban.");
-      break;
-    }
-  } else if (history.filter((c) => c.action === "kick" && !c.resolved).length) {
-    switch (punishment) {
-    case "ban":
-      await resolveCase(bot, member.guild, history.filter((c) => c.action === "kick" && !c.resolved)[0].id, member.id, "[**AUTO-MOD**] Kick removed for ban.");
-      break;
+  // handle punishment case resolves
+  // do math and check the last few cases and resolve them if their infractions equal the punishment
+  // for instance if 3 warns = 1 timeout, resolve all warns and give timeout
+  // another example is 2 warn and 2 timeout = 1 kick, resolve the warns and timeouts and give kick
+  // another example is 3 warn and 1 timeout = 1 kick, resolve the warns and the timeout give kick
+
+  for (const Case of history) {
+    if (Case.action === punishment) return;
+
+    const thresholds = {
+      warn: guildSettings.settings.infractionUntilTimeout,
+      timeout: guildSettings.settings.infractionUntilTimeout,
+      kick: guildSettings.settings.infractionUntilKick,
+      ban: guildSettings.settings.infractionUntilBan
+    };
+
+    if (infractions >= thresholds[punishment]) {
+      reason = `[**AUTO-MOD**] ${Case.action.toUpperCase()} removed for ${punishment.toUpperCase()}.`;
+      await resolveCase(bot, guild, Case.id, bot.user.id, reason);
     }
   }
 
-  await punish(bot, member.guild, {
+  reason = `[**AUTO-MOD**] ${punishment.toUpperCase()} for ${infractions} infractions.`;
+
+  await punish(bot, guild, {
     id: uniqid(),
-    userID: member.id,
+    userID: user.id,
     moderatorID: bot.user.id,
     action: punishment,
     reason,

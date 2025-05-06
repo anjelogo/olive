@@ -44,25 +44,22 @@ export default class Ban extends Command {
 
     if (!moderator)
       return interaction.createFollowup({
-        content: `${this.bot.constants.emojis.x} I couldn't find you in the server!`,
-        flags: Constants.MessageFlags.EPHEMERAL
+        content: `${this.bot.constants.emojis.x} I couldn't find you in the server!`
       });
 
     if (!user)
       return interaction.createFollowup({
-        content: `${this.bot.constants.emojis.x} You must specify a user to ban!`,
-        flags: Constants.MessageFlags.EPHEMERAL
+        content: `${this.bot.constants.emojis.x} You must specify a user to ban!`
       });
 
-    const userToBan = this.bot.findMember(guild, user.id) as Member;
+    const memberToBan = this.bot.findMember(guild, user.id) as Member;
 
-    if (!userToBan)
+    if (!memberToBan)
       return interaction.createFollowup({
-        content: `${this.bot.constants.emojis.x} I couldn't find that user!`,
-        flags: Constants.MessageFlags.EPHEMERAL
+        content: `${this.bot.constants.emojis.x} I couldn't find that user!`
       });
 
-    if (!isPunishable(this.bot, moderator, userToBan)) {
+    if (!isPunishable(this.bot, moderator, memberToBan)) {
       return interaction.createFollowup({
         content: `${this.bot.constants.emojis.x} I can't ban that user!`,
       });
@@ -76,7 +73,7 @@ export default class Ban extends Command {
     //punish user using the punish function in ../../internals/punishmentHandler.ts
     const caseData: Case = {
       id: uniqid(),
-      userID: userToBan.id,
+      userID: memberToBan.id,
       moderatorID: moderator.id,
       action: "ban",
       timestamp: new Date().toISOString(),
@@ -86,10 +83,10 @@ export default class Ban extends Command {
     if (reason) caseData.reason = reason;
 
     await punish(this.bot, guild, caseData);
-    await autoCalculateInfractions(this.bot, userToBan);
+    await autoCalculateInfractions(this.bot, guild.id, memberToBan.user);
 
     return interaction.createFollowup({
-      content: `${this.bot.constants.emojis.check} Banned \`${userToBan.username}#${userToBan.discriminator}\` for \`${reason}\``
+      content: `${this.bot.constants.emojis.check} Banned <@${memberToBan.username}> for \`${reason}\``
     });
   }
 

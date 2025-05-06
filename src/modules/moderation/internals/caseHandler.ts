@@ -49,6 +49,8 @@ export async function resolveCase(bot: ExtendedClient, guild: Guild, caseID: str
 
   if (!data) return false;
 
+  if (!data.cases.length) return false;
+
   const caseToResolve = data.cases.find((c) => c.id === caseID);
 
   if (!caseToResolve) return false;
@@ -58,71 +60,63 @@ export async function resolveCase(bot: ExtendedClient, guild: Guild, caseID: str
     reason
   };
 
-  try {
-    //Try to get DM channel of user and dm them
-    // const dmChannel = await bot.getDMChannel(caseToResolve.userID);
-    // const dmChannel = await (bot.findUser(caseToResolve.userID) as User).createDM();
+  // try {
+  //Try to get DM channel of user and dm them
+  // const dmChannel = await bot.getDMChannel(caseToResolve.userID);
+  // const dmChannel = await (bot.findUser(caseToResolve.userID) as User).createDM();
 
-    // if (dmChannel && dmChannel) {
-    //   await dmChannel.createMessage({
-    //     components: [{
-    //       type: Constants.ComponentTypes.CONTAINER,
-    //       components: [
-    //         {
-    //           type: Constants.ComponentTypes.TEXT_DISPLAY,
-    //           content: `## Your case has been resolved by <@${moderatorID}>`
-    //         }, {
-    //           type: Constants.ComponentTypes.SEPARATOR,
-    //           spacing: Constants.SeparatorSpacingSize.LARGE,
-    //           divider: false
-    //         }, {
-    //           type: Constants.ComponentTypes.TEXT_DISPLAY,
-    //           content: "### Reason:"
-    //         }, {
-    //           type: Constants.ComponentTypes.TEXT_DISPLAY,
-    //           content: reason ?? "No reason provided."
-    //         }, {
-    //           type: Constants.ComponentTypes.SEPARATOR,
-    //           divider: true,
-    //           spacing: Constants.SeparatorSpacingSize.LARGE
-    //         }, {
-    //           type: Constants.ComponentTypes.TEXT_DISPLAY,
-    //           content: `${bot.constants.emojis.administrator} <t:${Math.floor(Date.now() / 1000)}:f> • ||Case: ${caseToResolve.id}||`
-    //         }
-    //       ]
-    //     }],
-    //     flags: Constants.MessageFlags.IS_COMPONENTS_V2
-    //   });
-    // }
+  // if (dmChannel && dmChannel) {
+  //   await dmChannel.createMessage({
+  //     components: [{
+  //       type: Constants.ComponentTypes.CONTAINER,
+  //       components: [
+  //         {
+  //           type: Constants.ComponentTypes.TEXT_DISPLAY,
+  //           content: `## Your case has been resolved by <@${moderatorID}>`
+  //         }, {
+  //           type: Constants.ComponentTypes.SEPARATOR,
+  //           spacing: Constants.SeparatorSpacingSize.LARGE,
+  //           divider: false
+  //         }, {
+  //           type: Constants.ComponentTypes.TEXT_DISPLAY,
+  //           content: "### Reason:"
+  //         }, {
+  //           type: Constants.ComponentTypes.TEXT_DISPLAY,
+  //           content: reason ?? "No reason provided."
+  //         }, {
+  //           type: Constants.ComponentTypes.SEPARATOR,
+  //           divider: true,
+  //           spacing: Constants.SeparatorSpacingSize.LARGE
+  //         }, {
+  //           type: Constants.ComponentTypes.TEXT_DISPLAY,
+  //           content: `${bot.constants.emojis.administrator} <t:${Math.floor(Date.now() / 1000)}:f> • ||Case: ${caseToResolve.id}||`
+  //         }
+  //       ]
+  //     }],
+  //     flags: Constants.MessageFlags.IS_COMPONENTS_V2
+  //   });
+  // }
 
-    // remove punishments
-    switch (caseToResolve.action) {
-    case "timeout":
-      caseToResolve.time = undefined;
-      caseToResolve.resolved = {
-        moderatorID,
-        reason
-      };
-      guild.members.get(caseToResolve.userID)?.edit({
-        communicationDisabledUntil: undefined
-      });
-      break;
-    case "ban":
-      caseToResolve.resolved = {
-        moderatorID,
-        reason
-      };
-      guild.removeBan(caseToResolve.userID, reason).catch((error) => {
-        // Log the error or handle it appropriately
-        console.error(`Failed to remove ban for user ${caseToResolve.userID}:`, error);
-      });
-      break;
-    }
-
-    await updateLogEntry(bot, guild, caseToResolve);
-    await bot.updateModuleData("Moderation", data, guild);
-    return true;
-  } catch (e) {
-    throw new Error(`Could not resolve case: ${e}`);
+  // remove punishments
+  switch (caseToResolve.action) {
+  case "timeout":
+    caseToResolve.time = undefined;
+    guild.members.get(caseToResolve.userID)?.edit({
+      communicationDisabledUntil: undefined
+    });
+    break;
+  case "ban":
+    guild.removeBan(caseToResolve.userID, reason).catch((error) => {
+      // Log the error or handle it appropriately
+      console.error(`Failed to remove ban for user ${caseToResolve.userID}:`, error);
+    });
+    break;
   }
+
+  await updateLogEntry(bot, guild, caseToResolve);
+  await bot.updateModuleData("Moderation", data, guild);
+  return true;
+  // } catch (e) {
+  //   throw new Error(`Could not resolve case: ${e}`);
+  // }
 }

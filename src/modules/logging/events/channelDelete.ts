@@ -7,6 +7,8 @@ export const run = async (bot: ExtendedClient, channel: (TextChannel)): Promise<
 
   const data: moduleData = (await bot.getModuleData("VC", channel.guild.id) as unknown) as moduleData;
 
+  if (!data) return;
+
   async function deleteChannel(guildData: moduleData, channel: string) {
     if (!guildData) return;
 

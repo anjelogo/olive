@@ -134,7 +134,7 @@ export default class Case extends Command {
         });
 
       let reason = interaction.data.options.getString("reason", false);
-      if (!reason) reason = Case.reason;
+      if (!reason) reason = "No resolve reason provided";
 
       await resolveCase(this.bot, guild, Case.id, member.id, reason as string);
       
