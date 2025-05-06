@@ -1,4 +1,4 @@
-import { CommandInteraction, Constants, Guild, Member } from "oceanic.js";
+import { AnyCommandInteraction, AnyInteractionChannel, CommandInteraction, ComponentInteraction, Constants, Guild, Member, Message, ModalSubmitInteraction, Uncached } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import { autoCalculateInfractions, isPunishable, punish } from "../../internals/punishmentHandler";
@@ -29,6 +29,26 @@ export default class Warn extends Command {
         type: Constants.ApplicationCommandOptionTypes.STRING,
       }
     ];
+
+  }
+
+  readonly punishUser = async (interaction: CommandInteraction | ModalSubmitInteraction, memberToWarn: Member, moderator: Member, guild: Guild, reason: string) => {
+    const caseData: Case = {
+      id: uniqid(),
+      userID: memberToWarn.id,
+      moderatorID: moderator.id,
+      action: "warn",
+      timestamp: new Date().toISOString()
+    };
+
+    if (reason) caseData.reason = reason;
+
+    await punish(this.bot, guild, caseData);
+    await autoCalculateInfractions(this.bot, guild.id, memberToWarn.user);
+
+    return interaction.createFollowup({
+      content: `${this.bot.constants.emojis.tick} Warned <@${memberToWarn.id}> for \`${reason}\``
+    });
 
   }
 
@@ -64,22 +84,43 @@ export default class Warn extends Command {
     if (!reason || reason.length < 1) reason = "No reason provided";
 
     //punish user using the punish function in ../../internals/punishmentHandler.ts
-    const caseData: Case = {
-      id: uniqid(),
-      userID: memberToWarn.id,
-      moderatorID: moderator.id,
-      action: "warn",
-      timestamp: new Date().toISOString()
-    };
-
-    if (reason) caseData.reason = reason;
-
-    await punish(this.bot, guild, caseData);
-    await autoCalculateInfractions(this.bot, guild.id, memberToWarn.user);
-
-    return interaction.createFollowup({
-      content: `${this.bot.constants.emojis.tick} Warned <@${memberToWarn.id}> for \`${reason}\``
-    });
+    this.punishUser(interaction, memberToWarn, moderator, guild, reason);
   }
 
+  readonly modalSubmit = async (modal: ModalSubmitInteraction<AnyInteractionChannel | Uncached>): Promise<void> => {
+    modal.defer(Constants.MessageFlags.EPHEMERAL);
+
+    const guild = this.bot.findGuild(modal.guildID) as Guild,
+      moderator = modal.member,
+      userToWarnID = modal.data.customID.split("_")[3],
+      reason = modal.data.components.getTextInputComponent(`warn_${moderator?.id}_reason_${userToWarnID}`)?.value;
+
+    if (!moderator){
+      modal.createFollowup({
+        content: `${this.bot.constants.emojis.x} I couldn't find you in the server!`
+      });
+      return;
+    }
+    if (!reason || reason.length < 1) {
+      modal.createFollowup({
+        content: `${this.bot.constants.emojis.x} You must specify a reason!`
+      });
+      return;
+    }
+    const memberToWarn = this.bot.findMember(guild, userToWarnID) as Member;
+    if (!memberToWarn) {
+      modal.createFollowup({
+        content: `${this.bot.constants.emojis.x} I couldn't find that user!`
+      });
+      return;
+    }
+    if (!isPunishable(this.bot, moderator, memberToWarn)) {
+      modal.createFollowup({
+        content: `${this.bot.constants.emojis.x} I can't warn that user!`,
+      });
+      return;
+    }
+    this.punishUser(modal, memberToWarn, moderator, guild, reason); 
+    
+  }
 }

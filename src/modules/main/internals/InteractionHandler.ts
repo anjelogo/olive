@@ -5,16 +5,16 @@ import Main from "../main";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export const commandHandler = async (bot: ExtendedClient, interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void | boolean> => {
-  await interaction.defer(MessageFlags.EPHEMERAL);
   const member: Member = interaction.member as Member,
-    command = interaction.data.type === Constants.ApplicationCommandTypes.MESSAGE
-      ? bot.commands.filter((c) => c.commands[0] === "Create/Edit Reaction Role")[0]
-      : bot.commands.filter((c) => c.commands.includes(interaction.data.name))[0],
+    command = bot.commands.filter((c) => c.commands.includes(interaction.data.name))[0],
     mainModule = bot.getModule("Main") as Main;  
 
   if (!command) return interaction.createFollowup({content: `${bot.constants.emojis.x} I couldn't find that command!`});
   if (interaction.channel && interaction.channel.type !== Constants.ChannelTypes.GUILD_TEXT && interaction.data.type === Constants.ApplicationCommandTypes.MESSAGE)
     return interaction.createFollowup({content: `${bot.constants.emojis.x} You can only run these commands in servers!`});
+
+  if (!command.noDefer)
+    await interaction.defer(MessageFlags.EPHEMERAL);
 
   const requirePerms: string[] = [],
     permissions: string[] = [];

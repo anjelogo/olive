@@ -131,8 +131,8 @@ export default class Voicechannel extends Command {
               components: [
                 {
                   customID: `voicechannel_${interaction.member?.id}_channelname`,
-                  type: 4,
-                  style: 1, //Short
+                  type: Constants.ComponentTypes.TEXT_INPUT,
+                  style: Constants.TextInputStyles.SHORT,
                   label:  "New Channel Name",
                   maxLength: 32,
                   minLength: 1,

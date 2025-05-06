@@ -19,6 +19,7 @@ export default class Command {
   public enabled: boolean;
   public devOnly: boolean;
   public category: string;
+  public noDefer: boolean;
   public permissions?: string[];
   public requirePerms?: keyof typeof Constants.Permissions;
   public options?: Options[];
@@ -27,7 +28,7 @@ export default class Command {
   public guildSpecific?: string[];
   public execute: (interaction: CommandInteraction) => Promise<InitialMessagedInteractionResponse<CommandInteraction | ComponentInteraction> | FollowupMessageInteractionResponse<CommandInteraction | ComponentInteraction> | InteractionCallbackResponse<AnyInteractionChannel | Uncached> | undefined | void> | undefined;
   public update: (component: ComponentInteraction) => Promise<FollowupMessageInteractionResponse<CommandInteraction | ComponentInteraction> | Message | undefined | void> | undefined;
-  public modalSubmit: (modal: ModalSubmitInteraction) => Promise<Message | undefined | void> | undefined;
+  public modalSubmit: (modal: ModalSubmitInteraction) => Promise<FollowupMessageInteractionResponse<CommandInteraction | ComponentInteraction> | Message | undefined | void> | undefined;
 
   constructor(bot: ExtendedClient) {
     this.commands = [];
@@ -38,6 +39,7 @@ export default class Command {
     this.bot = bot;
     this.constants = bot.constants;
     this.category = "Uncategorized";
+    this.noDefer = false;
 
     this.execute = () => { return undefined; };
     this.update = () => { return undefined; };
