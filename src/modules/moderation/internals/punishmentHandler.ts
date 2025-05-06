@@ -104,16 +104,34 @@ export async function autoCalculateInfractions(bot: ExtendedClient, member: Memb
     
   for (const Case of history) infractions += hierarchy[Case.action];
 
+  //no infractions
   if (infractions < guildSettings.settings.infractionUntilTimeout) return;
-  if (infractions >= guildSettings.settings.infractionUntilTimeout && infractions < guildSettings.settings.infractionUntilBan) punishment = "timeout";
+  
+  //timeout
+  if (infractions >= guildSettings.settings.infractionUntilTimeout && infractions < guildSettings.settings.infractionUntilKick) punishment = "timeout";
+  
+  //kick
+  else if (infractions >= guildSettings.settings.infractionUntilKick && infractions < guildSettings.settings.infractionUntilBan) punishment = "kick";
+
+  //ban
   else if (infractions >= guildSettings.settings.infractionUntilBan) punishment = "ban";
 
   if (!punishment) return;
 
   if (history.filter((c) => c.action === "timeout" && !c.resolved).length) {
     switch (punishment) {
+    case "kick":
+      reason = "[**AUTO-MOD**] Timeout removed for kick.";
+      await resolveCase(bot, member.guild, history.filter((c) => c.action === "timeout" && !c.resolved)[0].id, member.id, reason);
+      break;
     case "ban":
       await resolveCase(bot, member.guild, history.filter((c) => c.action === "timeout" && !c.resolved)[0].id, member.id, "[**AUTO-MOD**] Timeout removed for ban.");
+      break;
+    }
+  } else if (history.filter((c) => c.action === "kick" && !c.resolved).length) {
+    switch (punishment) {
+    case "ban":
+      await resolveCase(bot, member.guild, history.filter((c) => c.action === "kick" && !c.resolved)[0].id, member.id, "[**AUTO-MOD**] Kick removed for ban.");
       break;
     }
   }
