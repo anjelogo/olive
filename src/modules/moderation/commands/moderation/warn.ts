@@ -1,4 +1,4 @@
-import { AnyCommandInteraction, AnyInteractionChannel, CommandInteraction, ComponentInteraction, Constants, Guild, Member, Message, ModalSubmitInteraction, Uncached } from "oceanic.js";
+import { AnyInteractionChannel, CommandInteraction, Constants, Guild, Member, ModalSubmitInteraction, Uncached } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import { autoCalculateInfractions, isPunishable, punish } from "../../internals/punishmentHandler";
