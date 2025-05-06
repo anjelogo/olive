@@ -1,4 +1,4 @@
-import { CommandInteraction, Constants, Embed, Guild, Member, Role } from "oceanic.js";
+import { CommandInteraction, Constants, Guild, Member, Role } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import { moduleData } from "../../main";
@@ -13,7 +13,7 @@ export default class Autorole extends Command {
     this.commands = ["autorole"];
     this.description = "Edit or view autoroles",
     this.example = "autorole list";
-    this.permissions = ["roles.autorole.edit"];
+    this.permissions = ["roles.autorole.edit", "roles.autorole.view"];
     this.options = [
       {
         type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND_GROUP,
@@ -44,15 +44,14 @@ export default class Autorole extends Command {
                 required: true
               }
             ]
+          }, {
+            type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
+            name: "view",
+            description: "List roles in autoroles"
           }
         ]
-      }, {
-        type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
-        name: "view",
-        description: "List roles in autoroles"
-      }
+      }, 
     ];
-
   }
 
   readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
@@ -133,27 +132,21 @@ export default class Autorole extends Command {
           return interaction.createFollowup({content: "Error trying to add role to roles list!"});
         }
       }
+
+      case "view": {
+        return interaction.createFollowup(
+          {
+            content: data.autoRoles.length
+              ? `${this.bot.constants.emojis.tick} Users will recieve the following role(s) upon joining: \n\n${data.autoRoles.map((r) => (`<@&${r}>`)).join("\n")}`
+              : `${this.bot.constants.emojis.x} Users recieve no roles upon joining.`,
+          }
+        );
+        break;
       }
-
-      break;
+        break;
+      }
     }
-
-    case "view": {
-      const embed: Embed = {
-        type: "rich",
-        title: `${guild.name}'s Auto Roles`,
-        description: data.autoRoles.length
-          ? `Users will recieve the following role(s) upon joining: \n\n${data.autoRoles.map((r) => (`<@&${r}>`)).join("\n")}`
-          : `${this.bot.constants.emojis.x} Users recieve no roles upon joining.`,
-        color: this.bot.constants.config.colors.default
-      };
-
-      return interaction.createFollowup(
-        {
-          embeds: [embed]
-        }
-      );
-    }
+    
 
     }
 
