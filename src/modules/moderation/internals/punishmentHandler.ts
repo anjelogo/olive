@@ -6,92 +6,91 @@ import uniqid from "uniqid";
 import { createLogEntry } from "./logHandler";
 
 export async function punish(bot: ExtendedClient, guild: Guild, data: Case): Promise<void> {
-  // const action = {
-  //     warn: "You were warned in {guild}.",
-  //     timeout: "You have been put on timeout in {guild}.",
-  //     kick: "You have been kicked from {guild}.",
-  //     ban: "You have been banned from {guild}."
-  //   },
-  //   moderator = bot.findMember(guild, data.moderatorID) as Member,
-  //   dmChannel = await bot.findUser(data.userID)?.createDM(),
-  //   member = bot.findMember(guild, data.userID) as Member,
-  //   reason = data.reason ?? "No reason provided.",
-  //   embed: Embed = {
-  //     type: "rich",
-  //     title: action[data.action].replace("{guild}", guild.name),
-  //     fields: [
-  //       {
-  //         name: "Moderator",
-  //         value: moderator.mention,
-  //         inline: true
-  //       }, {
-  //         name: "Punishment Duration",
-  //         value: data.time ? `\`${bot.constants.utils.HMS(data.time)}\`` : "Permanent",
-  //         inline: true
-  //       }, {
-  //         name: "Reason",
-  //         value: reason
-  //       }
-  //     ],
-  //     footer: {
-  //       text: `Case ID: ${data.id}`
-  //     },
-  //     timestamp: new Date().toISOString(),
-  //     color: bot.constants.config.colors.default
-  //   };
-  const user = bot.findUser(data.userID) as User,
-    reason = data.reason ?? "No reason provided.";
+  const action = {
+      warn: "You were warned in {guild}.",
+      timeout: "You have been put on timeout in {guild}.",
+      kick: "You have been kicked from {guild}.",
+      ban: "You have been banned from {guild}."
+    },
+    moderator = bot.findMember(guild, data.moderatorID) as Member,
+    user = bot.findUser(data.userID) as User,
+    reason = data.reason ?? "No reason provided.",
+    embed: Embed = {
+      type: "rich",
+      title: action[data.action].replace("{guild}", guild.name),
+      fields: [
+        {
+          name: "Moderator",
+          value: moderator.mention,
+          inline: true
+        }, {
+          name: "Punishment Duration",
+          value: data.time ? `\`${bot.constants.utils.HMS(data.time)}\`` : "Permanent",
+          inline: true
+        }, {
+          name: "Reason",
+          value: reason
+        }
+      ],
+      footer: {
+        text: `Case ID: ${data.id}`
+      },
+      timestamp: new Date().toISOString(),
+      color: bot.constants.config.colors.default
+    };
 
   if (!user) {
     throw new Error(`${bot.constants.emojis.x} I can't find that user.`);
   }
 
-  // try {
-  await addCase(bot, guild, data);
-  if (["ban", "kick"].includes(data.action)) {
-    await createLogEntry(bot, guild, data, user);
-  } else {
-    await createLogEntry(bot, guild, data);
+  try {
+    await addCase(bot, guild, data);
+    if (["ban", "kick"].includes(data.action)) {
+      await createLogEntry(bot, guild, data, user);
+    } else {
+      await createLogEntry(bot, guild, data);
+    }
+
+    // check for permissions
+    const botMember = bot.findMember(guild, bot.user.id) as Member;
+    if (!botMember.permissions.has("MODERATE_MEMBERS")) {
+      throw new Error(`${bot.constants.emojis.x} I don't have permission to punish this user.`);
+    }
+
+    switch (data.action) {
+
+    case "timeout": {
+      const time = data.time ? new Date(data.time as string).toISOString()
+          : new Date(Date.now() + 60 * 1000).toISOString(),
+        member = bot.findMember(guild, user.id) as Member;
+
+      await member.edit({
+        communicationDisabledUntil: time
+      });
+      break;
+    }
+    case "ban":
+      await guild.createBan(user.id, { reason: reason });
+      break;
+    case "kick":
+      await guild.removeMember(user.id, reason);
+      break;
+    }
+
+
+    const dmChannel = await user.createDM();
+    if (dmChannel) {
+      dmChannel.createMessage({
+        embeds: [embed],
+      }).catch(() => {
+        // ignore error
+      });
+    }
+  
+
+  } catch (e) {
+    throw new Error(e as string);
   }
-
-  // check for permissions
-  const botMember = bot.findMember(guild, bot.user.id) as Member;
-  if (!botMember.permissions.has("MODERATE_MEMBERS")) {
-    throw new Error(`${bot.constants.emojis.x} I don't have permission to punish this user.`);
-  }
-
-  switch (data.action) {
-
-  case "warn":
-    //dmChannel ? await dmChannel.createMessage({embeds: [embed]}) : null;
-    break;
-  case "timeout": {
-    const time = data.time ? new Date(data.time as string).toISOString()
-        : new Date(Date.now() + 60 * 1000).toISOString(),
-      member = bot.findMember(guild, user.id) as Member;
-
-    await member.edit({
-      communicationDisabledUntil: time
-    });
-
-    //dmChannel ? await dmChannel.createMessage({embeds: [embed]}) : null;
-    break;
-  }
-  case "ban":
-    await guild.createBan(user.id, { reason: reason });
-
-    //dmChannel ? await dmChannel.createMessage({embeds: [embed]}) : null;
-    break;
-  case "kick":
-    await guild.removeMember(user.id, reason);
-
-    //dmChannel ? await dmChannel.createMessage({embeds: [embed]}) : null;
-    break;
-  }
-
-  // } catch (e) {
-  //   throw new Error(e as string);
-  // }
 
 }
 
