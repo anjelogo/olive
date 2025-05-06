@@ -1,4 +1,4 @@
-import { Embed, Guild, Member, Role, User } from "oceanic.js";
+import { Constants, Guild, Member, Role, User } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
 import { Case, CaseActionTypes, moduleData } from "../main";
 import { addCase, getCases, resolveCase } from "./caseHandler";
@@ -14,30 +14,7 @@ export async function punish(bot: ExtendedClient, guild: Guild, data: Case): Pro
     },
     moderator = bot.findMember(guild, data.moderatorID) as Member,
     user = bot.findUser(data.userID) as User,
-    reason = data.reason ?? "No reason provided.",
-    embed: Embed = {
-      type: "rich",
-      title: action[data.action].replace("{guild}", guild.name),
-      fields: [
-        {
-          name: "Moderator",
-          value: moderator.mention,
-          inline: true
-        }, {
-          name: "Punishment Duration",
-          value: data.time ? `\`${bot.constants.utils.HMS(data.time)}\`` : "Permanent",
-          inline: true
-        }, {
-          name: "Reason",
-          value: reason
-        }
-      ],
-      footer: {
-        text: `Case ID: ${data.id}`
-      },
-      timestamp: new Date().toISOString(),
-      color: bot.constants.config.colors.default
-    };
+    reason = data.reason ?? "No reason provided.";
 
   if (!user) {
     throw new Error(`${bot.constants.emojis.x} I can't find that user.`);
@@ -81,7 +58,35 @@ export async function punish(bot: ExtendedClient, guild: Guild, data: Case): Pro
     const dmChannel = await user.createDM();
     if (dmChannel) {
       dmChannel.createMessage({
-        embeds: [embed],
+        components: [
+          {
+            type: Constants.ComponentTypes.CONTAINER,
+            components: [
+              {
+                type: Constants.ComponentTypes.TEXT_DISPLAY,
+                content: `## ${action[data.action].replace("{guild}", guild.name)}`,
+              }, {
+                type: Constants.ComponentTypes.SEPARATOR,
+                spacing: Constants.SeparatorSpacingSize.SMALL,
+                divider: false
+              }, {
+                type: Constants.ComponentTypes.TEXT_DISPLAY,
+                content: "### Moderator:",
+              }, {
+                type: Constants.ComponentTypes.TEXT_DISPLAY,
+                content: `<@${moderator.id}> (${moderator.id})`
+              }, {
+                type: Constants.ComponentTypes.SEPARATOR,
+                spacing: Constants.SeparatorSpacingSize.SMALL,
+                divider: false
+              }, {
+                type: Constants.ComponentTypes.TEXT_DISPLAY,
+                content: "### Reason:\n" + reason
+              }
+            ]
+          }
+        ],
+        flags: Constants.MessageFlags.IS_COMPONENTS_V2
       }).catch(() => {
         // ignore error
       });
