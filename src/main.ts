@@ -11,6 +11,7 @@ import { Constants as CustomConstants, Permnodes } from "./resources/interfaces"
 import { promises as fs } from "fs";
 import { CustomData } from "./modules/main/internals/CustomDataHandler";
 import monk, { IMonkManager } from "monk";
+import * as emojis from "./resources/emojis";
 import dotenv from "dotenv";
 dotenv.config({
   path: "../.env"
@@ -44,7 +45,7 @@ export default class Olive extends Client {
     this.commands = [];
     this.interactionCustomData = [];
     this.constants = {
-      emojis: require("./resources/emojis").default,
+      emojis: emojis,
       config: Config,
       utils: utils
     };
