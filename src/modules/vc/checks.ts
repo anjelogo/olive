@@ -87,6 +87,18 @@ export default class Checks {
 
             promises.push(await deleteCategory(this, guildData, catData.catID));
             continue;
+          } else if (joinChannel && category && joinChannel.voiceMembers.size > 0) {
+            const members = joinChannel.voiceMembers.map((m) => m.id);
+
+            for (const m of members) {
+              const member: Member = this.bot.findMember(guild, m) as Member;
+
+              if (member) {
+                promises.push(await create(this.bot, member, joinChannel));
+                createdChannels++;
+                continue;
+              }
+            }
           }
   
           if (!catData.channels.length)
@@ -101,18 +113,6 @@ export default class Checks {
 
               promises.push(await deleteChannel(this, guildData, catData, channelData.channelID));
               continue;
-            } else if (channel && channel.voiceMembers.size > 0) {
-              const members = channel.voiceMembers.map((m) => m.id);
-
-              for (const m of members) {
-                const member: Member = this.bot.findMember(guild, m) as Member;
-
-                if (member) {
-                  promises.push(await create(this.bot, member, channel));
-                  createdChannels++;
-                  continue;
-                }
-              }
             }
           }
         }

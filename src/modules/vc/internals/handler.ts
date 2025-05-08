@@ -61,7 +61,7 @@ export const create = async (bot: ExtendedClient, member: Member, channel: Voice
       ]
     });
   } catch (e) {
-    console.error(e);
+    // do nothing
   }
   
   await createLogEntry(bot, "create", voice, member);
