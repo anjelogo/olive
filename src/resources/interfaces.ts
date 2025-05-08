@@ -10,8 +10,8 @@ export interface Permnodes {
 
 export interface Constants {
 	emojis: typeof import("./emojis").default;
-	config: any;
-	utils: any;
+	config: typeof import("./config");
+	utils: typeof import("./utils");
 }
 
 export interface Entity {
