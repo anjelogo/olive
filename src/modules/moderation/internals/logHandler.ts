@@ -39,7 +39,7 @@ export async function createLogEntry(bot: ExtendedClient, guild: Guild, data: Ca
           content: "### Punishment Duration:"
         }, {
           type: Constants.ComponentTypes.TEXT_DISPLAY,
-          content: `${["ban", "timeout"].some((a) => a === data.action) ? (data.time ? `\`${bot.constants.utils.HMS(data.time)}\`` : "Permanent") : "No Duration"}`
+          content: `${["ban", "timeout"].some((a) => a === data.action) ? (data.time ? `\`${bot.constants.utils.HMS(Number(data.time))}\`` : "Permanent") : "No Duration"}`
         }, {
           type: Constants.ComponentTypes.SEPARATOR,
           spacing: Constants.SeparatorSpacingSize.SMALL,
@@ -113,7 +113,7 @@ export async function updateLogEntry(bot: ExtendedClient, guild: Guild, data: Ca
                 content: "### Punishment Duration:"
               }, {
                 type: Constants.ComponentTypes.TEXT_DISPLAY,
-                content: `${["ban", "timeout"].some((a) => a === data.action) ? (data.time ? `\`${bot.constants.utils.HMS(data.time)}\`` : "Permanent") : "No Duration"}`
+                content: `${["ban", "timeout"].some((a) => a === data.action) ? (data.time ? `\`${bot.constants.utils.HMS(Number(data.time))}\`` : "Permanent") : "No Duration"}`
               }, {
                 type: Constants.ComponentTypes.SEPARATOR,
                 spacing: Constants.SeparatorSpacingSize.SMALL,

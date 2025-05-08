@@ -19,7 +19,7 @@ export const commandHandler = async (bot: ExtendedClient, interaction: CommandIn
   const requirePerms: string[] = [],
     permissions: string[] = [];
 
-  if (command.devOnly && !bot.constants.config.developers.includes(interaction.member?.id))
+  if (command.devOnly && (interaction.member && !bot.constants.config.developers.includes(interaction.member.id)))
     return interaction.createFollowup({content: `${bot.constants.emojis.x} You can't run this command!`});
 
   if (command.permissions) {

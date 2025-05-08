@@ -24,7 +24,7 @@ export const run = async (bot: ExtendedClient, member: Member | User, guild: Gui
 
   const timestamp = bot.constants.utils.convertSnowflake(audit.entries[0].id);
 
-  if (Date.now() - timestamp > 1000 * 30) return; // 1 minute
+  if (Date.now() - timestamp.getTime() > 1000 * 30) return; // 1 minute
 
   const moderator = bot.findMember(guild as Guild, audit.entries[0].user?.id) as Member;
 

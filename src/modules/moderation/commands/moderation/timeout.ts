@@ -70,7 +70,7 @@ export default class Timeout extends Command {
 
     let time = interaction.data.options.getString("time", false);
 
-    if (time) time = this.bot.constants.utils.convertFromUserTime(time);
+    if (time) time = this.bot.constants.utils.convertFromUserTime(time).toString();
 
     //punish user using the punish function in ../../internals/punishmentHandler.ts
     const caseData: Case = {

@@ -133,7 +133,7 @@ export default class Reactionrole extends Command {
       guild = bot.findGuild(interaction.guildID) as Guild,
       emotes: PartialEmoji[] = Object.values(this.bot.constants.emojis.numbers)
         .map((e) => this.bot.constants.utils.resolveEmoji(e))
-        .filter((e: PartialEmoji) => !customData.reactionRoles.find((r) => r.emote.id === e.id));
+        .filter((e): e is PartialEmoji => e !== undefined && !customData.reactionRoles.find((r) => r.emote.id === e.id));
 
     return {
       home: [
@@ -457,7 +457,7 @@ export default class Reactionrole extends Command {
           components: [
             {
               type: Constants.ComponentTypes.TEXT_DISPLAY,
-              content: `${this.bot.constants.emojis.cross} An error occured while editing`,
+              content: `${this.bot.constants.emojis.x} An error occured while editing`,
             }
           ]
         });
@@ -470,7 +470,7 @@ export default class Reactionrole extends Command {
         {
           components: [{
             type: Constants.ComponentTypes.TEXT_DISPLAY,
-            content: `${this.bot.constants.emojis.cross} Cancelled reaction roles`
+            content: `${this.bot.constants.emojis.x} Cancelled reaction roles`
           }]
         }
       );

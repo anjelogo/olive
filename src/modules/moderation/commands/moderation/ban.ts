@@ -86,7 +86,7 @@ export default class Ban extends Command {
     await autoCalculateInfractions(this.bot, guild.id, memberToBan.user);
 
     return interaction.createFollowup({
-      content: `${this.bot.constants.emojis.check} Banned <@${memberToBan.username}> for \`${reason}\``
+      content: `${this.bot.constants.emojis.tick} Banned <@${memberToBan.username}> for \`${reason}\``
     });
   }
 

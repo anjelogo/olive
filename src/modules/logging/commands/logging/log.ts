@@ -199,7 +199,7 @@ export default class Log extends Command {
       const channelData = data.channels.find((c) => c.channelID === channel.id);
 
       if (!channelData)
-        return interaction.createFollowup({ content: `${this.bot.constants.emojis.cross} This channel is not a log channel` });
+        return interaction.createFollowup({ content: `${this.bot.constants.emojis.x} This channel is not a log channel` });
 
       data.channels.splice(data.channels.indexOf(channelData), 1);
 
@@ -208,7 +208,7 @@ export default class Log extends Command {
 
         return interaction.createFollowup({ content: `${this.bot.constants.emojis.tick} Removed log channel`});
       } catch (e) {
-        await interaction.createMessage({ content: `${this.bot.constants.emojis.cross} An error occured while removing the log channel` });
+        await interaction.createMessage({ content: `${this.bot.constants.emojis.x} An error occured while removing the log channel` });
         throw new Error(e as string);
       }
 
@@ -272,7 +272,7 @@ export default class Log extends Command {
           components: [
             {
               type: Constants.ComponentTypes.TEXT_DISPLAY,
-              content: `${this.bot.constants.emojis.cross} An error occured while saving the log channel`,
+              content: `${this.bot.constants.emojis.x} An error occured while saving the log channel`,
             }
           ]
         });
@@ -310,7 +310,7 @@ export default class Log extends Command {
         {
           components: [{
             type: Constants.ComponentTypes.TEXT_DISPLAY,
-            content: `${this.bot.constants.emojis.cross} Cancelled log channel modifications`
+            content: `${this.bot.constants.emojis.x} Cancelled log channel modifications`
           }]
         }
       );
