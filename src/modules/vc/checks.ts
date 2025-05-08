@@ -20,6 +20,7 @@ export default class Checks {
 
     let deletedGuilds = 0,
       deletedChannels = 0,
+      createdChannels = 0,
       failed = 0;
 
     async function deleteGuild(checks: Checks, guild: string) {
@@ -87,14 +88,6 @@ export default class Checks {
             promises.push(await deleteCategory(this, guildData, catData.catID));
             continue;
           }
-
-          if (joinChannel.voiceMembers.size < 1) {
-            for (const m of joinChannel.voiceMembers.map((m) => m.id)) {
-              const member: Member = this.bot.findMember(guild, m) as Member;
-
-              if (member) await create(this.bot, member, joinChannel);
-            }
-          } 
   
           if (!catData.channels.length)
             continue;
@@ -106,8 +99,20 @@ export default class Checks {
 
               if (channel) await channel.delete();
 
-              promises.push(await deleteChannel(this, guildData, catData ,channelData.channelID));
+              promises.push(await deleteChannel(this, guildData, catData, channelData.channelID));
               continue;
+            } else if (channel && channel.voiceMembers.size > 0) {
+              const members = channel.voiceMembers.map((m) => m.id);
+
+              for (const m of members) {
+                const member: Member = this.bot.findMember(guild, m) as Member;
+
+                if (member) {
+                  promises.push(await create(this.bot, member, channel));
+                  createdChannels++;
+                  continue;
+                }
+              }
             }
           }
         }
@@ -116,7 +121,7 @@ export default class Checks {
 
     await Promise.all(promises);
 
-    return `${deletedGuilds} Guilds Deleted. ${deletedChannels} Channels Deleted. ${failed} Failed Operations.`;
+    return `${deletedGuilds} Guilds Deleted. ${deletedChannels} Channels Deleted. ${createdChannels} Channels Created. ${failed} Failed Operations.`;
 
   }
 
