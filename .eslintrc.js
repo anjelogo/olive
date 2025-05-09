@@ -5,7 +5,9 @@ module.exports = {
   },
   "extends": [
     "eslint:recommended",
-    "plugin:@typescript-eslint/recommended"
+    "plugin:@typescript-eslint/recommended",
+    "plugin:import/recommended",
+    "plugin:import/typescript",
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -31,6 +33,9 @@ module.exports = {
     "semi": [
       "error",
       "always"
-    ]
+    ],
+    "import/order": ["error", {
+      "groups": ["builtin", "internal", "external", "parent", "sibling", "index", "object", "type"]
+    }],
   }
 };

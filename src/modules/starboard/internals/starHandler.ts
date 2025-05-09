@@ -1,8 +1,8 @@
 import { Guild, Message, TextChannel } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
-import { createLogEntry, removeLogEntry, updateLogEntry } from "./logHandler";
 import { LoggingModuleData } from "../../../Database/interfaces/LoggingModuleData";
 import { StarboardModuleData, messageDataStructure } from "../../../Database/interfaces/StarboardModuleData";
+import { createLogEntry, removeLogEntry, updateLogEntry } from "./logHandler";
 
 export const getStarredMessage = async (bot: ExtendedClient, messageID: string, guild: Guild): Promise<messageDataStructure | undefined> => {
   const data = await bot.getModuleData("Starboard", guild.id) as StarboardModuleData;
