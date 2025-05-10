@@ -1,17 +1,16 @@
-import { Category, Channel } from "./interfaces";
 import { CategoryChannel, Constants, ContainerComponent, Member, MessageComponent, StageChannel, TextDisplayComponent, VoiceChannel } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
-import { moduleData } from "../main";
 import Logging from "../../logging/main";
 import Main from "../../main/main";
+import { VCModuleData } from "../../../Database/interfaces/VCModuleData";
 
 export const create = async (bot: ExtendedClient, member: Member, channel: VoiceChannel): Promise<void> => {
   const mainModule = bot.getModule("Main") as Main;  
 
   if (!await mainModule.handlePermission(member, "vc.join")) return;
 
-  const data: moduleData = (await bot.getModuleData("VC", channel.guild.id) as unknown) as moduleData,
-    category: Category | undefined = data.categories.find((c: Category) => c.catID === channel.parentID);
+  const data = await bot.getModuleData("VC", channel.guild.id) as VCModuleData,
+    category = data.categories.find((c) => c.catID === channel.parentID);
 
   if (!category || (category && category.channelID !== channel.id)) return;
 
@@ -27,7 +26,7 @@ export const create = async (bot: ExtendedClient, member: Member, channel: Voice
       ]
     });
         
-  const newChannel: Channel = {
+  const newChannel = {
     channelID: voice.id,
     owner: member.id,
     createdAt: Date.now(),
@@ -68,8 +67,8 @@ export const create = async (bot: ExtendedClient, member: Member, channel: Voice
 };
 
 export const remove = async (bot: ExtendedClient, member: Member, channel: VoiceChannel | StageChannel): Promise<void> => {
-  const data: moduleData = (await bot.getModuleData("VC", channel.guild.id) as unknown) as moduleData,
-    category: Category | undefined = data.categories.find((c: Category) => c.catID === channel.parentID);
+  const data = await bot.getModuleData("VC", channel.guild.id) as VCModuleData,
+    category = data.categories.find((c) => c.catID === channel.parentID);
 
   if (!category) return;
 
@@ -83,7 +82,7 @@ export const remove = async (bot: ExtendedClient, member: Member, channel: Voice
 
     await channel.delete();
 
-    const i = category.channels.findIndex((c: Channel) => c.channelID === channel.id);
+    const i = category.channels.findIndex((c) => c.channelID === channel.id);
     if (i > -1) category.channels.splice(i, 1);
     await bot.updateModuleData("VC", data, channel.guild);
 
@@ -105,7 +104,7 @@ export const remove = async (bot: ExtendedClient, member: Member, channel: Voice
       const oldOwnerDM = await member.user.createDM();
       await oldOwnerDM.createMessage({content: `${bot.constants.emojis.warning.yellow} Ownership of \`${channel.name}\` has been transferred to \`${newOwner.tag}\` for \`${channel.guild.name}\`!`});
     } catch (e) {
-      console.error(e);
+      // do nothing
     }
   }
 };

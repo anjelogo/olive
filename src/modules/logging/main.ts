@@ -1,34 +1,7 @@
 import { Constants, Guild, MessageComponent, TextChannel } from "oceanic.js";
-import Module, { moduleDataStructure } from "../../Base/Module";
 import ExtendedClient from "../../Base/Client";
-
-export type LogChannelTypes = ("welcome" | "vc" | "moderation" | "starboard");
-
-export interface DataStructure {
-  channelID: string;
-  messageID: string;
-}
-
-export interface CaseLogDataStructure extends DataStructure {
-  caseID: string;
-}
-
-export interface StarDataStructure extends DataStructure {
-  starID: string;
-}
-
-export interface LogChannelStructure {
-    types: LogChannelTypes[];
-    channelID: string;
-  cases?: CaseLogDataStructure[];
-  stars?: StarDataStructure[];
-}
-
-export interface moduleData extends moduleDataStructure {
-  channels: LogChannelStructure[]
-}
-
-export interface DataType { channelID?: string, caseID?: string; starID?: string; }
+import Module from "../../Base/Module";
+import { LogChannelTypes, LoggingModuleData } from "../../Database/interfaces/LoggingModuleData";
 
 export default class Logging extends Module {
 
@@ -58,8 +31,8 @@ export default class Logging extends Module {
     channels: []
   }
 
-  readonly log = async (guild: Guild, type: LogChannelTypes, components: MessageComponent[], data?: DataType) => {
-    const guildData = await this.bot.getModuleData(this.name, guild.id) as moduleData;
+  readonly log = async (guild: Guild, type: LogChannelTypes, components: MessageComponent[], data?: { channelID?: string, caseID?: string, starID?: string }) => {
+    const guildData = await this.bot.getModuleData("Logging", guild.id) as LoggingModuleData;
 
     if (!guildData) return;
     if (guildData.channels) {
@@ -76,11 +49,11 @@ export default class Logging extends Module {
           c.cases ? c.cases.push({
             channelID: channel.id,
             messageID: message.id,
-            caseID: (data as DataType).caseID as string
+            caseID: data?.caseID as string
           }) : c.cases = [{
             channelID: channel.id,
             messageID: message.id,
-            caseID: (data as DataType).caseID as string
+            caseID: data?.caseID as string
           }];
 
           await this.bot.updateModuleData(this.name, guildData, guild);
@@ -88,13 +61,13 @@ export default class Logging extends Module {
 
         if (type === "starboard") {
           c.stars ? c.stars.push({
-            channelID: (data as DataType).channelID as string,
+            channelID: data?.channelID as string,
             messageID: message.id,
-            starID: (data as DataType).starID as string,
+            starID: data?.starID as string
           }) : c.stars = [{
-            channelID: (data as DataType).channelID as string,
+            channelID: data?.channelID as string,
             messageID: message.id,
-            starID: (data as DataType).starID as string,
+            starID: data?.starID as string
           }];
 
           await message.createReaction("⭐");

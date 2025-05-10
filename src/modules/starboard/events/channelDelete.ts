@@ -1,9 +1,9 @@
 import { TextChannel } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
-import { moduleData } from "../main";
+import { StarboardModuleData } from "../../../Database/interfaces/StarboardModuleData";
 
 export const run = async (bot: ExtendedClient, channel: TextChannel) => {
-  const StarboardData = await bot.getModuleData("Starboard", channel.guild.id) as moduleData;
+  const StarboardData = await bot.getModuleData("Starboard", channel.guild.id) as StarboardModuleData;
 
   if (!StarboardData.messages) return;
     

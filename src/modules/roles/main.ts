@@ -1,30 +1,7 @@
-import { PartialEmoji, Guild } from "oceanic.js";
-import Module, { moduleDataStructure } from "../../Base/Module";
+import { Guild } from "oceanic.js";
+import Module from "../../Base/Module";
 import ExtendedClient from "../../Base/Client";
-
-export interface SavedRolesStructure {
-  userID: string;
-  roles: string[];
-}
-
-export interface RolesMessage {
-  id: string;
-  channelID: string;
-  roles: {
-    role: string;
-    emote: PartialEmoji;
-  }[];
-}
-
-export interface moduleData extends moduleDataStructure {
-  roles: string[];
-  autoRoles: string[];
-  messages: RolesMessage[];
-  savedRoles: {
-    enabled: boolean;
-    roles: SavedRolesStructure[];
-  };
-}
+import { RolesMessage, RolesModuleData } from "../../Database/interfaces/RolesModuleData";
 
 export default class Roles extends Module {
 
@@ -52,7 +29,7 @@ export default class Roles extends Module {
 
     if (typeof guild === "string") guild = this.bot.findGuild(guild) as Guild;
 
-    const data: moduleData = await this.data(guild.id) as moduleData,
+    const data = await this.data(guild.id) as RolesModuleData,
       messages = data.messages;
 
     console.log("Messages", messages);

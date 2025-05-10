@@ -1,7 +1,8 @@
 import { Constants, Guild, Member, MessageComponent, TextChannel, User } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
-import Logging, { moduleData } from "../../logging/main";
-import { Case } from "../main";
+import Logging from "../../logging/main";
+import { LoggingModuleData } from "../../../Database/interfaces/LoggingModuleData";
+import { Case } from "../../../Database/interfaces/ModerationModuleData";
 
 export async function createLogEntry(bot: ExtendedClient, guild: Guild, data: Case, partialUser?: Partial<User>) {
 
@@ -65,7 +66,7 @@ export async function createLogEntry(bot: ExtendedClient, guild: Guild, data: Ca
 
 export async function updateLogEntry(bot: ExtendedClient, guild: Guild, data: Case) {
 
-  const guildData = await bot.getModuleData("Logging", guild.id) as moduleData;
+  const guildData = await bot.getModuleData("Logging", guild.id) as LoggingModuleData;
 
   if (guildData.channels.filter((c) => c.types.includes("moderation")).length) {
     const moderationLogChannels = guildData.channels.filter((c) => c.types.includes("moderation") && c.cases);

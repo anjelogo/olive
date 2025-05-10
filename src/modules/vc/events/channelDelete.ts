@@ -1,13 +1,13 @@
 import { Constants, GuildChannel } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
-import { moduleData } from "../main";
+import { VCModuleData } from "../../../Database/interfaces/VCModuleData";
 
 export const run = async (bot: ExtendedClient, channel: (GuildChannel)): Promise<void> => {
   if ([Constants.ChannelTypes.GUILD_TEXT, Constants.ChannelTypes.GUILD_ANNOUNCEMENT, Constants.ChannelTypes.GUILD_FORUM].includes(channel.type)) return;
 
-  const data: moduleData = (await bot.getModuleData("VC", channel.guild.id) as unknown) as moduleData;
+  const data = await bot.getModuleData("VC", channel.guildID) as VCModuleData;
 
-  async function deleteCategory(guildData: moduleData, channel: string) {
+  async function deleteCategory(guildData: VCModuleData, channel: string) {
     if (!guildData) return;
   
     const i = guildData.categories.findIndex((c) => c.catID === channel);

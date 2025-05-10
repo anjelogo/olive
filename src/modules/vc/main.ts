@@ -1,16 +1,5 @@
-import Module, { moduleDataStructure } from "../../Base/Module";
+import Module from "../../Base/Module";
 import ExtendedClient from "../../Base/Client";
-import { Category } from "./internals/interfaces";
-
-export interface moduleData extends moduleDataStructure {
-  categories: Category[];
-  defaultName: defaultName;
-}
-
-interface defaultName {
-  category: string;
-  channel: string;
-}
 
 export default class VC extends Module {
 

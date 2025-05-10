@@ -1,19 +1,20 @@
 import { TextChannel } from "oceanic.js";
 import ExtendedClient from "../../Base/Client";
-import Roles, { moduleData } from "./main";
+import Starboard from "./main";
+import { StarboardModuleData } from "../../Database/interfaces/StarboardModuleData";
 
 export default class Checks {
 
   readonly bot: ExtendedClient;
-  readonly module: Roles
+  readonly module: Starboard
 
-  constructor(bot: ExtendedClient, Module: Roles) {
+  constructor(bot: ExtendedClient, Module: Starboard) {
     this.bot = bot;
     this.module = Module;
   }
 
   readonly run = async (): Promise<string> => {
-    const data = (await this.bot.getAllData(this.module.name) as unknown) as moduleData[],
+    const data = await this.bot.getAllData(this.module.name) as StarboardModuleData[],
       promises = [];
 
     let deletedGuilds = 0,
@@ -31,7 +32,7 @@ export default class Checks {
       }
     }
 
-    async function deleteStar(checks: Checks, guildData: moduleData, messageID: string) {
+    async function deleteStar(checks: Checks, guildData: StarboardModuleData, messageID: string) {
       if (!messageID) return;
 
       const i = guildData.messages.findIndex((m) => m.messageID === messageID);

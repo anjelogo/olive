@@ -1,10 +1,10 @@
 import { CommandInteraction, Constants, Guild, Member,  TextChannel } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
-import { moduleData} from "../../main";
-import { moduleData as LoggingModuleData } from "../../../logging/main";
 import { removeCase, resolveCase } from "../../internals/caseHandler";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
+import { ModerationModuleData } from "../../../../Database/interfaces/ModerationModuleData";
+import { LoggingModuleData } from "../../../../Database/interfaces/LoggingModuleData";
 
 export default class Case extends Command {
 
@@ -68,7 +68,7 @@ export default class Case extends Command {
   readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
     const member = interaction.member as Member,
       guild = this.bot.findGuild(interaction.guildID) as Guild,
-      data = await this.bot.getModuleData("Moderation", guild.id) as moduleData,
+      data = await this.bot.getModuleData("Moderation", guild.id) as ModerationModuleData,
       subcommand = interaction.data.options.getSubCommand(true)[0];
 
     const caseID = interaction.data.options.getString("case", true),

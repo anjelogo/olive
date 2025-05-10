@@ -1,9 +1,9 @@
 import { Constants, Guild, Member, Role, User } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
-import { Case, CaseActionTypes, moduleData } from "../main";
 import { addCase, getCases, resolveCase } from "./caseHandler";
 import uniqid from "uniqid";
 import { createLogEntry } from "./logHandler";
+import { Case, CaseActionTypes, ModerationModuleData } from "../../../Database/interfaces/ModerationModuleData";
 
 export async function punish(bot: ExtendedClient, guild: Guild, data: Case): Promise<void> {
   const action = {
@@ -108,7 +108,7 @@ export async function autoCalculateInfractions(bot: ExtendedClient, guildID: str
   }
   
   const history = (await getCases(bot, guild, user.id)).filter(c => !c.resolved),
-    guildSettings = await bot.getModuleData("Moderation", guild.id) as moduleData,
+    guildSettings = await bot.getModuleData("Moderation", guild.id) as ModerationModuleData,
     hierarchy = {
       warn: 1,
       timeout: 3,

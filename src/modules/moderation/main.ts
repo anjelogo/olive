@@ -1,33 +1,6 @@
-import Module, { moduleDataStructure } from "../../Base/Module";
+import Module from "../../Base/Module";
 import ExtendedClient from "../../Base/Client";
-
-export type CaseActionTypes = ("ban" | "kick" | "timeout" | "warn");
-
-export interface Case {
-    id: string;
-    userID: string;
-    moderatorID: string;
-    reason?: string;
-    action: CaseActionTypes;
-    timestamp: string; //ISO timestamp
-    time?: string;
-    resolved?: {
-        moderatorID: string;
-        reason: string;
-    };
-}
-
-export interface ModerationSettings {
-    caseLimit: number;
-    infractionUntilBan: number;
-    infractionUntilKick: number;
-    infractionUntilTimeout: number;
-}
-
-export interface moduleData extends moduleDataStructure {
-    cases: Case[];
-    settings: ModerationSettings
-}
+import { ModerationModuleData } from "../../Database/interfaces/ModerationModuleData";
 
 export default class Moderation extends Module {
 
@@ -50,7 +23,7 @@ export default class Moderation extends Module {
     await this.load();
   }
 
-  readonly moduleData: moduleData = {
+  readonly moduleData: ModerationModuleData = {
     version: this.version,
     guildID: "",
     cases: [],

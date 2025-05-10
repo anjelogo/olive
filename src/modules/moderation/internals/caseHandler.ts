@@ -1,10 +1,10 @@
 import { Constants, Guild, User } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
-import { Case, moduleData } from "../main";
+import { Case, ModerationModuleData } from "../../../Database/interfaces/ModerationModuleData"; 
 import { updateLogEntry } from "./logHandler";
 
 export async function getCases(bot: ExtendedClient, guild: Guild, userID: string, caseID?: string): Promise<Case[]> {
-  const data = await bot.getModuleData("Moderation", guild.id) as moduleData;
+  const data = await bot.getModuleData("Moderation", guild.id) as ModerationModuleData;
 
   if (!data) return [];
 
@@ -17,7 +17,7 @@ export async function getCases(bot: ExtendedClient, guild: Guild, userID: string
 }
 
 export async function addCase(bot: ExtendedClient, guild: Guild, caseData: Case): Promise<void> {
-  const data = await bot.getModuleData("Moderation", guild.id) as moduleData;
+  const data = await bot.getModuleData("Moderation", guild.id) as ModerationModuleData;
 
   if (!data) return;
 
@@ -31,7 +31,7 @@ export async function addCase(bot: ExtendedClient, guild: Guild, caseData: Case)
 }
 
 export async function removeCase(bot: ExtendedClient, guild: Guild, caseID: string): Promise<void> {
-  const data = await bot.getModuleData("Moderation", guild.id) as moduleData;
+  const data = await bot.getModuleData("Moderation", guild.id) as ModerationModuleData;
 
   if (!data) return;
 
@@ -45,7 +45,7 @@ export async function removeCase(bot: ExtendedClient, guild: Guild, caseID: stri
 }
 
 export async function resolveCase(bot: ExtendedClient, guild: Guild, caseID: string, moderatorID: string, reason: string): Promise<boolean> {
-  const data = await bot.getModuleData("Moderation", guild.id) as moduleData;
+  const data = await bot.getModuleData("Moderation", guild.id) as ModerationModuleData;
 
   if (!data) return false;
 

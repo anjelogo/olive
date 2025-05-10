@@ -1,8 +1,8 @@
 import { CategoryChannel, Guild, Member, VoiceChannel } from "oceanic.js";
 import ExtendedClient from "../../Base/Client";
 import { create } from "./internals/handler";
-import { Category } from "./internals/interfaces";
-import VC, { moduleData } from "./main";
+import VC from "./main";
+import { Category, VCModuleData } from "../../Database/interfaces/VCModuleData";
 
 export default class Checks {
 
@@ -15,7 +15,7 @@ export default class Checks {
   }
 
   readonly run = async (): Promise<string> => {
-    const data: moduleData[] = (await this.bot.getAllData(this.module.name) as unknown) as moduleData[],
+    const data = await this.bot.getAllData(this.module.name) as VCModuleData[],
       promises = [];
 
     let deletedGuilds = 0,
@@ -34,7 +34,7 @@ export default class Checks {
       }
     }
 
-    async function deleteCategory(checks: Checks, guildData: moduleData, channel: string) {
+    async function deleteCategory(checks: Checks, guildData: VCModuleData, channel: string) {
       if (!guildData) return;
     
       const i = guildData.categories.findIndex((c) => c.catID === channel);
@@ -48,7 +48,7 @@ export default class Checks {
       }
     }
 
-    async function deleteChannel(checks: Checks, guildData: moduleData, catData: Category, channel: string) {
+    async function deleteChannel(checks: Checks, guildData: VCModuleData, catData: Category, channel: string) {
       if (!guildData || !catData)
         return;
     
@@ -127,9 +127,8 @@ export default class Checks {
 
   
   readonly checkVersion = async (newVersion: string): Promise<string> => {
-    const data: moduleData[] = (await this.bot.getAllData(this.module.name) as unknown) as moduleData[];
-
-    const promises = [];
+    const data = await this.bot.getAllData(this.module.name) as VCModuleData[],
+      promises = [];
 
     if (data.length) {
       for (const guildData of data) {

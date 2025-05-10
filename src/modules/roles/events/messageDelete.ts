@@ -1,14 +1,15 @@
 import { Message, TextChannel } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
-import Roles, { moduleData, RolesMessage } from "../main";
+import Roles from "../main";
+import { RolesMessage, RolesModuleData } from "../../../Database/interfaces/RolesModuleData";
 
 export const run = async (bot: ExtendedClient, msg: (Message | { id: string; channel: unknown; })): Promise<void> => {
 
   if (!msg || (msg && !msg.id) || (msg && !(msg.channel as TextChannel).guild)) return;
 
-  const data: moduleData = await bot.getModuleData("Roles", (msg.channel as TextChannel).guild.id) as moduleData,
+  const data = await bot.getModuleData("Roles", (msg.channel as TextChannel).guild.id) as RolesModuleData,
     rolesModule = bot.getModule("Roles") as Roles,
-    msgData: RolesMessage = await rolesModule.getReactionMessage(msg.id, (msg.channel as TextChannel).guild.id) as RolesMessage;
+    msgData = await rolesModule.getReactionMessage(msg.id, (msg.channel as TextChannel).guild.id) as RolesMessage;
 
   if (msgData) return;
 

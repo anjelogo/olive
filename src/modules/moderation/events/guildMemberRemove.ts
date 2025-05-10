@@ -2,7 +2,7 @@ import { Constants, Guild, Member, Uncached, User } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
 import { addCase, getCases } from "../internals/caseHandler";
 import { createLogEntry } from "../internals/logHandler";
-import { Case } from "../main";
+import { Case } from "../../../Database/interfaces/ModerationModuleData";
 import { autoCalculateInfractions } from "../internals/punishmentHandler";
 
 export const run = async (bot: ExtendedClient, member: Member | User, guild: Guild | Uncached): Promise<void> => {

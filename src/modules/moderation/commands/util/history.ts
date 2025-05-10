@@ -75,7 +75,7 @@ export default class History extends Command {
         arr = [];
 
       for (const Case of cases) {
-        if (!Case.resolved) infractions += hierarchy[Case.action];
+        if (!Case.resolved) infractions += hierarchy[Case.action as keyof typeof hierarchy];
           
         let string = `\`Case (${Case.id}) [${Case.action.substring(0, 1).toUpperCase()}]\``;
         Case.resolved ? string = `~~${string}~~` : string;

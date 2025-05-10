@@ -1,7 +1,8 @@
 import { Constants, EventReaction, Guild, Member, PossiblyUncachedMessage, PrivateChannel, Role, Uncached, User } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
 import Main from "../../main/main";
-import Roles, { RolesMessage } from "../main";
+import Roles from "../main";
+import { RolesMessage } from "../../../Database/interfaces/RolesModuleData";
 
 export const run = async (bot: ExtendedClient, msg: PossiblyUncachedMessage, reactor: User | Member | Uncached, emoji: EventReaction): Promise<void> => {
   console.log("Reaction removed", msg, reactor, emoji);

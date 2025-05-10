@@ -1,4 +1,5 @@
 import { Constants } from "oceanic.js";
+import { BaseModuleData } from "./BaseModuleData";
 
 export interface Category {
 	catID: string;
@@ -17,4 +18,12 @@ export interface Channel {
 		allow: bigint | string | undefined;
 		deny: bigint	| string | undefined;
 	}[]
+}
+
+export interface VCModuleData extends BaseModuleData {
+  categories: Category[];
+  defaultName: {
+    category: string;
+    channel: string;
+  };
 }

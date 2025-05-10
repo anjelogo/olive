@@ -1,8 +1,8 @@
 import { CommandInteraction, Constants, Guild, Member, Role } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
-import { moduleData } from "../../main";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
+import { RolesModuleData } from "../../../../Database/interfaces/RolesModuleData";
 
 export default class Autorole extends Command {
 
@@ -57,7 +57,7 @@ export default class Autorole extends Command {
   readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
     const guild: Guild = this.bot.findGuild(interaction.guildID) as Guild,
       member: Member = interaction.member as Member,
-      data: moduleData = await this.bot.getModuleData("Roles", guild.id) as moduleData,
+      data = await this.bot.getModuleData("Roles", guild.id) as RolesModuleData,
       botMember: Member = this.bot.findMember(guild, this.bot.user.id) as Member,
       botHighestRoleID = botMember.roles
         .map((r) => 

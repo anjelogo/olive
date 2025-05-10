@@ -1,6 +1,7 @@
 import Module from "../../Base/Module";
 import ExtendedClient from "../../Base/Client";
-import Moderation, { moduleData } from "./main";
+import Moderation from "./main";
+import { ModerationModuleData } from "../../Database/interfaces/ModerationModuleData";
 
 export default class Checks {
 
@@ -13,7 +14,7 @@ export default class Checks {
   }
 
   readonly run = async (): Promise<string> => {
-    const data: moduleData[] = (await this.bot.getAllData(this.module.name) as unknown) as moduleData[],
+    const data = (await this.bot.getAllData(this.module.name)) as ModerationModuleData[],
       promises = [];
 
     let deletedGuilds = 0,
@@ -49,7 +50,7 @@ export default class Checks {
   }
 
   readonly checkVersion = async (newVersion: string): Promise<string> => {
-    const data: moduleData[] = (await this.bot.getAllData(this.module.name) as unknown) as moduleData[];
+    const data = await this.bot.getAllData(this.module.name) as ModerationModuleData[];
 
     const promises = [];
 

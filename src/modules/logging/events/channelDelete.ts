@@ -1,19 +1,20 @@
-import { TextChannel } from "oceanic.js";
+import { Constants, TextChannel } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
-import { moduleData } from "../main";
+import { VCModuleData } from "../../../Database/interfaces/VCModuleData";
 
 export const run = async (bot: ExtendedClient, channel: (TextChannel)): Promise<void> => {
-  if (![0, 5].includes(channel.type)) return;
+  if (![Constants.ChannelTypes.GUILD_VOICE, Constants.ChannelTypes.GUILD_STAGE_VOICE].includes(channel.type)) return;
 
-  const data: moduleData = (await bot.getModuleData("VC", channel.guild.id) as unknown) as moduleData;
+  const data = await bot.getModuleData("VC", channel.guildID) as VCModuleData;
 
   if (!data) return;
 
-  async function deleteChannel(guildData: moduleData, channel: string) {
+  async function deleteChannel(guildData: VCModuleData, channel: string) {
     if (!guildData) return;
 
-    const i = guildData.channels.findIndex((c) => c.channelID === channel);
-    if (i > -1) guildData.channels.splice(i, 1);
+    const category = guildData.categories.find((c) => c.channels.some((ch) => ch.channelID === channel));
+
+    category?.channels.filter((ch) => ch.channelID !== channel);
 
     try {
       await bot.updateModuleData("VC", guildData, guildData.guildID);
@@ -22,9 +23,6 @@ export const run = async (bot: ExtendedClient, channel: (TextChannel)): Promise<
     }
   }
 
-  const logChannel = data.channels.find((c) => c.channelID === channel.id);
-
-  if (logChannel)
-    await deleteChannel(data, channel.id);
-    
+  await deleteChannel(data, channel.id);
+  return;
 };

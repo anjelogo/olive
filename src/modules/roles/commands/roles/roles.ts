@@ -2,7 +2,7 @@ import { CommandInteraction, ComponentInteraction, Constants, Guild, Member, Mes
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import Main from "../../../main/main";
-import { moduleData } from "../../main";
+import { RolesModuleData } from "../../../../Database/interfaces/RolesModuleData";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class Roles extends Command {
@@ -64,10 +64,10 @@ export default class Roles extends Command {
 
   readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
     const mainModule = this.bot.getModule("Main") as Main,
-      guild: Guild = this.bot.findGuild(interaction.guildID) as Guild,
-      member: Member = interaction.member as Member,
-      data: moduleData = await this.bot.getModuleData("Roles", guild.id) as moduleData,
-      botMember: Member = this.bot.findMember(guild, this.bot.user.id) as Member,
+      guild = this.bot.findGuild(interaction.guildID) as Guild,
+      member = interaction.member as Member,
+      data = await this.bot.getModuleData("Roles", guild.id) as RolesModuleData,
+      botMember = this.bot.findMember(guild, this.bot.user.id) as Member,
       botHighestRoleID = botMember.roles
         .map((r) => 
           ({
@@ -75,7 +75,7 @@ export default class Roles extends Command {
             position: (this.bot.findRole(guild, r) as Role).position
           }))
         .sort((a, b) => b.position - a.position).map((r) => r.name),
-      botHighestRole: Role = this.bot.findRole(guild, botHighestRoleID[0]) as Role,
+      botHighestRole = this.bot.findRole(guild, botHighestRoleID[0]) as Role,
       memberHighestRoleID = member.roles.length
         ? member.roles
           .map((r) => 
@@ -85,8 +85,8 @@ export default class Roles extends Command {
             }))
           .sort((a, b) => b.position - a.position).map((r) => r.name)
         : guild.id,
-      memberHighestRole: Role = this.bot.findRole(guild, memberHighestRoleID[0]) as Role,
-      subcommand = interaction.data.options.raw[0].name;
+      memberHighestRole = this.bot.findRole(guild, memberHighestRoleID[0]) as Role,
+      subcommand = interaction.data.options.getSubCommand(true)[0];
 
     switch(subcommand) {
 

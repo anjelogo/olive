@@ -1,13 +1,13 @@
 import { Role, Uncached } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
-import { moduleData } from "../main";
+import { RolesModuleData } from "../../../Database/interfaces/RolesModuleData";
 
 export const run = async (bot: ExtendedClient, role: Role | Uncached): Promise<void> => {
 
   if (!(role instanceof	Role)) return;
   if (!role.guild || !role) return;
 
-  const data: moduleData = await bot.getModuleData("Roles", role.guild.id) as moduleData;
+  const data = await bot.getModuleData("Roles", role.guild.id) as RolesModuleData;
 
   if (data.messages) {
     const i = data.messages.findIndex((m) => m.roles.map((r) => r.role).includes(role.id));

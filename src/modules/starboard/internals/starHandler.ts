@@ -1,11 +1,11 @@
 import { Guild, Message, TextChannel } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
-import  { messageDataStructure, moduleData } from "../main";
 import { createLogEntry, removeLogEntry, updateLogEntry } from "./logHandler";
-import { moduleData as LoggingModuleData } from "../../logging/main";
+import { LoggingModuleData } from "../../../Database/interfaces/LoggingModuleData";
+import { StarboardModuleData, messageDataStructure } from "../../../Database/interfaces/StarboardModuleData";
 
 export const getStarredMessage = async (bot: ExtendedClient, messageID: string, guild: Guild): Promise<messageDataStructure | undefined> => {
-  const data = await bot.getModuleData("Starboard", guild.id) as moduleData;
+  const data = await bot.getModuleData("Starboard", guild.id) as StarboardModuleData;
 
   if (!data) return undefined;
   if (!data.messages || !data.messages.length) return undefined;
@@ -38,7 +38,7 @@ export const handleStarredMessage = async (bot: ExtendedClient, guild: Guild, me
 
 export const createStarredMessage = async (bot: ExtendedClient, guild: Guild, message: Message, reactorID: string) => {
 
-  const data = await bot.getModuleData("Starboard", guild.id) as moduleData;
+  const data = await bot.getModuleData("Starboard", guild.id) as StarboardModuleData;
 
   if (!data) return;
 
@@ -63,7 +63,7 @@ export const createStarredMessage = async (bot: ExtendedClient, guild: Guild, me
 
 export const updateStarredMessage = async (bot: ExtendedClient, guild: Guild, message: Message, action: ("add"| "remove"), reactorID: string) => {
     
-  const data = await bot.getModuleData("Starboard", guild.id) as moduleData;
+  const data = await bot.getModuleData("Starboard", guild.id) as StarboardModuleData;
 
   if (!data) return;
 
@@ -98,7 +98,7 @@ export const updateStarredMessage = async (bot: ExtendedClient, guild: Guild, me
 };
 
 export const removeStarredMessage = async (bot: ExtendedClient, guild: Guild, message: Message) => {
-  const starboardData = await bot.getModuleData("Starboard", guild.id) as moduleData;
+  const starboardData = await bot.getModuleData("Starboard", guild.id) as StarboardModuleData;
 
   if (!starboardData) return;
 

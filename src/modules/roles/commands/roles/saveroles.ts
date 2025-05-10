@@ -1,7 +1,7 @@
 import { CommandInteraction, Constants, Guild } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
-import { moduleData } from "../../main";
+import { RolesModuleData } from "../../../../Database/interfaces/RolesModuleData";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class Saveroles extends Command {
@@ -17,7 +17,7 @@ export default class Saveroles extends Command {
 
   readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
     const guild = this.bot.findGuild(interaction.guildID) as Guild,
-      data = await this.bot.getModuleData("Roles", guild.id) as moduleData,
+      data = await this.bot.getModuleData("Roles", guild.id) as RolesModuleData,
       savedRoles = data.savedRoles;
 
     if (!savedRoles.enabled) data.savedRoles.enabled = true;

@@ -2,8 +2,8 @@ import { MessageActionRow, CommandInteraction, ComponentInteraction, Constants, 
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import { upsertCustomData, getCustomData } from "../../../main/internals/CustomDataHandler";
-import { moduleData, RolesMessage } from "../../main";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
+import { RolesMessage, RolesModuleData } from "../../../../Database/interfaces/RolesModuleData";
 
 interface CustomDataStructure {
   id: string,
@@ -61,7 +61,7 @@ export default class Reactionrole extends Command {
             position: (this.bot.findRole(guild, r) as Role).position
           }))
         .sort((a, b) => b.position - a.position).map((r) => r.name),
-      botHighestRole: Role = this.bot.findRole(guild, botHighestRoleID[0]) as Role,
+      botHighestRole = this.bot.findRole(guild, botHighestRoleID[0]) as Role,
       memberHighestRoleID = member.roles.length
         ? member.roles
           .map((r) => 
@@ -71,12 +71,12 @@ export default class Reactionrole extends Command {
             }))
           .sort((a, b) => b.position - a.position).map((r) => r.name)
         : [guild.id],
-      memberHighestRole: Role = this.bot.findRole(guild, memberHighestRoleID[0]) as Role;
+      memberHighestRole = this.bot.findRole(guild, memberHighestRoleID[0]) as Role;
 
-    const roles: Role[] = [];
+    const roles = [];
 
     for (const r of guild.roles.map((r) => r.id )) {
-      const role: Role = this.bot.findRole(guild, r) as Role;
+      const role = this.bot.findRole(guild, r) as Role;
   
       if (!role) continue;
   
@@ -263,7 +263,7 @@ export default class Reactionrole extends Command {
   readonly execute = async (interaction: (CommandInteraction)): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
     const guild = this.bot.findGuild(interaction.guildID) as Guild,
       channel = interaction.channel as TextChannel,
-      data = await this.bot.getModuleData("Roles", guild.id) as moduleData,
+      data = await this.bot.getModuleData("Roles", guild.id) as RolesModuleData,
       messageid = interaction.data.options.getString("messageid", true);
 
     let message: Message | undefined;
@@ -315,7 +315,7 @@ export default class Reactionrole extends Command {
 
     const guild = this.bot.findGuild(component.guildID) as Guild,
       customData = await getCustomData(this.bot, component.message.interactionMetadata?.id as string)?.data as CustomDataStructure,
-      moduleData = await this.bot.getModuleData("Roles", guild.id) as moduleData;
+      moduleData = await this.bot.getModuleData("Roles", guild.id) as RolesModuleData;
 
     switch (component.data.customID.split("_")[2]) {
 

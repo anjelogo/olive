@@ -1,7 +1,8 @@
 import { TextChannel } from "oceanic.js";
 import Module from "../../Base/Module";
 import ExtendedClient from "../../Base/Client";
-import Logging, { moduleData } from "./main";
+import Logging from "./main";
+import { LoggingModuleData } from "../../Database/interfaces/LoggingModuleData";
 
 export default class Checks {
 
@@ -14,7 +15,7 @@ export default class Checks {
   }
 
   readonly run = async (): Promise<string> => {
-    const data: moduleData[] = (await this.bot.getAllData(this.module.name) as unknown) as moduleData[],
+    const data = await this.bot.getAllData(this.module.name) as LoggingModuleData[],
       promises = [];
 
     let deletedGuilds = 0,
@@ -34,7 +35,7 @@ export default class Checks {
       }
     }
 
-    async function deleteChannel(checks: Checks, guildData: moduleData, channel: string) {
+    async function deleteChannel(checks: Checks, guildData: LoggingModuleData, channel: string) {
       if (!channel) return;
 
       const i = guildData.channels.findIndex((c) => c.channelID === channel);
@@ -48,7 +49,7 @@ export default class Checks {
       }
     }
 
-    async function deleteCaseMessage(checks: Checks, guildData: moduleData, channelID: string, messageID: string) {
+    async function deleteCaseMessage(checks: Checks, guildData: LoggingModuleData, channelID: string, messageID: string) {
       if (!messageID) return;
 
       const channel = guildData.channels.find((c) => c.channelID === channelID);
@@ -67,7 +68,7 @@ export default class Checks {
       }
     }
 
-    async function deleteStarMessage(checks: Checks, guildData: moduleData, channelID: string, messageID: string) {
+    async function deleteStarMessage(checks: Checks, guildData: LoggingModuleData, channelID: string, messageID: string) {
       if (!messageID) return;
 
       const channel = guildData.channels.find((c) => c.channelID === channelID);
@@ -136,7 +137,7 @@ export default class Checks {
   }
   
   readonly checkVersion = async (newVersion: string): Promise<string> => {
-    const data: moduleData[] = (await this.bot.getAllData(this.module.name) as unknown) as moduleData[];
+    const data = await this.bot.getAllData(this.module.name) as LoggingModuleData[];
 
     const promises = [];
 

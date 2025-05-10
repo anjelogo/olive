@@ -1,8 +1,8 @@
 import { Constants, ContainerComponent, Guild, Message, MessageComponent, TextChannel } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
 import Logging from "../../logging/main";
-import { messageDataStructure, moduleData } from "../main";
-import { moduleData as LoggingModuleData } from "../../logging/main";
+import { LoggingModuleData } from "../../../Database/interfaces/LoggingModuleData";
+import { messageDataStructure, StarboardModuleData } from "../../../Database/interfaces/StarboardModuleData";
 
 export const createLogEntry = async (bot: ExtendedClient, guild: Guild, message: Message): Promise<void> => {
 
@@ -12,7 +12,7 @@ export const createLogEntry = async (bot: ExtendedClient, guild: Guild, message:
       large: "💫"
     },
     logging = bot.getModule("Logging") as Logging,
-    guildData = await bot.getModuleData("Starboard", guild.id) as moduleData,
+    guildData = await bot.getModuleData("Starboard", guild.id) as StarboardModuleData,
     messageData = guildData.messages.find((m) => m.messageID === message.id) as messageDataStructure,
     stars = messageData.stars.length <= 3 ? star.small : messageData.stars.length <= 10 ? star.medium : star.large;
 
@@ -124,7 +124,7 @@ export async function updateLogEntry(bot: ExtendedClient, guild: Guild, starID: 
           medium: "🌟",
           large: "💫"
         },
-        guildData = await bot.getModuleData("Starboard", guild.id) as moduleData,
+        guildData = await bot.getModuleData("Starboard", guild.id) as StarboardModuleData,
         messageData = guildData.messages.find((m) => m.messageID === starID) as messageDataStructure,
         channel = bot.findChannel(guild, messageData.channelID) as TextChannel,
         stars = messageData.stars.length <= 3 ? starStrings.small : messageData.stars.length <= 10 ? starStrings.medium : starStrings.large;

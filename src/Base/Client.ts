@@ -3,6 +3,7 @@ import { Entity } from "../resources/interfaces";
 import Command from "./Command";
 import Module from "./Module";
 import Olive from "../main";
+import { ModuleDataMap, ModuleName } from "../Database/ModuleTypes";
 
 export default class ExtendedClient extends Olive {
 
@@ -105,12 +106,12 @@ export default class ExtendedClient extends Olive {
     return Module;
   }
 
-  readonly getModuleData = async (name: string, guildID: string): Promise<unknown> => {
+  public async getModuleData<T extends ModuleName>(name: T, guildID: string): Promise<ModuleDataMap[T] | undefined> {
     const Module: Module = this.getModule(name);
 
     if (!guildID) return undefined;
 
-    return await Module.data(guildID);
+    return await Module.data(guildID) as Promise<ModuleDataMap[T]>;
   }
 
   readonly getAllData = async (name: string): Promise<unknown> => {

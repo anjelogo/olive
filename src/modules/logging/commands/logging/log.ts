@@ -1,9 +1,9 @@
-import { ComponentInteraction, Constants, CommandInteraction, Message, Guild, TextChannel, MessageActionRow, MessageComponentSelectMenuInteractionData, ContainerComponent } from "oceanic.js";
+import { ComponentInteraction, Constants, CommandInteraction, Message, Guild, MessageActionRow, MessageComponentSelectMenuInteractionData, ContainerComponent } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import { upsertCustomData, getCustomData } from "../../../main/internals/CustomDataHandler";
-import { LogChannelStructure, LogChannelTypes, moduleData } from "../../main";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
+import { LogChannelTypes, LoggingModuleData } from "../../../../Database/interfaces/LoggingModuleData";
 
 export interface CustomDataStructure {
   id: string,
@@ -175,14 +175,20 @@ export default class Log extends Command {
   readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
 
     const guild = this.bot.findGuild(interaction.guildID) as Guild,
-      data = await this.bot.getModuleData("Logging", guild.id) as moduleData,
-      channel = interaction.channel as (TextChannel),
+      data = await this.bot.getModuleData("Logging", guild.id) as LoggingModuleData,
+      channel = interaction.channel,
       subcommand = interaction.data.options.getSubCommand(true)[0];
+
+    if (!channel) {
+      return interaction.createFollowup({
+        content: `${this.bot.constants.emojis.x} This command can only be used in a text channel`
+      });
+    }
 
     switch (subcommand) {
 
     case "modify": {
-      const channelData: (LogChannelStructure | undefined) = data.channels.find((c) => c.channelID === channel.id);
+      const channelData = data.channels.find((c) => c.channelID === channel.id);
 
       upsertCustomData(this.bot, interaction, {
         id: channel.id,
@@ -222,7 +228,7 @@ export default class Log extends Command {
     
     const guild = this.bot.findGuild(component.guildID) as Guild,
       customData = await getCustomData(this.bot, component.message.interactionMetadata?.id as string)?.data as CustomDataStructure,
-      moduleData = await this.bot.getModuleData("Logging", guild.id) as moduleData;
+      moduleData = await this.bot.getModuleData("Logging", guild.id) as LoggingModuleData;
 
     switch (component.data.customID.split("_")[2]) {
 
@@ -245,7 +251,7 @@ export default class Log extends Command {
     }
     case "save": {
 
-      const obj: LogChannelStructure = {
+      const obj = {
         channelID: component.channelID,
         types: customData.types
       };

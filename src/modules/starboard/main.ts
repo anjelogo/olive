@@ -1,17 +1,7 @@
 import { Guild } from "oceanic.js";
-import Module, { moduleDataStructure } from "../../Base/Module";
+import Module from "../../Base/Module";
 import ExtendedClient from "../../Base/Client";
-
-export interface messageDataStructure {
-  channelID: string;
-    messageID: string;
-  authorID: string;
-    stars: string[];
-}
-
-export interface moduleData extends moduleDataStructure {
-    messages: messageDataStructure[];
-}
+import { messageDataStructure, StarboardModuleData } from "../../Database/interfaces/StarboardModuleData";
 
 export default class Starboard extends Module {
 
@@ -39,7 +29,7 @@ export default class Starboard extends Module {
 
     if (typeof guild === "string") guild = this.bot.findGuild(guild) as Guild;
 
-    const data: moduleData = await this.data(guild.id) as moduleData,
+    const data = await this.data(guild.id) as StarboardModuleData,
       messages = data.messages;
 
     if (!messages.length) return;
