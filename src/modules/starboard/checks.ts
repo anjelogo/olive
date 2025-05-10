@@ -14,7 +14,7 @@ export default class Checks {
   }
 
   readonly run = async (): Promise<string> => {
-    const data = await this.bot.getAllData(this.module.name) as StarboardModuleData[],
+    const data = await this.bot.getAllData("Starboard") as StarboardModuleData[],
       promises = [];
 
     let deletedGuilds = 0,
@@ -39,7 +39,7 @@ export default class Checks {
       if (i > -1) guildData.messages.splice(i, 1);
 
       try {
-        await checks.bot.updateModuleData(checks.module.name, guildData, guildData.guildID);
+        await checks.bot.updateModuleData("Starboard", guildData, guildData.guildID);
         deletedStars++;
       } catch (e) {
         failed++;

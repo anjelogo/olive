@@ -15,7 +15,7 @@ export default class Checks {
   }
 
   readonly run = async (): Promise<string> => {
-    const data = await this.bot.getAllData(this.module.name) as LoggingModuleData[],
+    const data = await this.bot.getAllData("Logging") as LoggingModuleData[],
       promises = [];
 
     let deletedGuilds = 0,
@@ -42,7 +42,7 @@ export default class Checks {
       if (i > -1) guildData.channels.splice(i, 1);
 
       try {
-        await checks.bot.updateModuleData(checks.module.name, guildData, guildData.guildID);
+        await checks.bot.updateModuleData("Logging", guildData, guildData.guildID);
         deletedChannels++;
       } catch (e) {
         failed++;
@@ -61,7 +61,7 @@ export default class Checks {
       }
 
       try {
-        await checks.bot.updateModuleData(checks.module.name, guildData, guildData.guildID);
+        await checks.bot.updateModuleData("Logging", guildData, guildData.guildID);
         deletedCases++;
       } catch (e) {
         failed++;
@@ -80,7 +80,7 @@ export default class Checks {
       }
 
       try {
-        await checks.bot.updateModuleData(checks.module.name, guildData, guildData.guildID);
+        await checks.bot.updateModuleData("Logging", guildData, guildData.guildID);
         deletedStars++;
       } catch (e) {
         failed++;
@@ -137,7 +137,7 @@ export default class Checks {
   }
   
   readonly checkVersion = async (newVersion: string): Promise<string> => {
-    const data = await this.bot.getAllData(this.module.name) as LoggingModuleData[];
+    const data = await this.bot.getAllData("Logging") as LoggingModuleData[];
 
     const promises = [];
 
@@ -162,7 +162,7 @@ export default class Checks {
               channels: oldDataStruct.channels
             };
       
-          promises.push(await this.bot.updateModuleData(this.module.name, newDataStruct, guildData.guildID));
+          promises.push(await this.bot.updateModuleData("Logging", newDataStruct, guildData.guildID));
           break;
         }
         }

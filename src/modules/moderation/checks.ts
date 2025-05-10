@@ -14,7 +14,7 @@ export default class Checks {
   }
 
   readonly run = async (): Promise<string> => {
-    const data = (await this.bot.getAllData(this.module.name)) as ModerationModuleData[],
+    const data = await this.bot.getAllData("Moderation") as ModerationModuleData[],
       promises = [];
 
     let deletedGuilds = 0,
@@ -50,9 +50,8 @@ export default class Checks {
   }
 
   readonly checkVersion = async (newVersion: string): Promise<string> => {
-    const data = await this.bot.getAllData(this.module.name) as ModerationModuleData[];
-
-    const promises = [];
+    const data = await this.bot.getAllData("Moderation") as ModerationModuleData[],
+      promises = [];
 
     if (data.length) {
       for (const guildData of data) {
@@ -77,7 +76,7 @@ export default class Checks {
               settings: oldDataStruct.settings
             };
       
-          promises.push(await this.bot.updateModuleData(this.module.name, newDataStruct, guildData.guildID));
+          promises.push(await this.bot.updateModuleData("Moderation", newDataStruct, guildData.guildID));
           break;
         }
         }

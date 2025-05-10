@@ -15,7 +15,7 @@ export default class Checks {
   }
 
   readonly run = async (): Promise<string> => {
-    const data = await this.bot.getAllData(this.module.name) as VCModuleData[],
+    const data = await this.bot.getAllData("VC") as VCModuleData[],
       promises = [];
 
     let deletedGuilds = 0,
@@ -27,7 +27,7 @@ export default class Checks {
       if (!guild) return;
 
       try {
-        await checks.bot.db.get(checks.module.name).findOneAndDelete({ guildID: guild});
+        await checks.bot.db.get("VC").findOneAndDelete({ guildID: guild});
         deletedGuilds++;
       } catch (e) {
         failed++;
@@ -41,7 +41,7 @@ export default class Checks {
       if (i > -1) guildData.categories.splice(i, 1);
 
       try {
-        await checks.bot.updateModuleData(checks.module.name, guildData, guildData.guildID);
+        await checks.bot.updateModuleData("VC", guildData, guildData.guildID);
         deletedChannels++;
       } catch (e) {
         failed++;
@@ -56,7 +56,7 @@ export default class Checks {
       if (i > -1) catData.channels.splice(i, 1);
     
       try {
-        await checks.bot.updateModuleData(checks.module.name, guildData, guildData.guildID);
+        await checks.bot.updateModuleData("VC", guildData, guildData.guildID);
         deletedChannels++;
       } catch (e) {
         failed++;
@@ -127,7 +127,7 @@ export default class Checks {
 
   
   readonly checkVersion = async (newVersion: string): Promise<string> => {
-    const data = await this.bot.getAllData(this.module.name) as VCModuleData[],
+    const data = await this.bot.getAllData("VC") as VCModuleData[],
       promises = [];
 
     if (data.length) {
@@ -153,7 +153,7 @@ export default class Checks {
               defaultName: oldDataStruct.defaultName
             };
       
-          promises.push(await this.bot.updateModuleData(this.module.name, newDataStruct, guildData.guildID));
+          promises.push(await this.bot.updateModuleData("VC", newDataStruct, guildData.guildID));
           break;
         }
         }

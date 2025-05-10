@@ -1,6 +1,7 @@
 import Module from "../../Base/Module";
 import ExtendedClient from "../../Base/Client";
-import Main, { moduleData } from "./main";
+import Main from "./main";
+import { MainModuleData } from "../../Database/interfaces/MainModuleData";
 
 export default class Checks {
 
@@ -13,7 +14,7 @@ export default class Checks {
   }
 
   readonly run = async (): Promise<string> => {
-    const data: moduleData[] = (await this.bot.getAllData(this.module.name) as unknown) as moduleData[],
+    const data = await this.bot.getAllData("Main") as MainModuleData[],
       promises = [];
 
     let deletedGuilds = 0,
@@ -48,9 +49,8 @@ export default class Checks {
   }
 
   readonly checkVersion = async (newVersion: string): Promise<string> => {
-    const data: moduleData[] = (await this.bot.getAllData(this.module.name) as unknown) as moduleData[];
-
-    const promises = [];
+    const data = await this.bot.getAllData("Main") as MainModuleData[],
+      promises = [];
 
     if (data.length) {
       for (const guildData of data) {
@@ -75,7 +75,7 @@ export default class Checks {
               disabledModules: oldDataStruct.disabledModules
             };
       
-          promises.push(await this.bot.updateModuleData(this.module.name, newDataStruct, guildData.guildID));
+          promises.push(await this.bot.updateModuleData("Main", newDataStruct, guildData.guildID));
           break;
         }
         }
