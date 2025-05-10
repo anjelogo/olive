@@ -1,6 +1,7 @@
 import { Guild, Member, Message, Role, TextChannel } from "oceanic.js";
 import ExtendedClient from "../../Base/Client";
-import Roles, { moduleData, RolesMessage } from "./main";
+import Roles from "./main";
+import { RolesMessage, RolesModuleData } from "../../Database/interfaces/RolesModuleData";
 
 export default class Checks {
 
@@ -14,7 +15,7 @@ export default class Checks {
   
   readonly run = async (): Promise<string> => {
 
-    const data: moduleData[] = (await this.bot.getAllData(this.module.name) as unknown) as moduleData[],
+    const data = await this.bot.getAllData("Roles") as RolesModuleData[],
       promises = [];
 
     let deletedGuilds = 0,
@@ -26,28 +27,28 @@ export default class Checks {
       if (!guild) return;
   
       try {
-        await checks.bot.db.get(checks.module.name).findOneAndDelete({ guildID: guild});
+        await checks.bot.db.get("Roles").findOneAndDelete({ guildID: guild});
         deletedGuilds++;
       } catch (e) {
         failed++;
       }
     }
 
-    async function deleteMessage(checks: Checks, guildData: moduleData, msg: string) {
+    async function deleteMessage(checks: Checks, guildData: RolesModuleData, msg: string) {
       if (!guildData) return;
 
       const i = guildData.messages.findIndex((m) => m.id === msg);
       if (i > -1) guildData.messages.splice(i, 1);
 
       try {
-        await checks.bot.updateModuleData(checks.module.name, guildData, guildData.guildID);
+        await checks.bot.updateModuleData("Roles", guildData, guildData.guildID);
         deletedMessages++;
       } catch (e) {
         failed++;
       }
     }
 
-    async function deleteRole(checks: Checks, guildData: moduleData, msgData: RolesMessage, role: string) {
+    async function deleteRole(checks: Checks, guildData: RolesModuleData, msgData: RolesMessage, role: string) {
       if (!guildData || !msgData)
         return;
 
@@ -55,35 +56,35 @@ export default class Checks {
       if (i > -1) msgData.roles.splice(i, 1);
 
       try {
-        await checks.bot.updateModuleData(checks.module.name, guildData, guildData.guildID);
+        await checks.bot.updateModuleData("Roles", guildData, guildData.guildID);
         deletedRoles++;
       } catch (e) {
         failed++;
       }
     }
 
-    async function deleteRoleFromList(checks: Checks, guildData: moduleData, role: string) {
+    async function deleteRoleFromList(checks: Checks, guildData: RolesModuleData, role: string) {
       if (!guildData) return;
 
       const i = guildData.roles.indexOf(role);
       if (i > -1) guildData.roles.splice(i, 1);
 
       try {
-        await checks.bot.updateModuleData(checks.module.name, guildData, guildData.guildID);
+        await checks.bot.updateModuleData("Roles", guildData, guildData.guildID);
         deletedRoles++;
       } catch (e) {
         failed++;
       }
     }
 
-    async function deleteAutoRole(checks: Checks, guildData: moduleData, role: string) {
+    async function deleteAutoRole(checks: Checks, guildData: RolesModuleData, role: string) {
       if (!guildData) return;
 
       const i = guildData.autoRoles.indexOf(role);
       if (i > -1) guildData.autoRoles.splice(i, 1);
 
       try {
-        await checks.bot.updateModuleData(checks.module.name, guildData, guildData.guildID);
+        await checks.bot.updateModuleData("Roles", guildData, guildData.guildID);
         deletedRoles++;
       } catch (e) {
         failed++;
@@ -193,7 +194,7 @@ export default class Checks {
   }
 
   readonly checkVersion = async (newVersion: string): Promise<string> => {
-    const data: moduleData[] = (await this.bot.getAllData(this.module.name) as unknown) as moduleData[];
+    const data = await this.bot.getAllData("Roles") as RolesModuleData[];
 
     const promises = [];
 
@@ -226,7 +227,7 @@ export default class Checks {
               }
             };
       
-          promises.push(await this.bot.updateModuleData(this.module.name, newDataStruct, guildData.guildID));
+          promises.push(await this.bot.updateModuleData("Roles", newDataStruct, guildData.guildID));
           break;
         }
         }
