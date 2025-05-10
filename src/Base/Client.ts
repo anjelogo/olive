@@ -114,18 +114,33 @@ export default class ExtendedClient extends Olive {
     return await Module.data(guildID) as Promise<ModuleDataMap[T]>;
   }
 
-  readonly getAllData = async (name: string): Promise<unknown> => {
-    return await this.db.get(name).find({});
+  public async getAllData<T extends ModuleName>(name: T): Promise<ModuleDataMap[T][]> {
+    const Module: Module = this.getModule(name);
+
+    if (!Module) return [];
+    const data = await this.db.get(Module.name).find({});
+
+    return data;
   }
 
-  readonly updateModuleData = async (name: string, data: unknown, guild: string | Guild): Promise<unknown> => {
+  public async updateModuleData<T extends ModuleName>(name: T, data: ModuleDataMap[T], guild: string | Guild): Promise<ModuleDataMap[T]> {
     const Module: Module = this.getModule(name);
 
     if (typeof guild === "string") guild = this.findGuild(guild) as Guild;
-
     if (!guild) throw new Error("Could not find guild!");
+    if (!data) throw new Error("No data provided!");
 
-    return await this.db.get(Module.name).findOneAndUpdate({ guildID: guild.id }, { $set: data });
+    const guildData = await this.db.get(Module.name).findOne({ guildID: guild.id }) as ModuleDataMap[T];
+    if (!guildData) {
+      data.guildID = guild.id;
+      data.version = Module.version;
+      await this.db.get(Module.name).insert(data);
+    } else {
+      data.guildID = guild.id;
+      data.version = Module.version;
+      await this.db.get(Module.name).findOneAndUpdate({ guildID: guild.id }, { $set: data });
+    }
+    return data;
   }
 
   readonly reload = async (): Promise<void> => {
