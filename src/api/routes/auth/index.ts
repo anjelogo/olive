@@ -92,6 +92,7 @@ const authRoute = (client: ExtendedClient): Router => {
       res.json(user);
       return;
     } catch (error) {
+      console.error("Token verification error:", error);
       res.status(401).json({ message: "Invalid token" });
       return;
     }
