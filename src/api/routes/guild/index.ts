@@ -20,6 +20,8 @@ const guildsRoute = (client: ExtendedClient): Router => {
       res.status(404).json({ error: "Guild not found" });
       return;
     }
+
+    guild.icon = guild.iconURL();
     
     res.status(200).json({
       guild

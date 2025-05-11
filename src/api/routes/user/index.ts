@@ -16,6 +16,8 @@ const userRoute = (client: ExtendedClient): Router => {
       res.status(404).json({ error: "User not found" });
       return;
     }
+
+    user.avatar = user.avatarURL();
     
     res.status(200).json({
       user

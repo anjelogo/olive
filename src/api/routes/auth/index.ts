@@ -87,6 +87,8 @@ const authRoute = (client: ExtendedClient): Router => {
         return;
       }
 
+      user.avatar = user.avatarURL();
+
       res.json(user);
       return;
     } catch (error) {
