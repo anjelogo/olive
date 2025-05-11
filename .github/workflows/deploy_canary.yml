@@ -10,6 +10,9 @@ jobs:
     env:
       BOT_TOKEN_CANARY: ${{ secrets.BOT_TOKEN_CANARY }}
       BOT_DB: ${{ secrets.BOT_DB }}
+      CLIENT_SECRET: ${{ secrets.CLIENT_SECRET_CANARY }}
+      CLIENT_ID: ${{ secrets.CLIENT_ID_CANARY }}
+      JWT_TOKEN: ${{ secrets.JWT_TOKEN_CANARY }}
 
     steps:
       - name: 👤 Show current user
@@ -30,6 +33,9 @@ jobs:
         run: |
           echo "TOKEN=${BOT_TOKEN_CANARY}" >> .env
           echo "DATABASE=${BOT_DB}" >> .env
+          echo "CLIENT_SECRET={CLIENT_SECRET}"
+          echo "CLIENT_ID={CLIENT_ID}"
+          echo "JWT_TOKEN={JWT_TOKEN}"
 
       - name: 🚀 Restart app with PM2
         run: |

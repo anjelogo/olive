@@ -1,8 +1,9 @@
 import ExtendedClient from "./Base/Client";
 import express from "express";
-
+import cors from "cors";
 import guildsRoute from "./api/routes/guild";
 import userRoute from "./api/routes/user";
+import authRoute from "./api/routes/auth";
 
 
 const client = new ExtendedClient({
@@ -21,12 +22,17 @@ const client = new ExtendedClient({
 client.init().then(() => {
   const api = express();
 
+  api.use(cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  }));
   api.use(express.json());
+  api.use("/api/auth", authRoute());
   api.use("/api/guilds", guildsRoute(client));
   api.use("/api/users", userRoute(client));
   
-  api.listen(process.env.PORT || 3000, () => {
-    console.log(`API is running on port ${process.env.PORT || 3000}`);
+  api.listen(process.env.PORT || 5000, () => {
+    console.log(`API is running on port ${5000}`);
   });
   console.log("Client is ready!");
 }).catch((err) => {
