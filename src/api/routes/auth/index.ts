@@ -56,7 +56,7 @@ const authRoute = (): Router => {
       // Set the JWT in an HttpOnly cookie
       res.cookie("token", token, {
         httpOnly: true,
-        secure: false, // Set secure only in production
+        secure: true, // Set secure only in production
         sameSite: "none",
         maxAge: 3600000, // 1 hour
       });
