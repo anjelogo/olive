@@ -23,7 +23,7 @@ client.init().then(() => {
   const api = express();
 
   api.use(cors({
-    origin: "http://localhost:3000",
+    origin: "https://olive.anjelogo.com",
     credentials: true,
   }));
   api.use(express.json());
@@ -31,8 +31,8 @@ client.init().then(() => {
   api.use("/api/guilds", guildsRoute(client));
   api.use("/api/users", userRoute(client));
   
-  api.listen(process.env.PORT || 5000, () => {
-    console.log(`API is running on port ${5000}`);
+  api.listen(5000, () => {
+    console.log("API is running on port 5000");
   });
   console.log("Client is ready!");
 }).catch((err) => {

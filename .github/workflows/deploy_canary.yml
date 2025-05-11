@@ -13,6 +13,7 @@ jobs:
       CLIENT_SECRET: ${{ secrets.CLIENT_SECRET_CANARY }}
       CLIENT_ID: ${{ secrets.CLIENT_ID_CANARY }}
       JWT_SECRET: ${{ secrets.JWT_SECRET_CANARY }}
+      # CLIENT_URL: ${{ secrets.CLIENT_URL }}
 
     steps:
       - name: 👤 Show current user
