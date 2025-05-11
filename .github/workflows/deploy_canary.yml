@@ -14,6 +14,7 @@ jobs:
       CLIENT_ID: ${{ secrets.CLIENT_ID_CANARY }}
       JWT_SECRET: ${{ secrets.JWT_SECRET_CANARY }}
       CLIENT_URL: ${{ secrets.CLIENT_URL }}
+      API_URL: ${{ secrets.API_URL }}
 
     steps:
       - name: 👤 Show current user
@@ -38,6 +39,7 @@ jobs:
           echo "CLIENT_ID={CLIENT_ID}"
           echo "JWT_TOKEN={JWT_TOKEN}"
           echo "CLIENT_URL={CLIENT_URL}"
+          echo "API_URL={API_URL}"
 
       - name: 🚀 Restart app with PM2
         run: |
