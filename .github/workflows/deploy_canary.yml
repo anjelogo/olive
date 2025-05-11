@@ -12,7 +12,7 @@ jobs:
       BOT_DB: ${{ secrets.BOT_DB }}
       CLIENT_SECRET: ${{ secrets.CLIENT_SECRET_CANARY }}
       CLIENT_ID: ${{ secrets.CLIENT_ID_CANARY }}
-      JWT_TOKEN: ${{ secrets.JWT_TOKEN_CANARY }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET_CANARY }}
 
     steps:
       - name: 👤 Show current user
