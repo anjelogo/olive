@@ -4,8 +4,9 @@ import passport from "passport";
 import { Strategy as DiscordStrategy, Profile } from "passport-discord";
 import jwt from "jsonwebtoken";
 import { VerifyCallback } from "passport-oauth2";
+import ExtendedClient from "../../../Base/Client";
 
-const authRoute = (): Router => {
+const authRoute = (client: ExtendedClient): Router => {
   const router = Router();
   const JWT_SECRET = process.env.JWT_SECRET || "defaultsecret";
   const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:3000"; // Adjust according to your environment
@@ -78,7 +79,14 @@ const authRoute = (): Router => {
 
     try {
       // Verify the token and get the user data
-      const user = jwt.verify(token, JWT_SECRET);
+      const { discordID } = jwt.verify(token, JWT_SECRET) as { discordID: string };
+
+      const user = client.users.get(discordID);
+      if (!user) {
+        res.status(404).json({ message: "User not found" });
+        return;
+      }
+
       res.json(user);
       return;
     } catch (error) {

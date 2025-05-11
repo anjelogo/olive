@@ -27,7 +27,7 @@ client.init().then(() => {
     credentials: true,
   }));
   api.use(express.json());
-  api.use("/api/auth", authRoute());
+  api.use("/api/auth", authRoute(client));
   api.use("/api/guilds", guildsRoute(client));
   api.use("/api/users", userRoute(client));
   
