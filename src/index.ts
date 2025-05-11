@@ -23,7 +23,7 @@ client.init().then(() => {
   const api = express();
 
   api.use(cors({
-    origin: "https://olive.anjelogo.com",
+    origin: process.env.CLIENT_URL || "http://localhost:3000",
     credentials: true,
   }));
   api.use(express.json());

@@ -9,6 +9,7 @@ const authRoute = (): Router => {
   const router = Router();
   const JWT_SECRET = process.env.JWT_SECRET || "defaultsecret";
   const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:3000"; // Adjust according to your environment
+  const API_URL = process.env.API_URL || "http://localhost:5000"; // Adjust according to your environment
 
   // Middleware to use cookies
   router.use(cookieParser());
@@ -19,7 +20,7 @@ const authRoute = (): Router => {
       {
         clientID: process.env.CLIENT_ID || "",
         clientSecret: process.env.CLIENT_SECRET || "",
-        callbackURL: "http://localhost:5000/api/auth/callback", // Dynamically set the callback URL
+        callbackURL: `${API_URL}/api/auth/callback`, // Dynamically set the callback URL
         scope: ["identify", "email", "guilds"]
       },
       (accessToken: string, refreshToken: string, profile: Profile, done: VerifyCallback) => {
