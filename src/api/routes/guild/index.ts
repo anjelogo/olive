@@ -21,8 +21,6 @@ const guildsRoute = (client: ExtendedClient): Router => {
       return;
     }
 
-    guild.icon = guild.iconURL();
-    
     res.status(200).json({
       guild
     });

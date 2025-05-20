@@ -17,7 +17,7 @@ const userRoute = (client: ExtendedClient): Router => {
       return;
     }
 
-    user.avatar = user.avatarURL();
+    user.avatar;
     
     res.status(200).json({
       user

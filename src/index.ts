@@ -1,6 +1,6 @@
-import ExtendedClient from "./Base/Client";
 import express from "express";
 import cors from "cors";
+import ExtendedClient from "./Base/Client";
 import guildsRoute from "./api/routes/guild";
 import userRoute from "./api/routes/user";
 import authRoute from "./api/routes/auth";
