@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-import { Permnodes, Constants } from "../resources/interfaces";
 import { promises as fs } from "fs";
+import { Permnodes, Constants } from "../resources/interfaces";
 import ExtendedClient from "./Client";
 import Command from "./Command";
 
@@ -98,5 +98,5 @@ export default class Module {
     this.constants.utils.log(this.name, "Loaded.");
 
   }
-
+  
 }

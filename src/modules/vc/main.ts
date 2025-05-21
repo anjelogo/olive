@@ -18,10 +18,6 @@ export default class VC extends Module {
 
   }
 
-  public run = async (): Promise<void> => {
-    await this.load();
-  }
-
   readonly moduleData = {
     version: this.version,
     guildID: "",

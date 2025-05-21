@@ -1,17 +1,14 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-import * as Config from "./resources/config";
-import * as utils from "./resources/utils";
-import Command from "./Base/Command";
-import Module from "./Base/Module";
-import { Client, ClientOptions } from "oceanic.js";
-import { Constants as CustomConstants, Permnodes } from "./resources/interfaces";
 import { promises as fs } from "fs";
-import { CustomData } from "./modules/main/internals/CustomDataHandler";
+import { Client, ClientOptions } from "oceanic.js";
 import monk, { IMonkManager } from "monk";
 import dotenv from "dotenv";
+import { Constants as CustomConstants, Permnodes } from "./resources/interfaces";
+import { CustomData } from "./modules/main/internals/CustomDataHandler";
+import * as Config from "./resources/config";
+import * as utils from "./resources/utils";
+import * as emojis from "./resources/emojis";
+import Command from "./Base/Command";
+import Module from "./Base/Module";
 dotenv.config({
   path: "../.env"
 });
@@ -24,12 +21,13 @@ export default class Olive extends Client {
 
   readonly name: string;
   readonly perms: Permnodes[]
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   readonly events: any[];
   readonly constants: CustomConstants;
   readonly disabledModules: string[];
   readonly db: IMonkManager;
 
-  public modules: any[];
+  public modules: Module[];
   public commands: Command[];
 
   public interactionCustomData: CustomData[];
@@ -44,7 +42,7 @@ export default class Olive extends Client {
     this.commands = [];
     this.interactionCustomData = [];
     this.constants = {
-      emojis: require("./resources/emojis").default,
+      emojis: emojis,
       config: Config,
       utils: utils
     };
@@ -58,8 +56,8 @@ export default class Olive extends Client {
     //Load Modules Data (Commands, Events, Perms... etc)
     const Modules = await fs.readdir("./modules", { withFileTypes: true });
 
-    Modules.forEach(Module => {
-      const m: Module = new (require(`./modules/${Module.name}/main`)).default(this);
+    Modules.forEach(async Module => {
+      const m = new (await import(`./modules/${Module.name}/main`)).default(this) as Module;
       this.modules.push(m);
     });
 
@@ -71,11 +69,11 @@ export default class Olive extends Client {
       this.modules = this.modules.filter((m) => m.name !== dm); //filter and not load disabled modules
     }
 
-    for (const m of this.modules) await m.run();
+    for (const m of this.modules) await m.load();
     
     //Load Events
     for (const e of this.events) {
-      this.on(e.name, async (...args: any) => {
+      this.on(e.name, async (...args) => {
         for (const event of e.functions)
           await event.run(this, ...args);
       });

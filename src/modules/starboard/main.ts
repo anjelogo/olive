@@ -19,11 +19,7 @@ export default class Starboard extends Module {
     this.db = true;
 
   }
-
-  public run = async (): Promise<void> => {
-    await this.load();
-  }
-
+  
   readonly getReactionMessage = async (id: string, guild: string | Guild): Promise<messageDataStructure | undefined> => {
     if (!id || !guild) return;
 

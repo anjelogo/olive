@@ -1,5 +1,5 @@
-import { Permnodes } from "../../resources/interfaces";
 import { CommandInteraction, Constants, Embed, Member, PrivateChannel } from "oceanic.js";
+import { Permnodes } from "../../resources/interfaces";
 import Module from "../../Base/Module";
 import ExtendedClient from "../../Base/Client";
 import { MainModuleData } from "../../Database/interfaces/MainModuleData";
@@ -27,10 +27,6 @@ export default class Main extends Module {
     this.weight = 0; //Load this module before everything
     this.db = true; //Uses database
 
-  }
-
-  readonly run = async (): Promise<void> => {
-    await this.load();
   }
 
   readonly getPerms = async (member: Member | undefined): Promise<string[] | null> => {

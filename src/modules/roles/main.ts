@@ -20,10 +20,6 @@ export default class Roles extends Module {
 
   }
 
-  public run = async (): Promise<void> => {
-    await this.load();
-  }
-
   readonly getReactionMessage = async (id: string, guild: string | Guild): Promise<RolesMessage | undefined> => {
     if (!id || !guild) return;
 
