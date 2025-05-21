@@ -1,10 +1,10 @@
 import { CommandInteraction, Constants, Guild, Member } from "oceanic.js";
+import uniqid from "uniqid";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import { autoCalculateInfractions, isPunishable, punish } from "../../internals/punishmentHandler";
-import uniqid from "uniqid";
 import { Case } from "../../../../Database/interfaces/ModerationModuleData";
-import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class Timeout extends Command {
 

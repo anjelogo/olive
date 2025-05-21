@@ -1,7 +1,7 @@
 import { Guild, Member, Message, Role, TextChannel } from "oceanic.js";
+import { RolesMessage, RolesModuleData } from "../../Database/interfaces/RolesModuleData";
 import ExtendedClient from "../../Base/Client";
 import Roles from "./main";
-import { RolesMessage, RolesModuleData } from "../../Database/interfaces/RolesModuleData";
 
 export default class Checks {
 

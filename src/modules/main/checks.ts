@@ -1,7 +1,7 @@
 import Module from "../../Base/Module";
 import ExtendedClient from "../../Base/Client";
-import Main from "./main";
 import { MainModuleData } from "../../Database/interfaces/MainModuleData";
+import Main from "./main";
 
 export default class Checks {
 

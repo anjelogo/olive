@@ -1,7 +1,7 @@
 import { CommandInteraction, Constants, Guild, Member, Role } from "oceanic.js";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
-import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import { RolesModuleData } from "../../../../Database/interfaces/RolesModuleData";
 
 export default class Autorole extends Command {

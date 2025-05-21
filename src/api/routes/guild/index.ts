@@ -1,6 +1,6 @@
+import { Guild } from "oceanic.js";
 import { Router, Request, Response } from "express";
 import ExtendedClient from "../../../Base/Client";
-import { Guild } from "oceanic.js";
 
 const guildsRoute = (client: ExtendedClient): Router => {
   const router = Router();

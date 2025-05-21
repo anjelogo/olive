@@ -1,7 +1,7 @@
 import { CommandInteraction, Constants, Guild } from "oceanic.js";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
-import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import { StarboardModuleData } from "../../../../Database/interfaces/StarboardModuleData";
 
 export default class Starboard extends Command {

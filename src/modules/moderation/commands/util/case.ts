@@ -1,8 +1,8 @@
 import { CommandInteraction, Constants, Guild, Member,  TextChannel } from "oceanic.js";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import { removeCase, resolveCase } from "../../internals/caseHandler";
-import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import { ModerationModuleData } from "../../../../Database/interfaces/ModerationModuleData";
 import { LoggingModuleData } from "../../../../Database/interfaces/LoggingModuleData";
 

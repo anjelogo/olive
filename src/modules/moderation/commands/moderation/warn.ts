@@ -1,10 +1,10 @@
 import { AnyInteractionChannel, CommandInteraction, Constants, Guild, Member, ModalSubmitInteraction, Uncached } from "oceanic.js";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
+import uniqid from "uniqid";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import { autoCalculateInfractions, isPunishable, punish } from "../../internals/punishmentHandler";
-import uniqid from "uniqid";
 import { Case } from "../../../../Database/interfaces/ModerationModuleData";
-import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class Warn extends Command {
 

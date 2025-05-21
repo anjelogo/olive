@@ -1,9 +1,9 @@
 import { Constants, Guild, Member, Role, User } from "oceanic.js";
+import uniqid from "uniqid";
+import { Case, CaseActionTypes, ModerationModuleData } from "../../../Database/interfaces/ModerationModuleData";
 import ExtendedClient from "../../../Base/Client";
 import { addCase, getCases, resolveCase } from "./caseHandler";
-import uniqid from "uniqid";
 import { createLogEntry } from "./logHandler";
-import { Case, CaseActionTypes, ModerationModuleData } from "../../../Database/interfaces/ModerationModuleData";
 
 export async function punish(bot: ExtendedClient, guild: Guild, data: Case): Promise<void> {
   const action = {

@@ -1,8 +1,8 @@
 import { TextChannel } from "oceanic.js";
 import Module from "../../Base/Module";
 import ExtendedClient from "../../Base/Client";
-import Logging from "./main";
 import { LoggingModuleData } from "../../Database/interfaces/LoggingModuleData";
+import Logging from "./main";
 
 export default class Checks {
 

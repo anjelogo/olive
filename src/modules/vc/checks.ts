@@ -1,8 +1,8 @@
 import { CategoryChannel, Guild, Member, VoiceChannel } from "oceanic.js";
 import ExtendedClient from "../../Base/Client";
+import { Category, VCModuleData } from "../../Database/interfaces/VCModuleData";
 import { create } from "./internals/handler";
 import VC from "./main";
-import { Category, VCModuleData } from "../../Database/interfaces/VCModuleData";
 
 export default class Checks {
 

@@ -1,8 +1,8 @@
 import { MessageActionRow, CommandInteraction, ComponentInteraction, Constants, Guild, Member, Message, Role, TextChannel, MessageComponentSelectMenuInteractionData, SelectOption, PartialEmoji, ContainerComponent } from "oceanic.js";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import { upsertCustomData, getCustomData } from "../../../main/internals/CustomDataHandler";
-import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import { RolesMessage, RolesModuleData } from "../../../../Database/interfaces/RolesModuleData";
 
 interface CustomDataStructure {

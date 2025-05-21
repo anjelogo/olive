@@ -42,7 +42,7 @@ export default class Olive extends Client {
     this.commands = [];
     this.interactionCustomData = [];
     this.constants = {
-      emojis: emojis,
+      emojis: emojis.default,
       config: Config,
       utils: utils
     };

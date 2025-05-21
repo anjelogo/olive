@@ -1,7 +1,7 @@
 import { TextChannel } from "oceanic.js";
 import ExtendedClient from "../../Base/Client";
-import Starboard from "./main";
 import { StarboardModuleData } from "../../Database/interfaces/StarboardModuleData";
+import Starboard from "./main";
 
 export default class Checks {
 

@@ -1,9 +1,9 @@
 import { CommandInteraction, ComponentInteraction, Constants, Guild, Member, Message, MessageActionRow, MessageComponentSelectMenuInteractionData, Role } from "oceanic.js";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import Main from "../../../main/main";
 import { RolesModuleData } from "../../../../Database/interfaces/RolesModuleData";
-import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class Roles extends Command {
 

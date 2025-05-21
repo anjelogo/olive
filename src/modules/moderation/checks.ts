@@ -1,7 +1,7 @@
 import Module from "../../Base/Module";
+import { ModerationModuleData } from "../../Database/interfaces/ModerationModuleData";
 import ExtendedClient from "../../Base/Client";
 import Moderation from "./main";
-import { ModerationModuleData } from "../../Database/interfaces/ModerationModuleData";
 
 export default class Checks {
 

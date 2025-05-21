@@ -1,7 +1,7 @@
 import { CommandInteraction, Constants, Guild, Member, Role, VoiceChannel, ModalSubmitInteraction, InteractionCallbackResponse, AnyInteractionChannel, Uncached, ComponentInteraction, MessageComponent } from "oceanic.js";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
-import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Main from "../../../main/main";
 import { createLogEntry } from "../../internals/handler";
 import { VCModuleData, Category, Channel } from "../../../../Database/interfaces/VCModuleData";

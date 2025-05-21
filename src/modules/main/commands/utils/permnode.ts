@@ -1,9 +1,9 @@
 import { CommandInteraction, ComponentInteraction, Constants, ContainerComponent, Guild, Member, Message, MessageActionRow, Role } from "oceanic.js";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import { Entity } from "../../../../resources/interfaces";
 import { upsertCustomData, getCustomData } from "../../internals/CustomDataHandler";
-import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import { MainModuleData } from "../../../../Database/interfaces/MainModuleData";
 
 export default class Permnode extends Command {

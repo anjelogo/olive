@@ -1,8 +1,8 @@
 import { CommandInteraction, Constants, Guild, MessageComponent } from "oceanic.js";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import { getCases, removeCase } from "../../internals/caseHandler";
-import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class History extends Command {
 

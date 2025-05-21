@@ -1,9 +1,9 @@
 import { Constants, CreateApplicationCommandOptions, CreateChatInputApplicationCommandOptions, CreateGuildApplicationCommandOptions, Guild, GuildChannel, Member, Message, Role, TextChannel, User } from "oceanic.js";
 import { Entity } from "../resources/interfaces";
+import Olive from "../main";
+import { ModuleDataMap, ModuleMap, ModuleName } from "../Database/ModuleTypes";
 import Command from "./Command";
 import Module from "./Module";
-import Olive from "../main";
-import { ModuleDataMap, ModuleName } from "../Database/ModuleTypes";
 
 export default class ExtendedClient extends Olive {
 
@@ -100,8 +100,8 @@ export default class ExtendedClient extends Olive {
     return (obj.type === "undefined") ? undefined : obj;
   }
 
-  readonly getModule = (name: string): Module => {
-    const Module = this.modules.find((m: Module) => m.name === name);
+  public getModule<T extends ModuleName>(name: string): ModuleMap[T] {
+    const Module = this.modules.find((m: Module) => m.name === name) as ModuleMap[T];
 
     return Module;
   }
