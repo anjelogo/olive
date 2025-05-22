@@ -1,7 +1,7 @@
-import { Constants, ApplicationCommandTypes, CommandInteraction, ComponentInteraction, Message, ApplicationCommandOptions, ModalSubmitInteraction, InteractionCallbackResponse, AnyInteractionChannel, Uncached } from "oceanic.js";
-import ExtendedClient from "./Client";
-import { Constants as CustomConstants } from "../resources/interfaces";
 import { FollowupMessageInteractionResponse, InitialMessagedInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
+import { Constants, ApplicationCommandTypes, CommandInteraction, ComponentInteraction, Message, ApplicationCommandOptions, ModalSubmitInteraction, InteractionCallbackResponse, AnyInteractionChannel, Uncached } from "oceanic.js";
+import { Constants as CustomConstants } from "../resources/interfaces";
+import ExtendedClient from "./Client";
 
 export type Options =  ApplicationCommandOptions & {
   permissions?: string[];
