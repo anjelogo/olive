@@ -56,10 +56,10 @@ export default class Olive extends Client {
     //Load Modules Data (Commands, Events, Perms... etc)
     const Modules = await fs.readdir("./modules", { withFileTypes: true });
 
-    Modules.forEach(async Module => {
+    for (const Module of Modules) {
       const m = new (await import(`./modules/${Module.name}/main`)).default(this) as Module;
       this.modules.push(m);
-    });
+    }
 
     this.modules.sort((a, b) => {
       return a.weight - b.weight;
