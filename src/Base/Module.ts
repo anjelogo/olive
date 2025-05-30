@@ -98,5 +98,4 @@ export default class Module {
     this.constants.utils.log(this.name, "Loaded.");
 
   }
-  
 }

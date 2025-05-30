@@ -1,9 +1,9 @@
 import { CommandInteraction, ComponentInteraction, Constants, ContainerComponent, Message, MessageActionRow, MessageActionRowComponent, MessageComponentSelectMenuInteractionData, TextDisplayComponent } from "oceanic.js";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import Module from "../../../../Base/Module";
 import ExtendedClient from "../../../../Base/Client";
 import { Permnodes } from "../../../../resources/interfaces";
-import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Main from "../../main";
 
 export default class Help extends Command {
@@ -225,7 +225,7 @@ export default class Help extends Command {
         if (perm.name === "*") continue;
 
         const Module: string = this.bot.modules.find((m: Module) => m.name.toLowerCase() === perm.name.split(/[.\-_]/)[0].toLowerCase())
-          ? this.bot.modules.find((m: Module) => m.name.toLowerCase() === perm.name.split(/[.\-_]/)[0].toLowerCase()).name
+          ? (this.bot.modules.find((m: Module) => m.name.toLowerCase() === perm.name.split(/[.\-_]/)[0].toLowerCase())?.name ?? perm.name.split(/[.\-_]/)[0].replace(/^\w/, c => c.toUpperCase()))
           : perm.name.split(/[.\-_]/)[0].replace(/^\w/, c => c.toUpperCase()),
           field: TextDisplayComponent | undefined = fields.find((f) => f.content.startsWith(`## ${Module}`));
 
