@@ -58,7 +58,7 @@ const authRoute = (): Router => {
       res.cookie("token", token, {
         httpOnly: true,
         secure: true, // Set secure only in production
-        sameSite: "none",
+        sameSite: "lax",
         maxAge: 3600000, // 1 hour
       });
 

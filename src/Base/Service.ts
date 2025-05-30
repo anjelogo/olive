@@ -1,10 +1,12 @@
 import { Request, Response, Router } from "express";
 import ExtendedClient from "./Client";
 
-export interface InputFields {
+export type InputFieldType = ("checkbox" | "number" | "long_input" | "short_input" | "dropdown");
+
+export interface InputField {
   label: string;
   description?: string;
-  type: ("checkbox" | "number" | "long_input" | "short_input" | "dropdown");
+  type: InputFieldType;
   max_selection?:  number; // max selection for dropdown
   min_selection?: number; // min selection for dropdown
   options?: {
@@ -18,7 +20,7 @@ export default abstract class Service {
   
   protected bot: ExtendedClient;
   protected router: Router;
-  protected abstract fields: InputFields[];
+  protected abstract fields: InputField[];
   protected abstract routeHandlers: Record<string, (req: Request, res: Response) => void>;
 
 
