@@ -19,10 +19,6 @@ export default class Moderation extends Module {
 
   }
 
-  public run = async (): Promise<void> => {
-    await this.load();
-  }
-
   readonly moduleData: ModerationModuleData = {
     version: this.version,
     guildID: "",

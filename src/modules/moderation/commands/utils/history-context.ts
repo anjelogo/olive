@@ -1,8 +1,8 @@
 import { CommandInteraction, Constants, InteractionOptionsWrapper } from "oceanic.js";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import History from "./history";
-import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class HistoryContext extends Command {
     
