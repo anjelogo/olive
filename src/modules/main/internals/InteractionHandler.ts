@@ -1,8 +1,8 @@
 import { CommandInteraction, ComponentInteraction, Constants, Embed, Member, Message, MessageFlags, ModalSubmitInteraction } from "oceanic.js";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import { Options } from "../../../Base/Command";
 import ExtendedClient from "../../../Base/Client";
 import Main from "../main";
-import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export const commandHandler = async (bot: ExtendedClient, interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void | boolean> => {
   const member: Member = interaction.member as Member,

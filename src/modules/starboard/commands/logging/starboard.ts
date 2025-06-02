@@ -12,6 +12,7 @@ export default class Starboard extends Command {
 
     this.commands = ["starboard"];
     this.description = "View Starboard Data for a user";
+    this.type = Constants.ApplicationCommandTypes.CHAT_INPUT;
     this.example = "starboard view @user";
     this.options = [
       {

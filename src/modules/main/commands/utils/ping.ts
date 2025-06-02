@@ -1,7 +1,7 @@
 import { CommandInteraction, Constants } from "oceanic.js";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
-import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class Ping extends Command {
   
@@ -10,9 +10,11 @@ export default class Ping extends Command {
     super(bot);
 
     this.commands = ["ping"];
-    this.description = "Get Discord/Bot Latency";
+    this.description = "Check the bot's latency against Discord's API.";
+    this.type = Constants.ApplicationCommandTypes.CHAT_INPUT;
     this.example = "ping";
     this.permissions = ["main.ping"];
+    this.tags = ["information"];
   
   }
 

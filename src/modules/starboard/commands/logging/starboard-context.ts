@@ -1,8 +1,8 @@
 import { CommandInteraction, Constants, InteractionOptionsWrapper } from "oceanic.js";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import Starboard from "./starboard";
-import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class StarboardContext extends Command { 
   constructor(bot: ExtendedClient) {
@@ -10,7 +10,6 @@ export default class StarboardContext extends Command {
 
     this.commands = ["View Stars"];
     this.permissions = ["starboard.view"];
-    this.example = null;
     this.type = Constants.ApplicationCommandTypes.USER;
   }
 

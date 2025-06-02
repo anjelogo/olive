@@ -14,6 +14,7 @@ export default class Voicechannel extends Command {
 
     this.commands = ["voicechannel"];
     this.description = "The main Voicechannel command";
+    this.type = Constants.ApplicationCommandTypes.CHAT_INPUT;
     this.example = "voicechannel";
     this.permissions = ["vc.view"];
     this.options = [

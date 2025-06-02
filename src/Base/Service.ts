@@ -1,12 +1,11 @@
 import { Request, Response, Router } from "express";
 import ExtendedClient from "./Client";
 
-export type InputFieldType = ("checkbox" | "number" | "long_input" | "short_input" | "dropdown");
-
 export interface InputField {
   label: string;
+  type: "checkbox" | "number" | "long_input" | "short_input" | "dropdown";
+  action: string;
   description?: string;
-  type: InputFieldType;
   max_selection?:  number; // max selection for dropdown
   min_selection?: number; // min selection for dropdown
   options?: {
@@ -17,12 +16,9 @@ export interface InputField {
 }
 
 export default abstract class Service {
-  
   protected bot: ExtendedClient;
   protected router: Router;
   protected abstract fields: InputField[];
-  protected abstract routeHandlers: Record<string, (req: Request, res: Response) => void>;
-
 
   constructor(bot: ExtendedClient) {
     this.bot = bot;
@@ -30,8 +26,15 @@ export default abstract class Service {
     this.initRouteHandlers();
   }
 
+  // CHANGED: method instead of property
+  protected getRouteHandlers(): Record<string, (req: Request, res: Response) => void> {
+    return {};
+  }
+
   private initRouteHandlers() {
-    for (const [path, handler] of Object.entries(this.routeHandlers)) {
+    const handlers = this.getRouteHandlers();
+
+    for (const [path, handler] of Object.entries(handlers)) {
       this.router.get(path, handler);
       this.router.post(path, handler);
       this.router.put(path, handler);

@@ -17,6 +17,7 @@ export default class Roles extends Module {
     this.version = "1.1";
     this.path = "modules/roles";
     this.db = true;
+    this.serviceEnabled = true;
 
   }
 

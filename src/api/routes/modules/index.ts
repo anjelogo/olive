@@ -8,27 +8,23 @@ const modulesRoute = (client: ExtendedClient): Router => {
     req: Request<{ moduleName: string }>,
     res: Response
   ) => {
-    const moduleName= req.params.moduleName;
+    const { moduleName } = req.params;
 
-    if (!client.modules.find(m => m.name === moduleName)) {
+    const module = client.modules.find(
+      m => m.name.toLowerCase() === moduleName.toLowerCase()
+    );
+
+    if (!module || !module.service) {
       res.status(404).json({
         error: "Module not found",
-        message: `Module "${moduleName}" not found.`
+        message: `Module "${moduleName}" not found or has no service.`
       });
       return;
     }
 
-    const module = client.modules.find(m => m.name === moduleName);
-
-    if (!module) {
-      res.status(404).json({
-        error: "Module not found",
-        message: `Module "${moduleName}" not found.`
-      });
-      return;
-    }
     res.status(200).json({
       message: `Module "${moduleName}" found.`,
+      fields: module.service["fields"]
     });
     return;
   });

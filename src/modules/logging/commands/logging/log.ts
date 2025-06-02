@@ -18,6 +18,7 @@ export default class Log extends Command {
 
     this.commands = ["log"];
     this.description = "Create log channels";
+    this.type = Constants.ApplicationCommandTypes.CHAT_INPUT;
     this.example = "log create";
     this.options = [
       {

@@ -14,6 +14,7 @@ export default class Kick extends Command {
 
     this.commands = ["kick"];
     this.example = "kick @user being very mean";
+    this.type = Constants.ApplicationCommandTypes.CHAT_INPUT;
     this.description = "Kicks a user from the server";
     this.permissions = ["moderation.punish.kick", "moderation.punish.*"];
     this.options = [

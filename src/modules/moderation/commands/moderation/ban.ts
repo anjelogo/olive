@@ -14,6 +14,7 @@ export default class Ban extends Command {
 
     this.commands = ["ban"];
     this.example = "ban @user being very mean 10d";
+    this.type = Constants.ApplicationCommandTypes.CHAT_INPUT;
     this.description = "Bans a user from the server";
     this.permissions = ["moderation.punish.ban", "moderation.punish.*"];
     this.options = [

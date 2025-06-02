@@ -14,7 +14,8 @@ export default class Warn extends Command {
 
     this.commands = ["warn"];
     this.example = "warn @user being very mean";
-    this.description = "warns a user from the server";
+    this.description = "Warns a user from the server";
+    this.type = Constants.ApplicationCommandTypes.CHAT_INPUT;
     this.permissions = ["moderation.punish.warn", "moderation.punish.*"];
     this.options = [
       {

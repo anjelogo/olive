@@ -1,8 +1,8 @@
 import { CommandInteraction, Constants, InteractionOptionsWrapper } from "oceanic.js";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import Reactionrole from "./reactionrole";
-import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class ReactionroleContext extends Command {
   constructor(bot: ExtendedClient) {
@@ -10,7 +10,6 @@ export default class ReactionroleContext extends Command {
 
     this.commands = ["Create/Edit Reaction Role"];
     this.permissions = ["roles.reaction.modify"];
-    this.example = null;
     this.type = Constants.ApplicationCommandTypes.MESSAGE;
   }
 

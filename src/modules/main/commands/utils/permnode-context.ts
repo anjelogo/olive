@@ -1,8 +1,8 @@
 import { CommandInteraction, Constants, InteractionOptionsWrapper } from "oceanic.js";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import Permnode from "./permnode";
-import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class PermnodeContext extends Command {
   
@@ -11,7 +11,6 @@ export default class PermnodeContext extends Command {
 
     this.commands = ["View User's Permission nodes"];
     this.permissions = ["main.permnode.view"];
-    this.example = null;
     this.type = Constants.ApplicationCommandTypes.USER;
   }
 

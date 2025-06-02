@@ -11,7 +11,7 @@ export type Options =  ApplicationCommandOptions & {
 
 export default class Command {
 
-  public type: (ApplicationCommandTypes | undefined);
+  public type: ApplicationCommandTypes;
   public disabled = false;
   public commands: string[];
   public description: string;
@@ -29,11 +29,13 @@ export default class Command {
   public execute: (interaction: CommandInteraction) => Promise<InitialMessagedInteractionResponse<CommandInteraction | ComponentInteraction> | FollowupMessageInteractionResponse<CommandInteraction | ComponentInteraction> | InteractionCallbackResponse<AnyInteractionChannel | Uncached> | undefined | void> | undefined;
   public update: (component: ComponentInteraction) => Promise<FollowupMessageInteractionResponse<CommandInteraction | ComponentInteraction> | Message | undefined | void> | undefined;
   public modalSubmit: (modal: ModalSubmitInteraction) => Promise<FollowupMessageInteractionResponse<CommandInteraction | ComponentInteraction> | Message | undefined | void> | undefined;
+  public tags?: string[];
 
   constructor(bot: ExtendedClient) {
+    this.type = Constants.ApplicationCommandTypes.CHAT_INPUT;
     this.commands = [];
-    this.description = "No Description Available :(";
-    this.example = "No Example Available :(";
+    this.description = "No Description Available";
+    this.example = "No Example Available";
     this.enabled = true;
     this.devOnly = false;
     this.bot = bot;

@@ -1,7 +1,7 @@
 import { AnyInteractionChannel, CommandInteraction, Constants, InteractionCallbackResponse, Member, Uncached } from "oceanic.js";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
-import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import { isPunishable } from "../../internals/punishmentHandler";
 
 export default class WarnContext extends Command {
@@ -11,7 +11,6 @@ export default class WarnContext extends Command {
 
     this.commands = ["Warn User"];
     this.permissions = ["moderation.punish.warn", "moderation.punish.*"];
-    this.example = null;
     this.noDefer = true;
     this.type = Constants.ApplicationCommandTypes.USER;
   }

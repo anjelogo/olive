@@ -8,11 +8,16 @@ const CommandsRoute = (client: ExtendedClient): Router => {
     req: Request<{ id: string }>,
     res: Response
   ) => {
-    const commands = client.commands.map(command => ({
-      name: command.commands[0],
-      description: command.description,
-      category: command.category
-    }));
+    const commands = client.commands
+      .filter(c => !c.devOnly)
+      .map(command => ({
+        name: command.commands[0],
+        description: command.description,
+        category: command.category,
+        example: command.example,
+        usage: "/" + command.commands[0],
+        tags: [command.category, ...(command.tags || [])],
+      }));
 
     if (!commands || commands.length === 0) {
       res.status(404).json({

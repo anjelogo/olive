@@ -4,6 +4,7 @@ import { promises as fs } from "fs";
 import { Permnodes, Constants } from "../resources/interfaces";
 import ExtendedClient from "./Client";
 import Command from "./Command";
+import Service from "./Service";
 
 export interface moduleDataStructure {
   version: string;
@@ -20,6 +21,8 @@ export default class Module {
   readonly weight: number;
   readonly db?: boolean;
   readonly moduleData: unknown;
+  public service?: Service;
+  public serviceEnabled?: boolean;
 
   constructor (bot: ExtendedClient) {
 
@@ -55,7 +58,7 @@ export default class Module {
     return data;
   }
 
-  public async load(): Promise<void> {
+  public async init(): Promise<void> {
 
     this.constants.utils.log(this.name, "Loading...");
 
@@ -97,5 +100,16 @@ export default class Module {
 
     this.constants.utils.log(this.name, "Loaded.");
 
+    // Load Service
+    // use fs to check if service.ts exists
+    if (this.serviceEnabled == true) {
+      try {
+        const servicePath = `../${this.path}/service`;
+        this.service = new (require(servicePath).default)(this.bot);
+        this.constants.utils.log(this.name, "Service loaded successfully.");
+      } catch (error) {
+        console.error(`Failed to load service for module ${this.name}:`, error);
+      }
+    }
   }
 }

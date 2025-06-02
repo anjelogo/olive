@@ -1,7 +1,7 @@
 import { CommandInteraction, ComponentInteraction, Constants, Message } from "oceanic.js";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
-import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class Reload extends Command {
   
@@ -11,6 +11,7 @@ export default class Reload extends Command {
 
     this.disabled = false;
     this.commands = ["reload"];
+    this.type = Constants.ApplicationCommandTypes.CHAT_INPUT;
     this.description = "Reload application commands";
     this.example = "eval";
     this.devOnly = true;

@@ -12,7 +12,8 @@ export default class Roles extends Command {
     super(bot);
 
     this.commands = ["roles"];
-    this.description = "Grab or remove a role";
+    this.description = "Add or remove roles from the roles list, or add/remove roles for yourself.";
+    this.type = Constants.ApplicationCommandTypes.CHAT_INPUT;
     this.example = "role add";
     this.options = [
       {

@@ -69,7 +69,7 @@ export default class Olive extends Client {
       this.modules = this.modules.filter((m) => m.name !== dm); //filter and not load disabled modules
     }
 
-    for (const m of this.modules) await m.load();
+    for (const m of this.modules) await m.init();
     
     //Load Events
     for (const e of this.events) {

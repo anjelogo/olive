@@ -14,8 +14,10 @@ export default class Help extends Command {
 
     this.commands = ["help"];
     this.description = "View information about the bot";
+    this.type = Constants.ApplicationCommandTypes.CHAT_INPUT;
     this.example = "help";
     this.permissions = ["main.help"];
+    this.tags = ["information"];
 
   }
 

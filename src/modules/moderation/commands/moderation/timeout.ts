@@ -14,7 +14,8 @@ export default class Timeout extends Command {
 
     this.commands = ["timeout"];
     this.example = "timeout @user being very mean";
-    this.description = "Puts the user on Time out";
+    this.type = Constants.ApplicationCommandTypes.CHAT_INPUT;
+    this.description = "Puts the user on timeout, preventing them from sending messages or joining voice channels.";
     this.permissions = ["moderation.punish.timeout", "moderation.punish.*"];
     this.options = [
       {

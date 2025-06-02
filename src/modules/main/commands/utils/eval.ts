@@ -1,7 +1,7 @@
 import { CommandInteraction, Constants } from "oceanic.js";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
-import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class Eval extends Command {
   
@@ -11,6 +11,7 @@ export default class Eval extends Command {
 
     this.disabled = false;
     this.commands = ["eval"];
+    this.type = Constants.ApplicationCommandTypes.CHAT_INPUT;
     this.example = "eval 2+2";
     this.devOnly = true;
     this.options = [

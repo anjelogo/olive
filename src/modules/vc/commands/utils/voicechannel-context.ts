@@ -11,7 +11,6 @@ export default class VoicechannelContext extends Command {
 
     this.commands = ["Set Voice Channel Owner"];
     this.permissions = ["vc.edit.owner"];
-    this.example = null;
     this.type = Constants.ApplicationCommandTypes.USER;
   }
 

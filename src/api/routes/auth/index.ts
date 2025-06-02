@@ -4,8 +4,9 @@ import passport from "passport";
 import { Strategy as DiscordStrategy, Profile } from "passport-discord";
 import jwt from "jsonwebtoken";
 import { VerifyCallback } from "passport-oauth2";
+import ExtendedClient from "../../../Base/Client";
 
-const authRoute = (): Router => {
+const authRoute = (client: ExtendedClient): Router => {
   const router = Router();
   const JWT_SECRET = process.env.JWT_SECRET || "defaultsecret";
   const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:3000"; // Adjust according to your environment
@@ -78,9 +79,10 @@ const authRoute = (): Router => {
 
     try {
       // Verify the token and get the user data
-      const user = jwt.verify(token, JWT_SECRET);
+      const decrypted = jwt.verify(token, JWT_SECRET) as jwt.JwtPayload;
       
-      res.json(user);
+      const user = client.findUser(decrypted.discordID as string);
+      res.status(200).json(user);
       return;
     } catch (error) {
       res.status(401).json({ message: "Invalid token" });

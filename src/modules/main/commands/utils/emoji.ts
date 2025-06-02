@@ -1,7 +1,7 @@
 import { CommandInteraction, Constants } from "oceanic.js";
+import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import ExtendedClient from "../../../../Base/Client";
 import Command from "../../../../Base/Command";
-import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class Emoji extends Command {
 
@@ -11,6 +11,7 @@ export default class Emoji extends Command {
 
     this.commands = ["emoji"];
     this.description = "Copy an emoji and save it in the server";
+    this.type = Constants.ApplicationCommandTypes.CHAT_INPUT;
     this.example = "emoji copy <emoji>";
     this.options = [
       {

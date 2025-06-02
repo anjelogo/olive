@@ -11,7 +11,8 @@ export default class Saveroles extends Command {
 
     this.commands = ["saveroles"];
     this.example = "saveroles";
-    this.description = "Save roles of users if they leave";
+    this.type = Constants.ApplicationCommandTypes.CHAT_INPUT;
+    this.description = "Toggle Role Saving, which allows the bot to save roles when users leave or join the server.";
     this.permissions = ["roles.save.toggle"];
   }
 
