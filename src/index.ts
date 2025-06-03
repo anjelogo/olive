@@ -5,7 +5,6 @@ import guildsRoute from "./api/routes/guilds";
 import userRoute from "./api/routes/users";
 import authRoute from "./api/routes/auth";
 import CommandsRoute from "./api/routes/commands";
-import modulesRoute from "./api/routes/modules";
 
 
 const client = new ExtendedClient({
@@ -33,7 +32,6 @@ client.init().then(() => {
   api.use("/api/guilds", guildsRoute(client));
   api.use("/api/users", userRoute(client));
   api.use("/api/commands", CommandsRoute(client));
-  api.use("/api/modules", modulesRoute(client));
   
   api.listen(5000, () => {
     console.log("API is running on port 5000");

@@ -5,6 +5,13 @@ export interface InputField {
   label: string;
   type: "checkbox" | "number" | "long_input" | "short_input" | "dropdown";
   action: string;
+  currentValue?: {
+    checkbox: boolean;
+    number: number;
+    long_input: string;
+    short_input: string;
+    dropdown: string[];
+  }[InputField["type"]]
   description?: string;
   max_selection?:  number; // max selection for dropdown
   min_selection?: number; // min selection for dropdown
@@ -22,7 +29,7 @@ export default abstract class Service {
 
   constructor(bot: ExtendedClient) {
     this.bot = bot;
-    this.router = Router();
+    this.router = Router({ mergeParams: true });
     this.initRouteHandlers();
   }
 
@@ -43,14 +50,30 @@ export default abstract class Service {
     }
   }
 
-  protected async get(req: Request, res: Response, data: any): Promise<void> {
+  private async checkForGuild(req: Request, res: Response): Promise<string | undefined> {
+    const guildID = req.params.id;
+    if (!guildID) {
+      res.status(400).json({ error: "Guild ID is required" });
+      return;
+    }
+
+    const guild = this.bot.findGuild(guildID);
+    if (!guild) {
+      res.status(404).json({ error: "Guild not found" });
+      return;
+    }
+
+    return guildID; // return ID so you can use it directly
+  }
+
+  protected async get(req: Request, res: Response, data: { message: string, data: any }): Promise<void> {
     try {
+      const guildID = await this.checkForGuild(req, res);
+      if (!guildID) return;
+      
       res
         .status(200)
-        .json({
-          message: "Success",
-          data: data,
-        });
+        .json(data);
     } catch (error) {
       res
         .status(500)
@@ -61,14 +84,14 @@ export default abstract class Service {
     }
   }
 
-  protected async post(req: Request, res: Response, data: any): Promise<void> {
+  protected async post(req: Request, res: Response, data: { message: string, data: any }): Promise<void> {
     try {
+      const guildID = await this.checkForGuild(req, res);
+      if (!guildID) return;
+      
       res
         .status(201)
-        .json({
-          message: "Created",
-          data: data,
-        });
+        .json(data);
     } catch (error) {
       res
         .status(500)
@@ -79,15 +102,14 @@ export default abstract class Service {
     }
   }
 
-  protected async put(req: Request, res: Response, data: any): Promise<void> {
+  protected async put(req: Request, res: Response, data: { message: string, data: any }): Promise<void> {
     try {
-      const result = await this.updateData(req.params, data);
+      const guildID = await this.checkForGuild(req, res);
+      if (!guildID) return;
+      
       res
         .status(200)
-        .json({
-          message: "Updated",
-          data: result,
-        });
+        .json(data);
     } catch (error) {
       res
         .status(500)
@@ -98,14 +120,14 @@ export default abstract class Service {
     }
   }
 
-  protected async delete(req: Request, res: Response, data: any): Promise<void> {
+  protected async delete(req: Request, res: Response, data: { message: string, data: any}): Promise<void> {
     try {
+      const guildID = await this.checkForGuild(req, res);
+      if (!guildID) return;
+      
       res
         .status(200)
-        .json({
-          message: "Deleted",
-          data: data,
-        });
+        .json(data);
     } catch (error) {
       res
         .status(500)
