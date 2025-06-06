@@ -12,7 +12,8 @@ export default class RoleService extends Service {
       type: "checkbox",
       action: "/saveroles",
       module: "Roles",
-      data: undefined, // This will be filled dynamically based on the current data
+      permissions: ["roles.save.toggle"],
+      data: undefined, // This will be filled dynamically based on the current data,
     }
   ];
 
@@ -21,6 +22,8 @@ export default class RoleService extends Service {
       "/": async (req, res) => {
         const guildID = req.params.id;
         const currentData = await this.bot.getModuleData("Roles", guildID) as RolesModuleData;
+
+        req.user?.
 
         const fields = this.fields.map(field => {
           switch (field.action) {

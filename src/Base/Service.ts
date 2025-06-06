@@ -16,6 +16,7 @@ export interface InputField {
   action: string;
   module: keyof ModuleDataMap;
   data: DeepPartial<ModuleDataMap[this["module"]]> | undefined; // data to be sent to the module
+  permissions: string[];
   description?: string;
   max_selection?:  number; // max selection for dropdown
   min_selection?: number; // min selection for dropdown
