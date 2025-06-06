@@ -1,17 +1,21 @@
 import { Request, Response, Router } from "express";
+import { ModuleDataMap, ModuleName } from "../Database/ModuleTypes";
 import ExtendedClient from "./Client";
+
+export type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends object
+    ? T[P] extends Array<infer U>
+      ? Array<DeepPartial<U>>
+      : DeepPartial<T[P]>
+    : T[P];
+};
 
 export interface InputField {
   label: string;
   type: "checkbox" | "number" | "long_input" | "short_input" | "dropdown";
   action: string;
-  currentValue?: {
-    checkbox: boolean;
-    number: number;
-    long_input: string;
-    short_input: string;
-    dropdown: string[];
-  }[InputField["type"]]
+  module: keyof ModuleDataMap;
+  data: DeepPartial<ModuleDataMap[this["module"]]> | undefined; // data to be sent to the module
   description?: string;
   max_selection?:  number; // max selection for dropdown
   min_selection?: number; // min selection for dropdown
@@ -66,25 +70,48 @@ export default abstract class Service {
     return guildID; // return ID so you can use it directly
   }
 
-  protected async get(req: Request, res: Response, data: { message: string, data: any }): Promise<void> {
+  // Overload 1: For module data
+  protected async get<K extends ModuleName>(
+    req: Request,
+    res: Response,
+    data: {
+      message: string;
+      data: DeepPartial<ModuleDataMap[K]>;
+    }
+  ): Promise<void>;
+
+  // Overload 2: For UI fields or non-module responses
+  protected async get(
+    req: Request,
+    res: Response,
+    data: {
+      message: string;
+      data: InputField[];
+    }
+  ): Promise<void>;
+
+  protected async get(
+    req: Request,
+    res: Response,
+    data: {
+      message: string;
+      data: unknown;
+    }
+  ): Promise<void> {
     try {
       const guildID = await this.checkForGuild(req, res);
       if (!guildID) return;
-      
-      res
-        .status(200)
-        .json(data);
+
+      res.status(200).json(data);
     } catch (error) {
-      res
-        .status(500)
-        .json({
-          message: "Error",
-          error: error,
-        });
+      res.status(500).json({
+        message: "Error",
+        error
+      });
     }
   }
 
-  protected async post(req: Request, res: Response, data: { message: string, data: any }): Promise<void> {
+  protected async post<K extends keyof ModuleDataMap>(req: Request, res: Response, data: { message: string, data: DeepPartial<ModuleDataMap[K]> }): Promise<void> {
     try {
       const guildID = await this.checkForGuild(req, res);
       if (!guildID) return;
@@ -102,7 +129,7 @@ export default abstract class Service {
     }
   }
 
-  protected async put(req: Request, res: Response, data: { message: string, data: any }): Promise<void> {
+  protected async put<K extends keyof ModuleDataMap>(req: Request, res: Response, data: { message: string, data: DeepPartial<ModuleDataMap[K]> }): Promise<void> {
     try {
       const guildID = await this.checkForGuild(req, res);
       if (!guildID) return;
@@ -120,7 +147,7 @@ export default abstract class Service {
     }
   }
 
-  protected async delete(req: Request, res: Response, data: { message: string, data: any}): Promise<void> {
+  protected async delete<K extends keyof ModuleDataMap>(req: Request, res: Response, data: { message: string, data: DeepPartial<ModuleDataMap[K]>}): Promise<void> {
     try {
       const guildID = await this.checkForGuild(req, res);
       if (!guildID) return;
@@ -138,7 +165,10 @@ export default abstract class Service {
     }
   }
 
-  protected abstract updateData(params: any, data: any): Promise<any>;
+  protected abstract updateData<K extends ModuleName>(
+    params: { module: K; guildID: string }, // or whatever context you need
+    data: DeepPartial<ModuleDataMap[K]>
+  ): Promise<ModuleDataMap[K]>;
 
   getRouter(): Router {
     return this.router;

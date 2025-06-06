@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import ExtendedClient from "../../Base/Client";
-import Service, { InputField } from "../../Base/Service";
+import Service, { DeepPartial, InputField } from "../../Base/Service";
 import { RolesModuleData } from "../../Database/interfaces/RolesModuleData";
+import { ModuleDataMap, ModuleName } from "../../Database/ModuleTypes";
 
 export default class RoleService extends Service {
   protected fields: InputField[] = [
@@ -9,7 +10,9 @@ export default class RoleService extends Service {
       label: "Save Roles on User Leave",
       description: "Save a user's roles when they leave the server, returning them when they rejoin.",
       type: "checkbox",
-      action: "/saveroles"
+      action: "/saveroles",
+      module: "Roles",
+      data: undefined, // This will be filled dynamically based on the current data
     }
   ];
 
@@ -33,9 +36,7 @@ export default class RoleService extends Service {
 
         this.get(req, res, {
           message: "Role Module Settings",
-          data: {
-            fields
-          }
+          data: fields
         });
       },
       "/saveroles": async (req, res) => {
@@ -47,7 +48,11 @@ export default class RoleService extends Service {
 
             this.get(req, res, {
               message: "Role Saving Status",
-              data: currentData.savedRoles.enabled
+              data: {
+                savedRoles: {
+                  enabled: currentData.savedRoles.enabled
+                }
+              }
             });
           } catch (error) {
             res.status(500).json({ 
@@ -61,14 +66,26 @@ export default class RoleService extends Service {
           try {
             const guildID = req.params.id;
             const currentData = await this.bot.getModuleData("Roles", guildID) as RolesModuleData;
+            const body = req.body as DeepPartial<RolesModuleData>;
 
-            currentData.savedRoles.enabled = !currentData.savedRoles.enabled;
+            if (typeof body.savedRoles?.enabled !== "boolean") {
+              res.status(400).json({ message: "Invalid data for role saving" });
+              return;
+            }
 
-            const updated = await this.updateData({ guildID }, currentData);
+            currentData.savedRoles.enabled = body.savedRoles.enabled;
+            const updatedData = await this.updateData({
+              guildID,
+              module: "Roles"
+            }, currentData);
 
             this.post(req, res, {
-              message: `Role Saving has been ${updated.savedRoles.enabled ? "enabled" : "disabled"}`,
-              data: currentData.savedRoles.enabled
+              message: "Role saving status updated",
+              data: {
+                savedRoles: {
+                  enabled: updatedData.savedRoles.enabled
+                }
+              }
             });
           } catch (error) {
             res.status(500).json({ 
@@ -87,11 +104,15 @@ export default class RoleService extends Service {
     };
   }
 
-  protected async updateData(params: any, data: Partial<RolesModuleData>): Promise<RolesModuleData> {
-    if (!data.roles) {
-      data.roles = [];
+  protected async updateData<K extends ModuleName>(
+    params: { module: K; guildID: string },
+    data: DeepPartial<ModuleDataMap[K]>
+  ): Promise<ModuleDataMap[K]> {
+    const rolesData = data as DeepPartial<RolesModuleData>;
+    if (!rolesData.roles) {
+      rolesData.roles = [];
     }
-    return this.bot.updateModuleData("Roles", data as RolesModuleData, params.guildID);
+    return await this.bot.updateModuleData<"Roles">("Roles", rolesData as ModuleDataMap["Roles"], params.guildID) as ModuleDataMap[K];
   }
 
   constructor(bot: ExtendedClient) {

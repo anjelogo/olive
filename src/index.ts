@@ -5,6 +5,7 @@ import guildsRoute from "./api/routes/guilds";
 import userRoute from "./api/routes/users";
 import authRoute from "./api/routes/auth";
 import CommandsRoute from "./api/routes/commands";
+import { authenticateJWT } from "./api/middleware/authMiddleware";
 
 
 const client = new ExtendedClient({
@@ -24,12 +25,12 @@ client.init().then(() => {
   const api = express();
 
   api.use(cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    //origin: process.env.CLIENT_URL || "http://localhost:3000",
     credentials: true,
   }));
   api.use(express.json());
   api.use("/api/auth", authRoute(client));
-  api.use("/api/guilds", guildsRoute(client));
+  api.use("/api/guilds", authenticateJWT, guildsRoute(client));
   api.use("/api/users", userRoute(client));
   api.use("/api/commands", CommandsRoute(client));
   
