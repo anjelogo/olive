@@ -24,13 +24,13 @@ export const authenticateJWT = (client: ExtendedClient) => {
         return;
       }
 
-      if (await client.getModule("Main").hasPerm(req.user as User, "roles.save.toggle")) {
+      if (!await client.getModule("Main").hasPerm(req.user as User, "roles.save.toggle")) {
         res.status(403).json({ message: "You do not have permission to access this endpoint." });
         return;
       }
       next();
     } catch (err) {
-      res.status(401).json({ message: "Unauthorized: Invalid token" });
+      res.status(401).json({ message: "Unauthorized: Invalid token", error: err });
     }
   };
 };
