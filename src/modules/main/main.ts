@@ -1,4 +1,4 @@
-import { CommandInteraction, Constants, Embed, Member, PrivateChannel } from "oceanic.js";
+import { CommandInteraction, Constants, Embed, Guild, Member, PrivateChannel, User } from "oceanic.js";
 import { Permnodes } from "../../resources/interfaces";
 import Module from "../../Base/Module";
 import ExtendedClient from "../../Base/Client";
@@ -64,18 +64,27 @@ export default class Main extends Module {
     return perms;
   }
 
-  readonly hasPerm = async (member: Member | null, perm: string): Promise<boolean> => {
-    if (!member || !perm) return false;
+  readonly hasPerm = async (user: User | Member | null, perm: string, guildID?: string): Promise<boolean> => {
+    if (!user || !perm) return false;
+
+    let member = user;
+
+    if (user instanceof Member) {
+      member = user;
+    } else if (guildID && user instanceof User) {
+      const guild = this.bot.guilds.get(guildID as string) as Guild;
+      member = this.bot.findMember(guild, user.id) as Member;
+    }
 
     const masterPerm = `${perm.split(/[.\-_]/)[0]}.*`,
       permission = this.bot.perms.find((p: Permnodes) => p.name === perm),
-      moduleData = await this.bot.getModuleData("Main", member.guild.id) as MainModuleData,
+      moduleData = await this.bot.getModuleData("Main", (member as Member).guild.id) as MainModuleData,
       permissions = moduleData.permissions;
 
     if (!permission || !permissions) return false;
-    if (member.permissions.has("ADMINISTRATOR")) return true;
+    if ((member as Member).permissions.has("ADMINISTRATOR")) return true;
 
-    const perms = [...new Set(await this.getPerms(member))];
+    const perms = [...new Set(await this.getPerms(member as Member))];
 
     return [masterPerm, perm, "*"].some(p => perms.includes(p));
   }

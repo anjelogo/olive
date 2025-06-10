@@ -1,4 +1,3 @@
-import Module from "module";
 import Main from "../modules/main/main";
 import Logging from "../modules/logging/main";
 import VC from "../modules/vc/main";
@@ -24,8 +23,6 @@ export type ModuleDataMap = {
 }
 
 export type ModuleMap = {
-  [key in ModuleName]: Module;
-} & {
   Main: Main;
   Logging: Logging;
   VC: VC;

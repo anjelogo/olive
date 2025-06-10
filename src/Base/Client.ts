@@ -100,10 +100,9 @@ export default class ExtendedClient extends Olive {
     return (obj.type === "undefined") ? undefined : obj;
   }
 
-  public getModule<T extends ModuleName>(name: string): ModuleMap[T] {
-    const Module = this.modules.find((m: Module) => m.name === name) as ModuleMap[T];
-
-    return Module;
+  public getModule<K extends keyof ModuleMap>(name: K): ModuleMap[K] {
+    const Module = this.modules[name as keyof typeof this.modules];
+    return Module as ModuleMap[K];
   }
 
   public async getModuleData<T extends ModuleName>(name: T, guildID: string): Promise<ModuleDataMap[T] | undefined> {

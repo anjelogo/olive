@@ -43,5 +43,13 @@ export default [
     name: "main.emoji.copy",
     description: "Grants access to copy emojis",
     default: false
+  }, {
+    name: "main.web.*",
+    description: "Grants access to all web features",
+    default: false
+  }, {
+    name: "main.web.view",
+    description: "Grants access to view web features",
+    default: false
   }
 ];

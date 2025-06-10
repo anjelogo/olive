@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { User } from "oceanic.js";
 import ExtendedClient from "../../Base/Client";
 import Service, { DeepPartial, InputField } from "../../Base/Service";
 import { RolesModuleData } from "../../Database/interfaces/RolesModuleData";
@@ -23,8 +24,6 @@ export default class RoleService extends Service {
         const guildID = req.params.id;
         const currentData = await this.bot.getModuleData("Roles", guildID) as RolesModuleData;
 
-        req.user?.
-
         const fields = this.fields.map(field => {
           switch (field.action) {
           case "/saveroles":
@@ -43,6 +42,11 @@ export default class RoleService extends Service {
         });
       },
       "/saveroles": async (req, res) => {
+        if (await this.bot.getModule("Main").hasPerm(req.user as User, "roles.save.toggle")) {
+          res.status(403).json({ message: "You do not have permission to access this endpoint." });
+          return;
+        }
+
         switch (req.method) {
         case "GET": {
           try {

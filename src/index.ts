@@ -30,7 +30,7 @@ client.init().then(() => {
   }));
   api.use(express.json());
   api.use("/api/auth", authRoute(client));
-  api.use("/api/guilds", authenticateJWT, guildsRoute(client));
+  api.use("/api/guilds", authenticateJWT(client), guildsRoute(client));
   api.use("/api/users", userRoute(client));
   api.use("/api/commands", CommandsRoute(client));
   
