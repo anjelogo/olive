@@ -8,6 +8,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "defaultsecret";
 export const authenticateJWT = (client: ExtendedClient) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     const token = req.cookies?.token;
+    console.log("Token received:", token);
 
     if (!token) {
       res.status(401).json({ message: "Unauthorized: No token provided" });
