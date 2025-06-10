@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import ExtendedClient from "./Base/Client";
 import guildsRoute from "./api/routes/guilds";
 import userRoute from "./api/routes/users";
@@ -29,6 +30,7 @@ client.init().then(() => {
     credentials: true,
   }));
   api.use(express.json());
+  api.use(cookieParser());
   api.use("/api/auth", authRoute(client));
   api.use("/api/guilds", authenticateJWT(client), guildsRoute(client));
   api.use("/api/users", userRoute(client));

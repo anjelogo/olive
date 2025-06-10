@@ -1,4 +1,3 @@
-import cookieParser from "cookie-parser";
 import { Router, Request, Response } from "express";
 import passport from "passport";
 import { Strategy as DiscordStrategy, Profile } from "passport-discord";
@@ -11,9 +10,6 @@ const authRoute = (client: ExtendedClient): Router => {
   const JWT_SECRET = process.env.JWT_SECRET || "defaultsecret";
   const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:3000"; // Adjust according to your environment
   const API_URL = process.env.API_URL || "http://localhost:5000"; // Adjust according to your environment
-
-  // Middleware to use cookies
-  router.use(cookieParser());
 
   // Passport Discord Strategy Setup (no session usage)
   passport.use(
