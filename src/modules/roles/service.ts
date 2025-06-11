@@ -29,7 +29,11 @@ export default class RoleService extends Service {
           case "/saveroles":
             return {
               ...field,
-              currentValue: currentData.savedRoles.enabled
+              data: {
+                savedRoles: {
+                  enabled: currentData.savedRoles.enabled
+                }
+              }
             } as InputField;
           default:
             return field;

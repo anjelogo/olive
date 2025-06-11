@@ -7,7 +7,6 @@ import userRoute from "./api/routes/users";
 import authRoute from "./api/routes/auth";
 import CommandsRoute from "./api/routes/commands";
 
-
 const client = new ExtendedClient({
   defaultImageFormat: "png",
   defaultImageSize: 1024,
@@ -18,8 +17,6 @@ const client = new ExtendedClient({
     intents: 14063,
   }
 });
-
-
 
 client.init().then(() => {
   const api = express();
