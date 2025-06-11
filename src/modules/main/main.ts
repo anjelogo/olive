@@ -67,14 +67,19 @@ export default class Main extends Module {
   readonly hasPerm = async (user: User | Member | null, perm: string, guildID?: string): Promise<boolean> => {
     if (!user || !perm) return false;
 
-    let member = user;
+    let member: Member | null = null;
 
     if (user instanceof Member) {
       member = user;
-    } else if (guildID && user instanceof User) {
-      const guild = this.bot.guilds.get(guildID as string) as Guild;
-      member = this.bot.findMember(guild, user.id) as Member;
+    } else if (guildID && user && "id" in user) {
+      const guild = this.bot.findGuild(guildID);
+
+      if (guild) {
+        member = guild.members.get(user.id) || null;
+      }
     }
+
+    if (!member) return false;
 
     const masterPerm = `${perm.split(/[.\-_]/)[0]}.*`,
       permission = this.bot.perms.find((p: Permnodes) => p.name === perm),

@@ -1,9 +1,12 @@
 import { Guild } from "oceanic.js";
 import { Router, Request, Response } from "express";
 import ExtendedClient from "../../../Base/Client";
+import { authenticateJWT } from "../../middleware/authMiddleware";
 
 const guildsRoute = (client: ExtendedClient): Router => {
   const router = Router();
+
+  router.use("/:id", authenticateJWT(client));
 
   client.modules.forEach(module => {
     if (module.service) {
