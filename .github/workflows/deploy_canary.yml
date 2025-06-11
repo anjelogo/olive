@@ -37,7 +37,7 @@ jobs:
           echo "DATABASE=${BOT_DB}" >> .env
           echo "CLIENT_SECRET=${CLIENT_SECRET}" >> .env
           echo "CLIENT_ID=${CLIENT_ID}" >> .env
-          echo "JWT_TOKEN=${JWT_TOKEN}" >> .env
+          echo "JWT_SECRET=${JWT_SECRET}" >> .env
           echo "CLIENT_URL=${CLIENT_URL}" >> .env
           echo "API_URL=${API_URL}" >> .env
 
