@@ -36,10 +36,10 @@ jobs:
           echo "TOKEN=${BOT_TOKEN_CANARY}" >> .env
           echo "DATABASE=${BOT_DB}" >> .env
           echo "CLIENT_SECRET={CLIENT_SECRET}"
-          echo "CLIENT_ID={CLIENT_ID}"
-          echo "JWT_TOKEN={JWT_TOKEN}"
-          echo "CLIENT_URL={CLIENT_URL}"
-          echo "API_URL={API_URL}"
+          echo "CLIENT_ID={CLIENT_ID}" >> .env
+          echo "JWT_TOKEN={JWT_TOKEN}" >> .env
+          echo "CLIENT_URL={CLIENT_URL}" >> .env
+          echo "API_URL={API_URL}" >> .env
 
       - name: 🚀 Restart app with PM2
         run: |
