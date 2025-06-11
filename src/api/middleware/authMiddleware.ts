@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { User } from "oceanic.js";
 import ExtendedClient from "../../Base/Client";
+import { guildID } from "../../resources/config";
 
 const JWT_SECRET = process.env.JWT_SECRET || "defaultsecret";
 
@@ -25,7 +26,7 @@ export const authenticateJWT = (client: ExtendedClient) => {
         return;
       }
 
-      if (!await client.getModule("Main").hasPerm(req.user as User, "roles.save.toggle")) {
+      if (!await client.getModule("Main").hasPerm(req.user as User, "roles.save.toggle", guildID)) {
         res.status(403).json({ message: "You do not have permission to access this endpoint." });
         return;
       }
