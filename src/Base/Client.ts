@@ -101,7 +101,10 @@ export default class ExtendedClient extends Olive {
   }
 
   public getModule<K extends keyof ModuleMap>(name: K): ModuleMap[K] {
-    const Module = this.modules[name as keyof typeof this.modules];
+    const Module = this.modules.find((m) => m.name === name);
+
+    if (!Module) throw new Error(`Module ${name} not found!`);
+
     return Module as ModuleMap[K];
   }
 
