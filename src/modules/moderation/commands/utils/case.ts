@@ -8,6 +8,8 @@ import { LoggingModuleData } from "../../../../Database/interfaces/LoggingModule
 
 export default class Case extends Command {
 
+  public type = Constants.ApplicationCommandTypes.CHAT_INPUT;
+
   constructor (bot: ExtendedClient) {
 
     super(bot);

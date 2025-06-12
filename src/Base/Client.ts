@@ -150,34 +150,41 @@ export default class ExtendedClient extends Olive {
       GuildSpecificCommands: { id: string; commands: CreateGuildApplicationCommandOptions[] }[] = [];
 
     this.commands.filter((c) => !c.disabled).forEach(async (c: Command) => {
-      if (!c.type) {
+      switch (c.type) {
+
+      case Constants.ApplicationCommandTypes.USER:
+      case Constants.ApplicationCommandTypes.MESSAGE: {
+        const command: CreateApplicationCommandOptions = {
+          name: c.commands[0],
+          type: c.type
+        };
+
+        GlobalApplicationCommands.push(command);
+        break;
+      }
+      case Constants.ApplicationCommandTypes.CHAT_INPUT: {
         const command: CreateChatInputApplicationCommandOptions = {
           name: c.commands[0],
-          description: c.description,
-          type: Constants.ApplicationCommandTypes.CHAT_INPUT
+          description: c.description || "No description provided.",
+          type: c.type,
         };
-    
+
         if (c.options) command.options = c.options;
-  
+
         if (c.guildSpecific && c.guildSpecific.length)
           for (const guild of c.guildSpecific) {
             const guildCommand = GuildSpecificCommands.find((gc) => gc.id === guild);
-  
+
             if (!guildCommand)
               GuildSpecificCommands.push({ id: guild, commands: [command] });
             else guildCommand.commands.push(command);
           }
         else
           GlobalApplicationCommands.push(command);
-      }
-      else if (c.type === Constants.ApplicationCommandTypes.MESSAGE || c.type === Constants.ApplicationCommandTypes.USER) {
-        const obj: CreateApplicationCommandOptions = {
-          name: c.commands[0],
-          type: c.type
-        };
-        GlobalApplicationCommands.push(obj);
-      }
 
+        break;
+      }
+      }
     });
 
     try {
@@ -190,14 +197,14 @@ export default class ExtendedClient extends Olive {
             await this.application.bulkEditGuildCommands(guild.id, guild.commands);
           }
           catch (e) {
-            continue;
+            throw new Error(`Failed to bulk edit guild commands for guild ${guild.id}: ${e}`);
           }
         }
       }
 
       this.constants.utils.log("Main", `${GlobalApplicationCommands.length} global commands loaded.`);
     } catch (e) {
-      throw console.error(e);
+      throw new Error(`Failed to reload application commands: ${e}`);
     }
   };
 

@@ -6,13 +6,14 @@ import { RolesModuleData } from "../../../../Database/interfaces/RolesModuleData
 
 export default class Autorole extends Command {
 
+  public type = Constants.ApplicationCommandTypes.CHAT_INPUT;
+
   constructor(bot: ExtendedClient) {
 
     super(bot);
 
     this.commands = ["autorole"];
     this.description = "Manage auto roles for members joining the server.";
-    this.type = Constants.ApplicationCommandTypes.CHAT_INPUT;
     this.example = "autorole list";
     this.permissions = ["roles.autorole.edit", "roles.autorole.view"];
     this.options = [

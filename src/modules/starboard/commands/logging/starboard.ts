@@ -6,13 +6,14 @@ import { StarboardModuleData } from "../../../../Database/interfaces/StarboardMo
 
 export default class Starboard extends Command {
 
+  public type = Constants.ApplicationCommandTypes.CHAT_INPUT;
+
   constructor(bot: ExtendedClient) {
 
     super(bot);
 
     this.commands = ["starboard"];
     this.description = "View Starboard Data for a user";
-    this.type = Constants.ApplicationCommandTypes.CHAT_INPUT;
     this.example = "starboard view @user";
     this.options = [
       {

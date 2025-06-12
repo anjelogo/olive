@@ -6,12 +6,13 @@ import Voicechannel from "./voicechannel";
 
 export default class VoicechannelContext extends Command {
   
+  public type = Constants.ApplicationCommandTypes.USER;
+
   constructor(bot: ExtendedClient) {
     super(bot);
 
     this.commands = ["Set Voice Channel Owner"];
     this.permissions = ["vc.edit.owner"];
-    this.type = Constants.ApplicationCommandTypes.USER;
   }
 
   public execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {

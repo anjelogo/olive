@@ -5,13 +5,14 @@ import Command from "../../../../Base/Command";
 
 export default class Emoji extends Command {
 
+  public type = Constants.ApplicationCommandTypes.CHAT_INPUT;
+
   constructor(bot: ExtendedClient) {
 
     super(bot);
 
     this.commands = ["emoji"];
     this.description = "Copy an emoji and save it in the server";
-    this.type = Constants.ApplicationCommandTypes.CHAT_INPUT;
     this.example = "emoji copy <emoji>";
     this.options = [
       {

@@ -5,13 +5,14 @@ import ExtendedClient from "../../../../Base/Client";
 
 export default class Eval extends Command {
   
+  public type = Constants.ApplicationCommandTypes.CHAT_INPUT;
+
   constructor(bot: ExtendedClient) {
 
     super(bot);
 
     this.disabled = false;
     this.commands = ["eval"];
-    this.type = Constants.ApplicationCommandTypes.CHAT_INPUT;
     this.example = "eval 2+2";
     this.devOnly = true;
     this.options = [

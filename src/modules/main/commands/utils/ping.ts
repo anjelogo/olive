@@ -5,13 +5,14 @@ import ExtendedClient from "../../../../Base/Client";
 
 export default class Ping extends Command {
   
+  public type = Constants.ApplicationCommandTypes.CHAT_INPUT;
+
   constructor(bot: ExtendedClient) {
 
     super(bot);
 
     this.commands = ["ping"];
     this.description = "Check the bot's latency against Discord's API.";
-    this.type = Constants.ApplicationCommandTypes.CHAT_INPUT;
     this.example = "ping";
     this.permissions = ["main.ping"];
     this.tags = ["information"];

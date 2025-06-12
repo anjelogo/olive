@@ -6,12 +6,13 @@ import Permnode from "./permnode";
 
 export default class PermnodeContext extends Command {
   
+  public type = Constants.ApplicationCommandTypes.USER;
+
   constructor(bot: ExtendedClient) {
     super(bot);
 
     this.commands = ["View User's Permission nodes"];
     this.permissions = ["main.permnode.view"];
-    this.type = Constants.ApplicationCommandTypes.USER;
   }
 
   public execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {

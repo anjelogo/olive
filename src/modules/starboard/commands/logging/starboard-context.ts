@@ -4,13 +4,15 @@ import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import Starboard from "./starboard";
 
-export default class StarboardContext extends Command { 
+export default class StarboardContext extends Command {
+  
+  public type = Constants.ApplicationCommandTypes.USER;
+
   constructor(bot: ExtendedClient) {
     super(bot);
 
     this.commands = ["View Stars"];
     this.permissions = ["starboard.view"];
-    this.type = Constants.ApplicationCommandTypes.USER;
   }
 
   public execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {

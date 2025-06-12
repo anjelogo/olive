@@ -5,6 +5,8 @@ import ExtendedClient from "../../../../Base/Client";
 import { isPunishable } from "../../internals/punishmentHandler";
 
 export default class WarnContext extends Command {
+
+  public type = Constants.ApplicationCommandTypes.USER;
     
   constructor(bot: ExtendedClient) {
     super(bot);
@@ -12,7 +14,6 @@ export default class WarnContext extends Command {
     this.commands = ["Warn User"];
     this.permissions = ["moderation.punish.warn", "moderation.punish.*"];
     this.noDefer = true;
-    this.type = Constants.ApplicationCommandTypes.USER;
   }
 
   public execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | InteractionCallbackResponse<AnyInteractionChannel | Uncached> | void> => {

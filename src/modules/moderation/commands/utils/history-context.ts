@@ -6,13 +6,14 @@ import History from "./history";
 
 export default class HistoryContext extends Command {
     
+  public type = Constants.ApplicationCommandTypes.USER;
+
   constructor(bot: ExtendedClient) {
     super(bot);
 
     this.commands = ["View History"];
     this.permissions = ["moderation.history.view", "moderation.history.*"];
     this.example = null;
-    this.type = Constants.ApplicationCommandTypes.USER;
   }
 
   public execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {

@@ -8,13 +8,14 @@ import Main from "../../main";
 
 export default class Help extends Command {
   
+  public type = Constants.ApplicationCommandTypes.CHAT_INPUT;
+
   constructor(bot: ExtendedClient) {
 
     super(bot);
 
     this.commands = ["help"];
     this.description = "View information about the bot";
-    this.type = Constants.ApplicationCommandTypes.CHAT_INPUT;
     this.example = "help";
     this.permissions = ["main.help"];
     this.tags = ["information"];

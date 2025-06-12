@@ -6,12 +6,13 @@ import Avatar from "./avatar";
 
 export default class AvatarContext extends Command {
   
+  public type = Constants.ApplicationCommandTypes.USER;
+
   constructor(bot: ExtendedClient) {
     super(bot);
 
     this.commands = ["View Avatar"];
     this.permissions = ["main.avatar"];
-    this.type = Constants.ApplicationCommandTypes.USER;
   }
 
   public execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {

@@ -21,13 +21,14 @@ interface CustomDataStructure {
 
 export default class Reactionrole extends Command {
 
+  public type = Constants.ApplicationCommandTypes.CHAT_INPUT;
+
   constructor(bot: ExtendedClient) {
 
     super(bot);
 
     this.commands = ["reactionrole"];
     this.description = "Manage Reaction Roles, which allow users to assign roles to themselves by reacting to messages.";
-    this.type = Constants.ApplicationCommandTypes.CHAT_INPUT;
     this.example = "reactionrole modify 867761105245831188";
     this.options = [
       {

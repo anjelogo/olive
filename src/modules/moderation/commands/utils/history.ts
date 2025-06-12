@@ -6,6 +6,8 @@ import { getCases, removeCase } from "../../internals/caseHandler";
 
 export default class History extends Command {
 
+  public type = Constants.ApplicationCommandTypes.CHAT_INPUT;
+
   constructor(bot: ExtendedClient) {
 
     super(bot);

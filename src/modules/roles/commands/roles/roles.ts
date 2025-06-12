@@ -7,13 +7,14 @@ import { RolesModuleData } from "../../../../Database/interfaces/RolesModuleData
 
 export default class Roles extends Command {
 
+  public type = Constants.ApplicationCommandTypes.CHAT_INPUT;
+
   constructor(bot: ExtendedClient) {
 
     super(bot);
 
     this.commands = ["roles"];
     this.description = "Add or remove roles from the roles list, or add/remove roles for yourself.";
-    this.type = Constants.ApplicationCommandTypes.CHAT_INPUT;
     this.example = "role add";
     this.options = [
       {

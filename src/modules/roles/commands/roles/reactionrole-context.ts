@@ -5,12 +5,14 @@ import ExtendedClient from "../../../../Base/Client";
 import Reactionrole from "./reactionrole";
 
 export default class ReactionroleContext extends Command {
+
+  public type = Constants.ApplicationCommandTypes.MESSAGE;
+
   constructor(bot: ExtendedClient) {
     super(bot);
 
     this.commands = ["Create/Edit Reaction Role"];
     this.permissions = ["roles.reaction.modify"];
-    this.type = Constants.ApplicationCommandTypes.MESSAGE;
   }
 
   public execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {

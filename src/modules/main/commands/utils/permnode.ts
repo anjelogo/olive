@@ -8,13 +8,14 @@ import { MainModuleData } from "../../../../Database/interfaces/MainModuleData";
 
 export default class Permnode extends Command {
   
+  public type = Constants.ApplicationCommandTypes.CHAT_INPUT;
+
   constructor(bot: ExtendedClient) {
 
     super(bot);
 
     this.commands = ["permnode", "permnodes", "permissions", "permission", "perms", "perm"];
     this.description = "Edit permissions for users/roles in the server using permissions nodes (permnodes).";
-    this.type = Constants.ApplicationCommandTypes.CHAT_INPUT;
     this.example = "permnode set user abdoul permnode.view true";
     this.permissions = ["main.permnode.view"];
 

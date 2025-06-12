@@ -9,9 +9,9 @@ export type Options =  ApplicationCommandOptions & {
   options?: Options[];
 }
 
-export default class Command {
+export default abstract class Command {
 
-  public type: ApplicationCommandTypes;
+  public abstract type: ApplicationCommandTypes;
   public disabled = false;
   public commands: string[];
   public description: string;
@@ -32,7 +32,6 @@ export default class Command {
   public tags?: string[];
 
   constructor(bot: ExtendedClient) {
-    this.type = Constants.ApplicationCommandTypes.CHAT_INPUT;
     this.commands = [];
     this.description = "No Description Available";
     this.example = "No Example Available";

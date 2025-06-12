@@ -12,13 +12,14 @@ export interface CustomDataStructure {
 
 export default class Log extends Command {
 
+  public type = Constants.ApplicationCommandTypes.CHAT_INPUT;
+
   constructor(bot: ExtendedClient) {
 
     super(bot);
 
     this.commands = ["log"];
     this.description = "Create log channels";
-    this.type = Constants.ApplicationCommandTypes.CHAT_INPUT;
     this.example = "log create";
     this.options = [
       {

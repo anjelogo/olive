@@ -4,14 +4,15 @@ import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 
 export default class Avatar extends Command {
-  
+
+  public type = Constants.ApplicationCommandTypes.CHAT_INPUT;
+
   constructor(bot: ExtendedClient) {
 
     super(bot);
 
     this.commands = ["avatar"];
     this.description = "Get the avatar of a user";
-    this.type = Constants.ApplicationCommandTypes.CHAT_INPUT;
     this.example = "avatar @anjelo";
     this.permissions = ["main.avatar"];
     this.options = [

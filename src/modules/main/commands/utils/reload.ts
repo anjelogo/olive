@@ -5,13 +5,14 @@ import ExtendedClient from "../../../../Base/Client";
 
 export default class Reload extends Command {
   
+  public type = Constants.ApplicationCommandTypes.CHAT_INPUT;
+
   constructor(bot: ExtendedClient) {
 
     super(bot);
 
     this.disabled = false;
     this.commands = ["reload"];
-    this.type = Constants.ApplicationCommandTypes.CHAT_INPUT;
     this.description = "Reload application commands";
     this.example = "eval";
     this.devOnly = true;

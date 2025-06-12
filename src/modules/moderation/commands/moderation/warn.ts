@@ -8,6 +8,8 @@ import { Case } from "../../../../Database/interfaces/ModerationModuleData";
 
 export default class Warn extends Command {
 
+  public type = Constants.ApplicationCommandTypes.CHAT_INPUT;
+
   constructor(bot: ExtendedClient) {
 
     super(bot);
@@ -15,7 +17,6 @@ export default class Warn extends Command {
     this.commands = ["warn"];
     this.example = "warn @user being very mean";
     this.description = "Warns a user from the server";
-    this.type = Constants.ApplicationCommandTypes.CHAT_INPUT;
     this.permissions = ["moderation.punish.warn", "moderation.punish.*"];
     this.options = [
       {

@@ -8,13 +8,14 @@ import { Case } from "../../../../Database/interfaces/ModerationModuleData";
 
 export default class Kick extends Command {
 
+  public type = Constants.ApplicationCommandTypes.CHAT_INPUT;
+
   constructor(bot: ExtendedClient) {
 
     super(bot);
 
     this.commands = ["kick"];
     this.example = "kick @user being very mean";
-    this.type = Constants.ApplicationCommandTypes.CHAT_INPUT;
     this.description = "Kicks a user from the server";
     this.permissions = ["moderation.punish.kick", "moderation.punish.*"];
     this.options = [
