@@ -12,6 +12,10 @@ export default [
     description: "Grants access to the Ping Command",
     default: true
   }, {
+    name: "main.avatar",
+    description: "Grants access to the Avatar Command",
+    default: true
+  }, {
     name: "main.help",
     description: "Grants access to the Help Command",
     default: true
