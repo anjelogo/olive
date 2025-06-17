@@ -123,7 +123,7 @@ export default class Checks {
 
     return `${deletedGuilds} Guilds Deleted. ${deletedChannels} Channels Deleted. ${createdChannels} Channels Created. ${failed} Failed Operations.`;
 
-  }
+  };
 
   
   readonly checkVersion = async (newVersion: string): Promise<string> => {
@@ -163,6 +163,6 @@ export default class Checks {
     await Promise.all(promises);
 
     return `${promises.length} Guild(s) Versions Migrated.`;
-  }
+  };
 
 }

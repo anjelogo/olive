@@ -294,7 +294,7 @@ export default class Roles extends Command {
 
     }
 
-  }
+  };
 
   readonly update = async (component: ComponentInteraction): Promise<Message | void> => {
 
@@ -411,6 +411,6 @@ export default class Roles extends Command {
 
     }
 
-  }
+  };
 
 }

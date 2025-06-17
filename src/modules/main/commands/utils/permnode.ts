@@ -368,7 +368,7 @@ export default class Permnode extends Command {
     }
 
     }
-  }
+  };
 
   readonly update = async (component: ComponentInteraction): Promise<Message | void> => {
 
@@ -527,6 +527,6 @@ export default class Permnode extends Command {
 
     }
 
-  }
+  };
 
 }

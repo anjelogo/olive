@@ -136,6 +136,6 @@ export default class History extends Command {
       });
     }
     }
-  }
+  };
 
 }

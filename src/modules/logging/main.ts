@@ -67,5 +67,5 @@ export default class Logging extends Module {
 
       }
     }
-  }
+  };
 }

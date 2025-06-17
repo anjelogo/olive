@@ -152,6 +152,6 @@ export default class Autorole extends Command {
 
     }
 
-  }
+  };
 
 }

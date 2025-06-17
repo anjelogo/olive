@@ -94,7 +94,7 @@ export default class Reactionrole extends Command {
     }
   
     return [...new Set(roles)];
-  }
+  };
 
   private createContainer = (bot: ExtendedClient, interaction: (CommandInteraction | ComponentInteraction), actionRow: MessageActionRow[]) => {
     const interactionID = interaction instanceof CommandInteraction ? interaction.id : interaction.message.interactionMetadata?.id;
@@ -120,7 +120,7 @@ export default class Reactionrole extends Command {
       };
 
     return container;
-  }
+  };
 
   private actionRow = async (bot: ExtendedClient, interaction: (CommandInteraction | ComponentInteraction)):
   Promise<
@@ -260,7 +260,7 @@ export default class Reactionrole extends Command {
         }
       ]
     };
-  }
+  };
 
   readonly execute = async (interaction: (CommandInteraction)): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
     const guild = this.bot.findGuild(interaction.guildID) as Guild,
@@ -311,7 +311,7 @@ export default class Reactionrole extends Command {
       components: [(this.createContainer(this.bot, interaction, (await this.actionRow(this.bot, interaction)).home))],
       flags: Constants.MessageFlags.IS_COMPONENTS_V2
     });
-  }
+  };
 
   readonly update = async (component: ComponentInteraction): Promise<Message | void> => {
 
@@ -480,5 +480,5 @@ export default class Reactionrole extends Command {
 
     }
 
-  }
+  };
 }

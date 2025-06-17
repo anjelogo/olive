@@ -155,6 +155,6 @@ export default class Case extends Command {
 
     }
 
-  }
+  };
 
 }

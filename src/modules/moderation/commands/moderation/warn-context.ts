@@ -45,5 +45,5 @@ export default class WarnContext extends Command {
         },
       ],
     });
-  }
+  };
 }

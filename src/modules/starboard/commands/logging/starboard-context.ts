@@ -37,5 +37,5 @@ export default class StarboardContext extends Command {
     );
 
     return await new Starboard(this.bot).execute(interaction);
-  }
+  };
 }

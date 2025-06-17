@@ -43,7 +43,7 @@ export default class Log extends Command {
     const customData = getCustomData(bot, interaction instanceof CommandInteraction ? interaction.id : interaction.message.interactionMetadata?.id as string)?.data as CustomDataStructure;
 
     return this.validTypes.filter(t => !customData.types.includes(t));
-  }
+  };
 
   private createContainer = (bot: ExtendedClient, interaction: (CommandInteraction | ComponentInteraction), actionRow: MessageActionRow[]) => {
     const interactionID = interaction instanceof CommandInteraction ? interaction.id : interaction.message.interactionMetadata?.id;
@@ -67,7 +67,7 @@ export default class Log extends Command {
       };
 
     return container;
-  }
+  };
 
   private actionRow = async (bot: ExtendedClient, interaction: (CommandInteraction | ComponentInteraction)):
   Promise<
@@ -172,7 +172,7 @@ export default class Log extends Command {
         }
       ]
     };
-  }
+  };
 
   readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
 
@@ -224,7 +224,7 @@ export default class Log extends Command {
     
     }
 
-  }
+  };
 
   readonly update = async (component: ComponentInteraction): Promise<Message | void> => {
     
@@ -326,6 +326,6 @@ export default class Log extends Command {
 
     }
 
-  }
+  };
 
 }

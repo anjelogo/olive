@@ -82,6 +82,6 @@ export default class Kick extends Command {
     return interaction.createFollowup({
       content: `${this.bot.constants.emojis.tick} Kicked <@${memberToKick.id}> for \`${reason}\``
     });
-  }
+  };
 
 }

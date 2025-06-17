@@ -39,5 +39,5 @@ export default class HistoryContext extends Command {
 
     await new History(this.bot).execute(interaction);
     return;
-  }
+  };
 }

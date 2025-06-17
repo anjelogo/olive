@@ -52,7 +52,7 @@ export default class Warn extends Command {
       content: `${this.bot.constants.emojis.tick} Warned <@${memberToWarn.id}> for \`${reason}\``
     });
 
-  }
+  };
 
   readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
     const guild = this.bot.findGuild(interaction.guildID) as Guild,
@@ -87,7 +87,7 @@ export default class Warn extends Command {
 
     //punish user using the punish function in ../../internals/punishmentHandler.ts
     this.punishUser(interaction, memberToWarn, moderator, guild, reason);
-  }
+  };
 
   readonly modalSubmit = async (modal: ModalSubmitInteraction<AnyInteractionChannel | Uncached>): Promise<void> => {
     modal.defer(Constants.MessageFlags.EPHEMERAL);
@@ -124,5 +124,5 @@ export default class Warn extends Command {
     }
     this.punishUser(modal, memberToWarn, moderator, guild, reason); 
     
-  }
+  };
 }

@@ -327,7 +327,7 @@ export default class Voicechannel extends Command {
 
     }
 
-  }
+  };
 
   readonly update = async (component: ComponentInteraction): Promise<FollowupMessageInteractionResponse<ComponentInteraction> | void> => {
     
@@ -358,7 +358,7 @@ export default class Voicechannel extends Command {
     }
 
     }
-  }
+  };
 
   readonly modalSubmit = async (modal: ModalSubmitInteraction<AnyInteractionChannel | Uncached>): Promise<void> => {
     modal.defer(Constants.MessageFlags.EPHEMERAL);
@@ -382,5 +382,5 @@ export default class Voicechannel extends Command {
       break;
     }
     }
-  }
+  };
 }

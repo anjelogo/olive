@@ -134,7 +134,7 @@ export default class Checks {
 
     return `${deletedGuilds} Guild(s) Deleted. ${deletedChannels} Channel(s) Deleted. ${deletedCases} Case(s) Deleted. ${deletedStars} Star(s) Deleted. ${failed} Failed Operation(s).`;
 
-  }
+  };
   
   readonly checkVersion = async (newVersion: string): Promise<string> => {
     const data = await this.bot.getAllData("Logging") as LoggingModuleData[];
@@ -172,6 +172,6 @@ export default class Checks {
     await Promise.all(promises);
 
     return `${promises.length} Guild(s) Versions Migrated.`;
-  }
+  };
 
 }

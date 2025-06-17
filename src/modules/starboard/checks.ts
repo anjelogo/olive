@@ -6,7 +6,7 @@ import Starboard from "./main";
 export default class Checks {
 
   readonly bot: ExtendedClient;
-  readonly module: Starboard
+  readonly module: Starboard;
 
   constructor(bot: ExtendedClient, Module: Starboard) {
     this.bot = bot;
@@ -77,9 +77,9 @@ export default class Checks {
     return `${deletedGuilds} Guild(s) Deleted. ${deletedStars} Star(s) Deleted. ${failed} Failed Operation(s).`;
 
 
-  }
+  };
 
   readonly checkVersion = async (): Promise<string> => {
     return "0 Guild(s) Versions Migrated.";
-  }
+  };
 }

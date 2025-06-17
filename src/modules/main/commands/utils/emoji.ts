@@ -83,6 +83,6 @@ export default class Emoji extends Command {
         }
       ]
     });
-  }
+  };
 
 }

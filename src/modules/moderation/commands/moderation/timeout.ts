@@ -92,6 +92,6 @@ export default class Timeout extends Command {
     return interaction.createFollowup({
       content: `${this.bot.constants.emojis.tick} Placed <@${memberToTimeOut.id}> on Time Out for \`${reason}\``
     });
-  }
+  };
 
 }

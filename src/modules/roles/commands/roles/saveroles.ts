@@ -31,6 +31,6 @@ export default class Saveroles extends Command {
       content: `${this.bot.constants.emojis.tick} Role Saving has been ${savedRoles.enabled ? "enabled" : "disabled"}`,
       flags: Constants.MessageFlags.EPHEMERAL
     });
-  }
+  };
 
 }

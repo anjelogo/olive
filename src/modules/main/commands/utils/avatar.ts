@@ -51,6 +51,6 @@ export default class Avatar extends Command {
       ],
       flags: Constants.MessageFlags.IS_COMPONENTS_V2
     });
-  }
+  };
 
 }
