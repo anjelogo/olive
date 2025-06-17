@@ -47,7 +47,7 @@ export default class Reload extends Command {
       ],
       flags: Constants.MessageFlags.IS_COMPONENTS_V2
     });
-  }
+  };
 
 readonly update = async (component: ComponentInteraction): Promise<Message | void> => {
           
@@ -89,6 +89,6 @@ readonly update = async (component: ComponentInteraction): Promise<Message | voi
 
   }
 
-}
+};
 
 }

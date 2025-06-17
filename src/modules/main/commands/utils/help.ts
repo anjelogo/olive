@@ -37,7 +37,7 @@ export default class Help extends Command {
       ]
     };
     return container;
-  }
+  };
 
   private actionRow = async (bot: ExtendedClient, interaction: (CommandInteraction | ComponentInteraction)):
   Promise<{
@@ -159,7 +159,7 @@ export default class Help extends Command {
       flags: Constants.MessageFlags.IS_COMPONENTS_V2
     });
 
-  }
+  };
 
   readonly update = async (component: ComponentInteraction): Promise<Message | void> => {
 
@@ -420,4 +420,4 @@ export default class Help extends Command {
       );
     }
     }
-  }}
+  };}

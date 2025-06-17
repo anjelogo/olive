@@ -20,7 +20,7 @@ interface ExtendedOptions extends ClientOptions {
 export default class Olive extends Client {
 
   readonly name: string;
-  readonly perms: Permnodes[]
+  readonly perms: Permnodes[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   readonly events: any[];
   readonly constants: CustomConstants;

@@ -38,5 +38,5 @@ export default class PermnodeContext extends Command {
 
     await new Permnode(this.bot).execute(interaction);
     return;
-  }
+  };
 }

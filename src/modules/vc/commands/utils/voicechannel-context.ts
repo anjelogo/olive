@@ -38,5 +38,5 @@ export default class VoicechannelContext extends Command {
 
     await new Voicechannel(this.bot).execute(interaction);
     return;
-  }
+  };
 }

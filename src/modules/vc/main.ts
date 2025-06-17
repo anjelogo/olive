@@ -26,6 +26,6 @@ export default class VC extends Module {
       category: "Join to create a channel",
       channel: "{user}'s channel"
     }
-  }
+  };
 
 }

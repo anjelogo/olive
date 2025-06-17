@@ -63,5 +63,5 @@ export default class Starboard extends Command {
       });
     }
     }
-  }
+  };
 }

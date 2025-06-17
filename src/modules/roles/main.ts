@@ -34,7 +34,7 @@ export default class Roles extends Module {
     if (!messages.length) return;
 
     return messages.find((m) => m.id === id);
-  }
+  };
 
   readonly moduleData = {
     version: this.version,
@@ -46,6 +46,6 @@ export default class Roles extends Module {
       enabled: false,
       roles: []
     }
-  }
+  };
 
 }

@@ -86,6 +86,6 @@ export default class Eval extends Command {
         flags: Constants.MessageFlags.IS_COMPONENTS_V2
       });
     }
-  }
+  };
 
 }

@@ -38,5 +38,5 @@ export default class ReactionroleContext extends Command {
 
     await new Reactionrole(this.bot).execute(interaction);
     return;
-  }
+  };
 }

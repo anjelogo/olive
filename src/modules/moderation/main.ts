@@ -29,6 +29,6 @@ export default class Moderation extends Module {
       infractionUntilKick: 6,
       infractionUntilTimeout: 3
     }
-  }
+  };
 
 }

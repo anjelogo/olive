@@ -31,12 +31,12 @@ export default class Starboard extends Module {
     if (!messages.length) return;
 
     return messages.find((m) => m.messageID === id);
-  }
+  };
 
   readonly moduleData = {
     version: this.version,
     guildID: "",
     messages: []
-  }
+  };
 
 }

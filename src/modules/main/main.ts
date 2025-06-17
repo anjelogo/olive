@@ -62,7 +62,7 @@ export default class Main extends Module {
     }
 
     return perms;
-  }
+  };
 
   readonly hasPerm = async (user: User | Member | null, perm: string, guildID?: string): Promise<boolean> => {
     if (!user || !perm) return false;
@@ -92,7 +92,7 @@ export default class Main extends Module {
     const perms = [...new Set(await this.getPerms(member as Member))];
 
     return [masterPerm, perm, "*"].some(p => perms.includes(p));
-  }
+  };
 
   public handlePermission = async (member: Member, permission: string[] | string, interaction?: CommandInteraction): Promise<boolean> => {
     if (typeof permission === "string") permission = [permission];
@@ -165,13 +165,13 @@ export default class Main extends Module {
       return false;
     }
     else return true;
-  }
+  };
 
   readonly moduleData = {
     version: this.version,
     guildID: this.bot.constants.config.guildID,
     permissions: [],
     disabledModules: []
-  }
+  };
 
 }

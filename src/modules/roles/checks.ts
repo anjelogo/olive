@@ -6,7 +6,7 @@ import Roles from "./main";
 export default class Checks {
 
   readonly bot: ExtendedClient;
-  readonly module: Roles
+  readonly module: Roles;
 
   constructor(bot: ExtendedClient, Module: Roles) {
     this.bot = bot;
@@ -191,7 +191,7 @@ export default class Checks {
 
     return `${deletedGuilds} Guilds Deleted. ${deletedMessages} Messages Deleted. ${deletedRoles} Roles Deleted. ${failed} Failed Operations.`;
 
-  }
+  };
 
   readonly checkVersion = async (newVersion: string): Promise<string> => {
     const data = await this.bot.getAllData("Roles") as RolesModuleData[];
@@ -237,6 +237,6 @@ export default class Checks {
     await Promise.all(promises);
 
     return `${promises.length} Guild(s) Versions Migrated.`;
-  }
+  };
 
 }

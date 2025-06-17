@@ -22,7 +22,7 @@ export default class ExtendedClient extends Olive {
         );
     else if (this.users.find((u: User) => u.username.toLowerCase() === query.toLowerCase()))
       return this.users.find((u: User) => u.username.toLowerCase() === query.toLowerCase());
-  }
+  };
 
   readonly findGuild = (query: string | undefined | null): Guild | undefined => {
     if (!query) return;
@@ -31,7 +31,7 @@ export default class ExtendedClient extends Olive {
       return this.guilds.get(query);
     else if (this.guilds.find((g: Guild) => g.name.toLowerCase() === query.toLowerCase()))
       return this.guilds.find((g: Guild) => g.name.toLowerCase() === query.toLowerCase());
-  }
+  };
 
   readonly findMember = (guild: Guild, query: string | undefined): Member | undefined => {
     if (!query || !guild) return;
@@ -48,7 +48,7 @@ export default class ExtendedClient extends Olive {
         );
     else if (guild.members.find((m: Member) => m.username.toLowerCase() === query.toLowerCase()))
       return guild.members.find((m: Member) => m.username.toLowerCase() === query.toLowerCase());
-  }
+  };
 
   readonly findChannel = (guild: Guild, query: string | undefined): GuildChannel | undefined => {
     if (!query || !guild) return;
@@ -59,7 +59,7 @@ export default class ExtendedClient extends Olive {
       return guild.channels.get((query.match(/\d+/) as RegExpMatchArray)[0]);
     else if (guild.channels.find((c: GuildChannel) => c.name.toLowerCase() === query.toLowerCase()))
       return guild.channels.find((c: GuildChannel) => c.name.toLowerCase() === query.toLowerCase());
-  }
+  };
 
   readonly findRole = (guild: Guild, query: string | undefined): Role | undefined => {
     if (!query || !guild) return;
@@ -70,7 +70,7 @@ export default class ExtendedClient extends Olive {
       return guild.roles.get((query.match(/\d+/) as RegExpMatchArray)[0]);
     else if (guild.roles.find((r: Role) => r.name.toLowerCase() === query.toLowerCase()))
       return guild.roles.find((r: Role) => r.name.toLowerCase() === query.toLowerCase());
-  }
+  };
 
   readonly findMessage = (channel: TextChannel, query: string | undefined): Message | undefined => {
     if (!query || !channel) return;
@@ -79,7 +79,7 @@ export default class ExtendedClient extends Olive {
       return channel.messages.get(query);
     else if (channel.messages.find((m: Message) => m.content.toLowerCase() === query.toLowerCase()))
       return channel.messages.find((m: Message) => m.content.toLowerCase() === query.toLowerCase());
-  }
+  };
 
   readonly findEntity = (guild: Guild, query: string | undefined): Entity | undefined => {
     if (!query || !guild) return;
@@ -98,7 +98,7 @@ export default class ExtendedClient extends Olive {
     }
 
     return (obj.type === "undefined") ? undefined : obj;
-  }
+  };
 
   public getModule<K extends keyof ModuleMap>(name: K): ModuleMap[K] {
     const Module = this.modules.find((m) => m.name === name);

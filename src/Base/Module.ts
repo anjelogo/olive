@@ -56,7 +56,7 @@ export default class Module {
     data = await this.bot.db.get(this.name).findOne({ guildID: guild.id });
 
     return data;
-  }
+  };
 
   public async init(): Promise<void> {
 

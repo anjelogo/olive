@@ -90,6 +90,6 @@ export default class Ban extends Command {
     return interaction.createFollowup({
       content: `${this.bot.constants.emojis.tick} Banned <@${memberToBan.username}> for \`${reason}\``
     });
-  }
+  };
 
 }
