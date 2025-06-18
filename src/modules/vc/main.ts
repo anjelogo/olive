@@ -15,6 +15,7 @@ export default class VC extends Module {
     this.version = "1.1";
     this.path = "modules/vc";
     this.db = true;
+    this.serviceEnabled = true;
 
   }
 
