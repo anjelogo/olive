@@ -1,4 +1,4 @@
-import { CommandInteraction, ComponentInteraction, Constants, ContainerComponent, Guild, Member, Message, MessageActionRow, Role } from "oceanic.js";
+import { AnyInteractionChannel, AutocompleteChoice, AutocompleteInteraction, CommandInteraction, ComponentInteraction, Constants, ContainerComponent, Guild, InteractionCallbackResponse, Member, Message, MessageActionRow, Role, Uncached } from "oceanic.js";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
@@ -16,7 +16,7 @@ export default class Permnode extends Command {
 
     this.commands = ["permnode", "permnodes", "permissions", "permission", "perms", "perm"];
     this.description = "Edit permissions for users/roles in the server using permissions nodes (permnodes).";
-    this.example = "permnode set user abdoul permnode.view true";
+    this.example = "permnode set user @anjelo permnode.view true";
     this.permissions = ["main.permnode.view"];
 
     this.options = [
@@ -36,6 +36,7 @@ export default class Permnode extends Command {
             description: "The permission you want to allow/deny",
             type: Constants.ApplicationCommandOptionTypes.STRING,
             required: true,
+            autocomplete: true,
           }, {
             name: "boolean",
             description: "Allow or deny the permission",
@@ -59,6 +60,7 @@ export default class Permnode extends Command {
             description: "The permission you want to remove",
             type: Constants.ApplicationCommandOptionTypes.STRING,
             required: true,
+            autocomplete: true,
           }
         ]
       }, {
@@ -369,6 +371,25 @@ export default class Permnode extends Command {
 
     }
   };
+
+  readonly autocomplete = async (interaction: AutocompleteInteraction<AnyInteractionChannel | Uncached>): Promise<Promise<InteractionCallbackResponse<AnyInteractionChannel | Uncached>> | void> => {
+
+    const subcommand = interaction.data.options.getSubCommand(true)[0];
+
+    if (!["edit", "remove"].includes(subcommand)) return;
+
+    const focused = interaction.data.options.getFocused(true),
+      options = this.bot.perms.filter((p) => p.name.toLowerCase().includes((focused.value as string).toLowerCase()));
+
+    if (!options.length) return;
+
+    const choices: AutocompleteChoice[] = options.map((p) => ({
+      name: `${p.name} - ${p.description}`,
+      value: p.name
+    }));
+
+    return await interaction.result(choices.length > 25 ? choices.slice(0, 25) : choices);
+  }
 
   readonly update = async (component: ComponentInteraction): Promise<Message | void> => {
 

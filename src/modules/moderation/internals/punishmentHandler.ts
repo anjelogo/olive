@@ -4,6 +4,7 @@ import { Case, CaseActionTypes, ModerationModuleData } from "../../../Database/i
 import ExtendedClient from "../../../Base/Client";
 import { addCase, getCases, resolveCase } from "./caseHandler";
 import { createLogEntry } from "./logHandler";
+import { durationToMS } from "./durationHandler";
 
 export async function punish(bot: ExtendedClient, guild: Guild, data: Case): Promise<void> {
   const action = {
@@ -37,7 +38,7 @@ export async function punish(bot: ExtendedClient, guild: Guild, data: Case): Pro
     switch (data.action) {
 
     case "timeout": {
-      const time = data.time ? new Date(data.time as string).toISOString()
+      const time = data.time ? new Date(Date.now() + (durationToMS(data.time) ?? 60_000)).toISOString()
           : new Date(Date.now() + 60 * 1000).toISOString(),
         member = bot.findMember(guild, user.id) as Member;
 

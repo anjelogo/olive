@@ -68,7 +68,7 @@ export default class VCService extends Service {
             });
           } catch (err) {
             res.status(500).json({
-              messsage: "Faiuled to retrieve default channel name",
+              messsage: "Failed to retrieve default channel name",
               error: err instanceof Error ? err.message : "Unknown error"
             });
           }

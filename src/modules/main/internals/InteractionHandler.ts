@@ -1,4 +1,4 @@
-import { CommandInteraction, ComponentInteraction, Constants, Embed, Member, Message, MessageFlags, ModalSubmitInteraction } from "oceanic.js";
+import { AutocompleteInteraction, CommandInteraction, ComponentInteraction, Constants, Embed, Member, Message, MessageFlags, ModalSubmitInteraction } from "oceanic.js";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import { Options } from "../../../Base/Command";
 import ExtendedClient from "../../../Base/Client";
@@ -144,6 +144,20 @@ export const updateHandler = async (bot: ExtendedClient, component: ComponentInt
     throw new Error(e as string);
   }
 
+};
+
+export const autoCompleteHandler = async (bot: ExtendedClient, interaction: AutocompleteInteraction) => {
+
+  const command = bot.commands.filter((c) => c.commands.includes(interaction.data.name))[0];
+  if (!command) return;
+
+  if (command.autocomplete) {
+    try {
+      await command.autocomplete(interaction);
+    } catch (e) {
+      throw new Error(e as string);
+    }
+  }
 };
 
 export const modalHandler = async (bot: ExtendedClient, modal: ModalSubmitInteraction, authorID: string): Promise<Message | void> => {

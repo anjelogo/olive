@@ -1,10 +1,11 @@
-import { CommandInteraction, Constants, Guild, Member } from "oceanic.js";
+import { AutocompleteChoice, AutocompleteInteraction, CommandInteraction, Constants, Guild, Member } from "oceanic.js";
 import uniqid from "uniqid";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import { autoCalculateInfractions, isPunishable, punish } from "../../internals/punishmentHandler";
 import { Case } from "../../../../Database/interfaces/ModerationModuleData";
+import { parseDuration, prettifyDuration, validateDuration } from "../../internals/durationHandler";
 
 export default class Timeout extends Command {
 
@@ -33,6 +34,7 @@ export default class Timeout extends Command {
         name: "time",
         description: "The duration of the timeout",
         required: false,
+        autocomplete: true,
         type: Constants.ApplicationCommandOptionTypes.STRING,
       }
     ];
@@ -70,9 +72,13 @@ export default class Timeout extends Command {
     let reason = interaction.data.options.getString("reason", false);
     if (!reason || reason.length < 1) reason = "No reason provided";
 
-    let time = interaction.data.options.getString("time", false);
+    const time = interaction.data.options.getString("time", false);
 
-    if (time) time = this.bot.constants.utils.convertFromUserTime(time).toString();
+    if (time && !validateDuration(parseDuration(time) as string)) {
+      return interaction.createFollowup({
+        content: `${this.bot.constants.emojis.x} Invalid time format! Please use a valid duration like \`5m\`, \`1h\`, \`7d\`, etc.`
+      });
+    }
 
     //punish user using the punish function in ../../internals/punishmentHandler.ts
     const caseData: Case = {
@@ -92,6 +98,58 @@ export default class Timeout extends Command {
     return interaction.createFollowup({
       content: `${this.bot.constants.emojis.tick} Placed <@${memberToTimeOut.id}> on Time Out for \`${reason}\``
     });
+  };
+
+  public autocomplete = async (
+    interaction: AutocompleteInteraction
+  ): Promise<void> => {
+    const focusedOption = interaction.data.options.getFocused(true);
+  
+    if (focusedOption.name !== "time") return;
+  
+    const input = focusedOption.value?.toString().trim().toLowerCase() || "";
+    const choices: AutocompleteChoice[] = [];
+  
+    // Case 1: No input → default suggestions
+    if (!input) {
+      const defaults = ["5m", "1h", "7d", "1mo"];
+      for (const val of defaults) {
+        const pretty = prettifyDuration(val);
+        if (pretty) {
+          choices.push({ name: `${val} (${pretty})`, value: val });
+        }
+      }
+      await interaction.result(choices);
+      return;
+    }
+  
+    // Case 2: Pure number (e.g. "30") → show options for all units
+    if (/^\d+$/.test(input)) {
+      for (const unit of ["s", "m", "h", "d"]) {
+        const value = `${input}${unit}`;
+        const pretty = prettifyDuration(value);
+        if (pretty) {
+          choices.push({ name: `${value} (${pretty})`, value });
+        }
+      }
+      await interaction.result(choices);
+      return;
+    }
+  
+    // Case 3: Valid full input → return specific result only
+    const parsed = parseDuration(input);
+    if (!parsed || !validateDuration(parsed)) {
+      await interaction.result([]);
+      return;
+    }
+  
+    const pretty = prettifyDuration(parsed);
+    if (pretty) {
+      choices.push({ name: `${parsed} (${pretty})`, value: parsed });
+      await interaction.result(choices);
+    } else {
+      await interaction.result([]);
+    }
   };
 
 }

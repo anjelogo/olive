@@ -3,6 +3,7 @@ import ExtendedClient from "../../../Base/Client";
 import Logging from "../../logging/main";
 import { LoggingModuleData } from "../../../Database/interfaces/LoggingModuleData";
 import { Case } from "../../../Database/interfaces/ModerationModuleData";
+import { prettifyDuration } from "./durationHandler";
 
 export async function createLogEntry(bot: ExtendedClient, guild: Guild, data: Case, partialUser?: Partial<User>) {
 
@@ -40,7 +41,7 @@ export async function createLogEntry(bot: ExtendedClient, guild: Guild, data: Ca
           content: "### Punishment Duration:"
         }, {
           type: Constants.ComponentTypes.TEXT_DISPLAY,
-          content: `${["ban", "timeout"].some((a) => a === data.action) ? (data.time ? `\`${bot.constants.utils.HMS(Number(data.time))}\`` : "Permanent") : "No Duration"}`
+          content: `${["ban", "timeout"].some((a) => a === data.action) ? (data.time ? `\`${prettifyDuration(data.time)}\`` : "Permanent") : "No Duration"}`
         }, {
           type: Constants.ComponentTypes.SEPARATOR,
           spacing: Constants.SeparatorSpacingSize.SMALL,
@@ -114,7 +115,7 @@ export async function updateLogEntry(bot: ExtendedClient, guild: Guild, data: Ca
                 content: "### Punishment Duration:"
               }, {
                 type: Constants.ComponentTypes.TEXT_DISPLAY,
-                content: `${["ban", "timeout"].some((a) => a === data.action) ? (data.time ? `\`${bot.constants.utils.HMS(Number(data.time))}\`` : "Permanent") : "No Duration"}`
+                content: `${["ban", "timeout"].some((a) => a === data.action) ? (data.time ? `\`${prettifyDuration(data.time)}\`` : "Permanent") : "No Duration"}`
               }, {
                 type: Constants.ComponentTypes.SEPARATOR,
                 spacing: Constants.SeparatorSpacingSize.SMALL,

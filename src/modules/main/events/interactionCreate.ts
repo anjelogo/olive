@@ -1,6 +1,6 @@
 import { AnyInteraction, Constants } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
-import { commandHandler, modalHandler, updateHandler } from "../internals/InteractionHandler";
+import { autoCompleteHandler, commandHandler, modalHandler, updateHandler } from "../internals/InteractionHandler";
 
 export const run = async (bot: ExtendedClient, interaction: AnyInteraction): Promise<void> => {
 
@@ -53,6 +53,15 @@ export const run = async (bot: ExtendedClient, interaction: AnyInteraction): Pro
     if (authorID) {
       await modalHandler(bot, interaction, authorID);
     }
+
+    break;
+  }
+
+  case Constants.InteractionTypes.APPLICATION_COMMAND_AUTOCOMPLETE: {
+
+    console.log(interaction.data.name, interaction.data.options);
+
+    await autoCompleteHandler(bot, interaction);
 
     break;
   }
