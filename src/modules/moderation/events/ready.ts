@@ -5,7 +5,7 @@ import { resolveCase } from "../internals/caseHandler";
 export const run = async (bot: ExtendedClient): Promise<void> => {
 
   // Auto resolve cases when the duration has passed
-  // 30 minute interval
+  // 2 minute interval
   setInterval(async () => {
     const data = await bot.getAllData("Moderation") as ModerationModuleData[];
     const promises = [];
@@ -26,7 +26,7 @@ export const run = async (bot: ExtendedClient): Promise<void> => {
     await Promise.all(promises).catch((e) => {
       bot.constants.utils.log("Moderation", `Error resolving cases: ${e.message}`);
     });
-  }, 30 * 60 * 1000);
+  }, 120000); // 2 minutes
 
   bot.constants.utils.log("Moderation", "Ready!");
 
