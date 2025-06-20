@@ -55,7 +55,7 @@ export default class Kick extends Command {
         content: `${this.bot.constants.emojis.x} I couldn't find that user!`
       });
 
-    if (!isPunishable(this.bot, moderator, memberToKick)) {
+    if (!(await isPunishable(this.bot, moderator, memberToKick))) {
       return interaction.createFollowup({
         content: `${this.bot.constants.emojis.x} I can't kick that user!`,
       });

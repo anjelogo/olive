@@ -203,9 +203,9 @@ export async function isPunishable(bot: ExtendedClient, moderator: Member, membe
       : [moderator.guild.id],
     memberToPunishHighestRole = bot.findRole(moderator.guild, memberToPunishHighestRoleID[0]) as Role;
 
-  if (moderator.guild.ownerID == memberToPunish.id)
-    return false;
   if (await bot.getModule("Main").hasPerm(moderator, "moderation.punish.exempt"))
+    return false;
+  if (moderator.guild.ownerID == memberToPunish.id)
     return false;
   if (memberToPunish.id === moderator.id)
     return false;

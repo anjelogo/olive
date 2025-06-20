@@ -62,7 +62,7 @@ export default class Ban extends Command {
         content: `${this.bot.constants.emojis.x} I couldn't find that user!`
       });
 
-    if (!isPunishable(this.bot, moderator, memberToBan)) {
+    if (!(await isPunishable(this.bot, moderator, memberToBan))) {
       return interaction.createFollowup({
         content: `${this.bot.constants.emojis.x} I can't ban that user!`,
       });
