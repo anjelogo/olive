@@ -76,6 +76,25 @@ export default class Permnode extends Command {
             required: true,
           }
         ]
+      }, {
+        name: "has",
+        description: "Check if a user/role has a permission",
+        permissions: ["main.permnode.has"],
+        type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
+        options: [
+          {
+            name: "entity",
+            description: "The user or role you want to check",
+            type: Constants.ApplicationCommandOptionTypes.MENTIONABLE,
+            required: true,
+          }, {
+            name: "permission",
+            description: "The permission you want to check",
+            type: Constants.ApplicationCommandOptionTypes.STRING,
+            required: true,
+            autocomplete: true,
+          }
+        ]
       }
     ];
   }
@@ -366,6 +385,42 @@ export default class Permnode extends Command {
         });
       }
       }
+      break;
+    }
+    case "has": {
+      const entity: Entity | undefined = this.bot.findEntity(guild, interaction.data.resolved.members.map((m) => m.id)[0] || interaction.data.resolved.roles.map((r) => r.id)[0]);
+      if (!entity) return interaction.createFollowup({content: "I could not find that entity!"});
+      const permnode = this.bot.perms.find((perm) => perm.name === interaction.data.options.getString("permission", true));
+      if (!permnode) return interaction.createFollowup({content: "I could not find that permnode!"});
+
+      switch (entity.type) {
+      case "member": {
+        if (!entity.member) return interaction.createFollowup({content: `${this.bot.constants.emojis.warning.red} An error occurred.`});
+        const member = entity.member as Member,
+          hasPerm = await this.bot.getModule("Main").hasPerm(member, permnode.name);
+
+        return interaction.createFollowup({
+          content: `${this.bot.constants.emojis.tick} User \`${member.username}\` ${hasPerm ? "has" : "does not have"} the permission \`${permnode.name}\`.`
+        });
+      }
+      case "role": {
+        if (!entity.role) return interaction.createFollowup({content: `${this.bot.constants.emojis.warning.red} An error occurred.`});
+        const role = entity.role as Role,
+          roleData = permissions.find((p) => p.roleID === role.id),
+          hasPerm = roleData ? roleData.permissions.some((p) => p.permission === permnode.name && p.value === true) : false;
+
+        return interaction.createFollowup({
+          content: `${this.bot.constants.emojis.tick} Role \`${role.name}\` ${hasPerm ? "has" : "does not have"} the permission \`${permnode.name}\`.`
+        });
+      }
+      default: {
+        console.log(interaction);
+        return interaction.createFollowup({
+          content: `${this.bot.constants.emojis.warning.red} This command is not available for this entity type.`,
+        });
+      }
+      }
+
       break;
     }
 
