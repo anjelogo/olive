@@ -79,7 +79,7 @@ export default class Permnode extends Command {
       }, {
         name: "has",
         description: "Check if a user/role has a permission",
-        permissions: ["main.permnode.has"],
+        permissions: ["main.permnode.view"],
         type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
         options: [
           {
