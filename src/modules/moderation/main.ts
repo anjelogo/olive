@@ -13,13 +13,14 @@ export default class Moderation extends Module {
     super(bot);
 
     this.name = "Moderation";
-    this.version = "1.1";
+    this.version = "1.2";
     this.path = "modules/moderation";
     this.db = true;
 
   }
 
   readonly moduleData: ModerationModuleData = {
+    enabled: true,
     version: this.version,
     guildID: "",
     cases: [],

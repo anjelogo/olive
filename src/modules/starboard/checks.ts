@@ -79,7 +79,36 @@ export default class Checks {
 
   };
 
-  readonly checkVersion = async (): Promise<string> => {
-    return "0 Guild(s) Versions Migrated.";
+  readonly checkVersion = async (newVersion: string): Promise<string> => {
+    const data = await this.bot.getAllData("Starboard") as StarboardModuleData[],
+      promises = [];
+
+    if (data.length) {
+      for (const guildData of data) {
+        if (guildData.version === this.module.version) continue;
+
+        switch (guildData.version) {
+
+        case undefined:
+        case "1.1": {
+          //Migrates from 1.0 to 1.1
+          if (guildData.version === newVersion) continue;
+      
+          const newDataStruct = {
+            ...guildData,
+            enabled: true,
+            version: newVersion
+          };
+      
+          promises.push(await this.bot.updateModuleData("Starboard", newDataStruct, guildData.guildID));
+          break;
+        }
+        }
+      }
+    }
+
+    await Promise.all(promises);
+
+    return `${promises.length} Guild(s) Versions Migrated.`;
   };
 }

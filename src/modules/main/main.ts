@@ -1,4 +1,4 @@
-import { CommandInteraction, Constants, Embed, Guild, Member, PrivateChannel, User } from "oceanic.js";
+import { CommandInteraction, Constants, Embed, Member, PrivateChannel, User } from "oceanic.js";
 import { Permnodes } from "../../resources/interfaces";
 import Module from "../../Base/Module";
 import ExtendedClient from "../../Base/Client";
@@ -22,7 +22,7 @@ export default class Main extends Module {
     super(bot);
 
     this.name = "Main";
-    this.version = "1.1";
+    this.version = "1.2";
     this.path = "modules/main";
     this.weight = 0; //Load this module before everything
     this.db = true; //Uses database
@@ -167,7 +167,8 @@ export default class Main extends Module {
     else return true;
   };
 
-  readonly moduleData = {
+  readonly moduleData: MainModuleData = {
+    enabled: true,
     version: this.version,
     guildID: this.bot.constants.config.guildID,
     permissions: [],

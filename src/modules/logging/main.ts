@@ -15,7 +15,7 @@ export default class Logging extends Module {
     super(bot);
 
     this.name = "Logging";
-    this.version = "1.1";
+    this.version = "1.2";
     this.path = "modules/logging";
     this.weight = 1;
     this.db = true;
@@ -67,5 +67,25 @@ export default class Logging extends Module {
 
       }
     }
+  };
+
+  readonly moduleData: LoggingModuleData = {
+    enabled: true,
+    version: this.version,
+    guildID: "",
+    channels: [] as {
+      types: LogChannelTypes[];
+      channelID: string;
+      cases?: {
+        channelID: string;
+        messageID: string;
+        caseID: string;
+      }[];
+      stars?: {
+        channelID: string;
+        messageID: string;
+        starID: string;
+      }[];
+    }[]
   };
 }

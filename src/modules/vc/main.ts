@@ -1,5 +1,6 @@
 import Module from "../../Base/Module";
 import ExtendedClient from "../../Base/Client";
+import { VCModuleData } from "../../Database/interfaces/VCModuleData";
 
 export default class VC extends Module {
 
@@ -12,14 +13,15 @@ export default class VC extends Module {
     super(bot);
 
     this.name = "VC";
-    this.version = "1.1";
+    this.version = "1.2";
     this.path = "modules/vc";
     this.db = true;
     this.serviceEnabled = true;
 
   }
 
-  readonly moduleData = {
+  readonly moduleData: VCModuleData = {
+    enabled: true,
     version: this.version,
     guildID: "",
     categories: [],

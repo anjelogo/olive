@@ -206,27 +206,32 @@ export default class Checks {
 
         case undefined:
         case "1.0": {
-          //Migrates from 1.0 to 1.1
+          //Migrates from 1.0 to 1.2
           if (guildData.version === newVersion) continue;
       
-          const oldDataStruct = {
-              guildID: guildData.guildID,
-              roles: guildData.roles,
-              autoRoles: guildData.autoRoles,
-              messages: guildData.messages
+          const newDataStruct = {
+            ...guildData,
+            enabled: true,
+            version: newVersion,
+            savedRoles: {
+              enabled: false,
+              roles: []
             },
-            newDataStruct = {
-              version: newVersion,
-              guildID: oldDataStruct.guildID,
-              roles: guildData.roles,
-              autoRoles: guildData.autoRoles,
-              messages: guildData.messages,
-              savedRoles: {
-                enabled: false,
-                roles: []
-              }
-            };
+          };
       
+          promises.push(await this.bot.updateModuleData("Roles", newDataStruct, guildData.guildID));
+          break;
+        }
+        case "1.1": {
+          //Migrates from 1.1 to 1.2
+          if (guildData.version === newVersion) continue;
+
+          const newDataStruct = {
+            ...guildData,
+            enabled: true,
+            version: newVersion
+          };
+
           promises.push(await this.bot.updateModuleData("Roles", newDataStruct, guildData.guildID));
           break;
         }

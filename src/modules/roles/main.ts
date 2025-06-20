@@ -14,7 +14,7 @@ export default class Roles extends Module {
     super(bot);
 
     this.name = "Roles";
-    this.version = "1.1";
+    this.version = "1.2";
     this.path = "modules/roles";
     this.db = true;
     this.serviceEnabled = true;
@@ -36,7 +36,8 @@ export default class Roles extends Module {
     return messages.find((m) => m.id === id);
   };
 
-  readonly moduleData = {
+  readonly moduleData: RolesModuleData = {
+    enabled: true,
     version: this.version,
     guildID: "",
     roles: [],

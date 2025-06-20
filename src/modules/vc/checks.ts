@@ -137,21 +137,16 @@ export default class Checks {
         switch (guildData.version) {
 
         case undefined:
-        case "1.0": {
+        case "1.0":
+        case "1.1": {
           //Migrates from 1.0 to 1.1
           if (guildData.version === newVersion) continue;
       
-          const oldDataStruct = {
-              guildID: guildData.guildID,
-              categories: guildData.categories,
-              defaultName: guildData.defaultName
-            },
-            newDataStruct = {
-              version: newVersion,
-              guildID: oldDataStruct.guildID,
-              categories: oldDataStruct.categories,
-              defaultName: oldDataStruct.defaultName
-            };
+          const newDataStruct = {
+            ...guildData,
+            enabled: true,
+            version: newVersion
+          };
       
           promises.push(await this.bot.updateModuleData("VC", newDataStruct, guildData.guildID));
           break;

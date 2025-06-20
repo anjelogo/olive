@@ -14,7 +14,7 @@ export default class Starboard extends Module {
     super(bot);
 
     this.name = "Starboard";
-    this.version = "1.0";
+    this.version = "1.1";
     this.path = "modules/starboard";
     this.db = true;
 
@@ -33,7 +33,8 @@ export default class Starboard extends Module {
     return messages.find((m) => m.messageID === id);
   };
 
-  readonly moduleData = {
+  readonly moduleData: StarboardModuleData = {
+    enabled: true,
     version: this.version,
     guildID: "",
     messages: []
