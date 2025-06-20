@@ -41,7 +41,7 @@ export async function createLogEntry(bot: ExtendedClient, guild: Guild, data: Ca
           content: "### Punishment Duration:"
         }, {
           type: Constants.ComponentTypes.TEXT_DISPLAY,
-          content: `${["ban", "timeout"].some((a) => a === data.action) ? (data.time ? `\`${prettifyDuration(data.time)}\`` : "Permanent") : "No Duration"}`
+          content: `${["ban", "timeout"].some((a) => a === data.action) ? (data.duration ? `\`${prettifyDuration(data.duration)}\`` : "Permanent") : "No Duration"}`
         }, {
           type: Constants.ComponentTypes.SEPARATOR,
           spacing: Constants.SeparatorSpacingSize.SMALL,

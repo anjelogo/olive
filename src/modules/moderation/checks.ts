@@ -2,6 +2,7 @@ import Module from "../../Base/Module";
 import { ModerationModuleData } from "../../Database/interfaces/ModerationModuleData";
 import ExtendedClient from "../../Base/Client";
 import Moderation from "./main";
+import { durationToMS } from "./internals/durationHandler";
 
 export default class Checks {
 
@@ -63,7 +64,7 @@ export default class Checks {
         case "1.0":
         case "1.1":
         case "1.2": {
-          //Migrates from 1.0-1.2 to 1.3
+          //Migrates from 1.0-1.2 to 1.4
           if (guildData.version === newVersion) continue;
       
           const newDataStruct = {
@@ -85,7 +86,49 @@ export default class Checks {
           delete newDataStruct.settings.infractionUntilBan;
           delete newDataStruct.settings.infractionUntilKick;
           delete newDataStruct.settings.infractionUntilTimeout;
+
+          for (const caseData of newDataStruct.cases) {
+            if (caseData.time) {
+              caseData.duration = caseData.time;
+              const ms = durationToMS(caseData.time) as number;
+              caseData.expiresAt = new Date(Date.now() + ms).toISOString();
+              
+              delete caseData.time;
+            } else if (caseData !== undefined) {
+              caseData.expiresAt = null;
+              caseData.duration = null;
+
+              delete caseData.time;
+            }
+          }
       
+          promises.push(await this.bot.updateModuleData("Moderation", newDataStruct, guildData.guildID));
+          break;
+        }
+        case "1.3": {
+          //Migrates from 1.3 to 1.4
+          if (guildData.version === newVersion) continue;
+          
+          const newDataStruct = {
+            ...guildData,
+            version: newVersion
+          };
+
+          for (const caseData of newDataStruct.cases) {
+            if (caseData.time) {
+              caseData.duration = caseData.time;
+              const ms = durationToMS(caseData.time) as number;
+              caseData.expiresAt = new Date(Date.now() + ms).toISOString();
+              
+              delete caseData.time;
+            } else if (caseData !== undefined) {
+              caseData.expiresAt = null;
+              caseData.duration = null;
+
+              delete caseData.time;
+            }
+          }
+
           promises.push(await this.bot.updateModuleData("Moderation", newDataStruct, guildData.guildID));
           break;
         }

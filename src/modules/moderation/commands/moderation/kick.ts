@@ -64,7 +64,7 @@ export default class Kick extends Command {
     let reason = interaction.data.options.getString("reason", false);
     if (!reason || reason.length < 1) reason = "No reason provided";
 
-    const caseData = generateCase("kick", memberToKick.id, moderator.id, reason);
+    const caseData = generateCase("kick", memberToKick.id, moderator.id, undefined, reason);
 
     if (reason) caseData.reason = reason;
 

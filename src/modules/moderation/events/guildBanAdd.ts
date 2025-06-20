@@ -1,8 +1,7 @@
 import { Constants, Guild, Member, User } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
-import { addCase, getCases } from "../internals/caseHandler";
+import { addCase, generateCase, getCases } from "../internals/caseHandler";
 import { createLogEntry } from "../internals/logHandler";
-import { Case } from "../../../Database/interfaces/ModerationModuleData";
 
 export const run = async (bot: ExtendedClient, guild: Guild, user: User): Promise<void> => {
     
@@ -19,14 +18,7 @@ export const run = async (bot: ExtendedClient, guild: Guild, user: User): Promis
 
   const reason = audit.entries[0].reason ?? undefined;
 
-  const Case: Case = {
-    id: audit.entries[0].id,
-    userID: user.id,
-    moderatorID: moderator.user.id,
-    action: "ban",
-    timestamp: new Date().toISOString(),
-    reason
-  };
+  const Case = generateCase("ban", user.id, moderator.id, null, reason);
 
   await createLogEntry(bot, guild, Case, user);
   await addCase(bot, guild, Case);

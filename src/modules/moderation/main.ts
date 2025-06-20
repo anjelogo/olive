@@ -13,7 +13,7 @@ export default class Moderation extends Module {
     super(bot);
 
     this.name = "Moderation";
-    this.version = "1.3";
+    this.version = "1.4";
     this.path = "modules/moderation";
     this.db = true;
 

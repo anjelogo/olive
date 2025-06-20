@@ -34,7 +34,7 @@ export default class Warn extends Command {
   }
 
   readonly punishUser = async (interaction: CommandInteraction | ModalSubmitInteraction, memberToWarn: Member, moderator: Member, guild: Guild, reason: string) => {
-    const caseData = generateCase("warn", memberToWarn.id, moderator.id, reason);
+    const caseData = generateCase("warn", memberToWarn.id, moderator.id, undefined, reason);
 
     await punish(this.bot, guild, caseData);
     await autoCalculateInfractions(this.bot, guild.id, memberToWarn.user);

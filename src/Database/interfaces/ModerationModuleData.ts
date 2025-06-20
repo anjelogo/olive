@@ -1,19 +1,32 @@
 import { BaseModuleData } from "./BaseModuleData";
 
-export type CaseActionTypes = ("ban" | "kick" | "timeout" | "warn");
+export type CaseActionTypes = "ban" | "kick" | "timeout" | "warn";
 
-export interface Case {
-    id: string;
-    userID: string;
+export type Case =
+  | ({
+      action: "ban" | "timeout";
+      expiresAt: string | null;
+      duration: string | null;
+    } & BaseCase)
+  | ({
+      action: "kick" | "warn";
+      expiresAt?: never;
+      duration?: never;
+    } & BaseCase);
+
+interface BaseCase {
+  id: string;
+  userID: string;
+  moderatorID: string;
+  timestamp: string; // ISO timestamp
+  reason?: string;
+  resolved?: {
     moderatorID: string;
-    reason?: string;
-    action: CaseActionTypes;
-    timestamp: string; //ISO timestamp
-    time?: string;
-    resolved?: {
-        moderatorID: string;
-        reason: string;
-    };
+    reason: string;
+  };
+
+  /** @deprecated use expiresAt & duration */
+  time?: string
 }
 
 export interface ModerationSettings {

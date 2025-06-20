@@ -79,7 +79,7 @@ export default class Timeout extends Command {
       });
     }
 
-    const caseData = generateCase("kick", memberToTimeOut.id, moderator.id, reason);
+    const caseData = generateCase("timeout", memberToTimeOut.id, moderator.id, time ?? null, reason);
 
     await punish(this.bot, guild, caseData);
     await autoCalculateInfractions(this.bot, guild.id, memberToTimeOut.user);

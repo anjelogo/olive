@@ -1,20 +1,45 @@
 import { Constants, Guild, User } from "oceanic.js";
 import { generate } from "@pwldev/discord-snowflake";
 import ExtendedClient from "../../../Base/Client";
-import { Case, ModerationModuleData } from "../../../Database/interfaces/ModerationModuleData"; 
+import { Case, CaseActionTypes, ModerationModuleData } from "../../../Database/interfaces/ModerationModuleData"; 
 import { updateLogEntry } from "./logHandler";
+import { durationToMS } from "./durationHandler";
 
-export function generateCase(action: string, memberToPunishID: string, moderatorID: string, reason?: string, time?: string): Case {
-  return {
+export function generateCase(action: "ban" | "timeout", memberToPunishID: string, moderatorID: string, duration: string | null, reason?: string): Case;
+export function generateCase(action: "kick" | "warn", memberToPunishID: string, moderatorID: string, duration?: undefined, reason?: string): Case;
+export function generateCase(action: CaseActionTypes, memberToPunishID: string, moderatorID: string, duration?: string | null, reason?: string): Case {
+  if (!["ban", "timeout", "kick", "warn"].includes(action)) {
+    throw new Error("Invalid action type. Must be one of: ban, timeout, kick, warn.");
+  }
+
+  const baseCase = {
     id: generate(Date.now()).toString(),
-    action: action as Case["action"],
+    action,
     userID: memberToPunishID,
     moderatorID,
     reason: reason ?? "No reason provided.",
-    time: time ?? undefined,
     resolved: undefined,
     timestamp: new Date().toISOString()
   };
+
+  if (action === "ban" || action === "timeout") {
+    const caseData: Case = {
+      ...baseCase,
+      action: action as "ban" | "timeout", // Narrowing the type explicitly
+      duration: null,
+      expiresAt: null
+    };
+
+    if (duration) {
+      const ms = durationToMS(duration) as number;
+      caseData.duration = duration;
+      caseData.expiresAt = new Date(Date.now() + ms).toISOString();
+    }
+
+    return caseData as Case;
+  } else {
+    return baseCase as Case;
+  }
 }
 
 export async function getCases(bot: ExtendedClient, guild: Guild, userID: string, caseID?: string): Promise<Case[]> {
@@ -77,7 +102,7 @@ export async function resolveCase(bot: ExtendedClient, guild: Guild, caseID: str
   try {
     switch (caseToResolve.action) {
     case "timeout":
-      caseToResolve.time = undefined;
+      caseToResolve.duration = null;
       guild.members.get(caseToResolve.userID)?.edit({
         communicationDisabledUntil: undefined
       });

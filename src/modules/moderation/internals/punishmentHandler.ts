@@ -1,8 +1,7 @@
 import { Constants, Guild, Member, Role, User } from "oceanic.js";
-import { generate } from "@pwldev/discord-snowflake";
 import { Case, CaseActionTypes, ModerationModuleData } from "../../../Database/interfaces/ModerationModuleData";
 import ExtendedClient from "../../../Base/Client";
-import { addCase, getCases, resolveCase } from "./caseHandler";
+import { addCase, generateCase, getCases, resolveCase } from "./caseHandler";
 import { createLogEntry } from "./logHandler";
 import { durationToMS } from "./durationHandler";
 
@@ -38,7 +37,7 @@ export async function punish(bot: ExtendedClient, guild: Guild, data: Case): Pro
     switch (data.action) {
 
     case "timeout": {
-      const time = data.time ? new Date(Date.now() + (durationToMS(data.time) ?? 60_000)).toISOString()
+      const time = data.duration ? new Date(Date.now() + (durationToMS(data.duration as string) ?? 60_000)).toISOString()
           : new Date(Date.now() + 60 * 1000).toISOString(),
         member = bot.findMember(guild, user.id) as Member;
 
@@ -162,14 +161,12 @@ export async function autoCalculateInfractions(bot: ExtendedClient, guildID: str
 
   reason = `[**AUTO-MOD**] ${punishment.toUpperCase()} for ${infractions} infractions.`;
 
-  await punish(bot, guild, {
-    id: generate(Date.now()).toString(),
-    userID: user.id,
-    moderatorID: bot.user.id,
-    action: punishment,
-    reason,
-    timestamp: new Date().toISOString(),
-  });
+  const caseData =
+    ["ban", "timeout"].includes(punishment)
+      ? generateCase(punishment as ("ban" | "timeout"), user.id, bot.user.id, null, reason)
+      : generateCase(punishment as ("kick" | "warn"), user.id, bot.user.id, undefined, reason);
+
+  await punish(bot, guild, caseData);
 }
 
 export async function isPunishable(bot: ExtendedClient, moderator: Member, memberToPunish: Member): Promise<boolean> {
