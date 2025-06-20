@@ -18,9 +18,20 @@ export interface Case {
 
 export interface ModerationSettings {
     caseLimit: number;
-    infractionUntilBan: number;
-    infractionUntilKick: number;
-    infractionUntilTimeout: number;
+    autoPunish: {
+      enabled: boolean;
+      infractionsUntilWarn: number;
+      infractionsUntilBan: number;
+      infractionsUntilKick: number;
+      infractionsUntilTimeout: number;
+    }
+
+    /** @deprecated use autoPunish.infractionsUntilBan */
+    infractionUntilBan?: number;
+    /** @deprecated use autoPunish.infractionsUntilKick */
+    infractionUntilKick?: number;
+    /** @deprecated use autoPunish.infractionsUntilTimeout */
+    infractionUntilTimeout?: number;
 }
 
 export interface ModerationModuleData extends BaseModuleData {

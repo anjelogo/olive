@@ -36,8 +36,8 @@ export default [
     description: "Grants the ability to resolve punishments",
     default: false
   }, {
-    name: "moderation.punish.excempt",
-    description: "Grants the ability to be excempt from punishments (Bot Punishments Only)",
+    name: "moderation.punish.exempt",
+    description: "Grants the ability to be exempt from punishments (Bot Punishments Only)",
     default: false
   }, {
     name: "moderation.history.*",

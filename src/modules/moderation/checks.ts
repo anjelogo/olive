@@ -61,15 +61,30 @@ export default class Checks {
 
         case undefined:
         case "1.0":
-        case "1.1": {
-          //Migrates from 1.0 to 1.1
+        case "1.1":
+        case "1.2": {
+          //Migrates from 1.0-1.2 to 1.3
           if (guildData.version === newVersion) continue;
       
           const newDataStruct = {
             ...guildData,
             enabled: true,
-            version: newVersion
+            version: newVersion,
+            settings: {
+              ...guildData.settings,
+              autoPunish: {
+                enabled: true,
+                infractionsUntilWarn: 1,
+                infractionsUntilBan: guildData.settings.infractionUntilBan as number,
+                infractionsUntilKick: guildData.settings.infractionUntilKick as number,
+                infractionsUntilTimeout: guildData.settings.infractionUntilTimeout as number
+              }
+            }
           };
+
+          delete newDataStruct.settings.infractionUntilBan;
+          delete newDataStruct.settings.infractionUntilKick;
+          delete newDataStruct.settings.infractionUntilTimeout;
       
           promises.push(await this.bot.updateModuleData("Moderation", newDataStruct, guildData.guildID));
           break;

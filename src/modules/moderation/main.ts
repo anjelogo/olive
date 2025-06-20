@@ -13,7 +13,7 @@ export default class Moderation extends Module {
     super(bot);
 
     this.name = "Moderation";
-    this.version = "1.2";
+    this.version = "1.3";
     this.path = "modules/moderation";
     this.db = true;
 
@@ -26,9 +26,13 @@ export default class Moderation extends Module {
     cases: [],
     settings: {
       caseLimit: 100,
-      infractionUntilBan: 12,
-      infractionUntilKick: 6,
-      infractionUntilTimeout: 3
+      autoPunish: {
+        enabled: true,
+        infractionsUntilWarn: 1,
+        infractionsUntilBan: 12,
+        infractionsUntilKick: 6,
+        infractionsUntilTimeout: 3
+      }
     }
   };
 

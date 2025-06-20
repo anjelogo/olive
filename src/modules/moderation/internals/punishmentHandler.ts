@@ -1,5 +1,5 @@
 import { Constants, Guild, Member, Role, User } from "oceanic.js";
-import uniqid from "uniqid";
+import { generate } from "@pwldev/discord-snowflake";
 import { Case, CaseActionTypes, ModerationModuleData } from "../../../Database/interfaces/ModerationModuleData";
 import ExtendedClient from "../../../Base/Client";
 import { addCase, getCases, resolveCase } from "./caseHandler";
@@ -131,10 +131,10 @@ export async function autoCalculateInfractions(bot: ExtendedClient, guildID: str
     
   for (const Case of history) infractions += hierarchy[Case.action];
 
-  if (infractions < guildSettings.settings.infractionUntilTimeout) return;
-  else if (infractions >= guildSettings.settings.infractionUntilTimeout && infractions < guildSettings.settings.infractionUntilKick) punishment = "timeout";
-  else if (infractions >= guildSettings.settings.infractionUntilKick && infractions < guildSettings.settings.infractionUntilBan) punishment = "kick";
-  else if (infractions >= guildSettings.settings.infractionUntilBan) punishment = "ban";
+  if (infractions < guildSettings.settings.autoPunish.infractionsUntilTimeout) return;
+  else if (infractions >= guildSettings.settings.autoPunish.infractionsUntilTimeout && infractions < guildSettings.settings.autoPunish.infractionsUntilKick) punishment = "timeout";
+  else if (infractions >= guildSettings.settings.autoPunish.infractionsUntilKick && infractions < guildSettings.settings.autoPunish.infractionsUntilBan) punishment = "kick";
+  else if (infractions >= guildSettings.settings.autoPunish.infractionsUntilBan) punishment = "ban";
 
   if (!punishment) return;
 
@@ -148,10 +148,10 @@ export async function autoCalculateInfractions(bot: ExtendedClient, guildID: str
     if (Case.action === punishment) return;
 
     const thresholds = {
-      warn: guildSettings.settings.infractionUntilTimeout,
-      timeout: guildSettings.settings.infractionUntilTimeout,
-      kick: guildSettings.settings.infractionUntilKick,
-      ban: guildSettings.settings.infractionUntilBan
+      warn: guildSettings.settings.autoPunish.infractionsUntilWarn,
+      timeout: guildSettings.settings.autoPunish.infractionsUntilTimeout,
+      kick: guildSettings.settings.autoPunish.infractionsUntilKick,
+      ban: guildSettings.settings.autoPunish.infractionsUntilBan
     };
 
     if (infractions >= thresholds[punishment]) {
@@ -163,7 +163,7 @@ export async function autoCalculateInfractions(bot: ExtendedClient, guildID: str
   reason = `[**AUTO-MOD**] ${punishment.toUpperCase()} for ${infractions} infractions.`;
 
   await punish(bot, guild, {
-    id: uniqid(),
+    id: generate(Date.now()).toString(),
     userID: user.id,
     moderatorID: bot.user.id,
     action: punishment,
@@ -172,7 +172,7 @@ export async function autoCalculateInfractions(bot: ExtendedClient, guildID: str
   });
 }
 
-export async function isPunishable(bot: ExtendedClient, moderator: Member, userToPunish: Member): Promise<boolean> {
+export async function isPunishable(bot: ExtendedClient, moderator: Member, memberToPunish: Member): Promise<boolean> {
   const botMember = bot.findMember(moderator.guild, bot.user.id) as Member,
     botHighestRoleID = botMember.roles
       .map((r) => 
@@ -182,7 +182,7 @@ export async function isPunishable(bot: ExtendedClient, moderator: Member, userT
         }))
       .sort((a, b) => b.position - a.position).map((r) => r.name),
     botHighestRole = bot.findRole(moderator.guild, botHighestRoleID[0]) as Role,
-    memberHighestRoleID = moderator.roles.length
+    moderatorHighestRoleID = moderator.roles.length
       ? moderator.roles
         .map((r) => 
           ({
@@ -191,9 +191,9 @@ export async function isPunishable(bot: ExtendedClient, moderator: Member, userT
           }))
         .sort((a, b) => b.position - a.position).map((r) => r.name)
       : [moderator.guild.id],
-    memberHighestRole = bot.findRole(moderator.guild, memberHighestRoleID[0]) as Role,
-    userToPunishHighestRoleID = userToPunish.roles.length
-      ? userToPunish.roles
+    moderatorHighestRole = bot.findRole(moderator.guild, moderatorHighestRoleID[0]) as Role,
+    memberToPunishHighestRoleID = memberToPunish.roles.length
+      ? memberToPunish.roles
         .map((r) => 
           ({
             name: (bot.findRole(moderator.guild, r) as Role).name,
@@ -201,21 +201,23 @@ export async function isPunishable(bot: ExtendedClient, moderator: Member, userT
           }))
         .sort((a, b) => b.position - a.position).map((r) => r.name)
       : [moderator.guild.id],
-    userToPunishHighestRole = bot.findRole(moderator.guild, userToPunishHighestRoleID[0]) as Role;
+    memberToPunishHighestRole = bot.findRole(moderator.guild, memberToPunishHighestRoleID[0]) as Role;
 
-  if (moderator.guild.ownerID == userToPunish.id)
+  if (moderator.guild.ownerID == memberToPunish.id)
     return false;
-  if (userToPunish.id === moderator.id)
+  if (await bot.getModule("Main").hasPerm(moderator, "moderation.punish.exempt"))
     return false;
-  if (userToPunish.id === moderator.guild.ownerID)
+  if (memberToPunish.id === moderator.id)
     return false;
-  if (userToPunishHighestRole.position > memberHighestRole.position)
+  if (memberToPunish.id === moderator.guild.ownerID)
     return false;
-  if (userToPunishHighestRole.position === memberHighestRole.position)
+  if (memberToPunishHighestRole.position > moderatorHighestRole.position)
     return false;
-  if (userToPunishHighestRole.position > botHighestRole.position)
+  if (memberToPunishHighestRole.position === moderatorHighestRole.position)
     return false;
-  if (userToPunishHighestRole.position === botHighestRole.position)
+  if (memberToPunishHighestRole.position > botHighestRole.position)
+    return false;
+  if (memberToPunishHighestRole.position === botHighestRole.position)
     return false;
 
   return true;

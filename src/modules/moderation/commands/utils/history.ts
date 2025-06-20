@@ -66,13 +66,14 @@ export default class History extends Command {
 
     switch (subcommand) {
     case "view": {
+      const data = await this.bot.getModuleData("Moderation", guild.id);
       let infractions = 0;
 
       const hierarchy = {
-          warn: 1,
-          timeout: 3,
-          kick: 6,
-          ban: 12
+          warn: data?.settings.autoPunish.infractionsUntilWarn || 1,
+          timeout: data?.settings.autoPunish.infractionsUntilTimeout || 3,
+          kick: data?.settings.autoPunish.infractionsUntilKick || 6,
+          ban: data?.settings.autoPunish.infractionsUntilBan || 12
         },
         arr = [];
 

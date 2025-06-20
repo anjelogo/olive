@@ -1,10 +1,9 @@
 import { CommandInteraction, Constants, Guild, Member } from "oceanic.js";
-import uniqid from "uniqid";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import { autoCalculateInfractions, isPunishable, punish } from "../../internals/punishmentHandler";
-import { Case } from "../../../../Database/interfaces/ModerationModuleData";
+import { generateCase } from "../../internals/caseHandler";
 
 export default class Kick extends Command {
 
@@ -65,14 +64,7 @@ export default class Kick extends Command {
     let reason = interaction.data.options.getString("reason", false);
     if (!reason || reason.length < 1) reason = "No reason provided";
 
-    //punish user using the punish function in ../../internals/punishmentHandler.ts
-    const caseData: Case = {
-      id: uniqid(),
-      userID: memberToKick.id,
-      moderatorID: moderator.id,
-      action: "kick",
-      timestamp: new Date().toISOString()
-    };
+    const caseData = generateCase("kick", memberToKick.id, moderator.id, reason);
 
     if (reason) caseData.reason = reason;
 

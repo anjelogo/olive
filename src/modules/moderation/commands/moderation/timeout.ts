@@ -1,11 +1,10 @@
 import { AutocompleteChoice, AutocompleteInteraction, CommandInteraction, Constants, Guild, Member } from "oceanic.js";
-import uniqid from "uniqid";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import { autoCalculateInfractions, isPunishable, punish } from "../../internals/punishmentHandler";
-import { Case } from "../../../../Database/interfaces/ModerationModuleData";
 import { parseDuration, prettifyDuration, validateDuration } from "../../internals/durationHandler";
+import { generateCase } from "../../internals/caseHandler";
 
 export default class Timeout extends Command {
 
@@ -80,17 +79,7 @@ export default class Timeout extends Command {
       });
     }
 
-    //punish user using the punish function in ../../internals/punishmentHandler.ts
-    const caseData: Case = {
-      id: uniqid(),
-      userID: memberToTimeOut.id,
-      moderatorID: moderator.id,
-      action: "timeout",
-      timestamp: new Date().toISOString(),
-      time: time ? time : undefined
-    };
-
-    if (reason) caseData.reason = reason;
+    const caseData = generateCase("kick", memberToTimeOut.id, moderator.id, reason);
 
     await punish(this.bot, guild, caseData);
     await autoCalculateInfractions(this.bot, guild.id, memberToTimeOut.user);

@@ -1,7 +1,21 @@
 import { Constants, Guild, User } from "oceanic.js";
+import { generate } from "@pwldev/discord-snowflake";
 import ExtendedClient from "../../../Base/Client";
 import { Case, ModerationModuleData } from "../../../Database/interfaces/ModerationModuleData"; 
 import { updateLogEntry } from "./logHandler";
+
+export function generateCase(action: string, memberToPunishID: string, moderatorID: string, reason?: string, time?: string): Case {
+  return {
+    id: generate(Date.now()).toString(),
+    action: action as Case["action"],
+    userID: memberToPunishID,
+    moderatorID,
+    reason: reason ?? "No reason provided.",
+    time: time ?? undefined,
+    resolved: undefined,
+    timestamp: new Date().toISOString()
+  };
+}
 
 export async function getCases(bot: ExtendedClient, guild: Guild, userID: string, caseID?: string): Promise<Case[]> {
   const data = await bot.getModuleData("Moderation", guild.id) as ModerationModuleData;

@@ -1,10 +1,9 @@
 import { AnyInteractionChannel, CommandInteraction, Constants, Guild, Member, ModalSubmitInteraction, Uncached } from "oceanic.js";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
-import uniqid from "uniqid";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import { autoCalculateInfractions, isPunishable, punish } from "../../internals/punishmentHandler";
-import { Case } from "../../../../Database/interfaces/ModerationModuleData";
+import { generateCase } from "../../internals/caseHandler";
 
 export default class Warn extends Command {
 
@@ -35,15 +34,7 @@ export default class Warn extends Command {
   }
 
   readonly punishUser = async (interaction: CommandInteraction | ModalSubmitInteraction, memberToWarn: Member, moderator: Member, guild: Guild, reason: string) => {
-    const caseData: Case = {
-      id: uniqid(),
-      userID: memberToWarn.id,
-      moderatorID: moderator.id,
-      action: "warn",
-      timestamp: new Date().toISOString()
-    };
-
-    if (reason) caseData.reason = reason;
+    const caseData = generateCase("warn", memberToWarn.id, moderator.id, reason);
 
     await punish(this.bot, guild, caseData);
     await autoCalculateInfractions(this.bot, guild.id, memberToWarn.user);
