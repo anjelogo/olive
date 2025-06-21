@@ -19,6 +19,9 @@ export const createLogEntry = async (bot: ExtendedClient, guild: Guild, message:
   // TODO: When revamping logging, use components v2 instead of embeds
   const loggingObj: MessageComponent[] = [
     {
+      type: Constants.ComponentTypes.TEXT_DISPLAY,
+      content: `## ${stars} ${messageData.stars.length} <#${message.channelID}>`
+    }, {
       type: Constants.ComponentTypes.CONTAINER,
       components: [
         {
@@ -26,37 +29,38 @@ export const createLogEntry = async (bot: ExtendedClient, guild: Guild, message:
           components: [
             {
               type: Constants.ComponentTypes.TEXT_DISPLAY,
-              content: `# ${stars} ${messageData.stars.length} ${message.author.username}\n## <#${message.channelID}>`,
+              content: `## <@${message.author.id}>`,
             }
           ],
           accessory: {
-            type: Constants.ComponentTypes.THUMBNAIL,
-            media: {
-              url: message.author.avatarURL() ?? "",
-            }
+            type: Constants.ComponentTypes.BUTTON,
+            style: Constants.ButtonStyles.LINK,
+            label: "Jump to message",
+            url: `https://discordapp.com/channels/${guild.id}/${message.channelID}/${message.id}`
           }
         }, {
           type: Constants.ComponentTypes.SEPARATOR,
           divider: true
-        }, {
-          type: Constants.ComponentTypes.TEXT_DISPLAY,
-          content: `${message.content}`
-        }, {
-          type: Constants.ComponentTypes.TEXT_DISPLAY,
-          content: `-# Jump to message: [Click Here](https://discordapp.com/channels/${guild.id}/${message.channelID}/${message.id})`
         }
       ]
         
     }
   ];
 
+  if (message.content) {
+    (loggingObj[1] as ContainerComponent).components.push({
+      type: Constants.ComponentTypes.TEXT_DISPLAY,
+      content: message.content
+    });
+  }
+
   if (message.attachments.size) {
     const attachment = message.attachments.first();
 
     if (!attachment) return;
 
-    (loggingObj[0] as ContainerComponent).components = [
-      ...(loggingObj[0] as ContainerComponent).components,
+    (loggingObj[1] as ContainerComponent).components = [
+      ...(loggingObj[1] as ContainerComponent).components,
       {
         type: Constants.ComponentTypes.MEDIA_GALLERY,
         items: [
@@ -68,6 +72,19 @@ export const createLogEntry = async (bot: ExtendedClient, guild: Guild, message:
       }
     ];
   }
+
+  (loggingObj[1] as ContainerComponent).components = [
+    ...(loggingObj[1] as ContainerComponent).components,
+    {
+      type: Constants.ComponentTypes.SEPARATOR,
+      divider: true,
+      spacing: Constants.SeparatorSpacingSize.LARGE
+    },
+    {
+      type: Constants.ComponentTypes.TEXT_DISPLAY,
+      content: `<t:${Math.floor(Date.now() / 1000)}:f> (${messageData.messageID})`
+    }
+  ];
 
   logging.log(guild, "starboard", loggingObj, {
     channelID: message.channelID,
@@ -126,13 +143,17 @@ export async function updateLogEntry(bot: ExtendedClient, guild: Guild, starID: 
         },
         guildData = await bot.getModuleData("Starboard", guild.id) as StarboardModuleData,
         messageData = guildData.messages.find((m) => m.messageID === starID) as messageDataStructure,
-        channel = bot.findChannel(guild, messageData.channelID) as TextChannel,
         stars = messageData.stars.length <= 3 ? starStrings.small : messageData.stars.length <= 10 ? starStrings.medium : starStrings.large;
 
       try {
         await message.edit({
-          content: `${stars} **${messageData.stars.length}** <#${channel.id}>\n(${messageData.messageID})`,
-          embeds: [message.embeds[0]]
+          components: [
+            {
+              type: Constants.ComponentTypes.TEXT_DISPLAY,
+              content: `## ${stars} ${messageData.stars.length} <#${messageData.channelID}>`
+            },
+            ...message.components.slice(1),
+          ]
         });
       } catch (e) {
         throw new Error("Could not delete message");

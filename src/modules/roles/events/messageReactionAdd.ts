@@ -5,8 +5,6 @@ import Roles from "../main";
 import { RolesMessage } from "../../../Database/interfaces/RolesModuleData";
 
 export const run = async (bot: ExtendedClient, msg: PossiblyUncachedMessage, reactor: Uncached | Member | User, emoji: EventReaction): Promise<void> => {
-  console.log("Reaction added", msg, reactor, emoji);
-  
   if (!msg || !emoji || !reactor) return;
 
   const channel = bot.getChannel(msg.channelID);

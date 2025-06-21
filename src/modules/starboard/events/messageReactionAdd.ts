@@ -1,21 +1,26 @@
-import { Channel, PartialEmoji, Guild, Member, Message, PossiblyUncachedMessage, TextChannel, Uncached, User } from "oceanic.js";
+import { Channel, Member, Message, PossiblyUncachedMessage, TextChannel, Uncached, User, EventReaction } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
 import { handleStarredMessage } from "../internals/starHandler";
 
-export const run = async (bot: ExtendedClient, msgObj: PossiblyUncachedMessage | Message, reactor: Uncached | Member | User, emoji: PartialEmoji) => {
-  if (emoji.name !== "⭐") return;
+export const run = async (bot: ExtendedClient, msgObj: PossiblyUncachedMessage, reactor: Uncached | Member | User, reaction: EventReaction): Promise<void> => {
+  if (!msgObj || !reaction || !reactor) return;
+
+  if (reaction.emoji.name !== "⭐") return;
 
   let msg: Message;
 
-  if (!(msgObj instanceof Message)) msg = bot.findMessage(bot.getChannel((msgObj.channel as Channel).id) as TextChannel, msgObj.id) as Message;
+  if (!(msgObj instanceof Message)) msg = await (bot.getChannel((msgObj.channel as Channel).id) as TextChannel).getMessage(msgObj.id) as Message;
   else msg = msgObj as Message;
 
-  if (!msg || !emoji || !reactor || !msg.guildID) return;
+  if (!msg) return;
 
-  const guild = bot.findGuild(msg.guildID) as Guild,
-    member = bot.findMember(guild, reactor.id) as Member;
+  const guild = bot.findGuild(msgObj.guildID);
 
-  if (member.bot) return;
+  if (!guild) return;
+
+  const member = bot.findMember(guild, reactor.id);
+
+  if (member?.bot) return;
     
   await handleStarredMessage(bot, guild, msg, "add", reactor.id as string);
 };
