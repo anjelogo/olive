@@ -183,11 +183,11 @@ export async function isPunishable(bot: ExtendedClient, moderator: Member, membe
       ? moderator.roles
         .map((r) => 
           ({
-            name: (bot.findRole(moderator.guild, r) as Role).name,
+            id: r,
             position: (bot.findRole(moderator.guild, r) as Role).position
           }))
-        .sort((a, b) => b.position - a.position).map((r) => r.name)
-      : [moderator.guild.id],
+        .sort((a, b) => b.position - a.position)[0].id
+      : moderator.guild.id,
     moderatorHighestRole = bot.findRole(moderator.guild, moderatorHighestRoleID[0]) as Role,
     memberToPunishHighestRoleID = memberToPunish.roles.length
       ? memberToPunish.roles
