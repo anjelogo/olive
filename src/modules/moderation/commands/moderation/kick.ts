@@ -55,7 +55,7 @@ export default class Kick extends Command {
         content: `${this.bot.constants.emojis.x} I couldn't find that user!`
       });
 
-    if (!(await isPunishable(this.bot, moderator, memberToKick))) {
+    if (await isPunishable(this.bot, moderator, memberToKick)) {
       return interaction.createFollowup({
         content: `${this.bot.constants.emojis.x} I can't kick that user!`,
       });
@@ -65,8 +65,6 @@ export default class Kick extends Command {
     if (!reason || reason.length < 1) reason = "No reason provided";
 
     const caseData = generateCase("kick", memberToKick.id, moderator.id, undefined, reason);
-
-    if (reason) caseData.reason = reason;
 
     await punish(this.bot, guild, caseData);
     await autoCalculateInfractions(this.bot, guild.id, memberToKick.user);
