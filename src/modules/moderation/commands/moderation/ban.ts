@@ -80,7 +80,7 @@ export default class Ban extends Command {
     }
 
     //punish user using the punish function in ../../internals/punishmentHandler.ts
-    const caseData = generateCase("ban", memberToBan.id, moderator.id, reason, time);
+    const caseData = generateCase("ban", memberToBan.id, moderator.id, time ?? null, reason);
 
     await punish(this.bot, guild, caseData);
     await autoCalculateInfractions(this.bot, guild.id, memberToBan.user);

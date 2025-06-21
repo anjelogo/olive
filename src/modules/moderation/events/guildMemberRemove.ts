@@ -1,8 +1,7 @@
 import { Constants, Guild, Member, Uncached, User } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
-import { addCase, getCases } from "../internals/caseHandler";
+import { addCase, generateCase, getCases } from "../internals/caseHandler";
 import { createLogEntry } from "../internals/logHandler";
-import { Case } from "../../../Database/interfaces/ModerationModuleData";
 import { autoCalculateInfractions } from "../internals/punishmentHandler";
 
 export const run = async (bot: ExtendedClient, member: Member | User, guild: Guild | Uncached): Promise<void> => {
@@ -32,17 +31,10 @@ export const run = async (bot: ExtendedClient, member: Member | User, guild: Gui
 
   const reason = audit.entries[0].reason ?? undefined;
 
-  const Case: Case = {
-    id: audit.entries[0].id,
-    userID: user.id,
-    moderatorID: moderator.user.id,
-    action: "kick",
-    timestamp: new Date().toISOString(),
-    reason
-  };
+  const caseData = generateCase("kick", user.id, moderator.id, undefined, reason);
 
-  await createLogEntry(bot, guild as Guild, Case, user);
-  await addCase(bot, guild as Guild, Case);
+  await createLogEntry(bot, guild as Guild, caseData, user);
+  await addCase(bot, guild as Guild, caseData);
   await autoCalculateInfractions(bot, guild.id, user);
 
 };

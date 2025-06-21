@@ -9,14 +9,18 @@ export const run = async (bot: ExtendedClient, member: Member): Promise<void> =>
   if (data.savedRoles.enabled) {
     const userData = data.savedRoles.roles.find((r) => r.userID === member.id);
 
+    const promises = [];
+
     if (!userData) return;
 
     for (const role of userData.roles) {
-      try {
-        await member.addRole(role);
-      } catch (e) {
-        return console.error(e);
-      }
+      promises.push(member.addRole(role));
+    }
+
+    try {
+      await Promise.all(promises);
+    } catch (e) {
+      return;
     }
   }
 
