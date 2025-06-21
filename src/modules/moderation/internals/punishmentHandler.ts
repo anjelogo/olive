@@ -212,14 +212,10 @@ export async function isPunishable(bot: ExtendedClient, moderator: Member, membe
     return false;
   if (await bot.getModule("Main").hasPerm(moderator, "moderation.punish.exempt"))
     return false;
-  
-  if (memberToPunishHighestRole.position > moderatorHighestRole.position)
+
+  if (memberToPunishHighestRole.position >= moderatorHighestRole.position)
     return false;
-  if (memberToPunishHighestRole.position === moderatorHighestRole.position)
-    return false;
-  if (memberToPunishHighestRole.position > botHighestRole.position)
-    return false;
-  if (memberToPunishHighestRole.position === botHighestRole.position)
+  if (memberToPunishHighestRole.position >= botHighestRole.position)
     return false;
 
   return true;
