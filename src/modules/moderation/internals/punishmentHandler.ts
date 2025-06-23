@@ -115,6 +115,9 @@ export async function autoCalculateInfractions(bot: ExtendedClient, guildID: str
       kick: 6,
       ban: 12
     };
+
+  // If the autoPunish setting is not enabled, don't proceed
+  if (!guildSettings || !guildSettings.settings.autoPunish.enabled) return;
 	
   let punishment: CaseActionTypes | undefined,
     reason,
