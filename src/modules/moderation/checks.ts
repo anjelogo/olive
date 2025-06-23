@@ -61,6 +61,7 @@ export default class Checks {
         switch (guildData.version) {
 
         case undefined:
+        case "0.0":
         case "1.0":
         case "1.1":
         case "1.2": {
