@@ -25,7 +25,7 @@ export const createLogEntry = async (bot: ExtendedClient, guild: Guild, message:
         spacing: Constants.SeparatorSpacingSize.LARGE
       }, {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: `-# <t:${Math.floor(Date.now() / 1000)}:f> • ||${messageData.messageID}||)`
+        content: `-# <t:${Math.floor(Date.now() / 1000)}:f> • ||${messageData.messageID}||`
       }
     ]
   };
@@ -45,10 +45,7 @@ export const createLogEntry = async (bot: ExtendedClient, guild: Guild, message:
         label: "Jump to message",
         url: `https://discordapp.com/channels/${guild.id}/${message.channelID}/${message.id}`
       }
-    }, {
-      type: Constants.ComponentTypes.SEPARATOR,
-      divider: true
-    },
+    }
   ];
 
   if (message.content) {
