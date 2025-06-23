@@ -177,6 +177,250 @@ export default class ModerationService extends Service {
           return;
         }
       },
+      "/setinfractionsuntilwarn": async (req, res) => {
+        switch (req.method) {
+        case "GET": {
+          try {
+            const guildID = req.params.id;
+            const currentData = await this.bot.getModuleData("Moderation", guildID) as ModerationModuleData;
+
+            this.get(req, res, {
+              message: "Infractions Until Warn",
+              data: {
+                settings: {
+                  autoPunish: {
+                    infractionsUntilWarn: currentData.settings.autoPunish.infractionsUntilWarn
+                  }
+                }
+              }
+            });
+          } catch (error) {
+            res.status(500).json({
+              message: "Failed to retrieve infractions until warn",
+              error: error instanceof Error ? error.message : "Unknown error"
+            });
+          }
+          break;
+        }
+        case "POST": {
+          try {
+            const guildID = req.params.id;
+            const currentData = await this.bot.getModuleData("Moderation", guildID) as ModerationModuleData;
+            const body = req.body as DeepPartial<ModerationModuleData>;
+
+            if (typeof body.settings?.autoPunish?.infractionsUntilWarn !== "number") {
+              res.status(400).json({ message: "Invalid data format for infractions until warn" });
+              return;
+            }
+
+            currentData.settings.autoPunish.infractionsUntilWarn = body.settings.autoPunish.infractionsUntilWarn;
+            const updatedData = await this.updateData({ module: "Moderation", guildID }, currentData);
+            this.post(req, res, {
+              message: "Infractions Until Warn Updated",
+              data: {
+                settings: {
+                  autoPunish: {
+                    infractionsUntilWarn: updatedData.settings.autoPunish.infractionsUntilWarn
+                  }
+                }
+              }
+            });
+          } catch (error) {
+            res.status(500).json({
+              message: "Failed to update infractions until warn",
+              error: error instanceof Error ? error.message : "Unknown error"
+            });
+          }
+          break;
+        }
+        default:
+          res.status(405).json({ message: "Method not allowed" });
+          return;
+        }
+      },
+      "/setinfractionsuntilban": async (req, res) => {
+        switch (req.method) {
+        case "GET": {
+          try {
+            const guildID = req.params.id;
+            const currentData = await this.bot.getModuleData("Moderation", guildID) as ModerationModuleData;
+
+            this.get(req, res, {
+              message: "Infractions Until Ban",
+              data: {
+                settings: {
+                  autoPunish: {
+                    infractionsUntilBan: currentData.settings.autoPunish.infractionsUntilBan
+                  }
+                }
+              }
+            });
+          } catch (error) {
+            res.status(500).json({
+              message: "Failed to retrieve infractions until ban",
+              error: error instanceof Error ? error.message : "Unknown error"
+            });
+          }
+          break;
+        }
+        case "POST": {
+          try {
+            const guildID = req.params.id;
+            const currentData = await this.bot.getModuleData("Moderation", guildID) as ModerationModuleData;
+            const body = req.body as DeepPartial<ModerationModuleData>;
+
+            if (typeof body.settings?.autoPunish?.infractionsUntilBan !== "number") {
+              res.status(400).json({ message: "Invalid data format for infractions until ban" });
+              return;
+            }
+
+            currentData.settings.autoPunish.infractionsUntilBan = body.settings.autoPunish.infractionsUntilBan;
+            const updatedData = await this.updateData({ module: "Moderation", guildID }, currentData);
+            this.post(req, res, {
+              message: "Infractions Until Ban Updated",
+              data: {
+                settings: {
+                  autoPunish: {
+                    infractionsUntilBan: updatedData.settings.autoPunish.infractionsUntilBan
+                  }
+                }
+              }
+            });
+          } catch (error) {
+            res.status(500).json({
+              message: "Failed to update infractions until ban",
+              error: error instanceof Error ? error.message : "Unknown error"
+            });
+          }
+          break;
+        }
+        default:
+          res.status(405).json({ message: "Method not allowed" });
+          return;
+        }
+      },
+      "/setinfractionsuntilkick": async (req, res) => {
+        switch (req.method) {
+        case "GET": {
+          try {
+            const guildID = req.params.id;
+            const currentData = await this.bot.getModuleData("Moderation", guildID) as ModerationModuleData;
+
+            this.get(req, res, {
+              message: "Infractions Until Kick",
+              data: {
+                settings: {
+                  autoPunish: {
+                    infractionsUntilKick: currentData.settings.autoPunish.infractionsUntilKick
+                  }
+                }
+              }
+            });
+          } catch (error) {
+            res.status(500).json({
+              message: "Failed to retrieve infractions until kick",
+              error: error instanceof Error ? error.message : "Unknown error"
+            });
+          }
+          break;
+        }
+        case "POST": {
+          try {
+            const guildID = req.params.id;
+            const currentData = await this.bot.getModuleData("Moderation", guildID) as ModerationModuleData;
+            const body = req.body as DeepPartial<ModerationModuleData>;
+
+            if (typeof body.settings?.autoPunish?.infractionsUntilKick !== "number") {
+              res.status(400).json({ message: "Invalid data format for infractions until kick" });
+              return;
+            }
+
+            currentData.settings.autoPunish.infractionsUntilKick = body.settings.autoPunish.infractionsUntilKick;
+            const updatedData = await this.updateData({ module: "Moderation", guildID }, currentData);
+            this.post(req, res, {
+              message: "Infractions Until Kick Updated",
+              data: {
+                settings: {
+                  autoPunish: {
+                    infractionsUntilKick: updatedData.settings.autoPunish.infractionsUntilKick
+                  }
+                }
+              }
+            });
+          } catch (error) {
+            res.status(500).json({
+              message: "Failed to update infractions until kick",
+              error: error instanceof Error ? error.message : "Unknown error"
+            });
+          }
+          break;
+        }
+        default:
+          res.status(405).json({ message: "Method not allowed" });
+          return;
+        }
+      },
+      "/setinfractionsuntiltimeout": async (req, res) => {
+        switch (req.method) {
+        case "GET": {
+          try {
+            const guildID = req.params.id;
+            const currentData = await this.bot.getModuleData("Moderation", guildID) as ModerationModuleData;
+
+            this.get(req, res, {
+              message: "Infractions Until Timeout",
+              data: {
+                settings: {
+                  autoPunish: {
+                    infractionsUntilTimeout: currentData.settings.autoPunish.infractionsUntilTimeout
+                  }
+                }
+              }
+            });
+          } catch (error) {
+            res.status(500).json({
+              message: "Failed to retrieve infractions until timeout",
+              error: error instanceof Error ? error.message : "Unknown error"
+            });
+          }
+          break;
+        }
+        case "POST": {
+          try {
+            const guildID = req.params.id;
+            const currentData = await this.bot.getModuleData("Moderation", guildID) as ModerationModuleData;
+            const body = req.body as DeepPartial<ModerationModuleData>;
+
+            if (typeof body.settings?.autoPunish?.infractionsUntilTimeout !== "number") {
+              res.status(400).json({ message: "Invalid data format for infractions until timeout" });
+              return;
+            }
+
+            currentData.settings.autoPunish.infractionsUntilTimeout = body.settings.autoPunish.infractionsUntilTimeout;
+            const updatedData = await this.updateData({ module: "Moderation", guildID }, currentData);
+            this.post(req, res, {
+              message: "Infractions Until Timeout Updated",
+              data: {
+                settings: {
+                  autoPunish: {
+                    infractionsUntilTimeout: updatedData.settings.autoPunish.infractionsUntilTimeout
+                  }
+                }
+              }
+            });
+          } catch (error) {
+            res.status(500).json({
+              message: "Failed to update infractions until timeout",
+              error: error instanceof Error ? error.message : "Unknown error"
+            });
+          }
+          break;
+        }
+        default:
+          res.status(405).json({ message: "Method not allowed" });
+          return;
+        }
+      }
     };
   }
 
