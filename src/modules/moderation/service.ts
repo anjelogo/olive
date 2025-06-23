@@ -57,7 +57,7 @@ export default class ModerationService extends Service {
 
         const fields = this.fields.map(field => {
           switch (field.action) {
-          case "autopunish":
+          case "/autopunish":
             return {
               ...field,
               data: {
