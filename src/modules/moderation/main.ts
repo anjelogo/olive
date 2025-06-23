@@ -16,7 +16,7 @@ export default class Moderation extends Module {
     this.version = "1.4";
     this.path = "modules/moderation";
     this.db = true;
-
+    this.serviceEnabled = true;
   }
 
   readonly moduleData: ModerationModuleData = {
