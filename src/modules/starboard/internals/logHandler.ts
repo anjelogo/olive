@@ -60,7 +60,7 @@ export const createLogEntry = async (bot: ExtendedClient, guild: Guild, message:
     );
   }
 
-  if (message.attachments !== undefined) {
+  if (message.attachments.size > 0) {
     textFields.push(
       {
         type: Constants.ComponentTypes.MEDIA_GALLERY,
