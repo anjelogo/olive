@@ -51,7 +51,7 @@ export const createLogEntry = async (bot: ExtendedClient, guild: Guild, message:
     },
   ];
 
-  if (message.content !== "") {
+  if (message.content) {
     textFields.push(
       {
         type: Constants.ComponentTypes.TEXT_DISPLAY,
@@ -60,13 +60,17 @@ export const createLogEntry = async (bot: ExtendedClient, guild: Guild, message:
     );
   }
 
-  if (message.attachments.size > 0) {
+  if (message.attachments.size) {
+    const attachment = message.attachments.first();
+
+    if (!attachment) return;
+
     textFields.push(
       {
         type: Constants.ComponentTypes.MEDIA_GALLERY,
         items: [
           {
-            media: { url: message.attachments.first()?.url as string },
+            media: { url: attachment.url as string },
             description: "Attachment",
           }
         ]
