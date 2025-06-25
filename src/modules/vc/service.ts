@@ -31,7 +31,6 @@ export default class VCService extends Service {
               ...field,
               data: {
                 defaultName: {
-                  ...currentData.defaultName,
                   channel: currentData.defaultName.channel || "{user}'s Private Channel"
                 }
               }
@@ -77,7 +76,7 @@ export default class VCService extends Service {
         case "POST": {
           try {
             const guildID = req.params.id;
-            const newName = req.body.name || "{user}'s Private Channel";
+            const newName = req.body.channel.name || "{user}'s Private Channel";
             const currentData = await this.bot.getModuleData("VC", guildID) as VCModuleData;
 
             currentData.defaultName.channel = newName;
@@ -111,12 +110,6 @@ export default class VCService extends Service {
     data: DeepPartial<ModuleDataMap[K]>
   ): Promise<ModuleDataMap[K]> {
     const rolesData = data as DeepPartial<VCModuleData>;
-    if (!rolesData.defaultName) {
-      rolesData.defaultName = {
-        category: "{user}'s Private Category",
-        channel: "{user}'s Private Channel"
-      };
-    }
     return this.bot.updateModuleData<"VC">("VC", rolesData as ModuleDataMap["VC"], params.guildID) as Promise<ModuleDataMap[K]>;
   }
 
