@@ -175,7 +175,24 @@ export default abstract class Service {
     return this.router;
   }
 
+  protected getBodyData<T extends ModuleName>(
+    key: string,
+    body: DeepPartial<ModuleDataMap[T]>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ): Record<string, any> | undefined {
+    if (!body || typeof body !== "object") return undefined;
 
+    if (key in body) return body;
 
+    for (const k in body) {
+      const value = body[k];
+      if (typeof value === "object") {
+        const result = this.getBodyData<T>(key, value as DeepPartial<ModuleDataMap[T]>);
+        if (result !== undefined) return result;
+      }
+    }
+
+    return undefined;
+  }
 
 }
