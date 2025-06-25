@@ -76,15 +76,15 @@ export default class RoleService extends Service {
         case "POST": {
           try {
             const guildID = req.params.id;
+            const bodyData = this.getBodyData("Roles", "savedRoles", req.body) as RolesModuleData["savedRoles"];
             const currentData = await this.bot.getModuleData("Roles", guildID) as RolesModuleData;
-            const body = req.body as DeepPartial<RolesModuleData>;
 
-            if (typeof body.savedRoles?.enabled !== "boolean") {
+            if (typeof bodyData.enabled !== "boolean") {
               res.status(400).json({ message: "Invalid data for role saving" });
               return;
             }
 
-            currentData.savedRoles.enabled = body.savedRoles.enabled;
+            currentData.savedRoles.enabled = bodyData.enabled;
             const updatedData = await this.updateData({
               guildID,
               module: "Roles"
