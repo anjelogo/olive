@@ -76,9 +76,6 @@ export default class VCService extends Service {
         case "POST": {
           try {
             const guildID = req.params.id;
-            console.log(req.body.data, "channel");
-            console.log(typeof req.body, "body");
-            console.log(this.getBodyData("channel", req.body), "channel");
             const bodyData = this.getBodyData("channel", req.body) as { channel: string };
             const currentData = await this.bot.getModuleData("VC", guildID) as VCModuleData;
 
