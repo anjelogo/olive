@@ -109,7 +109,7 @@ export default class ExtendedClient extends Olive {
   }
 
   public async getModuleData<T extends ModuleName>(name: T, guildID: string): Promise<ModuleDataMap[T] | undefined> {
-    const Module: Module = this.getModule(name);
+    const Module = this.getModule(name) as Module;
 
     if (!guildID) return undefined;
 
@@ -117,7 +117,7 @@ export default class ExtendedClient extends Olive {
   }
 
   public async getAllData<T extends ModuleName>(name: T): Promise<ModuleDataMap[T][]> {
-    const Module: Module = this.getModule(name);
+    const Module = this.getModule(name) as Module;
 
     if (!Module) return [];
     const data = await this.db.get(Module.name).find({});
@@ -126,7 +126,7 @@ export default class ExtendedClient extends Olive {
   }
 
   public async updateModuleData<T extends ModuleName>(name: T, data: ModuleDataMap[T], guild: string | Guild): Promise<ModuleDataMap[T]> {
-    const Module: Module = this.getModule(name);
+    const Module = this.getModule(name) as Module;
 
     if (typeof guild === "string") guild = this.findGuild(guild) as Guild;
     if (!guild) throw new Error("Could not find guild!");
