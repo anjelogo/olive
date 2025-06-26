@@ -275,14 +275,19 @@ export default class ModerationService extends Service {
             const guildID = req.params.id;
             const bodyData = this.getBodyData("Moderation", "infractionsUntilBan", req.body) as DeepPartial<ModerationModuleData["settings"]["autoPunish"]>;
             const currentData = await this.bot.getModuleData("Moderation", guildID) as ModerationModuleData;
-            
 
-            if (typeof bodyData.infractionsUntilBan !== "number") {
-              res.status(400).json({ message: "Invalid data format for infractions until ban" });
-              return;
+            let value = bodyData.infractionsUntilBan;
+
+            if (typeof bodyData.infractionsUntilBan == "string") {
+              value = Number(bodyData.infractionsUntilBan);
+
+              if (isNaN(value)) {
+                res.status(400).json({ message: "Invalid data format for infractions until warn" });
+                return;
+              }
             }
 
-            currentData.settings.autoPunish.infractionsUntilBan = bodyData.infractionsUntilBan;
+            currentData.settings.autoPunish.infractionsUntilBan = value as number;
             const updatedData = await this.updateData({ module: "Moderation", guildID }, currentData);
             this.post(req, res, {
               message: "Infractions Until Ban Updated",
@@ -338,12 +343,18 @@ export default class ModerationService extends Service {
             const bodyData = this.getBodyData("Moderation", "infractionsUntilKick", req.body) as DeepPartial<ModerationModuleData["settings"]["autoPunish"]>;
             const currentData = await this.bot.getModuleData("Moderation", guildID) as ModerationModuleData;
 
-            if (typeof bodyData.infractionsUntilKick !== "number") {
-              res.status(400).json({ message: "Invalid data format for infractions until kick" });
-              return;
+            let value = bodyData.infractionsUntilKick;
+
+            if (typeof bodyData.infractionsUntilKick == "string") {
+              value = Number(bodyData.infractionsUntilKick);
+
+              if (isNaN(value)) {
+                res.status(400).json({ message: "Invalid data format for infractions until warn" });
+                return;
+              }
             }
 
-            currentData.settings.autoPunish.infractionsUntilKick = bodyData.infractionsUntilKick;
+            currentData.settings.autoPunish.infractionsUntilKick = value as number;
             const updatedData = await this.updateData({ module: "Moderation", guildID }, currentData);
             this.post(req, res, {
               message: "Infractions Until Kick Updated",
@@ -398,13 +409,19 @@ export default class ModerationService extends Service {
             const guildID = req.params.id;
             const bodyData = this.getBodyData("Moderation", "infractionsUntilTimeout", req.body) as DeepPartial<ModerationModuleData["settings"]["autoPunish"]>;
             const currentData = await this.bot.getModuleData("Moderation", guildID) as ModerationModuleData;
+            
+            let value = bodyData.infractionsUntilTimeout;
 
-            if (typeof bodyData.infractionsUntilTimeout !== "number") {
-              res.status(400).json({ message: "Invalid data format for infractions until timeout" });
-              return;
+            if (typeof bodyData.infractionsUntilTimeout == "string") {
+              value = Number(bodyData.infractionsUntilTimeout);
+
+              if (isNaN(value)) {
+                res.status(400).json({ message: "Invalid data format for infractions until warn" });
+                return;
+              }
             }
 
-            currentData.settings.autoPunish.infractionsUntilTimeout = bodyData.infractionsUntilTimeout;
+            currentData.settings.autoPunish.infractionsUntilTimeout = value as number;
             const updatedData = await this.updateData({ module: "Moderation", guildID }, currentData);
             this.post(req, res, {
               message: "Infractions Until Timeout Updated",
