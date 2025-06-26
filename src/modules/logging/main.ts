@@ -5,7 +5,7 @@ import { LogChannelTypes, LoggingModuleData } from "../../Database/interfaces/Lo
 
 export default class Logging extends Module {
 
-  readonly name: string;
+  readonly name = "Logging";
   readonly version: string;
   readonly path: string;
   readonly weight: number;
@@ -14,7 +14,6 @@ export default class Logging extends Module {
   constructor (bot: ExtendedClient) {
     super(bot);
 
-    this.name = "Logging";
     this.version = "1.2";
     this.path = "modules/logging";
     this.weight = 1;
