@@ -79,7 +79,7 @@ export default class RoleService extends Service {
             const bodyData = this.getBodyData("Roles", "savedRoles", req.body) as RolesModuleData["savedRoles"];
             const currentData = await this.bot.getModuleData("Roles", guildID) as RolesModuleData;
 
-            console.log("Received body data for role saving:", bodyData);
+            console.log("Received body data for role saving:", req.body);
             if (typeof bodyData.enabled !== "boolean") {
               res.status(400).json({ message: "Invalid data for role saving" });
               return;
