@@ -4,7 +4,7 @@ import { ModerationModuleData } from "../../Database/interfaces/ModerationModule
 
 export default class Moderation extends Module {
 
-  readonly name: string;
+  readonly name = "Moderation";
   readonly version: string;
   readonly path: string;
   readonly db: boolean;
@@ -12,7 +12,6 @@ export default class Moderation extends Module {
   constructor (bot: ExtendedClient) {
     super(bot);
 
-    this.name = "Moderation";
     this.version = "1.4";
     this.path = "modules/moderation";
     this.db = true;

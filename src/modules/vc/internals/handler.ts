@@ -16,10 +16,12 @@ export const create = async (bot: ExtendedClient, member: Member, channel: Voice
 
   const parentOverwrites = (bot.findChannel(channel.guild, category.catID) as CategoryChannel).permissionOverwrites.map((p) => ({ id: p.id, type: p.type, allow: p.allow, deny: p.deny}));
 
+  const channelName = data.defaultName.channel[Math.floor(Math.random() * data.defaultName.channel.length)];
+
   const voice = await member.guild.createChannel(
     Constants.ChannelTypes.GUILD_VOICE,
     {
-      name: data.defaultName.channel.replace("{user}", member.username),
+      name: channelName.replace("{user}", member.username),
       parentID: channel.parentID as string,
       permissionOverwrites: [
         ...parentOverwrites

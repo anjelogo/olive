@@ -5,7 +5,7 @@ import { messageDataStructure, StarboardModuleData } from "../../Database/interf
 
 export default class Starboard extends Module {
 
-  readonly name: string;
+  readonly name = "Starboard";
   readonly version: string;
   readonly path: string;
   readonly db: boolean;
@@ -13,7 +13,6 @@ export default class Starboard extends Module {
   constructor (bot: ExtendedClient) {
     super(bot);
 
-    this.name = "Starboard";
     this.version = "1.1";
     this.path = "modules/starboard";
     this.db = true;

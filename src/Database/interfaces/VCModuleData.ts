@@ -23,7 +23,9 @@ export interface Channel {
 export interface VCModuleData extends BaseModuleData {
   categories: Category[];
   defaultName: {
-    category: string;
-    channel: string;
+    channel: string[];
+
+    /** @deprecated Category default name will always be "Join to create private channel" */
+    category?: string;
   };
 }

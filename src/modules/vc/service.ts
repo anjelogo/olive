@@ -10,7 +10,7 @@ export default class VCService extends Service {
     {
       label: "Default Channel Name",
       description: "Set the default name for new private voice channels created by the bot.",
-      type: "short_input",
+      type: "list",
       action: "/defaultchannelname",
       module: "VC",
       permissions: ["vc.edit.name"],
@@ -31,7 +31,7 @@ export default class VCService extends Service {
               ...field,
               data: {
                 defaultName: {
-                  channel: currentData.defaultName.channel || "{user}'s Private Channel"
+                  channel: currentData.defaultName.channel || ["{user}'s Private Channel"]
                 }
               }
             } as InputField;
@@ -61,7 +61,7 @@ export default class VCService extends Service {
               message: "Default Channel Name",
               data: {
                 defaultName: {
-                  channel: currentData.defaultName.channel || "{user}'s Private Channel"
+                  channel: currentData.defaultName.channel || ["{user}'s Private Channel"]
                 }
               }
             });
@@ -78,6 +78,11 @@ export default class VCService extends Service {
             const guildID = req.params.id;
             const bodyData = this.getBodyData("VC", "channel", req.body) as VCModuleData["defaultName"];
             const currentData = await this.bot.getModuleData("VC", guildID) as VCModuleData;
+
+            if (!Array.isArray(bodyData.channel)) {
+              res.status(400).json({ message: "Invalid data format for default name" });
+              return;
+            }
 
             currentData.defaultName.channel = bodyData.channel;
             await this.updateData({ module: "VC", guildID }, currentData);

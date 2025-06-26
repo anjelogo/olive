@@ -4,7 +4,7 @@ import { VCModuleData } from "../../Database/interfaces/VCModuleData";
 
 export default class VC extends Module {
 
-  readonly name: string;
+  readonly name = "VC"
   readonly version: string;
   readonly path: string;
   readonly db: boolean;
@@ -12,8 +12,7 @@ export default class VC extends Module {
   constructor (bot: ExtendedClient) {
     super(bot);
 
-    this.name = "VC";
-    this.version = "1.2";
+    this.version = "1.3";
     this.path = "modules/vc";
     this.db = true;
     this.serviceEnabled = true;
@@ -26,8 +25,7 @@ export default class VC extends Module {
     guildID: "",
     categories: [],
     defaultName: {
-      category: "Join to create a channel",
-      channel: "{user}'s channel"
+      channel: ["{user}'s channel"]
     }
   };
 

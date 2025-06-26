@@ -138,16 +138,22 @@ export default class Checks {
 
         case "0.0":
         case "1.0":
-        case "1.1": {
-          //Migrates from 1.0 to 1.1
+        case "1.1":
+        case "1.2": {
+          //Migrates from 1.0 to 1.3
+          // Removes defaultName.category and defaultName.channel is array type
           if (guildData.version === newVersion) continue;
-      
-          const newDataStruct = {
+
+          const newDataStruct: VCModuleData = {
             ...guildData,
-            enabled: true,
-            version: newVersion
+            version: newVersion,
+            defaultName: {
+              channel: [guildData.defaultName.channel as unknown as string || "{user}'s Private Channel"]
+            }
           };
-      
+
+          delete newDataStruct.defaultName.category;
+
           promises.push(await this.bot.updateModuleData("VC", newDataStruct, guildData.guildID));
           break;
         }

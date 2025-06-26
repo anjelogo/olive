@@ -203,7 +203,7 @@ export default class Voicechannel extends Command {
         if (!await mainModule.handlePermission(member, "vc.edit.category", interaction)) return;
 
         const voice = await guild.createChannel(Constants.ChannelTypes.GUILD_VOICE, {
-            name: data.defaultName.category,
+            name: "Join to create private channel",
             parentID: channel.id,
           }),
           newCat: Category = {

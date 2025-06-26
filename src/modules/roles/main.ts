@@ -5,7 +5,7 @@ import { RolesMessage, RolesModuleData } from "../../Database/interfaces/RolesMo
 
 export default class Roles extends Module {
 
-  readonly name: string;
+  readonly name = "Roles";
   readonly version: string;
   readonly path: string;
   readonly db: boolean;
@@ -13,7 +13,6 @@ export default class Roles extends Module {
   constructor(bot: ExtendedClient) {
     super(bot);
 
-    this.name = "Roles";
     this.version = "1.2";
     this.path = "modules/roles";
     this.db = true;

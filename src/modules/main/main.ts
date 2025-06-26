@@ -4,7 +4,6 @@ import Module from "../../Base/Module";
 import ExtendedClient from "../../Base/Client";
 import { MainModuleData } from "../../Database/interfaces/MainModuleData";
 
-
 export interface helpEmbed {
   content: string;
   embed: Embed;
@@ -12,7 +11,7 @@ export interface helpEmbed {
 
 export default class Main extends Module {
 
-  readonly name: string;
+  readonly name = "Main";
   readonly version: string;
   readonly path: string;
   readonly weight: number;
@@ -21,7 +20,6 @@ export default class Main extends Module {
   constructor (bot: ExtendedClient) {
     super(bot);
 
-    this.name = "Main";
     this.version = "1.2";
     this.path = "modules/main";
     this.weight = 0; //Load this module before everything
