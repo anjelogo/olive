@@ -43,7 +43,7 @@ const guildsRoute = (client: ExtendedClient): Router => {
     const modules = client.modules
       .map(m => m.name)
       .filter(m => !guildData.disabledModules.includes(m)
-                    && ["Main", "Logging"].includes(m));
+                    && !["Main", "Logging"].includes(m));
 
     res.status(200).json({
       guild: {
