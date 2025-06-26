@@ -2,6 +2,7 @@
 
 import { promises as fs } from "fs";
 import { Permnodes, Constants } from "../resources/interfaces";
+import { ModuleName } from "../Database/ModuleTypes";
 import ExtendedClient from "./Client";
 import Command from "./Command";
 import Service from "./Service";
@@ -11,9 +12,12 @@ export interface moduleDataStructure {
   guildID: string;
 }
 
-export default class Module {
+export default abstract class Module {
 
-  readonly name: string;
+  public abstract name: ModuleName;
+  public service?: Service;
+  public serviceEnabled?: boolean;
+
   readonly version: string;
   readonly bot: ExtendedClient;
   readonly constants: Constants;
@@ -21,12 +25,9 @@ export default class Module {
   readonly weight: number;
   readonly db?: boolean;
   readonly moduleData: unknown;
-  public service?: Service;
-  public serviceEnabled?: boolean;
 
   constructor (bot: ExtendedClient) {
 
-    this.name = "";
     this.version = "0.0";
     this.bot = bot;
     this.constants = bot.constants;
