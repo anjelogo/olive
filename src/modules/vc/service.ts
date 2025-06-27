@@ -10,7 +10,7 @@ export default class VCService extends Service {
     {
       label: "Default Channel Name",
       description: "Set the default name for new private voice channels created by the bot.",
-      type: "list",
+      type: "list_input",
       action: "/defaultchannelname",
       module: "VC",
       permissions: ["vc.edit.name"],

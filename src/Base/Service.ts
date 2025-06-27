@@ -12,7 +12,7 @@ export type DeepPartial<T> = {
 
 export interface InputField {
   label: string;
-  type: "checkbox" | "number" | "long_input" | "short_input" | "dropdown" | "list";
+  type: "checkbox" | "number" | "long_input" | "short_input" | "list_input" | "list_select";
   action: string;
   module: keyof ModuleDataMap;
   data: DeepPartial<ModuleDataMap[this["module"]]> | undefined; // data to be sent to the module
