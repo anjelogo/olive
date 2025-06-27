@@ -163,7 +163,13 @@ export default class ModerationService extends Service {
             
             this.post(req, res, {
               message: "Auto Punish Status Updated",
-              data: updatedData.settings.autoPunish
+              data: {
+                settings: {
+                  autoPunish: {
+                    enabled: updatedData.settings.autoPunish.enabled
+                  }
+                }
+              }
             });
           } catch (error) {
             res.status(500).json({
