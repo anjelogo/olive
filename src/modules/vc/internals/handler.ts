@@ -16,7 +16,9 @@ export const create = async (bot: ExtendedClient, member: Member, channel: Voice
 
   const parentOverwrites = (bot.findChannel(channel.guild, category.catID) as CategoryChannel).permissionOverwrites.map((p) => ({ id: p.id, type: p.type, allow: p.allow, deny: p.deny}));
 
-  const channelName = data.defaultName.channel[Math.floor(Math.random() * data.defaultName.channel.length)];
+  // Use crypto.getRandomValues for better randomness distribution
+  const randomIndex = Math.floor(crypto.getRandomValues(new Uint32Array(1))[0] / (0xFFFFFFFF + 1) * data.defaultName.channel.length);
+  const channelName = data.defaultName.channel[randomIndex];
 
   const voice = await member.guild.createChannel(
     Constants.ChannelTypes.GUILD_VOICE,
@@ -91,8 +93,10 @@ export const remove = async (bot: ExtendedClient, member: Member, channel: Voice
     await createLogEntry(bot, "end", channel, member, { createdAt: channelObj.createdAt });
     
   } else if (member.id === channelObj.owner) {
-    const members = channel.voiceMembers.filter((m) => m.id !== member.id).map((m) => m.id),
-      newOwner = bot.findMember(channel.guild, members[Math.floor(Math.random() * members.length)]) as Member;
+    const members = channel.voiceMembers.filter((m) => m.id !== member.id).map((m) => m.id);
+    // Use crypto.getRandomValues for better randomness distribution
+    const randomIndex = Math.floor(crypto.getRandomValues(new Uint32Array(1))[0] / (0xFFFFFFFF + 1) * members.length);
+    const newOwner = bot.findMember(channel.guild, members[randomIndex]) as Member;
 
     channelObj.owner = newOwner.id;
 
