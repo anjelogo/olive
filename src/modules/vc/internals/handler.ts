@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { CategoryChannel, Constants, ContainerComponent, Member, MessageComponent, StageChannel, TextDisplayComponent, VoiceChannel } from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
 import Logging from "../../logging/main";
