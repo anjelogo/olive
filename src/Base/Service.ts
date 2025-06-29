@@ -71,34 +71,9 @@ export default abstract class Service {
     return guildID; // return ID so you can use it directly
   }
 
-  // Overload 1: For module data
-  protected async get<K extends ModuleName>(
-    req: Request,
-    res: Response,
-    data: {
-      message: string;
-      data: DeepPartial<ModuleDataMap[K]>;
-    }
-  ): Promise<void>;
-
-  // Overload 2: For UI fields or non-module responses
-  protected async get(
-    req: Request,
-    res: Response,
-    data: {
-      message: string;
-      data: InputField[];
-    }
-  ): Promise<void>;
-
-  protected async get(
-    req: Request,
-    res: Response,
-    data: {
-      message: string;
-      data: unknown;
-    }
-  ): Promise<void> {
+  protected async get<K extends ModuleName>(req: Request, res: Response, data: { message: string; data: DeepPartial<ModuleDataMap[K]>; } ): Promise<void>; 
+  protected async get(req: Request, res: Response, data: { message: string; data: InputField[]; }): Promise<void>;
+  protected async get(req: Request, res: Response, data: { message: string; data: unknown; }): Promise<void> {
     try {
       const guildID = await this.checkForGuild(req, res);
       if (!guildID) return;

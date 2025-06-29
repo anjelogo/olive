@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { User } from "oceanic.js";
 import ExtendedClient from "../../Base/Client";
 import Service, { DeepPartial, InputField } from "../../Base/Service";
 import { ModuleDataMap, ModuleName } from "../../Database/ModuleTypes";
@@ -117,12 +118,34 @@ export default class ModerationService extends Service {
           }
         });
 
+        // Filter out fields that the user doesn't have permission for
+        const filteredFields = [];
+        for (const field of fields) {
+          let hasAllPerms = true;
+          for (const perm of field.permissions) {
+            const hasPerm = await this.bot.getModule("Main").hasPerm(req.user as User, perm, guildID);
+            if (!hasPerm) {
+              hasAllPerms = false;
+              break;
+            }
+          }
+          if (hasAllPerms) {
+            filteredFields.push(field);
+          }
+        }
+
         this.get(req, res, {
           message: "Moderation Module Settings",
-          data: fields
+          data: filteredFields
         });
       },
       "/autopunish": async (req, res) => {
+        const guildID = req.params.id;
+        if (!await this.bot.getModule("Main").hasPerm(req.user as User, "moderation.settings.edit", guildID)) {
+          res.status(403).json({ message: "You do not have permission to access this endpoint." });
+          return;
+        }
+
         switch (req.method) {
         case "GET": {
           try {
@@ -185,6 +208,12 @@ export default class ModerationService extends Service {
         }
       },
       "/setinfractionsuntilwarn": async (req, res) => {
+        const guildID = req.params.id;
+        if (!await this.bot.getModule("Main").hasPerm(req.user as User, "moderation.settings.edit", guildID)) {
+          res.status(403).json({ message: "You do not have permission to access this endpoint." });
+          return;
+        }
+
         switch (req.method) {
         case "GET": {
           try {
@@ -252,6 +281,12 @@ export default class ModerationService extends Service {
         }
       },
       "/setinfractionsuntilban": async (req, res) => {
+        const guildID = req.params.id;
+        if (!await this.bot.getModule("Main").hasPerm(req.user as User, "moderation.settings.edit", guildID)) {
+          res.status(403).json({ message: "You do not have permission to access this endpoint." });
+          return;
+        }
+
         switch (req.method) {
         case "GET": {
           try {
@@ -319,6 +354,12 @@ export default class ModerationService extends Service {
         }
       },
       "/setinfractionsuntilkick": async (req, res) => {
+        const guildID = req.params.id;
+        if (!await this.bot.getModule("Main").hasPerm(req.user as User, "moderation.settings.edit", guildID)) {
+          res.status(403).json({ message: "You do not have permission to access this endpoint." });
+          return;
+        }
+
         switch (req.method) {
         case "GET": {
           try {
@@ -386,6 +427,12 @@ export default class ModerationService extends Service {
         }
       },
       "/setinfractionsuntiltimeout": async (req, res) => {
+        const guildID = req.params.id;
+        if (!await this.bot.getModule("Main").hasPerm(req.user as User, "moderation.settings.edit", guildID)) {
+          res.status(403).json({ message: "You do not have permission to access this endpoint." });
+          return;
+        }
+
         switch (req.method) {
         case "GET": {
           try {

@@ -40,13 +40,30 @@ export default class VCService extends Service {
           }
         });
 
+        // Filter out fields that the user doesn't have permission for
+        const filteredFields = [];
+        for (const field of fields) {
+          let hasAllPerms = true;
+          for (const perm of field.permissions) {
+            const hasPerm = await this.bot.getModule("Main").hasPerm(req.user as User, perm, guildID);
+            if (!hasPerm) {
+              hasAllPerms = false;
+              break;
+            }
+          }
+          if (hasAllPerms) {
+            filteredFields.push(field);
+          }
+        }
+
         this.get(req, res, {
           message: "VC Module Settings",
-          data: fields
+          data: filteredFields
         });
       },
       "/defaultchannelname": async (req, res) => {
-        if (await this.bot.getModule("Main").hasPerm(req.user as User, "vc.edit.name")) {
+        const guildID = req.params.id;
+        if (!await this.bot.getModule("Main").hasPerm(req.user as User, "vc.edit.name", guildID)) {
           res.status(403).json({ message: "You do not have permission to access this endpoint." });
           return;
         }
