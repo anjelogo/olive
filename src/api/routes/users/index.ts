@@ -1,8 +1,11 @@
 import { Router, Request, Response } from "express";
 import ExtendedClient from "../../../Base/Client";
+import { authenticateJWT } from "../../middleware/authMiddleware";
 
 const userRoute = (client: ExtendedClient): Router => {
   const router = Router();
+
+  router.use("/:id", authenticateJWT(client));
 
   router.get("/:id", (req: Request<{ id: string }>, res: Response) => {
     const userID = req.params.id;

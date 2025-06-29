@@ -48,6 +48,7 @@ const guildsRoute = (client: ExtendedClient): Router => {
     res.status(200).json({
       guild: {
         ...guild,
+        icon: guild.iconURL(),
         modules
       }
     });
