@@ -52,8 +52,6 @@ const userRoute = (client: ExtendedClient): Router => {
       return;
     }
 
-    guilds = guilds.filter(guild => guild.members.get(userID)?.permissions.has("MANAGE_GUILD"));
-
     for (const guild of guilds) {
       const hasPerm = await client.getModule("Main").hasPerm(user, "main.web.view", guild.id);
       if (hasPerm == false) {
