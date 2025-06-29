@@ -266,17 +266,9 @@ export default class Permnode extends Command {
           }
         }
 
+        console.log(perms, "perms");
+
         perms.sort((a, b) => a.hoist - b.hoist);
-
-        for (const perm of perms) {
-          perms.map((p) => p.name);
-          const dupes = perms.filter((p) => p.name === perm.name);
-          if (dupes.length) {
-            const i = perms.findIndex((p) => p.name === perm.name && p.value === true);
-            if (i > -1) perms.splice(i, 1);
-          }
-        }
-
         perms = [...new Set(perms)];
 
         for (const perm of perms) {

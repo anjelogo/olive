@@ -1,4 +1,4 @@
-import { Guild } from "oceanic.js";
+import { Guild, User } from "oceanic.js";
 import { Router, Request, Response } from "express";
 import ExtendedClient from "../../../Base/Client";
 import { authenticateJWT } from "../../middleware/authMiddleware";
@@ -40,6 +40,12 @@ const guildsRoute = (client: ExtendedClient): Router => {
       return;
     }
 
+    const hasPerm = await client.getModule("Main").hasPerm(req.user as User, "main.web.view", guild.id);
+    if (!hasPerm) {
+      res.status(403).json({ error: "Forbidden: You do not have permission to access this resource" });
+      return;
+    }
+
     const modules = client.modules
       .map(m => m.name)
       .filter(m => !guildData.disabledModules.includes(m)
@@ -49,6 +55,7 @@ const guildsRoute = (client: ExtendedClient): Router => {
       guild: {
         ...guild,
         icon: guild.iconURL(),
+        banner: guild.bannerURL(),
         modules
       }
     });

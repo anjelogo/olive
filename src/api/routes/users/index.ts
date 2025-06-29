@@ -5,8 +5,6 @@ import { authenticateJWT } from "../../middleware/authMiddleware";
 const userRoute = (client: ExtendedClient): Router => {
   const router = Router();
 
-  router.use("/:id", authenticateJWT(client));
-
   router.get("/:id", (req: Request<{ id: string }>, res: Response) => {
     const userID = req.params.id;
 
@@ -19,16 +17,20 @@ const userRoute = (client: ExtendedClient): Router => {
       res.status(404).json({ error: "User not found" });
       return;
     }
-
-    user.avatar;
     
     res.status(200).json({
-      user
+      user: {
+        id: user.id,
+        username: user.username,
+        avatar: user.avatarURL(),
+        banner: user.bannerURL(),
+      }
     });
     return;
   });
 
-  router.get("/:id/guilds", (req: Request<{ id: string }>, res: Response) => {
+  router.use("/:id/guilds", authenticateJWT(client));
+  router.get("/:id/guilds", async (req: Request<{ id: string }>, res: Response) => {
     const userID = req.params.id;
 
     if (!userID) {
@@ -43,14 +45,21 @@ const userRoute = (client: ExtendedClient): Router => {
       return;
     }
 
-    const guilds = client.guilds.filter(guild => guild.members.has(userID));
+    let guilds = client.guilds.filter(guild => guild.members.has(userID));
 
     if (!guilds) {
       res.status(404).json({ error: "Guilds not found" });
       return;
     }
 
-    guilds.filter(guild => guild.members.get(userID)?.permissions.has("MANAGE_GUILD"));
+    guilds = guilds.filter(guild => guild.members.get(userID)?.permissions.has("MANAGE_GUILD"));
+
+    for (const guild of guilds) {
+      const hasPerm = await client.getModule("Main").hasPerm(user, "main.web.view", guild.id);
+      if (hasPerm == false) {
+        guilds = guilds.filter(g => g.id !== guild.id);
+      }
+    }
 
     res.status(200).json({
       guilds: guilds.map(guild => ({

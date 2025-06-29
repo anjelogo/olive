@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { User } from "oceanic.js";
 import ExtendedClient from "../../Base/Client";
 
 const JWT_SECRET = process.env.JWT_SECRET || "defaultsecret";
@@ -21,12 +20,6 @@ export const authenticateJWT = (client: ExtendedClient) => {
 
       if (!user) {
         res.status(401).json({ message: "Unauthorized: User not found" });
-        return;
-      }
-
-      const allowed = await client.getModule("Main").hasPerm(user as User, "main.web.view", req.params.id);
-      if (!allowed) {
-        res.status(403).json({ message: "Forbidden: You do not have permission to access this resource" });
         return;
       }
 
