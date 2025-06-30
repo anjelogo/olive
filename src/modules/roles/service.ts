@@ -13,7 +13,7 @@ export default class RoleService extends Service {
       type: "checkbox",
       action: "/saveroles",
       module: "Roles",
-      permissions: ["roles.save.toggle"],
+      permissions: ["roles.web.edit", "roles.save.toggle"],
       data: undefined, // This will be filled dynamically based on the current data,
     }
   ];

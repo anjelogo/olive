@@ -39,5 +39,17 @@ export default [
     name: "vc.edit.category",
     description: "Grants the ability to edit/set private voice channel categories",
     default: false
+  }, {
+    name: "vc.web.*",
+    description: "Grants access to all Private VC web components",
+    default: false
+  }, {
+    name: "vc.web.view",
+    description: "Grants the ability to view the private vc settings of a guild",
+    default: false
+  }, {
+    name: "vc.web.edit",
+    description: "Grants the ability to edit the private vc settings of a guild",
+    default: false
   }
 ];

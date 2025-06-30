@@ -13,7 +13,7 @@ export default class VCService extends Service {
       type: "list_input",
       action: "/defaultchannelname",
       module: "VC",
-      permissions: ["vc.edit.name"],
+      permissions: ["vc.web.edit", "vc.edit.name"],
       data: undefined, // This will be filled dynamically based on the current data,
     }
   ];

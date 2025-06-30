@@ -51,5 +51,17 @@ export default [
     name: "roles.save.toggle",
     description: "Grants the ability to toggle saving roles",
     default: false
+  }, {
+    name: "roles.web.*",
+    description: "Grants access to all Roles web components",
+    default: false
+  }, {
+    name: "roles.web.view",
+    description: "Grants the ability to view the roles settings of a guild",
+    default: false
+  }, {
+    name: "roles.web.edit",
+    description: "Grants the ability to edit the roles settings of a guild",
+    default: false
   }
 ];

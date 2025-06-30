@@ -68,11 +68,15 @@ export default [
     description: "Grants the ability to delete the moderation case of a member",
     default: false
   }, {
-    name: "moderation.settings.view",
+    name: "moderation.web.*",
+    description: "Grants access to all Moderation web components",
+    default: false
+  }, {
+    name: "moderation.web.view",
     description: "Grants the ability to view the moderation settings of a guild",
     default: false
   }, {
-    name: "moderation.settings.edit",
+    name: "moderation.web.edit",
     description: "Grants the ability to edit the moderation settings of a guild",
     default: false
   }

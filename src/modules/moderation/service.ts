@@ -13,7 +13,7 @@ export default class ModerationService extends Service {
       type: "checkbox",
       action: "/autopunish",
       module: "Moderation",
-      permissions: ["moderation.settings.edit"],
+      permissions: ["moderation.web.edit"],
       data: undefined, // This will be filled dynamically based on the current data,
     }, {
       label: "Infractions Until Warn",
@@ -21,7 +21,7 @@ export default class ModerationService extends Service {
       type: "number",
       action: "/setinfractionsuntilwarn",
       module: "Moderation",
-      permissions: ["moderation.settings.edit"],
+      permissions: ["moderation.web.edit"],
       data: undefined, // This will be filled dynamically based on the current data,
     }, {
       label: "Infractions Until Ban",
@@ -29,7 +29,7 @@ export default class ModerationService extends Service {
       type: "number",
       action: "/setinfractionsuntilban",
       module: "Moderation",
-      permissions: ["moderation.settings.edit"],
+      permissions: ["moderation.web.edit"],
       data: undefined, // This will be filled dynamically based on the current data,
     }, {
       label: "Infractions Until Kick",
@@ -37,7 +37,7 @@ export default class ModerationService extends Service {
       type: "number",
       action: "/setinfractionsuntilkick",
       module: "Moderation",
-      permissions: ["moderation.settings.edit"],
+      permissions: ["moderation.web.edit"],
       data: undefined, // This will be filled dynamically based on the current data,
     }, {
       label: "Infractions Until Timeout",
@@ -45,7 +45,7 @@ export default class ModerationService extends Service {
       type: "number",
       action: "/setinfractionsuntiltimeout",
       module: "Moderation",
-      permissions: ["moderation.settings.edit"],
+      permissions: ["moderation.web.edit"],
       data: undefined, // This will be filled dynamically based on the current data,
     }
   ];
@@ -141,7 +141,7 @@ export default class ModerationService extends Service {
       },
       "/autopunish": async (req, res) => {
         const guildID = req.params.id;
-        if (!await this.bot.getModule("Main").hasPerm(req.user as User, "moderation.settings.edit", guildID)) {
+        if (!await this.bot.getModule("Main").hasPerm(req.user as User, "moderation.web.edit", guildID)) {
           res.status(403).json({ message: "You do not have permission to access this endpoint." });
           return;
         }
@@ -209,7 +209,7 @@ export default class ModerationService extends Service {
       },
       "/setinfractionsuntilwarn": async (req, res) => {
         const guildID = req.params.id;
-        if (!await this.bot.getModule("Main").hasPerm(req.user as User, "moderation.settings.edit", guildID)) {
+        if (!await this.bot.getModule("Main").hasPerm(req.user as User, "moderation.web.edit", guildID)) {
           res.status(403).json({ message: "You do not have permission to access this endpoint." });
           return;
         }
@@ -282,7 +282,7 @@ export default class ModerationService extends Service {
       },
       "/setinfractionsuntilban": async (req, res) => {
         const guildID = req.params.id;
-        if (!await this.bot.getModule("Main").hasPerm(req.user as User, "moderation.settings.edit", guildID)) {
+        if (!await this.bot.getModule("Main").hasPerm(req.user as User, "moderation.web.edit", guildID)) {
           res.status(403).json({ message: "You do not have permission to access this endpoint." });
           return;
         }
@@ -355,7 +355,7 @@ export default class ModerationService extends Service {
       },
       "/setinfractionsuntilkick": async (req, res) => {
         const guildID = req.params.id;
-        if (!await this.bot.getModule("Main").hasPerm(req.user as User, "moderation.settings.edit", guildID)) {
+        if (!await this.bot.getModule("Main").hasPerm(req.user as User, "moderation.web.edit", guildID)) {
           res.status(403).json({ message: "You do not have permission to access this endpoint." });
           return;
         }
@@ -428,7 +428,7 @@ export default class ModerationService extends Service {
       },
       "/setinfractionsuntiltimeout": async (req, res) => {
         const guildID = req.params.id;
-        if (!await this.bot.getModule("Main").hasPerm(req.user as User, "moderation.settings.edit", guildID)) {
+        if (!await this.bot.getModule("Main").hasPerm(req.user as User, "moderation.web.edit", guildID)) {
           res.status(403).json({ message: "You do not have permission to access this endpoint." });
           return;
         }
