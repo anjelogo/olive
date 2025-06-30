@@ -423,12 +423,12 @@ export default class Permnode extends Command {
 
     const subcommand = interaction.data.options.getSubCommand(true)[0];
 
-    if (!["edit", "remove"].includes(subcommand)) return;
+    if (!["edit", "remove", "has"].includes(subcommand)) return interaction.result([]);
 
     const focused = interaction.data.options.getFocused(true),
       options = this.bot.perms.filter((p) => p.name.toLowerCase().includes((focused.value as string).toLowerCase()));
 
-    if (!options.length) return;
+    if (!options.length) return interaction.result([]);
 
     const choices: AutocompleteChoice[] = options.map((p) => ({
       name: `${p.name} - ${p.description}`,
