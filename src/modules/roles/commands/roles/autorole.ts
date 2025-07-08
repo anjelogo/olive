@@ -78,8 +78,9 @@ export default class Autorole extends Command {
             }))
           .sort((a, b) => b.position - a.position).map((r) => r.name)
         : guild.id,
-      memberHighestRole: Role = this.bot.findRole(guild, memberHighestRoleID[0]) as Role,
-      subcommandgroup = interaction.data.options.raw[0].name;
+      memberHighestRole: Role = this.bot.findRole(guild, memberHighestRoleID[0]) as Role;
+
+    const subcommandgroup = interaction.data.options.getSubCommand(true)[0];
 
     switch(subcommandgroup) {
 
@@ -88,11 +89,10 @@ export default class Autorole extends Command {
 
       if (!subcommand)
         return interaction.createFollowup({content: "Subcommand not found", flags: Constants.MessageFlags.EPHEMERAL});
-
-      const role = interaction.data.options.getRole("role", true);
-
       switch(subcommand) {
       case "add": {
+        const role = interaction.data.options.getRole("role", true);
+
         if (data.autoRoles.includes(role.id))
           return interaction.createFollowup({content: "That role is already an Auto Role."});
     
@@ -115,6 +115,8 @@ export default class Autorole extends Command {
       }
     
       case "remove": {
+        const role = interaction.data.options.getRole("role", true);
+        
         if (!role)
           return interaction.createFollowup({content: "I could not find that role"});
     
