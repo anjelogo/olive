@@ -339,12 +339,7 @@ export default class Roles extends Command {
         );
 
         if (failed > 0) {
-          component.createFollowup(
-            {
-              content: `There was a problem adding **${failed.toString()}** roles.`,
-              flags: Constants.MessageFlags.EPHEMERAL
-            }
-          );
+          component.createFollowup({ content: `There was a problem adding **${failed.toString()}** roles.` });
         }
         return;
       } catch (e) {

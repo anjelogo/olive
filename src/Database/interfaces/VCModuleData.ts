@@ -21,6 +21,7 @@ export interface Channel {
 }
 
 export interface VCModuleData extends BaseModuleData {
+  guildID: string;
   categories: Category[];
   defaultName: {
     channel: string[];

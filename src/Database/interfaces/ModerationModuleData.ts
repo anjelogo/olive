@@ -30,24 +30,25 @@ interface BaseCase {
 }
 
 export interface ModerationSettings {
-    caseLimit: number;
-    autoPunish: {
-      enabled: boolean;
-      infractionsUntilWarn: number;
-      infractionsUntilBan: number;
-      infractionsUntilKick: number;
-      infractionsUntilTimeout: number;
-    }
+  caseLimit: number;
+  autoPunish: {
+    enabled: boolean;
+    infractionsUntilWarn: number;
+    infractionsUntilBan: number;
+    infractionsUntilKick: number;
+    infractionsUntilTimeout: number;
+  }
 
-    /** @deprecated use autoPunish.infractionsUntilBan */
-    infractionUntilBan?: number;
-    /** @deprecated use autoPunish.infractionsUntilKick */
-    infractionUntilKick?: number;
-    /** @deprecated use autoPunish.infractionsUntilTimeout */
-    infractionUntilTimeout?: number;
+  /** @deprecated use autoPunish.infractionsUntilBan */
+  infractionUntilBan?: number;
+  /** @deprecated use autoPunish.infractionsUntilKick */
+  infractionUntilKick?: number;
+  /** @deprecated use autoPunish.infractionsUntilTimeout */
+  infractionUntilTimeout?: number;
 }
 
 export interface ModerationModuleData extends BaseModuleData {
-    cases: Case[];
-    settings: ModerationSettings
+  guildID: string;
+  cases: Case[];
+  settings: ModerationSettings;
 }

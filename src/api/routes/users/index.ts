@@ -17,13 +17,15 @@ const userRoute = (client: ExtendedClient): Router => {
       res.status(404).json({ error: "User not found" });
       return;
     }
+
+    const settings = client.db.get("UserModuleData");
     
     res.status(200).json({
       user: {
         id: user.id,
         username: user.username,
         avatar: user.avatarURL(),
-        banner: user.bannerURL(),
+        banner: user.bannerURL()
       }
     });
     return;

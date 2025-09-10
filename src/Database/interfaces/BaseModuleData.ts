@@ -1,5 +1,6 @@
 export interface BaseModuleData {
-  guildID: string;
+  userID?: string;
+  guildID?: string;
   enabled: boolean;
   version: string;
 }

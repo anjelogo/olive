@@ -8,5 +8,6 @@ export interface messageDataStructure {
 }
 
 export interface StarboardModuleData extends BaseModuleData {
-    messages: messageDataStructure[];
+  guildID: string;  
+  messages: messageDataStructure[];
 }

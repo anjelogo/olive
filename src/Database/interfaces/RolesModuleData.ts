@@ -16,6 +16,7 @@ export interface RolesMessage {
 }
 
 export interface RolesModuleData extends BaseModuleData {
+  guildID: string;
   roles: string[];
   autoRoles: string[];
   messages: RolesMessage[];
