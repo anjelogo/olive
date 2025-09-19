@@ -172,12 +172,12 @@ export default class ExtendedClient extends Olive {
 
     if (!user) return;
 
-    let data = await this.db.get(this.name).findOne({ userID: user.id });
+    let data = await this.db.get("User").findOne({ userID: user.id });
     if (!data) {
       const moduleData = defaultUserModuleData;
       defaultUserModuleData.userID = user.id;
       this.constants.utils.log(
-        this.name,
+        "User",
         `Module data not found for user "${user.username}" (${user.id}). Creating now...`
       );
       await this.db
@@ -197,7 +197,7 @@ export default class ExtendedClient extends Olive {
       );
     }
 
-    data = await this.db.get(this.name).findOne({ userID: user.id });
+    data = await this.db.get("User").findOne({ userID: user.id });
 
     return data;
   };
