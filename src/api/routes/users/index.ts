@@ -13,13 +13,14 @@ const userRoute = (client: ExtendedClient): Router => {
       return;
     }
     const user = client.users.find(u => u.id === userID);
-    console.log(user);
     if (!user) {
       res.status(404).json({ error: "User not found" });
       return;
     }
 
     const userData = await client.getModuleData<"User", "user">("User", { userID });
+
+    console.log(userData);
 
     res.status(200).json({
       user: {
