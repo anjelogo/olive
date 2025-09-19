@@ -7,7 +7,7 @@ import { VCModuleData } from "../../../Database/interfaces/VCModuleData";
 export const run = async (bot: ExtendedClient, member: Member, channel: Uncached | VoiceChannel | StageChannel, oldChannel: null | VoiceChannel | StageChannel | Uncached): Promise<void> => {
   if (channel.id === null || channel instanceof StageChannel) return;
 
-  const data = await bot.getModuleData("VC", member.guild.id) as VCModuleData,
+  const data = await bot.getModuleData("VC", { guildID: member.guild.id }) as VCModuleData,
     mainModule = bot.getModule("Main") as Main,
     cat = data.categories.find((c) => c.catID === (channel as VoiceChannel).parentID);
 

@@ -5,27 +5,29 @@ import { authenticateJWT } from "../../middleware/authMiddleware";
 const userRoute = (client: ExtendedClient): Router => {
   const router = Router();
 
-  router.get("/:id", (req: Request<{ id: string }>, res: Response) => {
+  router.get("/:id", async (req: Request<{ id: string }>, res: Response) => {
     const userID = req.params.id;
 
     if (!userID) {
       res.status(400).json({ error: "User ID is required" });
       return;
     }
-    const user = client.findUser(userID);
+    const user = client.users.find(u => u.id === userID);
+    console.log(user);
     if (!user) {
       res.status(404).json({ error: "User not found" });
       return;
     }
 
-    const settings = client.db.get("UserModuleData");
-    
+    const userData = await client.getModuleData<"User", "user">("User", { userID });
+
     res.status(200).json({
       user: {
         id: user.id,
         username: user.username,
         avatar: user.avatarURL(),
-        banner: user.bannerURL()
+        banner: user.bannerURL(),
+        settings: userData
       }
     });
     return;

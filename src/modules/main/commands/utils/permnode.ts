@@ -101,7 +101,7 @@ export default class Permnode extends Command {
 
   readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
     const guild = this.bot.findGuild(interaction.guildID) as Guild,
-      data = (await this.bot.getModuleData("Main", guild.id) as unknown) as MainModuleData,
+  data = (await this.bot.getModuleData("Main", { guildID: guild.id }) as unknown) as MainModuleData,
       permissions = data.permissions,
       subcommand = interaction.data.options.getSubCommand(true)[0];
 
@@ -443,7 +443,7 @@ export default class Permnode extends Command {
     const data = getCustomData(this.bot, component.message.interactionMetadata?.id as string)?.data as { entity: string, page: number; roles: { name: string; id: string }[] },
       guild = this.bot.findGuild(component.guildID) as Guild,
       member = this.bot.findMember(guild, data.entity) as Member,
-      moduleData = await this.bot.getModuleData("Main", guild.id) as MainModuleData,
+  moduleData = await this.bot.getModuleData("Main", { guildID: guild.id }) as MainModuleData,
       permissions = moduleData.permissions;
 
     async function constructEmbed(bot: ExtendedClient, interaction: (ComponentInteraction | CommandInteraction), id: string) {

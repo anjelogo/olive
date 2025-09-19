@@ -70,7 +70,7 @@ export default class Case extends Command {
   readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
     const member = interaction.member as Member,
       guild = this.bot.findGuild(interaction.guildID) as Guild,
-      data = await this.bot.getModuleData("Moderation", guild.id) as ModerationModuleData,
+  data = await this.bot.getModuleData("Moderation", { guildID: guild.id }) as ModerationModuleData,
       subcommand = interaction.data.options.getSubCommand(true)[0];
 
     const caseID = interaction.data.options.getString("case", true),
@@ -83,7 +83,7 @@ export default class Case extends Command {
 
     switch (subcommand) {
     case "view": {
-      const guildData = await this.bot.getModuleData("Logging", guild.id) as LoggingModuleData;
+  const guildData = await this.bot.getModuleData("Logging", { guildID: guild.id }) as LoggingModuleData;
 
       if (guildData.channels.filter((c) => c.types.includes("moderation")).length) {
         const moderationLogChannels = guildData.channels.filter((c) => c.types.includes("moderation") && c.cases);

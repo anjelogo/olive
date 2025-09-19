@@ -71,7 +71,7 @@ export default abstract class Service {
     return guildID; // return ID so you can use it directly
   }
 
-  protected async get<K extends ModuleName>(req: Request, res: Response, data: { message: string; data: DeepPartial<ModuleDataMap[K]>; } ): Promise<void>; 
+  protected async get<K extends keyof ModuleDataMap>(req: Request, res: Response, data: { message: string; data: DeepPartial<ModuleDataMap[K]>; } ): Promise<void>; 
   protected async get(req: Request, res: Response, data: { message: string; data: InputField[]; }): Promise<void>;
   protected async get(req: Request, res: Response, data: { message: string; data: unknown; }): Promise<void> {
     try {
@@ -141,7 +141,7 @@ export default abstract class Service {
     }
   }
 
-  protected abstract updateData<K extends ModuleName>(
+  protected abstract updateData<K extends keyof ModuleDataMap>(
     params: { module: K; guildID: string }, // or whatever context you need
     data: DeepPartial<ModuleDataMap[K]>
   ): Promise<ModuleDataMap[K]>;
@@ -150,7 +150,7 @@ export default abstract class Service {
     return this.router;
   }
 
-  protected getBodyData<K extends ModuleName>(
+  protected getBodyData<K extends keyof ModuleDataMap>(
     module: K,
     key: string,
     body: DeepPartial<ModuleDataMap[K]>

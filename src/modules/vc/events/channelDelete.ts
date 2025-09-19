@@ -5,7 +5,7 @@ import { VCModuleData } from "../../../Database/interfaces/VCModuleData";
 export const run = async (bot: ExtendedClient, channel: (GuildChannel)): Promise<void> => {
   if ([Constants.ChannelTypes.GUILD_TEXT, Constants.ChannelTypes.GUILD_ANNOUNCEMENT, Constants.ChannelTypes.GUILD_FORUM].includes(channel.type)) return;
 
-  const data = await bot.getModuleData("VC", channel.guildID) as VCModuleData;
+  const data = await bot.getModuleData("VC", { guildID: channel.guildID }) as VCModuleData;
 
   async function deleteCategory(guildData: VCModuleData, channel: string) {
     if (!guildData) return;

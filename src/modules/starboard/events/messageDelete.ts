@@ -3,7 +3,7 @@ import ExtendedClient from "../../../Base/Client";
 import { StarboardModuleData } from "../../../Database/interfaces/StarboardModuleData";
 
 export const run = async (bot: ExtendedClient, message: Message | { id: string, channel: (TextChannel | { id: string; }), guildID: string, guild: { id: string }}) => {
-  const StarboardData = await bot.getModuleData("Starboard", message.guildID as string) as StarboardModuleData;
+  const StarboardData = await bot.getModuleData("Starboard", { guildID: message.guildID as string }) as StarboardModuleData;
 
   if (!StarboardData.messages) return;
     

@@ -108,7 +108,7 @@ export async function autoCalculateInfractions(bot: ExtendedClient, guildID: str
   }
   
   const history = (await getCases(bot, guild, user.id)).filter(c => !c.resolved),
-    guildSettings = await bot.getModuleData("Moderation", guild.id) as ModerationModuleData,
+  guildSettings = await bot.getModuleData("Moderation", { guildID: guild.id }) as ModerationModuleData,
     hierarchy = {
       warn: 1,
       timeout: 3,

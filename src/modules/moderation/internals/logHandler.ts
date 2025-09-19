@@ -67,7 +67,7 @@ export async function createLogEntry(bot: ExtendedClient, guild: Guild, data: Ca
 
 export async function updateLogEntry(bot: ExtendedClient, guild: Guild, data: Case) {
 
-  const guildData = await bot.getModuleData("Logging", guild.id) as LoggingModuleData;
+  const guildData = await bot.getModuleData("Logging", { guildID: guild.id }) as LoggingModuleData;
 
   if (guildData.channels.filter((c) => c.types.includes("moderation")).length) {
     const moderationLogChannels = guildData.channels.filter((c) => c.types.includes("moderation") && c.cases);

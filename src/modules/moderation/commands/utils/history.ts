@@ -66,7 +66,7 @@ export default class History extends Command {
 
     switch (subcommand) {
     case "view": {
-      const data = await this.bot.getModuleData("Moderation", guild.id);
+  const data = await this.bot.getModuleData("Moderation", { guildID: guild.id });
       let infractions = 0;
 
       const hierarchy = {

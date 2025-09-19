@@ -30,7 +30,7 @@ export default class Main extends Module {
   readonly getPerms = async (member: Member | undefined): Promise<string[] | null> => {
     if (!member) return null;
 
-    const moduleData = await this.bot.getModuleData("Main", member.guild.id) as MainModuleData,
+  const moduleData = await this.bot.getModuleData("Main", { guildID: member.guild.id }) as MainModuleData,
       permissions = moduleData.permissions;
 
     let perms: string[] = [...this.bot.perms.filter((p) => p.default).map((p) => p.name)];
@@ -81,7 +81,7 @@ export default class Main extends Module {
 
     const masterPerm = `${perm.split(/[.\-_]/)[0]}.*`,
       permission = this.bot.perms.find((p: Permnodes) => p.name === perm),
-      moduleData = await this.bot.getModuleData("Main", (member as Member).guild.id) as MainModuleData,
+  moduleData = await this.bot.getModuleData("Main", { guildID: (member as Member).guild.id }) as MainModuleData,
       permissions = moduleData.permissions;
 
     if (!permission || !permissions) return false;

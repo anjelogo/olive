@@ -10,17 +10,30 @@ import type * as vc from "./interfaces/VCModuleData";
 import type * as moderation from "./interfaces/ModerationModuleData";
 import type * as roles from "./interfaces/RolesModuleData";
 import type * as starboard from "./interfaces/StarboardModuleData";
+import type * as user from "./interfaces/UserModuleData";
 
-export type ModuleName = "Main" | "Logging" | "VC" | "Moderation" | "Roles" | "Starboard";
+export type ModuleName =
+  | "Main"
+  | "Logging"
+  | "VC"
+  | "Moderation"
+  | "Roles"
+  | "Starboard"
+  | "User";
 
-export type ModuleDataMap = {
-  Main: main.MainModuleData;
-  Logging: log.LoggingModuleData;
-  VC: vc.VCModuleData
-  Moderation: moderation.ModerationModuleData;
-  Roles: roles.RolesModuleData;
-  Starboard: starboard.StarboardModuleData;
-}
+export type ModuleDataMap<T extends "user" | "guild" = "guild"> =
+  T extends "guild"
+    ? {
+        Main: main.MainModuleData;
+        Logging: log.LoggingModuleData;
+        VC: vc.VCModuleData;
+        Moderation: moderation.ModerationModuleData;
+        Roles: roles.RolesModuleData;
+        Starboard: starboard.StarboardModuleData;
+      }
+    : {
+        User: user.UserModuleData;
+      };
 
 export type ModuleMap = {
   Main: Main;
@@ -29,4 +42,5 @@ export type ModuleMap = {
   Moderation: Moderation;
   Roles: Roles;
   Starboard: Starboard;
+  User: never;
 };

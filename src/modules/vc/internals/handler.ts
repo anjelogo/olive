@@ -10,7 +10,7 @@ export const create = async (bot: ExtendedClient, member: Member, channel: Voice
 
   if (!await mainModule.handlePermission(member, "vc.join")) return;
 
-  const data = await bot.getModuleData("VC", channel.guild.id) as VCModuleData,
+  const data = await bot.getModuleData("VC", { guildID: channel.guild.id }) as VCModuleData,
     category = data.categories.find((c) => c.catID === channel.parentID);
 
   if (!category || (category && category.channelID !== channel.id)) return;
@@ -72,7 +72,7 @@ export const create = async (bot: ExtendedClient, member: Member, channel: Voice
 };
 
 export const remove = async (bot: ExtendedClient, member: Member, channel: VoiceChannel | StageChannel): Promise<void> => {
-  const data = await bot.getModuleData("VC", channel.guild.id) as VCModuleData,
+  const data = await bot.getModuleData("VC", { guildID: channel.guild.id }) as VCModuleData,
     category = data.categories.find((c) => c.catID === channel.parentID);
 
   if (!category) return;

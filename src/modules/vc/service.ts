@@ -21,8 +21,8 @@ export default class VCService extends Service {
   protected getRouteHandlers(): Record<string, (req: Request, res: Response) => void> {
     return {
       "/": async (req, res) => {
-        const guildID = req.params.id;
-        const currentData = await this.bot.getModuleData("VC", guildID) as VCModuleData;
+  const guildID = req.params.id;
+  const currentData = await this.bot.getModuleData("VC", { guildID }) as VCModuleData;
 
         const fields = this.fields.map(field => {
           switch (field.action) {
@@ -72,7 +72,7 @@ export default class VCService extends Service {
         case "GET": {
           try {
             const guildID = req.params.id;
-            const currentData = await this.bot.getModuleData("VC", guildID) as VCModuleData;
+            const currentData = await this.bot.getModuleData("VC", { guildID }) as VCModuleData;
 
             this.get(req, res, {
               message: "Default Channel Name",
@@ -94,7 +94,7 @@ export default class VCService extends Service {
           try {
             const guildID = req.params.id;
             const bodyData = this.getBodyData("VC", "channel", req.body) as VCModuleData["defaultName"];
-            const currentData = await this.bot.getModuleData("VC", guildID) as VCModuleData;
+            const currentData = await this.bot.getModuleData("VC", { guildID }) as VCModuleData;
 
             if (!Array.isArray(bodyData.channel)) {
               res.status(400).json({ message: "Invalid data format for default name" });
@@ -127,7 +127,7 @@ export default class VCService extends Service {
     };
   }
 
-  protected async updateData<K extends ModuleName>(
+  protected async updateData<K extends keyof ModuleDataMap>(
     params: { module: K; guildID: string },
     data: DeepPartial<ModuleDataMap[K]>
   ): Promise<ModuleDataMap[K]> {

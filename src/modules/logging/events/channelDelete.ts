@@ -5,7 +5,7 @@ import { VCModuleData } from "../../../Database/interfaces/VCModuleData";
 export const run = async (bot: ExtendedClient, channel: (TextChannel)): Promise<void> => {
   if (![Constants.ChannelTypes.GUILD_VOICE, Constants.ChannelTypes.GUILD_STAGE_VOICE].includes(channel.type)) return;
 
-  const data = await bot.getModuleData("VC", channel.guildID) as VCModuleData;
+  const data = await bot.getModuleData("VC", { guildID: channel.guildID }) as VCModuleData;
 
   if (!data) return;
 

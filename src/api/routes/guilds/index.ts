@@ -34,7 +34,7 @@ const guildsRoute = (client: ExtendedClient): Router => {
       return;
     }
 
-    const guildData = await client.getModuleData("Main", guild.id);
+  const guildData = await client.getModuleData("Main", { guildID: guild.id });
     if (!guildData) {
       res.status(500).json({ error: "Failed to retrieve guild data" });
       return;

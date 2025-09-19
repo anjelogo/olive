@@ -6,7 +6,7 @@ export const run = async (bot: ExtendedClient, member: Member | User, guild: Gui
 
   if (member instanceof User) return;
 
-  const data = await bot.getModuleData("Roles", guild.id) as RolesModuleData;
+  const data = await bot.getModuleData("Roles", { guildID: guild.id }) as RolesModuleData;
     
   if (!member.roles.length) return;
   if (!data.savedRoles.enabled) return;

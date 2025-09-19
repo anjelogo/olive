@@ -21,8 +21,8 @@ export default class RoleService extends Service {
   protected getRouteHandlers(): Record<string, (req: Request, res: Response) => void> {
     return {
       "/": async (req, res) => {
-        const guildID = req.params.id;
-        const currentData = await this.bot.getModuleData("Roles", guildID) as RolesModuleData;
+  const guildID = req.params.id;
+  const currentData = await this.bot.getModuleData("Roles", { guildID }) as RolesModuleData;
 
         const fields = this.fields.map(field => {
           switch (field.action) {
@@ -72,7 +72,7 @@ export default class RoleService extends Service {
         case "GET": {
           try {
             const guildID = req.params.id;
-            const currentData = await this.bot.getModuleData("Roles", guildID) as RolesModuleData;
+            const currentData = await this.bot.getModuleData("Roles", { guildID }) as RolesModuleData;
 
             this.get(req, res, {
               message: "Role Saving Status",
@@ -94,7 +94,7 @@ export default class RoleService extends Service {
           try {
             const guildID = req.params.id;
             const bodyData = this.getBodyData("Roles", "enabled", req.body) as RolesModuleData["savedRoles"];
-            const currentData = await this.bot.getModuleData("Roles", guildID) as RolesModuleData;
+            const currentData = await this.bot.getModuleData("Roles", { guildID }) as RolesModuleData;
 
             if (typeof bodyData.enabled !== "boolean") {
               res.status(400).json({ message: "Invalid data for role saving" });
@@ -132,7 +132,7 @@ export default class RoleService extends Service {
     };
   }
 
-  protected async updateData<K extends ModuleName>(
+  protected async updateData<K extends keyof ModuleDataMap>(
     params: { module: K; guildID: string },
     data: DeepPartial<ModuleDataMap[K]>
   ): Promise<ModuleDataMap[K]> {

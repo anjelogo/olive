@@ -92,7 +92,7 @@ export default class Voicechannel extends Command {
   public execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | InteractionCallbackResponse<AnyInteractionChannel | Uncached> | void> => {
     const member = interaction.member as Member,
       guild = this.bot.findGuild(interaction.guildID) as Guild,
-      data = await this.bot.getModuleData("VC", guild.id) as VCModuleData,
+  data = await this.bot.getModuleData("VC", { guildID: guild.id }) as VCModuleData,
       subcommand = interaction.data.options.raw[0].name,
       mainModule = this.bot.getModule("Main") as Main;
 
@@ -340,7 +340,7 @@ export default class Voicechannel extends Command {
 
       if (!channel) return component.createFollowup({ content: `${this.bot.constants.emojis.x} Channel not found`, flags: Constants.MessageFlags.EPHEMERAL });
 
-      const channelObj: Channel | undefined = (await this.bot.getModuleData("VC", channel.guild.id) as VCModuleData).categories.find((c) => c.catID === channel.parentID)?.channels.find((c) => c.channelID === channel.id);
+  const channelObj: Channel | undefined = (await this.bot.getModuleData("VC", { guildID: channel.guild.id }) as VCModuleData).categories.find((c) => c.catID === channel.parentID)?.channels.find((c) => c.channelID === channel.id);
 
       if (!channelObj) return component.createFollowup({ content: `${this.bot.constants.emojis.x} Channel Data not found`, flags: Constants.MessageFlags.EPHEMERAL });
 

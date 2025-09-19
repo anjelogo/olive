@@ -22,7 +22,7 @@ export default class Logging extends Module {
   }
 
   readonly log = async (guild: Guild, type: LogChannelTypes, components: MessageComponent[], data?: { channelID?: string, caseID?: string, starID?: string }) => {
-    const guildData = await this.bot.getModuleData("Logging", guild.id) as LoggingModuleData;
+  const guildData = await this.bot.getModuleData("Logging", { guildID: guild.id }) as LoggingModuleData;
 
     if (!guildData) return;
     if (guildData.channels) {

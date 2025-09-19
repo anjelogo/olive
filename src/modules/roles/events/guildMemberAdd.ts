@@ -4,7 +4,7 @@ import { RolesModuleData } from "../../../Database/interfaces/RolesModuleData";
 
 export const run = async (bot: ExtendedClient, member: Member): Promise<void> => {
   
-  const data = await bot.getModuleData("Roles", member.guild.id) as RolesModuleData;
+  const data = await bot.getModuleData("Roles", { guildID: member.guild.id }) as RolesModuleData;
 
   if (data.savedRoles.enabled) {
     const userData = data.savedRoles.roles.find((r) => r.userID === member.id);

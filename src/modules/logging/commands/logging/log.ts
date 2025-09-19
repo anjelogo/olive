@@ -177,7 +177,7 @@ export default class Log extends Command {
   readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
 
     const guild = this.bot.findGuild(interaction.guildID) as Guild,
-      data = await this.bot.getModuleData("Logging", guild.id) as LoggingModuleData,
+  data = await this.bot.getModuleData("Logging", { guildID: guild.id }) as LoggingModuleData,
       channel = interaction.channel,
       subcommand = interaction.data.options.getSubCommand(true)[0];
 
@@ -230,7 +230,7 @@ export default class Log extends Command {
     
     const guild = this.bot.findGuild(component.guildID) as Guild,
       customData = await getCustomData(this.bot, component.message.interactionMetadata?.id as string)?.data as CustomDataStructure,
-      moduleData = await this.bot.getModuleData("Logging", guild.id) as LoggingModuleData;
+  moduleData = await this.bot.getModuleData("Logging", { guildID: guild.id }) as LoggingModuleData;
 
     switch (component.data.customID.split("_")[2]) {
 

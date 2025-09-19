@@ -7,7 +7,7 @@ export const run = async (bot: ExtendedClient, role: Role | Uncached): Promise<v
   if (!(role instanceof	Role)) return;
   if (!role.guild || !role) return;
 
-  const data = await bot.getModuleData("Roles", role.guild.id) as RolesModuleData;
+  const data = await bot.getModuleData("Roles", { guildID: role.guild.id }) as RolesModuleData;
 
   if (data.messages) {
     const i = data.messages.findIndex((m) => m.roles.map((r) => r.role).includes(role.id));

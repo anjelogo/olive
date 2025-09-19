@@ -53,8 +53,8 @@ export default class ModerationService extends Service {
   protected getRouteHandlers(): Record<string, (req: Request, res: Response) => void> {
     return {
       "/": async (req, res) => {
-        const guildID = req.params.id;
-        const currentData = await this.bot.getModuleData("Moderation", guildID) as ModerationModuleData;
+  const guildID = req.params.id;
+  const currentData = await this.bot.getModuleData("Moderation", { guildID }) as ModerationModuleData;
 
         const fields = this.fields.map(field => {
           switch (field.action) {
@@ -150,7 +150,7 @@ export default class ModerationService extends Service {
         case "GET": {
           try {
             const guildID = req.params.id;
-            const currentData = await this.bot.getModuleData("Moderation", guildID) as ModerationModuleData;
+            const currentData = await this.bot.getModuleData("Moderation", { guildID }) as ModerationModuleData;
 
             this.get(req, res, {
               message: "Auto Punish Status",
@@ -174,7 +174,7 @@ export default class ModerationService extends Service {
           try {
             const guildID = req.params.id;
             const bodyData = this.getBodyData("Moderation", "enabled", req.body) as DeepPartial<ModerationModuleData["settings"]["autoPunish"]>;
-            const currentData = await this.bot.getModuleData("Moderation", guildID) as ModerationModuleData;
+            const currentData = await this.bot.getModuleData("Moderation", { guildID }) as ModerationModuleData;
 
             if (typeof bodyData.enabled !== "boolean") {
               res.status(400).json({ message: "Invalid data format for auto punish status" });
@@ -218,7 +218,7 @@ export default class ModerationService extends Service {
         case "GET": {
           try {
             const guildID = req.params.id;
-            const currentData = await this.bot.getModuleData("Moderation", guildID) as ModerationModuleData;
+            const currentData = await this.bot.getModuleData("Moderation", { guildID }) as ModerationModuleData;
 
             this.get(req, res, {
               message: "Infractions Until Warn",
@@ -242,7 +242,7 @@ export default class ModerationService extends Service {
           try {
             const guildID = req.params.id;
             const bodyData = this.getBodyData("Moderation", "infractionsUntilWarn", req.body) as DeepPartial<ModerationModuleData["settings"]["autoPunish"]>;
-            const currentData = await this.bot.getModuleData("Moderation", guildID) as ModerationModuleData;
+            const currentData = await this.bot.getModuleData("Moderation", { guildID }) as ModerationModuleData;
 
             let value = bodyData.infractionsUntilWarn;
 
@@ -291,7 +291,7 @@ export default class ModerationService extends Service {
         case "GET": {
           try {
             const guildID = req.params.id;
-            const currentData = await this.bot.getModuleData("Moderation", guildID) as ModerationModuleData;
+            const currentData = await this.bot.getModuleData("Moderation", { guildID }) as ModerationModuleData;
 
             this.get(req, res, {
               message: "Infractions Until Ban",
@@ -315,7 +315,7 @@ export default class ModerationService extends Service {
           try {
             const guildID = req.params.id;
             const bodyData = this.getBodyData("Moderation", "infractionsUntilBan", req.body) as DeepPartial<ModerationModuleData["settings"]["autoPunish"]>;
-            const currentData = await this.bot.getModuleData("Moderation", guildID) as ModerationModuleData;
+            const currentData = await this.bot.getModuleData("Moderation", { guildID }) as ModerationModuleData;
 
             let value = bodyData.infractionsUntilBan;
 
@@ -364,7 +364,7 @@ export default class ModerationService extends Service {
         case "GET": {
           try {
             const guildID = req.params.id;
-            const currentData = await this.bot.getModuleData("Moderation", guildID) as ModerationModuleData;
+            const currentData = await this.bot.getModuleData("Moderation", { guildID }) as ModerationModuleData;
 
             this.get(req, res, {
               message: "Infractions Until Kick",
@@ -388,7 +388,7 @@ export default class ModerationService extends Service {
           try {
             const guildID = req.params.id;
             const bodyData = this.getBodyData("Moderation", "infractionsUntilKick", req.body) as DeepPartial<ModerationModuleData["settings"]["autoPunish"]>;
-            const currentData = await this.bot.getModuleData("Moderation", guildID) as ModerationModuleData;
+            const currentData = await this.bot.getModuleData("Moderation", { guildID }) as ModerationModuleData;
 
             let value = bodyData.infractionsUntilKick;
 
@@ -437,7 +437,7 @@ export default class ModerationService extends Service {
         case "GET": {
           try {
             const guildID = req.params.id;
-            const currentData = await this.bot.getModuleData("Moderation", guildID) as ModerationModuleData;
+            const currentData = await this.bot.getModuleData("Moderation", { guildID }) as ModerationModuleData;
 
             this.get(req, res, {
               message: "Infractions Until Timeout",
@@ -461,7 +461,7 @@ export default class ModerationService extends Service {
           try {
             const guildID = req.params.id;
             const bodyData = this.getBodyData("Moderation", "infractionsUntilTimeout", req.body) as DeepPartial<ModerationModuleData["settings"]["autoPunish"]>;
-            const currentData = await this.bot.getModuleData("Moderation", guildID) as ModerationModuleData;
+            const currentData = await this.bot.getModuleData("Moderation", { guildID }) as ModerationModuleData;
             
             let value = bodyData.infractionsUntilTimeout;
 
@@ -502,11 +502,11 @@ export default class ModerationService extends Service {
     };
   }
 
-  protected async updateData<K extends ModuleName>(
+  protected async updateData<K extends keyof ModuleDataMap>(
     params: { module: K; guildID: string },
     data: DeepPartial<ModuleDataMap[K]>
   ): Promise<ModuleDataMap[K]> {
-    const moderationData = data as DeepPartial<ModerationModuleData>;
+    const moderationData = data as ModuleDataMap["Moderation"];
     return this.bot.updateModuleData<"Moderation">("Moderation", moderationData as ModuleDataMap["Moderation"], params.guildID) as Promise<ModuleDataMap[K]>;
   }
 

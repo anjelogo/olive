@@ -12,7 +12,7 @@ export const createLogEntry = async (bot: ExtendedClient, guild: Guild, message:
       large: "💫"
     },
     logging = bot.getModule("Logging") as Logging,
-    guildData = await bot.getModuleData("Starboard", guild.id) as StarboardModuleData,
+  guildData = await bot.getModuleData("Starboard", { guildID: guild.id }) as StarboardModuleData,
     messageData = guildData.messages.find((m) => m.messageID === message.id) as messageDataStructure,
     stars = messageData.stars.length <= 3 ? star.small : messageData.stars.length <= 10 ? star.medium : star.large;
 
@@ -97,7 +97,7 @@ export const createLogEntry = async (bot: ExtendedClient, guild: Guild, message:
 
 export async function removeLogEntry(bot: ExtendedClient, guild: Guild, starID: string): Promise<void> {
 
-  const guildLoggingData = await bot.getModuleData("Logging", guild.id) as LoggingModuleData,
+  const guildLoggingData = await bot.getModuleData("Logging", { guildID: guild.id }) as LoggingModuleData,
     loggingChannels = guildLoggingData.channels.filter((c) => c.types.includes("starboard"));
 
   if (loggingChannels.length) {
@@ -125,7 +125,7 @@ export async function removeLogEntry(bot: ExtendedClient, guild: Guild, starID: 
 
 export async function updateLogEntry(bot: ExtendedClient, guild: Guild, starID: string) {
 
-  const guildLoggingData = await bot.getModuleData("Logging", guild.id) as LoggingModuleData,
+  const guildLoggingData = await bot.getModuleData("Logging", { guildID: guild.id }) as LoggingModuleData,
     loggingChannels = guildLoggingData.channels.filter((c) => c.types.includes("starboard"));
 
   if (loggingChannels.length) {
@@ -143,7 +143,7 @@ export async function updateLogEntry(bot: ExtendedClient, guild: Guild, starID: 
           medium: "🌟",
           large: "💫"
         },
-        guildData = await bot.getModuleData("Starboard", guild.id) as StarboardModuleData,
+  guildData = await bot.getModuleData("Starboard", { guildID: guild.id }) as StarboardModuleData,
         messageData = guildData.messages.find((m) => m.messageID === starID) as messageDataStructure,
         stars = messageData.stars.length <= 3 ? starStrings.small : messageData.stars.length <= 10 ? starStrings.medium : starStrings.large;
 

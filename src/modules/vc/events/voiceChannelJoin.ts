@@ -8,7 +8,7 @@ export const run = async (bot: ExtendedClient, member: Member, channel: VoiceCha
 
   if (!channel.parentID) return;
 
-  const data = await bot.getModuleData("VC", member.guild.id) as VCModuleData,
+  const data = await bot.getModuleData("VC", { guildID: member.guild.id }) as VCModuleData,
     mainModule = bot.getModule("Main") as Main,
     cat = data.categories.find((c) => c.catID === channel.parentID);
 

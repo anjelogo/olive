@@ -19,7 +19,7 @@ export default class Saveroles extends Command {
 
   readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
     const guild = this.bot.findGuild(interaction.guildID) as Guild,
-      data = await this.bot.getModuleData("Roles", guild.id) as RolesModuleData,
+      data = await this.bot.getModuleData("Roles", { guildID: guild.id }) as RolesModuleData,
       savedRoles = data.savedRoles;
 
     if (!savedRoles.enabled) data.savedRoles.enabled = true;

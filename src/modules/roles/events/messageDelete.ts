@@ -7,7 +7,7 @@ export const run = async (bot: ExtendedClient, msg: (Message | { id: string; cha
 
   if (!msg || (msg && !msg.id) || (msg && !(msg.channel as TextChannel).guild)) return;
 
-  const data = await bot.getModuleData("Roles", (msg.channel as TextChannel).guild.id) as RolesModuleData,
+  const data = await bot.getModuleData("Roles", { guildID: (msg.channel as TextChannel).guild.id }) as RolesModuleData,
     rolesModule = bot.getModule("Roles") as Roles,
     msgData = await rolesModule.getReactionMessage(msg.id, (msg.channel as TextChannel).guild.id) as RolesMessage;
 
