@@ -15,7 +15,7 @@ export interface RolesMessage {
   }[];
 }
 
-export interface RolesModuleData extends BaseModuleData {
+export interface RolesModuleData extends BaseModuleData<"guild"> {
   guildID: string;
   roles: string[];
   autoRoles: string[];

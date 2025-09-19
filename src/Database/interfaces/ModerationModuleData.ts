@@ -47,7 +47,7 @@ export interface ModerationSettings {
   infractionUntilTimeout?: number;
 }
 
-export interface ModerationModuleData extends BaseModuleData {
+export interface ModerationModuleData extends BaseModuleData<"guild"> {
   guildID: string;
   cases: Case[];
   settings: ModerationSettings;

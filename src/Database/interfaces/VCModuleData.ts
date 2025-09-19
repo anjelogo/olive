@@ -20,13 +20,13 @@ export interface Channel {
 	}[]
 }
 
-export interface VCModuleData extends BaseModuleData {
+export interface VCModuleData extends BaseModuleData<"guild"> {
   guildID: string;
   categories: Category[];
   defaultName: {
     channel: string[];
 
     /** @deprecated Category default name will always be "Join to create private channel" */
-    category?: string;
+    category?: never;
   };
 }

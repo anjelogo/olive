@@ -1,6 +1,8 @@
-export interface BaseModuleData {
-  userID?: string;
-  guildID?: string;
-  enabled: boolean;
-  version: string;
-}
+export type BaseModuleData<T extends "user" | "guild"> = 
+  T extends "user"
+  ? { userID: string; guildID?: never }
+  : { guildID: string; userID?: never }
+  & {
+    enabled: boolean;
+    version: number;
+  }

@@ -9,7 +9,7 @@ export interface DataStructure {
 
 export type LogChannelTypes = ("welcome" | "vc" | "moderation" | "starboard");
 
-export interface LoggingModuleData extends BaseModuleData {
+export interface LoggingModuleData extends BaseModuleData<"guild"> {
   guildID: string;
   channels: {
     types: LogChannelTypes[];
