@@ -4,6 +4,7 @@ import VC from "../modules/vc/main";
 import Moderation from "../modules/moderation/main";
 import Roles from "../modules/roles/main";
 import Starboard from "../modules/starboard/main";
+import User from "../modules/user/main";
 import type * as main from "./interfaces/MainModuleData";
 import type * as log from "./interfaces/LoggingModuleData";
 import type * as vc from "./interfaces/VCModuleData";
@@ -42,5 +43,5 @@ export type ModuleMap = {
   Moderation: Moderation;
   Roles: Roles;
   Starboard: Starboard;
-  User: never;
+  User: User;
 };

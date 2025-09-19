@@ -14,8 +14,11 @@ export interface InputField {
   label: string;
   type: "checkbox" | "number" | "long_input" | "short_input" | "list_input" | "list_select";
   action: string;
-  module: keyof ModuleDataMap;
-  data: DeepPartial<ModuleDataMap[this["module"]]> | undefined; // data to be sent to the module
+  module: ModuleName;
+  data: DeepPartial<
+    // Allow any guild module data or the user module data
+    ModuleDataMap<"guild">[keyof ModuleDataMap<"guild">] | ModuleDataMap<"user">["User"]
+  > | undefined; // data to be sent to the module
   permissions: string[];
   description?: string;
   max_selection?:  number; // max selection for dropdown

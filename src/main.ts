@@ -14,7 +14,7 @@ dotenv.config({
 });
 
 interface ExtendedOptions extends ClientOptions {
-  disabledModules?: ("Main" | "VC" | "Roles" | "Starboard" | "Moderation")[];
+  disabledModules?: ("Main" | "VC" | "Roles" | "Starboard" | "Moderation" | "User")[];
 }
 
 export default class Olive extends Client {
