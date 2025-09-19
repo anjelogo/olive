@@ -16,6 +16,7 @@ import Olive from "../main";
 import { ModuleDataMap, ModuleMap, ModuleName } from "../Database/ModuleTypes";
 import Command from "./Command";
 import Module from "./Module";
+import { defaultUserModuleData } from "../Database/interfaces/UserModuleData";
 
 export default class ExtendedClient extends Olive {
   readonly findUser = (query: string | undefined): User | undefined => {
@@ -173,6 +174,8 @@ export default class ExtendedClient extends Olive {
 
     let data = await this.db.get(this.name).findOne({ userID: user.id });
     if (!data) {
+      const moduleData = defaultUserModuleData;
+      defaultUserModuleData.userID = user.id;
       this.constants.utils.log(
         this.name,
         `Module data not found for user "${user.username}" (${user.id}). Creating now...`
@@ -183,11 +186,7 @@ export default class ExtendedClient extends Olive {
           {
             updateOne: {
               filter: { userID: user.id },
-              update: { $set: {
-                userID: user.id,
-                version: "1.0",
-                enabled: true
-              } },
+              update: { $set: moduleData },
               upsert: true,
             },
           },
