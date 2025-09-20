@@ -1,73 +1,125 @@
 import { Request, Response } from "express";
-import Service, { DeepPartial, InputField } from "../../Base/Service";
+import Service, {
+  ContextForKey,
+  Ctx,
+  DeepPartial,
+  InputField,
+} from "../../Base/Service";
 import ExtendedClient from "../../Base/Client";
 import { UserModuleData } from "../../Database/interfaces/UserModuleData";
+import { ModuleDataMap } from "../../Database/ModuleTypes";
 
-export default class UserService extends Service {
+export default class UserService<T extends "user"> extends Service<T> {
   protected fields: InputField[] = [
     {
       label: "VC Notifications",
       description: "Toggle voice channel notification popups.",
       type: "checkbox",
       action: "/notifications/vc",
-  module: "User",
+      module: "User",
       permissions: [],
-      data: undefined
-    }
+      data: undefined,
+    },
   ];
 
-  constructor(bot: ExtendedClient) {
-    super(bot);
-  }
-
   // For user services we won't use the base Service's guild guard; routes read userID from params.
-  protected getRouteHandlers(): Record<string, (req: Request, res: Response) => void> {
+  protected getRouteHandlers(): Record<
+    string,
+    (req: Request, res: Response) => void
+  > {
     return {
       "/": async (req, res) => {
         const userID = req.params.id;
-        if (!userID) return res.status(400).json({ error: "User ID is required" });
+        if (!userID)
+          return res.status(400).json({ error: "User ID is required" });
 
-  const settings = await this.bot.getModuleData<"User","user">("User", { userID }) as UserModuleData;
-        if (!settings) return res.status(404).json({ error: "User settings not found" });
+        const user = this.bot.findUser(userID);
 
-        res.status(200).json({ message: "User Settings", data: settings });
+        if (!user) return res.status(404).json({ error: "User not found" });
+
+        const settings = (await this.bot.getModuleData("User", {
+          userID,
+        })) as UserModuleData;
+        if (!settings)
+          return res.status(404).json({ error: "User settings not found" });
+
+        res.status(200).json({
+          user: {
+            id: user.id,
+            username: user.username,
+            avatar: user.avatarURL(),
+            banner: user.bannerURL(),
+          }
+        });
       },
       "/notifications/vc": async (req, res) => {
         const userID = req.params.id;
-        if (!userID) return res.status(400).json({ error: "User ID is required" });
+        if (!userID)
+          return res.status(400).json({ error: "User ID is required" });
 
         switch (req.method) {
-        case "GET": {
-          const settings = await this.bot.getModuleData<"User","user">("User", { userID }) as UserModuleData;
-          if (!settings) return res.status(404).json({ error: "User settings not found" });
-          return res.status(200).json({ message: "VC Notifications", data: { notifications: { vc: settings.notifications.vc } } });
-        }
-        case "POST": {
-          const settings = await this.bot.getModuleData<"User","user">("User", { userID }) as UserModuleData;
-          if (!settings) return res.status(404).json({ error: "User settings not found" });
+          case "GET": {
+            const currentData = await this.bot.getModuleData("User", { userID }) as UserModuleData;
 
-          const body = req.body as DeepPartial<UserModuleData>;
-          if (body.notifications && typeof body.notifications.vc === "boolean") {
-            settings.notifications.vc = body.notifications.vc;
-          } else {
-            return res.status(400).json({ error: "Invalid notifications.vc" });
+            this.get<"User">(req, res, {
+              message: "VC Notification Settings",
+              data: { notifications: { vc: currentData.notifications.vc } },
+            });
+            break;
           }
+          case "POST": {
+            try {
+              const bodyData = this.getBodyData("User", "notifications", req.body) as DeepPartial<UserModuleData["notifications"]>;
+              const currentData = await this.bot.getModuleData("User", { userID }) as UserModuleData;
 
-          const updated = await this.bot.updateModuleData<"User","user">("User", settings, { userID });
-          return res.status(200).json({ message: "Updated", data: updated });
+              let value = bodyData.vc;
+              if (typeof value !== "boolean") {
+                res
+                  .status(400)
+                  .json({
+                    message: "Invalid data format for VC notification status",
+                  });
+                return;
+              }
+
+              currentData.notifications.vc = value;
+              const updatedData = await this.updateData(
+                {
+                  module: "User",
+                  ctx: { userID },
+                },
+                currentData
+              );
+
+              this.post<"User">(req, res, {
+                message: "VC Notification Settings Updated",
+                data: { notifications: { vc: updatedData.notifications.vc } },
+              });
+            } catch (error) {
+              return res.status(500).json({ error: "Failed to update settings" });
+            }
+          }
+          default:
+            return res.status(405).json({ error: "Method not allowed" });
         }
-        default:
-          return res.status(405).json({ error: "Method not allowed" });
-        }
-      }
+      },
     };
   }
 
-  // Not used for user context but required by abstract; keep a stub that will never be invoked by our routes
-  protected async updateData<K extends keyof import("../../Database/ModuleTypes").ModuleDataMap>(
-    _params: { module: K; guildID: string },
-    _data: DeepPartial<import("../../Database/ModuleTypes").ModuleDataMap[K]>
-  ): Promise<import("../../Database/ModuleTypes").ModuleDataMap[K]> {
-    throw new Error("Not implemented for user service");
+  protected async updateData<K extends keyof ModuleDataMap<ContextForKey<K>>>(
+    params: { module: K; ctx: Ctx<ContextForKey<K>> },
+    data: DeepPartial<ModuleDataMap<ContextForKey<K>>[K]>
+  ): Promise<ModuleDataMap<ContextForKey<K>>[K]> {
+    const updated = await this.bot.updateModuleData<K>(
+      params.module,
+      data,
+      params.ctx
+    );
+
+    return updated as ModuleDataMap<ContextForKey<K>>[K];
+  }
+
+  constructor(bot: ExtendedClient, context: T) {
+    super(bot, context);
   }
 }

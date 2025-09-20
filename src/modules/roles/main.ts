@@ -3,7 +3,7 @@ import Module from "../../Base/Module";
 import ExtendedClient from "../../Base/Client";
 import { RolesMessage, RolesModuleData } from "../../Database/interfaces/RolesModuleData";
 
-export default class Roles extends Module {
+export default class Roles extends Module<"guild"> {
 
   readonly name = "Roles";
   readonly version: string;

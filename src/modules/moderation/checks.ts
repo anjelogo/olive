@@ -7,7 +7,7 @@ import { durationToMS } from "./internals/durationHandler";
 export default class Checks {
 
   readonly bot: ExtendedClient;
-  readonly module: Module;
+  readonly module: Moderation;
 
   constructor (bot: ExtendedClient, Module: Moderation) {
     this.bot = bot;

@@ -2,7 +2,7 @@ import Module from "../../Base/Module";
 import ExtendedClient from "../../Base/Client";
 import { VCModuleData } from "../../Database/interfaces/VCModuleData";
 
-export default class VC extends Module {
+export default class VC extends Module<"guild"> {
   readonly name = "VC";
   readonly version: string;
   readonly path: string;

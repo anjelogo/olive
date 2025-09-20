@@ -227,8 +227,8 @@ export default class Help extends Command {
       for (const perm of this.bot.perms) {
         if (perm.name === "*") continue;
 
-        const Module: string = this.bot.modules.find((m: Module) => m.name.toLowerCase() === perm.name.split(/[.\-_]/)[0].toLowerCase())
-          ? (this.bot.modules.find((m: Module) => m.name.toLowerCase() === perm.name.split(/[.\-_]/)[0].toLowerCase())?.name ?? perm.name.split(/[.\-_]/)[0].replace(/^\w/, c => c.toUpperCase()))
+        const Module: string = this.bot.modules.find((m: Module<"guild" | "user">) => m.name.toLowerCase() === perm.name.split(/[.\-_]/)[0].toLowerCase())
+          ? (this.bot.modules.find((m: Module<"guild" | "user">) => m.name.toLowerCase() === perm.name.split(/[.\-_]/)[0].toLowerCase())?.name ?? perm.name.split(/[.\-_]/)[0].replace(/^\w/, c => c.toUpperCase()))
           : perm.name.split(/[.\-_]/)[0].replace(/^\w/, c => c.toUpperCase()),
           field: TextDisplayComponent | undefined = fields.find((f) => f.content.startsWith(`## ${Module}`));
 

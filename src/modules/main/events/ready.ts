@@ -14,7 +14,7 @@ export const run = async (bot: ExtendedClient): Promise<void> => {
 
   //TODO: fix subcommands for everything ig
 
-  bot.modules.forEach(async (m: Module) => {
+  bot.modules.forEach(async (m: Module<"guild" | "user">) => {
     if (m.db) {
 
       bot.constants.utils.log(m.name, "DB found, performing checks...");

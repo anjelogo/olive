@@ -2,7 +2,7 @@ import ExtendedClient from "../../Base/Client";
 import Module from "../../Base/Module";
 import { UserModuleData } from "../../Database/interfaces/UserModuleData";
 
-export default class UserModule extends Module {
+export default class UserModule extends Module<"user"> {
   public name = "User" as const;
   public serviceEnabled = true;
   public readonly version = "1.0.0";

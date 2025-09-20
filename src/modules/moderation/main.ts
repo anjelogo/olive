@@ -2,7 +2,7 @@ import Module from "../../Base/Module";
 import ExtendedClient from "../../Base/Client";
 import { ModerationModuleData } from "../../Database/interfaces/ModerationModuleData";
 
-export default class Moderation extends Module {
+export default class Moderation extends Module<"guild"> {
 
   readonly name = "Moderation";
   readonly version: string;

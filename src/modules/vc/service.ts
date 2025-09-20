@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
 import { User } from "oceanic.js";
 import ExtendedClient from "../../Base/Client";
-import Service, { DeepPartial, InputField } from "../../Base/Service";
+import Service, { ContextForKey, Ctx, DeepPartial, InputField } from "../../Base/Service";
 import { ModuleDataMap, ModuleName } from "../../Database/ModuleTypes";
 import { VCModuleData } from "../../Database/interfaces/VCModuleData";
 
-export default class VCService extends Service {
+export default class VCService<T extends "guild"> extends Service<T> {
   protected fields: InputField[] = [
     {
       label: "Default Channel Name",
@@ -74,7 +74,7 @@ export default class VCService extends Service {
             const guildID = req.params.id;
             const currentData = await this.bot.getModuleData("VC", { guildID }) as VCModuleData;
 
-            this.get(req, res, {
+            this.get<"VC">(req, res, {
               message: "Default Channel Name",
               data: {
                 defaultName: {
@@ -102,9 +102,9 @@ export default class VCService extends Service {
             }
 
             currentData.defaultName.channel = bodyData.channel;
-            await this.updateData({ module: "VC", guildID }, currentData);
+            await this.updateData({ module: "VC", ctx: { guildID } }, currentData);
 
-            this.post(req, res, {
+            this.post<"VC">(req, res, {
               message: "Default Channel Name Updated",
               data: {
                 defaultName: {
@@ -127,15 +127,20 @@ export default class VCService extends Service {
     };
   }
 
-  protected async updateData<K extends keyof ModuleDataMap>(
-    params: { module: K; guildID: string },
-    data: DeepPartial<ModuleDataMap[K]>
-  ): Promise<ModuleDataMap[K]> {
-    const rolesData = data as DeepPartial<VCModuleData>;
-    return this.bot.updateModuleData<"VC">("VC", rolesData as ModuleDataMap["VC"], { guildID: params.guildID }) as Promise<ModuleDataMap[K]>;
+  protected async updateData<K extends keyof ModuleDataMap<ContextForKey<K>>>(
+    params: { module: K; ctx: Ctx<ContextForKey<K>> },
+    data: DeepPartial<ModuleDataMap<ContextForKey<K>>[K]>
+  ): Promise<ModuleDataMap<ContextForKey<K>>[K]> {
+    const updated = await this.bot.updateModuleData<K>(
+      params.module,
+      data,
+      params.ctx
+    );
+
+    return updated as ModuleDataMap<ContextForKey<K>>[K];
   }
 
-  constructor(bot: ExtendedClient) {
-    super(bot);
+  constructor(bot: ExtendedClient, context: T) {
+    super(bot, context);
   }
 }

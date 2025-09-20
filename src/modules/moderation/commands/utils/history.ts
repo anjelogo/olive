@@ -3,6 +3,7 @@ import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/int
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import { getCases, removeCase } from "../../internals/caseHandler";
+import { ModerationModuleData } from "../../../../Database/interfaces/ModerationModuleData";
 
 export default class History extends Command {
 
@@ -66,7 +67,7 @@ export default class History extends Command {
 
     switch (subcommand) {
     case "view": {
-  const data = await this.bot.getModuleData("Moderation", { guildID: guild.id });
+      const data = await this.bot.getModuleData("Moderation", { guildID: guild.id }) as ModerationModuleData;
       let infractions = 0;
 
       const hierarchy = {

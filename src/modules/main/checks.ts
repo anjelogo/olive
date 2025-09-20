@@ -6,11 +6,11 @@ import Main from "./main";
 export default class Checks {
 
   readonly bot: ExtendedClient;
-  readonly module: Module;
+  readonly module: Main;
 
-  constructor (bot: ExtendedClient, Module: Main) {
+  constructor (bot: ExtendedClient, module: Main) {
     this.bot = bot;
-    this.module = Module;
+    this.module = module;
   }
 
   readonly run = async (): Promise<string> => {

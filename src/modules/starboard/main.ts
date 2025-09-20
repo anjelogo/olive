@@ -3,7 +3,7 @@ import Module from "../../Base/Module";
 import ExtendedClient from "../../Base/Client";
 import { messageDataStructure, StarboardModuleData } from "../../Database/interfaces/StarboardModuleData";
 
-export default class Starboard extends Module {
+export default class Starboard extends Module<"guild"> {
 
   readonly name = "Starboard";
   readonly version: string;

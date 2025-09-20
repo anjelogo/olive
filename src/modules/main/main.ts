@@ -9,7 +9,7 @@ export interface helpEmbed {
   embed: Embed;
 }
 
-export default class Main extends Module {
+export default class Main extends Module<"guild"> {
 
   readonly name = "Main";
   readonly version: string;

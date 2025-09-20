@@ -27,7 +27,7 @@ export default class Olive extends Client {
   readonly disabledModules: string[];
   readonly db: IMonkManager;
 
-  public modules: Module[];
+  public modules: Module<"user" | "guild">[];
   public commands: Command[];
 
   public interactionCustomData: CustomData[];
@@ -54,10 +54,19 @@ export default class Olive extends Client {
   readonly init = async (): Promise<void> => {
     
     //Load Modules Data (Commands, Events, Perms... etc)
-    const Modules = await fs.readdir("./modules", { withFileTypes: true });
+    type AnyCtor = (new (b: typeof this) => Module<"user" | "guild">) & {
+      context: "user" | "guild";
+    };
 
-    for (const Module of Modules) {
-      const m = new (await import(`./modules/${Module.name}/main`)).default(this) as Module;
+    const dirs = await fs.readdir("./modules", { withFileTypes: true });
+    for (const dir of dirs) {
+      if (!dir.isDirectory()) continue;
+
+      const mod = await import(`./modules/${dir.name}/main`);
+      const Ctor = mod.default as AnyCtor;
+
+      const m = new Ctor(this)
+
       this.modules.push(m);
     }
 

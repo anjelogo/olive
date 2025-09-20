@@ -43,7 +43,7 @@ export default class Checks {
           },
         };
 
-        await checks.bot.updateModuleData<"User", "user">("User", updated, { userID: doc.userID });
+        await checks.bot.updateModuleData("User", updated, { userID: doc.userID });
         fixedUsers++;
       } catch {
         failed++;
@@ -96,7 +96,7 @@ export default class Checks {
           };
 
           promises.push(
-            this.bot.updateModuleData<"User", "user">("User", updated, { userID: doc.userID })
+            this.bot.updateModuleData("User", updated, { userID: doc.userID })
           );
           break;
         }

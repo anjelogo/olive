@@ -3,7 +3,7 @@ import ExtendedClient from "../../Base/Client";
 import Module from "../../Base/Module";
 import { LogChannelTypes, LoggingModuleData } from "../../Database/interfaces/LoggingModuleData";
 
-export default class Logging extends Module {
+export default class Logging extends Module<"guild"> {
 
   readonly name = "Logging";
   readonly version: string;
