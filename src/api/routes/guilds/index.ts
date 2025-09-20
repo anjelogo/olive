@@ -61,7 +61,7 @@ const guildsRoute = (client: ExtendedClient): Router => {
         .filter(
           (m) =>
             !guildData.disabledModules.includes(m) &&
-            !["Main", "Logging"].includes(m)
+            !["Main", "Logging", "User"].includes(m)
         );
 
       res.status(200).json({
