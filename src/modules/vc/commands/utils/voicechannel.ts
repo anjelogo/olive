@@ -181,8 +181,23 @@ export default class Voicechannel extends Command {
           await createLogEntry(this.bot, "newOwner", channel, member, { newOwner });
 
           // message the new owner
-          const newOwnerDM = await newOwner.user.createDM();
-          await newOwnerDM.createMessage({content: `${this.constants.emojis.warning.yellow} You are now the owner of \`${channel.name}\` in \`${channel.guild.name}\`!`});
+          // but only if they have vc notifications enabled
+
+          const newOwnerData = await this.bot.getModuleData("User", { userID: newOwner.id });
+          const oldOwnerData = await this.bot.getModuleData("User", { userID: member.id });
+          
+          if (newOwnerData?.notifications?.vc) {
+            const newOwnerDM = await newOwner.user.createDM();
+            await newOwnerDM.createMessage({
+              content: `${this.constants.emojis.warning.yellow} You are now the owner of \`${channel.name}\` in \`${channel.guild.name}\`!`,
+            });
+          }
+          if (oldOwnerData?.notifications?.vc) {
+            const oldOwnerDM = await member.user.createDM();
+            await oldOwnerDM.createMessage({
+              content: `${this.constants.emojis.warning.yellow} Ownership of \`${channel.name}\` has been transferred to \`${newOwner.tag}\` for \`${channel.guild.name}\`!`,
+            });
+          }
 
           return interaction.createFollowup({content: `${this.constants.emojis.tick} Successfully transferred ownership of Private Channel to \`${newOwner.username}\``, flags: Constants.MessageFlags.EPHEMERAL});
         } catch (e) {

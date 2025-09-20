@@ -1,24 +1,50 @@
 import crypto from "crypto";
-import { CategoryChannel, Constants, ContainerComponent, Member, MessageComponent, StageChannel, TextDisplayComponent, VoiceChannel } from "oceanic.js";
+import {
+  CategoryChannel,
+  Constants,
+  ContainerComponent,
+  Member,
+  MessageComponent,
+  StageChannel,
+  TextDisplayComponent,
+  VoiceChannel,
+} from "oceanic.js";
 import ExtendedClient from "../../../Base/Client";
 import Logging from "../../logging/main";
 import Main from "../../main/main";
 import { VCModuleData } from "../../../Database/interfaces/VCModuleData";
+import { UserModuleData } from "../../../Database/interfaces/UserModuleData";
 
-export const create = async (bot: ExtendedClient, member: Member, channel: VoiceChannel): Promise<void> => {
-  const mainModule = bot.getModule("Main") as Main;  
+export const create = async (
+  bot: ExtendedClient,
+  member: Member,
+  channel: VoiceChannel
+): Promise<void> => {
+  const mainModule = bot.getModule("Main") as Main;
 
-  if (!await mainModule.handlePermission(member, "vc.join")) return;
+  if (!(await mainModule.handlePermission(member, "vc.join"))) return;
 
-  const data = await bot.getModuleData("VC", { guildID: channel.guild.id }) as VCModuleData,
+  const data = (await bot.getModuleData("VC", {
+      guildID: channel.guild.id,
+    })) as VCModuleData,
     category = data.categories.find((c) => c.catID === channel.parentID);
 
   if (!category || (category && category.channelID !== channel.id)) return;
 
-  const parentOverwrites = (bot.findChannel(channel.guild, category.catID) as CategoryChannel).permissionOverwrites.map((p) => ({ id: p.id, type: p.type, allow: p.allow, deny: p.deny}));
+  const parentOverwrites = (
+    bot.findChannel(channel.guild, category.catID) as CategoryChannel
+  ).permissionOverwrites.map((p) => ({
+    id: p.id,
+    type: p.type,
+    allow: p.allow,
+    deny: p.deny,
+  }));
 
   // Use crypto.getRandomValues for better randomness distribution
-  const randomIndex = Math.floor(crypto.getRandomValues(new Uint32Array(1))[0] / (0xFFFFFFFF + 1) * data.defaultName.channel.length);
+  const randomIndex = Math.floor(
+    (crypto.getRandomValues(new Uint32Array(1))[0] / (0xffffffff + 1)) *
+      data.defaultName.channel.length
+  );
   const channelName = data.defaultName.channel[randomIndex];
 
   const voice = await member.guild.createChannel(
@@ -26,53 +52,68 @@ export const create = async (bot: ExtendedClient, member: Member, channel: Voice
     {
       name: channelName.replace("{user}", member.username),
       parentID: channel.parentID as string,
-      permissionOverwrites: [
-        ...parentOverwrites
-      ]
-    });
-        
+      permissionOverwrites: [...parentOverwrites],
+    }
+  );
+
   const newChannel = {
     channelID: voice.id,
     owner: member.id,
     createdAt: Date.now(),
     locked: false,
-    parentOverwrites
+    parentOverwrites,
   };
 
   member.edit({ channelID: voice.id });
-    
+
   category.channels.push(newChannel);
   await bot.updateModuleData("VC", data, { guildID: channel.guild.id });
 
   // send a message to the user
-  try {
-    const dm = await member.user.createDM();
-    await dm.createMessage({
-      components: [
-        {
-          type: Constants.ComponentTypes.CONTAINER,
-          components: [
-            {
-              type: Constants.ComponentTypes.TEXT_DISPLAY,
-              content: `You have created \`${voice.name}\`!\n\nYou can lock the channel by using \`/vc lock\` and unlock it by using \`/vc unlock\`.\nView information about the channel by using \`/vc info\`.\n\nLeaving the channel will delete it or transfer ownership to another member if there are other members in the channel.`,
-            }, {
-              type: Constants.ComponentTypes.TEXT_DISPLAY,
-              content: `-# Created at: ${new Date().toLocaleString("en-US")} | User ID: ${member.id}`,
-            }
-          ],
-          accentColor: bot.constants.config.colors.default,
-        }
-      ]
-    });
-  } catch (e) {
-    // do nothing
-  }
+  // get user's vc notif settings from user module
+  const userData = (await bot.getModuleData("User", {
+    userID: member.id,
+  })) as UserModuleData;
   
+  if (userData?.notifications?.vc) {
+    try {
+      const dm = await member.user.createDM();
+      await dm.createMessage({
+        components: [
+          {
+            type: Constants.ComponentTypes.CONTAINER,
+            components: [
+              {
+                type: Constants.ComponentTypes.TEXT_DISPLAY,
+                content: `You have created \`${voice.name}\`!\n\nYou can lock the channel by using \`/vc lock\` and unlock it by using \`/vc unlock\`.\nView information about the channel by using \`/vc info\`.\n\nLeaving the channel will delete it or transfer ownership to another member if there are other members in the channel.`,
+              },
+              {
+                type: Constants.ComponentTypes.TEXT_DISPLAY,
+                content: `-# Created at: ${new Date().toLocaleString(
+                  "en-US"
+                )} | User ID: ${member.id}`,
+              },
+            ],
+            accentColor: bot.constants.config.colors.default,
+          },
+        ],
+      });
+    } catch (e) {
+      // do nothing
+    }
+  }
+
   await createLogEntry(bot, "create", voice, member);
 };
 
-export const remove = async (bot: ExtendedClient, member: Member, channel: VoiceChannel | StageChannel): Promise<void> => {
-  const data = await bot.getModuleData("VC", { guildID: channel.guild.id }) as VCModuleData,
+export const remove = async (
+  bot: ExtendedClient,
+  member: Member,
+  channel: VoiceChannel | StageChannel
+): Promise<void> => {
+  const data = (await bot.getModuleData("VC", {
+      guildID: channel.guild.id,
+    })) as VCModuleData,
     category = data.categories.find((c) => c.catID === channel.parentID);
 
   if (!category) return;
@@ -84,32 +125,57 @@ export const remove = async (bot: ExtendedClient, member: Member, channel: Voice
   await createLogEntry(bot, "leave", channel, member);
 
   if (channel.voiceMembers.size <= 0) {
-
     await channel.delete();
 
     const i = category.channels.findIndex((c) => c.channelID === channel.id);
     if (i > -1) category.channels.splice(i, 1);
-  await bot.updateModuleData("VC", data, { guildID: channel.guild.id });
+    await bot.updateModuleData("VC", data, { guildID: channel.guild.id });
 
-    await createLogEntry(bot, "end", channel, member, { createdAt: channelObj.createdAt });
-    
+    await createLogEntry(bot, "end", channel, member, {
+      createdAt: channelObj.createdAt,
+    });
   } else if (member.id === channelObj.owner) {
-    const members = channel.voiceMembers.filter((m) => m.id !== member.id).map((m) => m.id);
+    const members = channel.voiceMembers
+      .filter((m) => m.id !== member.id)
+      .map((m) => m.id);
     // Use crypto.getRandomValues for better randomness distribution
-    const randomIndex = Math.floor(crypto.getRandomValues(new Uint32Array(1))[0] / (0xFFFFFFFF + 1) * members.length);
-    const newOwner = bot.findMember(channel.guild, members[randomIndex]) as Member;
+    const randomIndex = Math.floor(
+      (crypto.getRandomValues(new Uint32Array(1))[0] / (0xffffffff + 1)) *
+        members.length
+    );
+    const newOwner = bot.findMember(
+      channel.guild,
+      members[randomIndex]
+    ) as Member;
 
     channelObj.owner = newOwner.id;
 
-  await bot.updateModuleData("VC", data, { guildID: channel.guild.id });
+    await bot.updateModuleData("VC", data, { guildID: channel.guild.id });
 
     await createLogEntry(bot, "newOwner", channel, member, { newOwner });
 
+    // notify both members of the change in ownership
+    // get both members' vc notif settings from user module
+    const newOwnerData = (await bot.getModuleData("User", {
+      userID: newOwner.id,
+    })) as UserModuleData;
+    const oldOwnerData = (await bot.getModuleData("User", {
+      userID: member.id,
+    })) as UserModuleData;
+
     try {
-      const newOwnerDM = await newOwner.user.createDM();
-      await newOwnerDM.createMessage({content: `${bot.constants.emojis.warning.yellow} You are now the owner of \`${channel.name}\` in \`${channel.guild.name}\`!`});
-      const oldOwnerDM = await member.user.createDM();
-      await oldOwnerDM.createMessage({content: `${bot.constants.emojis.warning.yellow} Ownership of \`${channel.name}\` has been transferred to \`${newOwner.tag}\` for \`${channel.guild.name}\`!`});
+      if (newOwnerData?.notifications?.vc) {
+        const newOwnerDM = await newOwner.user.createDM();
+        await newOwnerDM.createMessage({
+          content: `${bot.constants.emojis.warning.yellow} You are now the owner of \`${channel.name}\` in \`${channel.guild.name}\`!`,
+        });
+      }
+      if (oldOwnerData?.notifications?.vc) {
+        const oldOwnerDM = await member.user.createDM();
+        await oldOwnerDM.createMessage({
+          content: `${bot.constants.emojis.warning.yellow} Ownership of \`${channel.name}\` has been transferred to \`${newOwner.tag}\` for \`${channel.guild.name}\`!`,
+        });
+      }
     } catch (e) {
       // do nothing
     }
@@ -118,15 +184,15 @@ export const remove = async (bot: ExtendedClient, member: Member, channel: Voice
 
 export const createLogEntry = async (
   bot: ExtendedClient,
-  type: ("join" | "newOwner" | "leave" | "create" | "end" | "information"),
+  type: "join" | "newOwner" | "leave" | "create" | "end" | "information",
   channel: VoiceChannel | StageChannel,
   member: Member,
   options?: {
-    newOwner? : Member,
-    locked?: boolean,
-    createdAt?: number,
-    owner?: Member,
-    skipLog?: boolean
+    newOwner?: Member;
+    locked?: boolean;
+    createdAt?: number;
+    owner?: Member;
+    skipLog?: boolean;
   }
 ): Promise<MessageComponent[] | void> => {
   const logging = bot.getModule("Logging") as Logging,
@@ -136,201 +202,247 @@ export const createLogEntry = async (
       create: undefined,
       end: undefined,
       newOwner: undefined,
-      information: undefined
+      information: undefined,
     },
     baseContainer: ContainerComponent = {
       type: Constants.ComponentTypes.CONTAINER,
       components: [
         {
           type: Constants.ComponentTypes.TEXT_DISPLAY,
-          content: `-# ${bot.constants.emojis.moderate} <t:${Math.floor(Date.now() / 1000)}:f>`,
-        }
+          content: `-# ${bot.constants.emojis.moderate} <t:${Math.floor(
+            Date.now() / 1000
+          )}:f>`,
+        },
       ],
-      accentColor: containerColors[type]
+      accentColor: containerColors[type],
     };
 
   let textFields: ContainerComponent["components"] = [];
 
   switch (type) {
-  case "join": {
-    textFields = [
-      {
-        type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: "## Joined Private Voice Channel",
-      }, {
-        type: Constants.ComponentTypes.SEPARATOR,
-        spacing: Constants.SeparatorSpacingSize.LARGE,
-        divider: false
-      }, {
-        type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: `<@${member.id}> joined the channel \`${channel.name}\``,
-      }, {
-        type: Constants.ComponentTypes.SEPARATOR,
-        divider: true,
-        spacing: Constants.SeparatorSpacingSize.LARGE
-      }
-    ];
-    break;
-  }
-  case "create": {
-    textFields = [
-      {
-        type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: "## Created Private Voice Channel",
-      }, {
-        type: Constants.ComponentTypes.SEPARATOR,
-        spacing: Constants.SeparatorSpacingSize.SMALL,
-        divider: false
-      }, {
-        type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: `<@${member.id}> created the channel \`${channel.name}\``,
-      }, {
-        type: Constants.ComponentTypes.SEPARATOR,
-        divider: true,
-        spacing: Constants.SeparatorSpacingSize.LARGE
-      }
-    ];
-    break;
-  }
-  case "leave": {
-    textFields = [
-      {
-        type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: "## Left Private Voice Channel",
-      }, {
-        type: Constants.ComponentTypes.SEPARATOR,
-        spacing: Constants.SeparatorSpacingSize.SMALL,
-        divider: false
-      }, {
-        type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: `<@${member.id}> left the channel \`${channel.name}\``,
-      }, {
-        type: Constants.ComponentTypes.SEPARATOR,
-        divider: true,
-        spacing: Constants.SeparatorSpacingSize.LARGE
-      }
-    ];
-    break;
-  }
-  case "end": {
-    if (!options?.createdAt) return;
-
-    textFields = [
-      {
-        type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: "## Ended Private Voice Channel",
-      }, {
-        type: Constants.ComponentTypes.SEPARATOR,
-        spacing: Constants.SeparatorSpacingSize.SMALL,
-        divider: false
-      }, {
-        type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: `<@${member.id}> ended the channel \`${channel.name}\``,
-      }, {
-        type: Constants.ComponentTypes.SEPARATOR,
-        divider: false,
-        spacing: Constants.SeparatorSpacingSize.SMALL
-      }, {
-        type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: "### Elapsed Time:",
-      }, {
-        type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: `${options?.createdAt ? `${bot.constants.utils.HMS(Date.now() - options.createdAt)}` : "Unknown"}`,
-      }, {
-        type: Constants.ComponentTypes.SEPARATOR,
-        divider: true,
-        spacing: Constants.SeparatorSpacingSize.LARGE
-      }
-    ];
-    break;
-  }
-  case "newOwner": {
-    if (!options?.newOwner) return;
-    textFields = [
-      {
-        type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: "## Transferred Ownership",
-      }, {
-        type: Constants.ComponentTypes.SEPARATOR,
-        spacing: Constants.SeparatorSpacingSize.SMALL,
-        divider: false
-      }, {
-        type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: `### ${member.username} -> ${options.newOwner.username}`,
-      }, {
-        type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: `Set <@${options.newOwner.id}> the owner of \`${channel.name}\``,
-      }, {
-        type: Constants.ComponentTypes.SEPARATOR,
-        divider: true,
-        spacing: Constants.SeparatorSpacingSize.LARGE
-      }
-    ];
-    break;
-  }
-  case "information": {
-    if (options?.owner == undefined || options?.createdAt == undefined || options?.locked == undefined) {
-      throw new Error(`Missing required options for information log entry: ${options?.owner}, ${options?.createdAt}, ${options?.locked}`);
-      return;
+    case "join": {
+      textFields = [
+        {
+          type: Constants.ComponentTypes.TEXT_DISPLAY,
+          content: "## Joined Private Voice Channel",
+        },
+        {
+          type: Constants.ComponentTypes.SEPARATOR,
+          spacing: Constants.SeparatorSpacingSize.LARGE,
+          divider: false,
+        },
+        {
+          type: Constants.ComponentTypes.TEXT_DISPLAY,
+          content: `<@${member.id}> joined the channel \`${channel.name}\``,
+        },
+        {
+          type: Constants.ComponentTypes.SEPARATOR,
+          divider: true,
+          spacing: Constants.SeparatorSpacingSize.LARGE,
+        },
+      ];
+      break;
     }
+    case "create": {
+      textFields = [
+        {
+          type: Constants.ComponentTypes.TEXT_DISPLAY,
+          content: "## Created Private Voice Channel",
+        },
+        {
+          type: Constants.ComponentTypes.SEPARATOR,
+          spacing: Constants.SeparatorSpacingSize.SMALL,
+          divider: false,
+        },
+        {
+          type: Constants.ComponentTypes.TEXT_DISPLAY,
+          content: `<@${member.id}> created the channel \`${channel.name}\``,
+        },
+        {
+          type: Constants.ComponentTypes.SEPARATOR,
+          divider: true,
+          spacing: Constants.SeparatorSpacingSize.LARGE,
+        },
+      ];
+      break;
+    }
+    case "leave": {
+      textFields = [
+        {
+          type: Constants.ComponentTypes.TEXT_DISPLAY,
+          content: "## Left Private Voice Channel",
+        },
+        {
+          type: Constants.ComponentTypes.SEPARATOR,
+          spacing: Constants.SeparatorSpacingSize.SMALL,
+          divider: false,
+        },
+        {
+          type: Constants.ComponentTypes.TEXT_DISPLAY,
+          content: `<@${member.id}> left the channel \`${channel.name}\``,
+        },
+        {
+          type: Constants.ComponentTypes.SEPARATOR,
+          divider: true,
+          spacing: Constants.SeparatorSpacingSize.LARGE,
+        },
+      ];
+      break;
+    }
+    case "end": {
+      if (!options?.createdAt) return;
 
-    textFields = [
-      {
-        type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: "# Private Voice Channel Information",
-      }, {
-        type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: `${options.locked ? ":lock:" : ":unlock:"} ${(channel as VoiceChannel).name}`,
-      }, {
-        type: Constants.ComponentTypes.SEPARATOR,
-        divider: false,
-        spacing: Constants.SeparatorSpacingSize.SMALL
-      }, {
-        type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: "## Owner:",
-      }, {
-        type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: `${options.owner ? `<@${options.owner.id}>` : "Unknown"}`,
-      }, {
-        type: Constants.ComponentTypes.SEPARATOR,
-        divider: false,
-        spacing: Constants.SeparatorSpacingSize.SMALL
-      }, {
-        type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: "## Time Elapsed:",
-      }, {
-        type: Constants.ComponentTypes.TEXT_DISPLAY,
-        content: `${options.createdAt ? `${bot.constants.utils.HMS(Date.now() - options.createdAt)}` : "Unknown"}`,
-      },
-    ];
-    break;
-  }
-  default:
-    return;
+      textFields = [
+        {
+          type: Constants.ComponentTypes.TEXT_DISPLAY,
+          content: "## Ended Private Voice Channel",
+        },
+        {
+          type: Constants.ComponentTypes.SEPARATOR,
+          spacing: Constants.SeparatorSpacingSize.SMALL,
+          divider: false,
+        },
+        {
+          type: Constants.ComponentTypes.TEXT_DISPLAY,
+          content: `<@${member.id}> ended the channel \`${channel.name}\``,
+        },
+        {
+          type: Constants.ComponentTypes.SEPARATOR,
+          divider: false,
+          spacing: Constants.SeparatorSpacingSize.SMALL,
+        },
+        {
+          type: Constants.ComponentTypes.TEXT_DISPLAY,
+          content: "### Elapsed Time:",
+        },
+        {
+          type: Constants.ComponentTypes.TEXT_DISPLAY,
+          content: `${
+            options?.createdAt
+              ? `${bot.constants.utils.HMS(Date.now() - options.createdAt)}`
+              : "Unknown"
+          }`,
+        },
+        {
+          type: Constants.ComponentTypes.SEPARATOR,
+          divider: true,
+          spacing: Constants.SeparatorSpacingSize.LARGE,
+        },
+      ];
+      break;
+    }
+    case "newOwner": {
+      if (!options?.newOwner) return;
+      textFields = [
+        {
+          type: Constants.ComponentTypes.TEXT_DISPLAY,
+          content: "## Transferred Ownership",
+        },
+        {
+          type: Constants.ComponentTypes.SEPARATOR,
+          spacing: Constants.SeparatorSpacingSize.SMALL,
+          divider: false,
+        },
+        {
+          type: Constants.ComponentTypes.TEXT_DISPLAY,
+          content: `### ${member.username} -> ${options.newOwner.username}`,
+        },
+        {
+          type: Constants.ComponentTypes.TEXT_DISPLAY,
+          content: `Set <@${options.newOwner.id}> the owner of \`${channel.name}\``,
+        },
+        {
+          type: Constants.ComponentTypes.SEPARATOR,
+          divider: true,
+          spacing: Constants.SeparatorSpacingSize.LARGE,
+        },
+      ];
+      break;
+    }
+    case "information": {
+      if (
+        options?.owner == undefined ||
+        options?.createdAt == undefined ||
+        options?.locked == undefined
+      ) {
+        throw new Error(
+          `Missing required options for information log entry: ${options?.owner}, ${options?.createdAt}, ${options?.locked}`
+        );
+        return;
+      }
+
+      textFields = [
+        {
+          type: Constants.ComponentTypes.TEXT_DISPLAY,
+          content: "# Private Voice Channel Information",
+        },
+        {
+          type: Constants.ComponentTypes.TEXT_DISPLAY,
+          content: `${options.locked ? ":lock:" : ":unlock:"} ${
+            (channel as VoiceChannel).name
+          }`,
+        },
+        {
+          type: Constants.ComponentTypes.SEPARATOR,
+          divider: false,
+          spacing: Constants.SeparatorSpacingSize.SMALL,
+        },
+        {
+          type: Constants.ComponentTypes.TEXT_DISPLAY,
+          content: "## Owner:",
+        },
+        {
+          type: Constants.ComponentTypes.TEXT_DISPLAY,
+          content: `${options.owner ? `<@${options.owner.id}>` : "Unknown"}`,
+        },
+        {
+          type: Constants.ComponentTypes.SEPARATOR,
+          divider: false,
+          spacing: Constants.SeparatorSpacingSize.SMALL,
+        },
+        {
+          type: Constants.ComponentTypes.TEXT_DISPLAY,
+          content: "## Time Elapsed:",
+        },
+        {
+          type: Constants.ComponentTypes.TEXT_DISPLAY,
+          content: `${
+            options.createdAt
+              ? `${bot.constants.utils.HMS(Date.now() - options.createdAt)}`
+              : "Unknown"
+          }`,
+        },
+      ];
+      break;
+    }
+    default:
+      return;
   }
 
   const components: MessageComponent[] = [
     {
       ...baseContainer,
       components: [
-        !["information", "end"].includes(type) ? {
-          type: Constants.ComponentTypes.SECTION,
-          components: [textFields[0] as TextDisplayComponent],
-          accessory: {
-            type: Constants.ComponentTypes.BUTTON,
-            style: Constants.ButtonStyles.SECONDARY,
-            customID: `voicechannel_0_information_${channel.id}`,
-            label: "View Info",
-          }
-        } : {
-          type: Constants.ComponentTypes.TEXT_DISPLAY,
-          content: (textFields[0] as TextDisplayComponent).content,
-        },
+        !["information", "end"].includes(type)
+          ? {
+              type: Constants.ComponentTypes.SECTION,
+              components: [textFields[0] as TextDisplayComponent],
+              accessory: {
+                type: Constants.ComponentTypes.BUTTON,
+                style: Constants.ButtonStyles.SECONDARY,
+                customID: `voicechannel_0_information_${channel.id}`,
+                label: "View Info",
+              },
+            }
+          : {
+              type: Constants.ComponentTypes.TEXT_DISPLAY,
+              content: (textFields[0] as TextDisplayComponent).content,
+            },
         // remove the first element from textFields
         ...textFields.slice(1),
-        ...baseContainer.components
-      ]
-    }
+        ...baseContainer.components,
+      ],
+    },
   ];
 
   if (options?.skipLog) {
