@@ -10,10 +10,10 @@ const guildsRoute = (client: ExtendedClient): Router => {
   router.use("/:id", authenticateJWT(client));
 
   client.modules.forEach((module) => {
-    if (module.service && module.name !== "User") {
+    if (["Moderation", "VC", "Roles"].includes(module.name)) {
       router.use(
         `/:id/${module.name.toLowerCase()}`,
-        module.service.getRouter()
+        module.service!.getRouter()
       );
     }
   });
