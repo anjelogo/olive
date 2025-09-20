@@ -14,7 +14,7 @@ export const run = async (bot: ExtendedClient, channel: (GuildChannel)): Promise
     if (i > -1) guildData.categories.splice(i, 1);
 
     try {
-      await bot.updateModuleData("VC", guildData, guildData.guildID);
+      await bot.updateModuleData("VC", guildData, { guildID: guildData.guildID });
     } catch (e) {
       throw new Error("Could not delete channel!");
     }

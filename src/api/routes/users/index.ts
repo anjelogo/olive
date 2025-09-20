@@ -72,7 +72,7 @@ const userRoute = (client: ExtendedClient): Router => {
     }
 
     try {
-      userData = await client.updateModuleData("User", userData, { userID });
+      userData = await client.updateModuleData<"User","user">("User", userData, { userID });
     } catch (e) {
       res.status(500).json({ error: "Could not update user data" });
       return;

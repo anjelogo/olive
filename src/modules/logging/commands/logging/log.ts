@@ -212,7 +212,7 @@ export default class Log extends Command {
       data.channels.splice(data.channels.indexOf(channelData), 1);
 
       try {
-        await this.bot.updateModuleData("Logging", data, guild);
+        await this.bot.updateModuleData("Logging", data, { guildID: guild.id });
 
         return interaction.createFollowup({ content: `${this.bot.constants.emojis.tick} Removed log channel`});
       } catch (e) {
@@ -265,7 +265,7 @@ export default class Log extends Command {
       moduleData.channels.push(obj);
 
       try {
-        await this.bot.updateModuleData("Logging", moduleData, guild);
+        await this.bot.updateModuleData("Logging", moduleData, { guildID: guild.id });
 
         return component.editOriginal({
           components: [

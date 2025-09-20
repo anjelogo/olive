@@ -53,7 +53,7 @@ export default class UserService extends Service {
             return res.status(400).json({ error: "Invalid notifications.vc" });
           }
 
-          const updated = await this.bot.updateModuleData("User", settings, { userID });
+          const updated = await this.bot.updateModuleData<"User","user">("User", settings, { userID });
           return res.status(200).json({ message: "Updated", data: updated });
         }
         default:

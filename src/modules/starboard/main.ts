@@ -24,7 +24,7 @@ export default class Starboard extends Module {
 
     if (typeof guild === "string") guild = this.bot.findGuild(guild) as Guild;
 
-    const data = await this.data(guild.id) as StarboardModuleData,
+    const data = await this.data({ guildID: guild.id }) as StarboardModuleData,
       messages = data.messages;
 
     if (!messages.length) return;

@@ -25,7 +25,7 @@ export default class Saveroles extends Command {
     if (!savedRoles.enabled) data.savedRoles.enabled = true;
     else data.savedRoles.enabled = false;
 
-    await this.bot.updateModuleData("Roles", data, guild);
+  await this.bot.updateModuleData("Roles", data, { guildID: guild.id });
 
     return interaction.createFollowup({
       content: `${this.bot.constants.emojis.tick} Role Saving has been ${savedRoles.enabled ? "enabled" : "disabled"}`,

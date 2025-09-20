@@ -42,7 +42,7 @@ export const create = async (bot: ExtendedClient, member: Member, channel: Voice
   member.edit({ channelID: voice.id });
     
   category.channels.push(newChannel);
-  await bot.updateModuleData("VC", data, channel.guild);
+  await bot.updateModuleData("VC", data, { guildID: channel.guild.id });
 
   // send a message to the user
   try {
@@ -89,7 +89,7 @@ export const remove = async (bot: ExtendedClient, member: Member, channel: Voice
 
     const i = category.channels.findIndex((c) => c.channelID === channel.id);
     if (i > -1) category.channels.splice(i, 1);
-    await bot.updateModuleData("VC", data, channel.guild);
+  await bot.updateModuleData("VC", data, { guildID: channel.guild.id });
 
     await createLogEntry(bot, "end", channel, member, { createdAt: channelObj.createdAt });
     
@@ -101,7 +101,7 @@ export const remove = async (bot: ExtendedClient, member: Member, channel: Voice
 
     channelObj.owner = newOwner.id;
 
-    await bot.updateModuleData("VC", data, channel.guild);
+  await bot.updateModuleData("VC", data, { guildID: channel.guild.id });
 
     await createLogEntry(bot, "newOwner", channel, member, { newOwner });
 

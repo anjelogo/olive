@@ -432,7 +432,7 @@ export default class Reactionrole extends Command {
             }
           ]
         });
-        await this.bot.updateModuleData("Roles", moduleData, guild);
+  await this.bot.updateModuleData("Roles", moduleData, { guildID: guild.id });
 
         const message = this.bot.findMessage(this.bot.getChannel(customData.channelID) as TextChannel, customData.id),
           reactions = obj.roles.map((r) => r.emote);

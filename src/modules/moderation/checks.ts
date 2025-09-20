@@ -102,7 +102,7 @@ export default class Checks {
             }
           }
       
-          promises.push(await this.bot.updateModuleData("Moderation", newDataStruct, guildData.guildID));
+          promises.push(await this.bot.updateModuleData("Moderation", newDataStruct, { guildID: guildData.guildID }));
           break;
         }
         case "1.3": {
@@ -129,7 +129,7 @@ export default class Checks {
             }
           }
 
-          promises.push(await this.bot.updateModuleData("Moderation", newDataStruct, guildData.guildID));
+          promises.push(await this.bot.updateModuleData("Moderation", newDataStruct, { guildID: guildData.guildID }));
           break;
         }
         }

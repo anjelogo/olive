@@ -13,7 +13,7 @@ export const run = async (bot: ExtendedClient, message: Message | { id: string, 
   StarboardData.messages = StarboardData.messages.filter((m) => m.messageID !== message.id);
 
   try {
-    await bot.updateModuleData("Starboard", StarboardData, message.guildID as string);
+    await bot.updateModuleData("Starboard", StarboardData, { guildID: message.guildID as string });
   } catch (e) {
     throw new Error("Could not update starboard data");
   }

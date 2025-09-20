@@ -25,7 +25,7 @@ export default class Roles extends Module {
 
     if (typeof guild === "string") guild = this.bot.findGuild(guild) as Guild;
 
-    const data = await this.data(guild.id) as RolesModuleData,
+    const data = await this.data({ guildID: guild.id}) as RolesModuleData,
       messages = data.messages;
 
     if (!messages.length) return;

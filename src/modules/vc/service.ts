@@ -132,7 +132,7 @@ export default class VCService extends Service {
     data: DeepPartial<ModuleDataMap[K]>
   ): Promise<ModuleDataMap[K]> {
     const rolesData = data as DeepPartial<VCModuleData>;
-    return this.bot.updateModuleData<"VC">("VC", rolesData as ModuleDataMap["VC"], params.guildID) as Promise<ModuleDataMap[K]>;
+    return this.bot.updateModuleData<"VC">("VC", rolesData as ModuleDataMap["VC"], { guildID: params.guildID }) as Promise<ModuleDataMap[K]>;
   }
 
   constructor(bot: ExtendedClient) {

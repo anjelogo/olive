@@ -110,7 +110,7 @@ export default class Autorole extends Command {
 
         try {
           data.autoRoles.push(role.id);
-          await this.bot.updateModuleData("Roles", data, guild);
+          await this.bot.updateModuleData("Roles", data, { guildID: guild.id });
           return interaction.createFollowup({content: `${this.bot.constants.emojis.tick} Added role ${role.mention} to the roles list!`});
         } catch (e) {
           return interaction.createFollowup({content: `${this.bot.constants.emojis.x} Error trying to add role to roles list!`});
@@ -136,7 +136,7 @@ export default class Autorole extends Command {
           const i = data.autoRoles.indexOf(role.id);
           if (i > -1) data.autoRoles.splice(i, 1);
     
-          await this.bot.updateModuleData("Roles", data, guild);
+          await this.bot.updateModuleData("Roles", data, { guildID: guild.id });
           return interaction.createFollowup({content: `${this.bot.constants.emojis.tick} Removed role ${role.mention} from the roles list!`});
         } catch (e) {
           return interaction.createFollowup({content: `${this.bot.constants.emojis.x} Error trying to remove role from roles list!`});

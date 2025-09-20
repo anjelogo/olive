@@ -2,10 +2,11 @@
 
 import { promises as fs } from "fs";
 import { Permnodes, Constants } from "../resources/interfaces";
-import { ModuleName } from "../Database/ModuleTypes";
+import { ModuleDataMap, ModuleName } from "../Database/ModuleTypes";
 import ExtendedClient from "./Client";
 import Command from "./Command";
 import Service from "./Service";
+import { UserModuleData } from "../Database/interfaces/UserModuleData";
 
 export interface moduleDataStructure {
   version: string;
@@ -34,25 +35,28 @@ export default abstract class Module {
     this.db = false;
   }
 
-  readonly data = async (guildID: string): Promise<unknown> => {
-    if (!this.db || !guildID) return;
+  public async data<
+    K extends keyof ModuleDataMap<T>,
+    T extends "user" | "guild" = "guild"
+  >(ctx: { userID?: string; guildID?: string }): Promise<unknown> {
+    if (!this.db)
+      throw new Error(`Module ${this.name} does not support a database.`);
 
-    const guild = this.bot.findGuild(guildID);
+    let data: unknown;
+    if ("guildID" in ctx && ctx.guildID !== undefined) {
+      const guild = this.bot.findGuild(ctx.guildID);
+      if (!guild) return;
 
-    if (!guild) return;
+      data = await this.bot.db.get(this.name).findOne({ guildID: guild.id });
+      if (!data) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (this.moduleData as any).guildID = guild.id;
 
-    let data = await this.bot.db.get(this.name).findOne({ guildID: guild.id });
-    if (!data) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (this.moduleData as any).guildID = guild.id;
-
-      this.bot.constants.utils.log(
-        this.name,
-        `Module data not found for guild "${guild.name}" (${guild.id}). Creating now...`
-      );
-      await this.bot.db
-        .get(this.name)
-        .bulkWrite([
+        this.bot.constants.utils.log(
+          this.name,
+          `Module data not found for guild "${guild.name}" (${guild.id}). Creating now...`
+        );
+        await this.bot.db.get(this.name).bulkWrite([
           {
             updateOne: {
               filter: { guildID: guild.id },
@@ -61,16 +65,49 @@ export default abstract class Module {
             },
           },
         ]);
-      this.bot.constants.utils.log(
-        this.name,
-        `Module data created for guild "${guild.name}".`
-      );
+        this.bot.constants.utils.log(
+          this.name,
+          `Module data created for guild "${guild.name}".`
+        );
+      } else if ("userID" in ctx && ctx.userID !== undefined) {
+        if (!this.db || !ctx.userID) return;
+
+        const user = this.bot.findUser(ctx.userID);
+        if (!user) return;
+
+        data = (await this.bot.db
+          .get(this.name)
+          .findOne({ userID: user.id })) as UserModuleData | undefined;
+        if (!data) {
+          (this.moduleData as UserModuleData).userID = user.id;
+
+          this.bot.constants.utils.log(
+            this.name,
+            `Module data not found for user "${user.username}" (${user.id}). Creating now...`
+          );
+          await this.bot.db.get(this.name).bulkWrite([
+            {
+              updateOne: {
+                filter: { userID: user.id },
+                update: { $set: this.moduleData },
+                upsert: true,
+              },
+            },
+          ]);
+          this.bot.constants.utils.log(
+            this.name,
+            `Module data created for user "${user.username}" (${user.id}).`
+          );
+        }
+    
+        data = (await this.bot.db.get(this.name).findOne({ userID: user.id }))
+      }
+
+      data = await this.bot.db.get(this.name).findOne({ guildID: guild.id });
     }
 
-    data = await this.bot.db.get(this.name).findOne({ guildID: guild.id });
-
     return data;
-  };
+  }
 
   public async init(): Promise<void> {
     this.constants.utils.log(this.name, "Loading...");

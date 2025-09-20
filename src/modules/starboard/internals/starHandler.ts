@@ -54,7 +54,7 @@ export const createStarredMessage = async (bot: ExtendedClient, guild: Guild, me
   data.messages ? data.messages.push(obj) : data.messages = [obj];
 
   try {
-    await bot.updateModuleData("Starboard", data, guild);
+    await bot.updateModuleData("Starboard", data, { guildID: guild.id });
     await createLogEntry(bot, guild, message);
   } catch (e) {
     throw new Error(e as string);
@@ -90,7 +90,7 @@ export const updateStarredMessage = async (bot: ExtendedClient, guild: Guild, me
   }
 
   try {
-    await bot.updateModuleData("Starboard", data, guild);
+    await bot.updateModuleData("Starboard", data, { guildID: guild.id });
     await updateLogEntry(bot, guild, message.id);
   } catch (e) {
     throw new Error(e as string);
@@ -109,7 +109,7 @@ export const removeStarredMessage = async (bot: ExtendedClient, guild: Guild, me
   starboardData.messages.splice(starboardData.messages.indexOf(data), 1);
 
   try {
-    await bot.updateModuleData("Starboard", starboardData, guild);
+    await bot.updateModuleData("Starboard", starboardData, { guildID: guild.id });
     await removeLogEntry(bot, guild, message.id);
     await message.deleteReactions();
   } catch (e) {

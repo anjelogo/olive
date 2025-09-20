@@ -46,7 +46,7 @@ export default class Logging extends Module {
             caseID: data?.caseID as string
           }];
 
-          await this.bot.updateModuleData("Logging", guildData, guild);
+          await this.bot.updateModuleData("Logging", guildData, { guildID: guild.id });
         }
 
         if (type === "starboard") {
@@ -61,7 +61,7 @@ export default class Logging extends Module {
           }];
 
           await message.createReaction("⭐");
-          await this.bot.updateModuleData("Logging", guildData, guild);
+          await this.bot.updateModuleData("Logging", guildData, { guildID: guild.id });
         }
 
       }

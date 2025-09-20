@@ -507,7 +507,7 @@ export default class ModerationService extends Service {
     data: DeepPartial<ModuleDataMap[K]>
   ): Promise<ModuleDataMap[K]> {
     const moderationData = data as ModuleDataMap["Moderation"];
-    return this.bot.updateModuleData<"Moderation">("Moderation", moderationData as ModuleDataMap["Moderation"], params.guildID) as Promise<ModuleDataMap[K]>;
+    return this.bot.updateModuleData<"Moderation">("Moderation", moderationData as ModuleDataMap["Moderation"], { guildID: params.guildID }) as Promise<ModuleDataMap[K]>;
   }
 
   constructor(bot: ExtendedClient) {

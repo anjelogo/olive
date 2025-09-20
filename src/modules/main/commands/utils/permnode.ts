@@ -140,7 +140,7 @@ export default class Permnode extends Command {
         }
 
         data.permissions = permissions;
-        await this.bot.updateModuleData("Main", data, guild);
+  await this.bot.updateModuleData("Main", data, { guildID: guild.id });
         
         return interaction.createFollowup({content: `${this.bot.constants.emojis.tick} Successfully applied change(s) to user \`${member.username}\`:\n\n+ \`${permnode.name} (${value.toString()})\``});
       }
@@ -166,7 +166,7 @@ export default class Permnode extends Command {
         }
 
         data.permissions = permissions;
-        await this.bot.updateModuleData("Main", data, guild);
+  await this.bot.updateModuleData("Main", data, { guildID: guild.id });
         
         return interaction.createFollowup({content: `${this.bot.constants.emojis.tick} Successfully applied change(s) to role \`${role.name}\`:\n\n+ \`${permnode.name} (${value.toString()})\``});
       }
@@ -204,7 +204,7 @@ export default class Permnode extends Command {
         }
 
         data.permissions = permissions;
-        await this.bot.updateModuleData("Main", data, guild);
+  await this.bot.updateModuleData("Main", data, { guildID: guild.id });
         return interaction.createFollowup({content: `${this.bot.constants.emojis.tick} Successfully applied change(s) to user \`${member.username}\`:\n\n- \`${permnode.name}\``});
       }
 
@@ -225,7 +225,7 @@ export default class Permnode extends Command {
         }
 
         data.permissions = permissions;
-        await this.bot.updateModuleData("Main", data, guild);
+  await this.bot.updateModuleData("Main", data, { guildID: guild.id });
         return interaction.createFollowup({content: `${this.bot.constants.emojis.tick} Successfully applied change(s) to role \`${role.name}\`:\n\n- \`${permnode.name}\``});
       }
 

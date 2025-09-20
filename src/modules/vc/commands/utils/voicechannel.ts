@@ -176,7 +176,7 @@ export default class Voicechannel extends Command {
         channelObj.owner = newOwner.id;
             
         try {
-          await this.bot.updateModuleData("VC", data, guild);
+          await this.bot.updateModuleData("VC", data, { guildID: guild.id });
 
           await createLogEntry(this.bot, "newOwner", channel, member, { newOwner });
 
@@ -215,7 +215,7 @@ export default class Voicechannel extends Command {
         categories.push(newCat);
 
         try {
-          await this.bot.updateModuleData("VC", data, guild);
+          await this.bot.updateModuleData("VC", data, { guildID: guild.id });
           await interaction.createFollowup({content: `${this.constants.emojis.tick} Successfully made \`${channel.name}\` a Private VC category. You can manually rename \`${voice.name}\` to change the name.`, flags: Constants.MessageFlags.EPHEMERAL});
           return interaction.createFollowup({ content: `${this.bot.constants.emojis.warning.yellow} To remove the channel, simply delete the channel.`, flags: Constants.MessageFlags.EPHEMERAL});
         } catch (e) {
@@ -257,7 +257,7 @@ export default class Voicechannel extends Command {
 
         await channel.editPermission((this.bot.findRole(guild, "@everyone") as Role).id, { allow: BigInt(35652096), deny: BigInt(1048576), type: Constants.OverwriteTypes.ROLE});
 
-        await this.bot.updateModuleData("VC", data, guild);
+  await this.bot.updateModuleData("VC", data, { guildID: guild.id });
         return interaction.createFollowup({ content: `${this.bot.constants.emojis.tick} Locked channel!`, flags: Constants.MessageFlags.EPHEMERAL });
       } catch (e) {
         return interaction.createFollowup({content: `${this.constants.emojis.warning.red} Error trying to lock channel!`, flags: Constants.MessageFlags.EPHEMERAL});
@@ -288,7 +288,7 @@ export default class Voicechannel extends Command {
 
         await channel.editPermission((this.bot.findRole(guild, "@everyone") as Role).id, { allow: undefined, deny: undefined, type: Constants.OverwriteTypes.ROLE});
 
-        await this.bot.updateModuleData("VC", data, guild);
+  await this.bot.updateModuleData("VC", data, { guildID: guild.id });
         return interaction.createFollowup({ content: `${this.bot.constants.emojis.tick} Unlocked channel!`, flags: Constants.MessageFlags.EPHEMERAL });
       } catch (e) {
         return interaction.createFollowup({content: `${this.constants.emojis.warning.red} Error trying to unlock channel!`, flags: Constants.MessageFlags.EPHEMERAL});

@@ -41,7 +41,7 @@ export default class Checks {
       if (i > -1) guildData.messages.splice(i, 1);
 
       try {
-        await checks.bot.updateModuleData("Roles", guildData, guildData.guildID);
+        await checks.bot.updateModuleData("Roles", guildData, { guildID: guildData.guildID });
         deletedMessages++;
       } catch (e) {
         failed++;
@@ -56,7 +56,7 @@ export default class Checks {
       if (i > -1) msgData.roles.splice(i, 1);
 
       try {
-        await checks.bot.updateModuleData("Roles", guildData, guildData.guildID);
+        await checks.bot.updateModuleData("Roles", guildData, { guildID: guildData.guildID });
         deletedRoles++;
       } catch (e) {
         failed++;
@@ -70,7 +70,7 @@ export default class Checks {
       if (i > -1) guildData.roles.splice(i, 1);
 
       try {
-        await checks.bot.updateModuleData("Roles", guildData, guildData.guildID);
+        await checks.bot.updateModuleData("Roles", guildData, { guildID: guildData.guildID });
         deletedRoles++;
       } catch (e) {
         failed++;
@@ -84,7 +84,7 @@ export default class Checks {
       if (i > -1) guildData.autoRoles.splice(i, 1);
 
       try {
-        await checks.bot.updateModuleData("Roles", guildData, guildData.guildID);
+        await checks.bot.updateModuleData("Roles", guildData, { guildID: guildData.guildID });
         deletedRoles++;
       } catch (e) {
         failed++;
@@ -219,7 +219,7 @@ export default class Checks {
             },
           };
       
-          promises.push(await this.bot.updateModuleData("Roles", newDataStruct, guildData.guildID));
+          promises.push(await this.bot.updateModuleData("Roles", newDataStruct, { guildID: guildData.guildID }));
           break;
         }
         case "1.1": {
@@ -232,7 +232,7 @@ export default class Checks {
             version: newVersion
           };
 
-          promises.push(await this.bot.updateModuleData("Roles", newDataStruct, guildData.guildID));
+          promises.push(await this.bot.updateModuleData("Roles", newDataStruct, { guildID: guildData.guildID }));
           break;
         }
         }

@@ -39,7 +39,7 @@ export default class Checks {
       if (i > -1) guildData.messages.splice(i, 1);
 
       try {
-        await checks.bot.updateModuleData("Starboard", guildData, guildData.guildID);
+        await checks.bot.updateModuleData("Starboard", guildData, { guildID: guildData.guildID });
         deletedStars++;
       } catch (e) {
         failed++;
@@ -100,7 +100,7 @@ export default class Checks {
             version: newVersion
           };
       
-          promises.push(await this.bot.updateModuleData("Starboard", newDataStruct, guildData.guildID));
+          promises.push(await this.bot.updateModuleData("Starboard", newDataStruct, { guildID: guildData.guildID }));
           break;
         }
         }

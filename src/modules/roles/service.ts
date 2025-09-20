@@ -140,7 +140,7 @@ export default class RoleService extends Service {
     if (!rolesData.roles) {
       rolesData.roles = [];
     }
-    return await this.bot.updateModuleData<"Roles">("Roles", rolesData as ModuleDataMap["Roles"], params.guildID) as ModuleDataMap[K];
+    return await this.bot.updateModuleData<"Roles">("Roles", rolesData as ModuleDataMap["Roles"], { guildID: params.guildID }) as ModuleDataMap[K];
   }
 
   constructor(bot: ExtendedClient) {

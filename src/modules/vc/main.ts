@@ -3,20 +3,18 @@ import ExtendedClient from "../../Base/Client";
 import { VCModuleData } from "../../Database/interfaces/VCModuleData";
 
 export default class VC extends Module {
-
-  readonly name = "VC"
+  readonly name = "VC";
   readonly version: string;
   readonly path: string;
   readonly db: boolean;
 
-  constructor (bot: ExtendedClient) {
+  constructor(bot: ExtendedClient) {
     super(bot);
 
     this.version = "1.3";
     this.path = "modules/vc";
     this.db = true;
     this.serviceEnabled = true;
-
   }
 
   readonly moduleData: VCModuleData = {
@@ -25,8 +23,7 @@ export default class VC extends Module {
     guildID: "",
     categories: [],
     defaultName: {
-      channel: ["{user}'s channel"]
-    }
+      channel: ["{user}'s channel"],
+    },
   };
-
 }

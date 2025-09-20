@@ -115,7 +115,7 @@ export default class Roles extends Command {
 
         try {
           data.roles.push(role.id);
-          await this.bot.updateModuleData("Roles", data, guild);
+          await this.bot.updateModuleData("Roles", data, { guildID: guild.id });
           return interaction.createFollowup({content: `${this.bot.constants.emojis.tick} Added role ${role.mention} to the roles list!`});
         } catch (e) {
           return interaction.createFollowup({content: "Error trying to add role to roles list!"});
@@ -139,7 +139,7 @@ export default class Roles extends Command {
           const i = data.roles.indexOf(role.id);
           if (i > -1) data.roles.splice(i, 1);
 
-          await this.bot.updateModuleData("Roles", data, guild);
+          await this.bot.updateModuleData("Roles", data, { guildID: guild.id });
           return interaction.createFollowup({content: `${this.bot.constants.emojis.tick} Removed role ${role.mention} from the roles list!`});
         } catch (e) {
           return interaction.createFollowup({content: "Error trying to add role to roles list!"});

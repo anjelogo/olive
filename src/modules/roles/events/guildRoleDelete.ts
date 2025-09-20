@@ -14,7 +14,7 @@ export const run = async (bot: ExtendedClient, role: Role | Uncached): Promise<v
     if (i > -1) data.messages.splice(i, 1);
 	
     try {
-      await bot.updateModuleData("Roles", data, role.guild.id);
+      await bot.updateModuleData("Roles", data, { guildID: role.guild.id });
     } catch (e) {
       throw new Error("Error deleted role from db");
     }

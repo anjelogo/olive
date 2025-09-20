@@ -17,7 +17,7 @@ export const run = async (bot: ExtendedClient, msg: (Message | { id: string; cha
   if (i > -1) data.messages.splice(i, 1);
  
   try {
-    await bot.updateModuleData("Roles", data, (msg.channel as TextChannel).guild.id);
+    await bot.updateModuleData("Roles", data, { guildID: (msg.channel as TextChannel).guild.id });
   } catch (e) {
     throw new Error("Error deleted message from db");
   }

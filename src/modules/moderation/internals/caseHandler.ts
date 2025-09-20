@@ -63,7 +63,7 @@ export async function addCase(bot: ExtendedClient, guild: Guild, caseData: Case)
   data.cases ? data.cases.push(caseData) : data.cases = [caseData];
 
   try {
-    await bot.updateModuleData("Moderation", data, guild);
+    await bot.updateModuleData("Moderation", data, { guildID: guild.id });
   } catch (e) {
     throw new Error("Could not update data");
   }
@@ -77,7 +77,7 @@ export async function removeCase(bot: ExtendedClient, guild: Guild, caseID: stri
   data.cases = data.cases.filter((c) => c.id !== caseID);
 
   try {
-    await bot.updateModuleData("Moderation", data, guild);
+    await bot.updateModuleData("Moderation", data, { guildID: guild.id });
   } catch (e) {
     throw new Error("Could not update data");
   }
@@ -115,8 +115,8 @@ export async function resolveCase(bot: ExtendedClient, guild: Guild, caseID: str
       break;
     }
 
-    await updateLogEntry(bot, guild, caseToResolve);
-    await bot.updateModuleData("Moderation", data, guild);
+  await updateLogEntry(bot, guild, caseToResolve);
+  await bot.updateModuleData("Moderation", data, { guildID: guild.id });
 
     const user = bot.findUser(caseToResolve.userID) as User;
     if (!user) return false;

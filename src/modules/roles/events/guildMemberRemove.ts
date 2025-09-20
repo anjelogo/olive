@@ -34,5 +34,5 @@ export const run = async (bot: ExtendedClient, member: Member | User, guild: Gui
 
   data.savedRoles.roles.push({ userID: member.id, roles: filteredRoles });
 
-  await bot.updateModuleData("Roles", data, member.guild);
+  await bot.updateModuleData("Roles", data, { guildID: member.guild.id });
 };

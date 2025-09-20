@@ -114,7 +114,7 @@ export async function removeLogEntry(bot: ExtendedClient, guild: Guild, starID: 
 
       try {
         await message.delete();
-        await bot.updateModuleData("Logging", guildLoggingData, guild);
+        await bot.updateModuleData("Logging", guildLoggingData, { guildID: guild.id });
       } catch (e) {
         throw new Error("Could not delete message");
       }

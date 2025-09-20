@@ -162,13 +162,6 @@ export default class ExtendedClient extends Olive {
     return obj.type === "undefined" ? undefined : obj;
   };
 
-  public async getUserData(
-    userID: string
-  ): Promise<ModuleDataMap<"user">["User"] | undefined> {
-    const userModule = this.getModule("User");
-    return await userModule.data(userID) as ModuleDataMap<"user">["User"] | undefined;
-  };
-
   public getModule<K extends keyof ModuleMap>(name: K): ModuleMap[K] {
     const Module = this.modules.find((m) => m.name === name);
 
@@ -189,9 +182,15 @@ export default class ExtendedClient extends Olive {
     if ("guildID" in ctx && ctx.guildID !== undefined) {
       const Module = this.getModule(name as keyof ModuleMap) as Module;
 
-      return await Module.data(ctx.guildID) as Promise<ModuleDataMap<T>[K]>;
+      return (await Module.data({ guildID: ctx.guildID })) as Promise<
+        ModuleDataMap<T>[K]
+      >;
     } else if ("userID" in ctx && ctx.userID !== undefined) {
-      return await this.getUserData(ctx.userID) as ModuleDataMap<T>[K];
+      const Module = this.getModule(name as keyof ModuleMap) as Module;
+
+      return (await Module.data({ userID: ctx.userID })) as Promise<
+        ModuleDataMap<T>[K]
+      >;
     }
   }
 
@@ -206,81 +205,35 @@ export default class ExtendedClient extends Olive {
     return data;
   }
 
-  // Overload: guild by ctx
-  public async updateModuleData<K extends keyof ModuleDataMap<"guild">>(
+  public async updateModuleData<
+    K extends keyof ModuleDataMap<T>,
+    T extends "user" | "guild" = "guild"
+  >(
     name: K,
-    data: ModuleDataMap<"guild">[K],
-    ctx: { guildID: string }
-  ): Promise<ModuleDataMap<"guild">[K]>;
-  // Overload: guild by id or Guild (back-compat)
-  public async updateModuleData<K extends keyof ModuleDataMap<"guild">>(
-    name: K,
-    data: ModuleDataMap<"guild">[K],
-    guild: string | Guild
-  ): Promise<ModuleDataMap<"guild">[K]>;
-  // Overload: user ctx
-  public async updateModuleData(
-    name: "User",
-    data: ModuleDataMap<"user">["User"],
-    ctx: { userID: string }
-  ): Promise<ModuleDataMap<"user">["User"]>;
-  // Implementation
-  public async updateModuleData(
-    name: keyof ModuleDataMap<"guild"> | "User",
-    data: ModuleDataMap["Main" | "Logging" | "VC" | "Moderation" | "Roles" | "Starboard"] | ModuleDataMap<"user">["User"],
-    ctxOrGuild: { userID?: string; guildID?: string } | string | Guild
-  ): Promise<unknown> {
+    data: ModuleDataMap<T>[K],
+    ctx: { guildID?: string; userID?: string }
+  ): Promise<ModuleDataMap<T>[K] | undefined> {
     if (!data) throw new Error("No data provided!");
 
-    // User context path
-    if (
-      typeof ctxOrGuild === "object" &&
-      ctxOrGuild !== null &&
-      "userID" in ctxOrGuild &&
-      ctxOrGuild.userID &&
-      name === "User"
-    ) {
-      const userID = ctxOrGuild.userID as string;
-      const userModule = this.getModule("User");
-      return (await userModule.update(userID, data as ModuleDataMap<"user">["User"])) as ModuleDataMap<"user">["User"];
-    }
-
-    // Guild context path (supports ctx object, id string, or Guild)
-    let guild: Guild | undefined;
-    let guildID: string | undefined;
-
-    if (
-      typeof ctxOrGuild === "object" &&
-      ctxOrGuild !== null &&
-      "guildID" in ctxOrGuild &&
-      ctxOrGuild.guildID
-    ) {
-      guildID = (ctxOrGuild as { guildID: string }).guildID;
-    } else if (typeof ctxOrGuild === "string") {
-      guildID = ctxOrGuild;
-    } else {
-      guild = ctxOrGuild as Guild;
-      guildID = guild?.id;
-    }
-
-    if (!guild && guildID) guild = this.findGuild(guildID) as Guild;
-    if (!guild) throw new Error("Could not find guild!");
-
     const Module = this.getModule(name as keyof ModuleMap) as Module;
-    const collection = this.db.get(Module.name);
-    const existingGuildData = await collection.findOne({ guildID: guild.id });
 
-    // Ensure identity + version
-    (data as { guildID: string; version: string }).guildID = guild.id;
-    (data as { guildID: string; version: string }).version = Module.version;
+    if ("guildID" in ctx && ctx.guildID !== undefined) {
+      const guild = this.findGuild(ctx.guildID);
+      if (!guild) throw new Error("Guild not found!");
 
-    if (!existingGuildData) {
-      await collection.insert(data);
-    } else {
-      await collection.findOneAndUpdate({ guildID: guild.id }, { $set: data });
+      await this.db
+        .get(Module.name)
+        .findOneAndUpdate({ guildID: guild.id }, { $set: data });
+    } else if ("userID" in ctx && ctx.userID !== undefined) {
+      const user = this.findUser(ctx.userID);
+      if (!user) throw new Error("User not found!");
+
+      await this.db
+        .get(Module.name)
+        .findOneAndUpdate({ userID: user.id }, { $set: data });
     }
 
-    return data as ModuleDataMap["Main" | "Logging" | "VC" | "Moderation" | "Roles" | "Starboard"];
+    return data as ModuleDataMap<T>[K];
   }
 
   readonly reload = async (): Promise<void> => {

@@ -41,7 +41,7 @@ export default class Checks {
       if (i > -1) guildData.categories.splice(i, 1);
 
       try {
-        await checks.bot.updateModuleData("VC", guildData, guildData.guildID);
+        await checks.bot.updateModuleData("VC", guildData, { guildID: guildData.guildID });
         deletedChannels++;
       } catch (e) {
         failed++;
@@ -56,7 +56,7 @@ export default class Checks {
       if (i > -1) catData.channels.splice(i, 1);
     
       try {
-        await checks.bot.updateModuleData("VC", guildData, guildData.guildID);
+        await checks.bot.updateModuleData("VC", guildData, { guildID: guildData.guildID });
         deletedChannels++;
       } catch (e) {
         failed++;
@@ -154,7 +154,7 @@ export default class Checks {
 
           delete newDataStruct.defaultName.category;
 
-          promises.push(await this.bot.updateModuleData("VC", newDataStruct, guildData.guildID));
+          promises.push(await this.bot.updateModuleData("VC", newDataStruct, { guildID: guildData.guildID }));
           break;
         }
         }

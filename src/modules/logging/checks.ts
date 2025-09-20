@@ -42,7 +42,7 @@ export default class Checks {
       if (i > -1) guildData.channels.splice(i, 1);
 
       try {
-        await checks.bot.updateModuleData("Logging", guildData, guildData.guildID);
+        await checks.bot.updateModuleData("Logging", guildData, { guildID: guildData.guildID });
         deletedChannels++;
       } catch (e) {
         failed++;
@@ -61,7 +61,7 @@ export default class Checks {
       }
 
       try {
-        await checks.bot.updateModuleData("Logging", guildData, guildData.guildID);
+        await checks.bot.updateModuleData("Logging", guildData, { guildID: guildData.guildID });
         deletedCases++;
       } catch (e) {
         failed++;
@@ -80,7 +80,7 @@ export default class Checks {
       }
 
       try {
-        await checks.bot.updateModuleData("Logging", guildData, guildData.guildID);
+        await checks.bot.updateModuleData("Logging", guildData, { guildID: guildData.guildID });
         deletedStars++;
       } catch (e) {
         failed++;
@@ -159,7 +159,7 @@ export default class Checks {
             version: newVersion
           };
 
-          promises.push(await this.bot.updateModuleData("Logging", newDataStruct, guildData.guildID));
+          promises.push(await this.bot.updateModuleData("Logging", newDataStruct, { guildID: guildData.guildID }));
           break;
         }
         }

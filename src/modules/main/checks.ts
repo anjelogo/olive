@@ -70,7 +70,7 @@ export default class Checks {
             version: newVersion
           };
 
-          promises.push(await this.bot.updateModuleData("Main", newDataStruct, guildData.guildID));
+          promises.push(await this.bot.updateModuleData("Main", newDataStruct, { guildID: guildData.guildID }));
           break;
         }
         }
