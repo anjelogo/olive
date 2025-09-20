@@ -74,7 +74,7 @@ export const create = async (
   const userData = (await bot.getModuleData("User", {
     userID: member.id,
   })) as UserModuleData;
-  
+
   if (userData?.notifications?.vc) {
     try {
       const dm = await member.user.createDM();
@@ -99,7 +99,7 @@ export const create = async (
         ],
       });
     } catch (e) {
-      // do nothing
+      console.error("Failed to send VC creation DM:", e);
     }
   }
 
