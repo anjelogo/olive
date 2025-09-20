@@ -91,21 +91,21 @@ export default abstract class Service<T extends "user" | "guild"> {
     const id = req.params.id;
     if (!id) {
       res.status(400).json({ error: "ID is required" });
-      return;
+      return undefined;
     }
 
     if (this.context === "guild") {
       const guild = this.bot.findGuild?.(id);
       if (!guild) {
         res.status(404).json({ error: "Guild not found" });
-        return;
+        return undefined;
       }
       return { guildID: id } as Ctx<T>;
     } else {
       const user = this.bot.findUser?.(id);
       if (!user) {
         res.status(404).json({ error: "User not found" });
-        return;
+        return undefined;
       }
       return { userID: id } as Ctx<T>;
     }

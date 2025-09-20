@@ -78,12 +78,11 @@ export default class RoleService<T extends "guild"> extends Service<T> {
             .getModule("Main")
             .hasPerm(req.user as User, "roles.save.toggle", guildID))
         ) {
-          res
+          return res
             .status(403)
             .json({
               message: "You do not have permission to access this endpoint.",
             });
-          return;
         }
 
         switch (req.method) {
@@ -94,7 +93,7 @@ export default class RoleService<T extends "guild"> extends Service<T> {
                 guildID,
               })) as RolesModuleData;
 
-              this.get<"Roles">(req, res, {
+              await this.get<"Roles">(req, res, {
                 message: "Role Saving Status",
                 data: {
                   savedRoles: {
@@ -102,6 +101,7 @@ export default class RoleService<T extends "guild"> extends Service<T> {
                   },
                 },
               });
+              return;
             } catch (error) {
               res.status(500).json({
                 message: "Failed to retrieve role saving status",
@@ -138,7 +138,7 @@ export default class RoleService<T extends "guild"> extends Service<T> {
                 currentData
               );
 
-              this.post<"Roles">(req, res, {
+              await this.post<"Roles">(req, res, {
                 message: "Role saving status updated",
                 data: {
                   savedRoles: {
@@ -146,6 +146,7 @@ export default class RoleService<T extends "guild"> extends Service<T> {
                   },
                 },
               });
+              return;
             } catch (error) {
               res.status(500).json({
                 message: "Failed to toggle role saving",

@@ -6,7 +6,7 @@ const userRoute = (client: ExtendedClient): Router => {
   const router = Router();
 
   const userModule = client.getModule("User"); // ensure user module is loaded
-  router.use("/:id/notifications/vc", authenticateJWT(client));
+  router.use("/:id", authenticateJWT(client));
   router.use("/:id", userModule.service!.getRouter());
   router.use("/:id/guilds", authenticateJWT(client));
   router.get("/:id/guilds", async (req: Request<{ id: string }>, res: Response) => {

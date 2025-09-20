@@ -45,13 +45,30 @@ export default class UserService<T extends "user"> extends Service<T> {
         if (!settings)
           return res.status(404).json({ error: "User settings not found" });
 
+        const fields = this.fields.map((field) => {
+          switch (field.action) {
+            case "/notifications/vc":
+              return {
+                ...field,
+                data: {
+                  notifications: {
+                    vc: settings.notifications.vc,
+                  },
+                },
+              } as InputField;
+            default:
+              return field;
+          }
+        });
+
         res.status(200).json({
           user: {
             id: user.id,
             username: user.username,
             avatar: user.avatarURL(),
             banner: user.bannerURL(),
-          }
+            data: fields,
+          },
         });
       },
       "/notifications/vc": async (req, res) => {
@@ -61,26 +78,32 @@ export default class UserService<T extends "user"> extends Service<T> {
 
         switch (req.method) {
           case "GET": {
-            const currentData = await this.bot.getModuleData("User", { userID }) as UserModuleData;
+            const currentData = (await this.bot.getModuleData("User", {
+              userID,
+            })) as UserModuleData;
 
-            this.get<"User">(req, res, {
+            await this.get<"User">(req, res, {
               message: "VC Notification Settings",
               data: { notifications: { vc: currentData.notifications.vc } },
             });
-            break;
+              return;
           }
           case "POST": {
             try {
-              const bodyData = this.getBodyData("User", "notifications", req.body) as DeepPartial<UserModuleData["notifications"]>;
-              const currentData = await this.bot.getModuleData("User", { userID }) as UserModuleData;
+              const bodyData = this.getBodyData(
+                "User",
+                "vc",
+                req.body
+              ) as DeepPartial<UserModuleData["notifications"]>;
+              const currentData = (await this.bot.getModuleData("User", {
+                userID,
+              })) as UserModuleData;
 
               let value = bodyData.vc;
               if (typeof value !== "boolean") {
-                res
-                  .status(400)
-                  .json({
-                    message: "Invalid data format for VC notification status",
-                  });
+                res.status(400).json({
+                  message: "Invalid data format for VC notification status",
+                });
                 return;
               }
 
@@ -93,12 +116,15 @@ export default class UserService<T extends "user"> extends Service<T> {
                 currentData
               );
 
-              this.post<"User">(req, res, {
+              await this.post<"User">(req, res, {
                 message: "VC Notification Settings Updated",
                 data: { notifications: { vc: updatedData.notifications.vc } },
               });
+              return;
             } catch (error) {
-              return res.status(500).json({ error: "Failed to update settings" });
+              return res
+                .status(500)
+                .json({ error: "Failed to update settings" });
             }
           }
           default:
