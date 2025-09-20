@@ -6,6 +6,8 @@ import { RolesModuleData } from "../../Database/interfaces/RolesModuleData";
 import { ModuleDataMap, ModuleName } from "../../Database/ModuleTypes";
 
 export default class RoleService<T extends "guild"> extends Service<T> {
+  protected readonly context: T = "guild" as T;
+
   protected fields: InputField[] = [
     {
       label: "Save Roles on User Leave",

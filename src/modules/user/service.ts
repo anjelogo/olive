@@ -10,6 +10,8 @@ import { UserModuleData } from "../../Database/interfaces/UserModuleData";
 import { ModuleDataMap } from "../../Database/ModuleTypes";
 
 export default class UserService<T extends "user"> extends Service<T> {
+  protected readonly context: T = "user" as T;
+
   protected fields: InputField[] = [
     {
       label: "VC Notifications",

@@ -6,6 +6,8 @@ import { ModuleDataMap, ModuleName } from "../../Database/ModuleTypes";
 import { VCModuleData } from "../../Database/interfaces/VCModuleData";
 
 export default class VCService<T extends "guild"> extends Service<T> {
+  protected readonly context: T = "guild" as T;
+
   protected fields: InputField[] = [
     {
       label: "Default Channel Name",
