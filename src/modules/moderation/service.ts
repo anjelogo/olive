@@ -11,6 +11,8 @@ import { ModuleDataMap, ModuleName } from "../../Database/ModuleTypes";
 import { ModerationModuleData } from "../../Database/interfaces/ModerationModuleData";
 
 export default class ModerationService<T extends "guild"> extends Service<T> {
+  protected readonly context: T = "guild" as T;
+
   protected fields: InputField[] = [
     {
       label: "Automatically Punish Users on Infractions",
