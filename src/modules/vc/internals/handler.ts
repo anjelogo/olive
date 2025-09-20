@@ -79,6 +79,7 @@ export const create = async (
     try {
       const dm = await member.user.createDM();
       await dm.createMessage({
+        flags: Constants.MessageFlags.IS_COMPONENTS_V2,
         components: [
           {
             type: Constants.ComponentTypes.CONTAINER,
