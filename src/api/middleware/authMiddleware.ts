@@ -14,16 +14,18 @@ export const authenticateJWT = (client: ExtendedClient) => {
     }
 
     try {
-      const decrypted = jwt.verify(token, JWT_SECRET) as jwt.JwtPayload;
-
-      const user = client.findUser(decrypted.discordID as string);
-
-      if (!user) {
-        res.status(401).json({ message: "Unauthorized: User not found" });
+      const decrypted = jwt.verify(token, JWT_SECRET) as jwt.JwtPayload & { discordID?: string };
+      const userID = decrypted.discordID;
+      if (!userID) {
+        res.status(401).json({ message: "Unauthorized: Invalid token (no discordID)" });
         return;
       }
 
-      req.user = user; // Attach the user to the request object
+      // Prefer live cache when available, otherwise just set userId for downstream checks
+      const user = client?.users?.get(userID);
+      if (user) req.user = user;
+      // Always provide userId for API-only flows
+      (req as any).userId = userID;
       next();
     } catch (err) {
       res.status(401).json({ message: "Unauthorized: Invalid token", error: err });

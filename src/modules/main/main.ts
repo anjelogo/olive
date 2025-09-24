@@ -3,6 +3,7 @@ import { Permnodes } from "../../resources/interfaces";
 import Module from "../../Base/Module";
 import ExtendedClient from "../../Base/Client";
 import { MainModuleData } from "../../Database/interfaces/MainModuleData";
+import { getGuildMember, getGuildRoles } from "../../shared/discordRest";
 
 export interface helpEmbed {
   content: string;
@@ -77,19 +78,64 @@ export default class Main extends Module<"guild"> {
       }
     }
 
-    if (!member) return false;
+    const masterPerm = `${perm.split(/[.\-_]/)[0]}.*`;
+    const permission = this.bot.perms.find((p: Permnodes) => p.name === perm);
+    if (!permission) return false;
 
-    const masterPerm = `${perm.split(/[.\-_]/)[0]}.*`,
-      permission = this.bot.perms.find((p: Permnodes) => p.name === perm),
-  moduleData = await this.bot.getModuleData("Main", { guildID: (member as Member).guild.id }) as MainModuleData,
-      permissions = moduleData.permissions;
+    const guildIdToUse = member ? member.guild.id : guildID;
+    if (!guildIdToUse) return false;
 
-    if (!permission || !permissions) return false;
-    if ((member as Member).permissions.has("ADMINISTRATOR")) return true;
+    const moduleData = await this.bot.getModuleData("Main", { guildID: guildIdToUse }) as MainModuleData;
+    const storedPerms = moduleData?.permissions ?? [];
 
-    const perms = [...new Set(await this.getPerms(member as Member))];
+    // If we have a cached member, reuse existing logic fast path
+    if (member) {
+      if (member.permissions.has("ADMINISTRATOR")) return true;
+      const perms = [...new Set(await this.getPerms(member))];
+      return [masterPerm, perm, "*"].some((p) => (perms ?? []).includes(p));
+    }
 
-    return [masterPerm, perm, "*"].some(p => perms.includes(p));
+    // REST fallback: fetch member roles and guild roles to evaluate ADMINISTRATOR and role-driven permnodes
+    if (!(user as User).id) return false;
+    const userID = (user as User).id;
+
+    const memberData = await getGuildMember(guildIdToUse, userID);
+    if (!memberData) return false; // not in guild
+
+    // Compute ADMINISTRATOR from role permissions
+    try {
+      const roles = await getGuildRoles(guildIdToUse);
+      const roleMap = new Map<string, string>(
+        roles.map((r: { id: string; permissions: string }) => [r.id, r.permissions] as [string, string])
+      );
+      const ADMIN = 0x00000008n;
+      const hasAdmin = memberData.roles.some((rid: string) => {
+        const permsStr = roleMap.get(rid);
+        if (!permsStr) return false;
+        const bits = BigInt(permsStr);
+        return (bits & ADMIN) === ADMIN;
+      });
+      if (hasAdmin) return true;
+    } catch (e) {
+      // If role fetch fails, proceed without admin shortcut
+    }
+
+    // Build effective permnode names based on defaults, user grants, and role grants from storedPerms
+    const defaults = this.bot.perms.filter((p) => p.default).map((p) => p.name);
+    const effective: Set<string> = new Set(defaults);
+
+    // user-level grants
+    const userEntry = storedPerms.find((p) => p.userID === userID);
+    if (userEntry) {
+      for (const p of userEntry.permissions) if (p.value) effective.add(p.permission);
+    }
+    // role-level grants
+    for (const rid of memberData.roles) {
+      const roleEntry = storedPerms.find((p) => p.roleID === rid);
+      if (roleEntry) for (const p of roleEntry.permissions) if (p.value) effective.add(p.permission);
+    }
+
+    return [masterPerm, perm, "*"].some((p) => effective.has(p));
   };
 
   public handlePermission = async (member: Member, permission: string[] | string, interaction?: CommandInteraction): Promise<boolean> => {

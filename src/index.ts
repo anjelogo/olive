@@ -1,11 +1,19 @@
-import express from "express";
-import cors from "cors";
-import cookieParser from "cookie-parser";
 import ExtendedClient from "./Base/Client";
-import guildsRoute from "./api/routes/guilds";
-import userRoute from "./api/routes/users";
-import authRoute from "./api/routes/auth";
-import CommandsRoute from "./api/routes/commands";
+
+// Sharding configuration via environment variables
+// SHARD_COUNT: total shards across the whole bot (default 1)
+// SHARD_ID: optional specific shard id for this process; if not provided, we use PM2's NODE_APP_INSTANCE
+const TOTAL_SHARDS = Number(process.env.SHARD_COUNT ?? 1);
+const pm2Instance = process.env.NODE_APP_INSTANCE;
+const ENV_SHARD_ID = process.env.SHARD_ID !== undefined ? Number(process.env.SHARD_ID) : undefined;
+const SHARD_ID = ENV_SHARD_ID !== undefined ? ENV_SHARD_ID : (pm2Instance !== undefined ? Number(pm2Instance) : undefined);
+
+if (Number.isNaN(TOTAL_SHARDS) || TOTAL_SHARDS < 1) {
+  throw new Error(`Invalid SHARD_COUNT: ${process.env.SHARD_COUNT}`);
+}
+if (SHARD_ID !== undefined && (Number.isNaN(SHARD_ID) || SHARD_ID < 0 || SHARD_ID >= TOTAL_SHARDS)) {
+  throw new Error(`Invalid SHARD_ID (${SHARD_ID}). Must be between 0 and ${TOTAL_SHARDS - 1}.`);
+}
 
 const client = new ExtendedClient({
   defaultImageFormat: "png",
@@ -15,26 +23,13 @@ const client = new ExtendedClient({
   gateway: {
     getAllUsers:  true,
     intents: 3153551,
+    maxShards: TOTAL_SHARDS,
+    shardIDs: SHARD_ID !== undefined ? [SHARD_ID] : undefined,
   }
 });
 
 client.init().then(() => {
-  const api = express();
-
-  api.use(cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
-    credentials: true,
-  }));
-  api.use(express.json());
-  api.use(cookieParser());
-  api.use("/api/auth", authRoute(client));
-  api.use("/api/guilds", guildsRoute(client));
-  api.use("/api/users", userRoute(client));
-  api.use("/api/commands", CommandsRoute(client));
-  
-  api.listen(5000, () => {
-    console.log("API is running on port 5000");
-  });
+  console.log(`[Shard] Config -> total=${TOTAL_SHARDS}` + (SHARD_ID !== undefined ? `, id=${SHARD_ID}` : " (single-process)"));
   console.log("Client is ready!");
 }).catch((err) => {
   console.error("Failed to initialize client:", err);

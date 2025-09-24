@@ -104,4 +104,32 @@ export default class Olive extends Client {
 
   };
 
+  // Lightweight initializer for API-only processes: loads DB and modules/services without connecting to Discord
+  readonly initModulesOnly = async (): Promise<void> => {
+    // Load modules just like init(), but skip event wiring and connect()
+    type AnyCtor = (new (b: typeof this) => Module<"user" | "guild">) & {
+      context: "user" | "guild";
+    };
+
+    const dirs = await fs.readdir("./modules", { withFileTypes: true });
+    for (const dir of dirs) {
+      if (!dir.isDirectory()) continue;
+
+      const mod = await import(`./modules/${dir.name}/main`);
+      const Ctor = mod.default as AnyCtor;
+
+      const m = new Ctor(this);
+
+      this.modules.push(m);
+    }
+
+    this.modules.sort((a, b) => a.weight - b.weight);
+
+    for (const dm of this.disabledModules) {
+      this.modules = this.modules.filter((m) => m.name !== dm);
+    }
+
+    for (const m of this.modules) await m.init();
+  };
+
 }

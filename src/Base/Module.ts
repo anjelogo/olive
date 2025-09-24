@@ -43,21 +43,21 @@ export default abstract class Module<ModuleT extends "user" | "guild"> {
     }
 
     if ("guildID" in ctx) {
-      const guild = this.bot.findGuild(ctx.guildID);
-      if (!guild) return;
+      const guildID = ctx.guildID;
+      if (!guildID) return;
 
-      let data = await this.bot.db.get(this.name).findOne({ guildID: guild.id });
+      let data = await this.bot.db.get(this.name).findOne({ guildID });
       if (!data) {
         // initialize guild record
-        (this.moduleData as { guildID: string }).guildID = guild.id;
+        (this.moduleData as { guildID: string }).guildID = guildID;
         this.bot.constants.utils.log(
           this.name,
-          `Module data not found for guild "${guild.name}" (${guild.id}). Creating now...`
+          `Module data not found for guild (${guildID}). Creating now...`
         );
         await this.bot.db.get(this.name).bulkWrite([
           {
             updateOne: {
-              filter: { guildID: guild.id },
+              filter: { guildID },
               update: { $set: this.moduleData },
               upsert: true,
             },
@@ -65,31 +65,31 @@ export default abstract class Module<ModuleT extends "user" | "guild"> {
         ]);
         this.bot.constants.utils.log(
           this.name,
-          `Module data created for guild "${guild.name}".`
+          `Module data created for guild (${guildID}).`
         );
-        data = await this.bot.db.get(this.name).findOne({ guildID: guild.id });
+        data = await this.bot.db.get(this.name).findOne({ guildID });
       }
       return data as ModuleDataMap<ModuleT>[K] | undefined;
     }
 
     if ("userID" in ctx) {
-      const user = this.bot.findUser(ctx.userID);
-      if (!user) return;
+      const userID = ctx.userID;
+      if (!userID) return;
 
       let data = (await this.bot.db
         .get(this.name)
-        .findOne({ userID: user.id })) as UserModuleData | undefined;
+        .findOne({ userID })) as UserModuleData | undefined;
 
       if (!data) {
-        (this.moduleData as UserModuleData).userID = user.id;
+        (this.moduleData as UserModuleData).userID = userID;
         this.bot.constants.utils.log(
           this.name,
-          `Module data not found for user "${user.username}" (${user.id}). Creating now...`
+          `Module data not found for user (${userID}). Creating now...`
         );
         await this.bot.db.get(this.name).bulkWrite([
           {
             updateOne: {
-              filter: { userID: user.id },
+              filter: { userID },
               update: { $set: this.moduleData },
               upsert: true,
             },
@@ -97,11 +97,11 @@ export default abstract class Module<ModuleT extends "user" | "guild"> {
         ]);
         this.bot.constants.utils.log(
           this.name,
-          `Module data created for user "${user.username}" (${user.id}).`
+          `Module data created for user (${userID}).`
         );
         data = (await this.bot.db
           .get(this.name)
-          .findOne({ userID: user.id })) as UserModuleData | undefined;
+          .findOne({ userID })) as UserModuleData | undefined;
       }
       return data as ModuleDataMap<ModuleT>[K] | undefined;
     }
