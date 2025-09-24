@@ -65,6 +65,11 @@ export default class Checks {
         case "1.1":
         case "1.2": {
           //Migrates from 1.0-1.2 to 1.4
+          //Change: enabled: boolean
+          //Change: caseData.time -> caseData.duration & caseData.expiresAt
+          //Change: settings.infractionUntilBan -> settings.autoPunish.infractionsUntilBan
+          //Change: settings.infractionUntilKick -> settings.autoPunish.infractionsUntilKick
+          //Change: settings.infractionUntilTimeout -> settings.autoPunish.infractionsUntilTimeout
           if (guildData.version === newVersion) continue;
       
           const newDataStruct = {
@@ -107,6 +112,7 @@ export default class Checks {
         }
         case "1.3": {
           //Migrates from 1.3 to 1.4
+          //Change: caseData.time -> caseData.duration & caseData.expiresAt
           if (guildData.version === newVersion) continue;
           
           const newDataStruct = {
@@ -128,6 +134,26 @@ export default class Checks {
               delete caseData.time;
             }
           }
+
+          promises.push(await this.bot.updateModuleData("Moderation", newDataStruct, { guildID: guildData.guildID }));
+          break;
+        }
+        case "1.4": {
+          // Migrates from 1.4 to 1.5
+          // Change: settings.autoModeration
+          if (guildData.version === newVersion) continue;
+
+          const newDataStruct = {
+            ...guildData,
+            version: newVersion,
+            settings: {
+              ...guildData.settings,
+              autoModeration: {
+                enabled: false,
+                rules: []
+              }
+            }
+          };
 
           promises.push(await this.bot.updateModuleData("Moderation", newDataStruct, { guildID: guildData.guildID }));
           break;

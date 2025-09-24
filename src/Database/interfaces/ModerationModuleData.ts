@@ -1,4 +1,12 @@
+import { Constants } from "oceanic.js";
 import { BaseModuleData } from "./BaseModuleData";
+
+export type AutoModRule = {
+  id: string;
+  name: string;
+  enabled: string;
+  action: CaseActionTypes;
+}
 
 export type CaseActionTypes = "ban" | "kick" | "timeout" | "warn";
 
@@ -37,6 +45,11 @@ export interface ModerationSettings {
     infractionsUntilBan: number;
     infractionsUntilKick: number;
     infractionsUntilTimeout: number;
+  }
+
+  autoModeration: {
+    enabled: boolean;
+    rules: AutoModRule[];
   }
 
   /** @deprecated use autoPunish.infractionsUntilBan */

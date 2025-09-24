@@ -12,7 +12,7 @@ export default class Moderation extends Module<"guild"> {
   constructor (bot: ExtendedClient) {
     super(bot);
 
-    this.version = "1.4";
+    this.version = "1.5";
     this.path = "modules/moderation";
     this.db = true;
     this.serviceEnabled = true;
@@ -31,6 +31,10 @@ export default class Moderation extends Module<"guild"> {
         infractionsUntilBan: 12,
         infractionsUntilKick: 6,
         infractionsUntilTimeout: 3
+      },
+      autoModeration: {
+        enabled: false,
+        rules: []
       }
     }
   };

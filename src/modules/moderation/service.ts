@@ -60,6 +60,24 @@ export default class ModerationService<T extends "guild"> extends Service<T> {
       permissions: ["moderation.web.edit"],
       data: undefined, // This will be filled dynamically based on the current data,
     },
+    {
+      label: "Enable Discord Auto-Moderation",
+      description: "Enable or disable Discord's built-in auto-moderation",
+      type: "checkbox",
+      action: "/setdiscordautomod",
+      module: "Moderation",
+      permissions: ["moderation.web.edit"],
+      data: undefined, // This will be filled dynamically based on the current data,
+    },
+    {
+      label: "Auto-Moderation Rules",
+      description: "Discord Auto-Moderation Rules",
+      type: "custom",
+      action: "/automodrules",
+      module: "Moderation",
+      permissions: ["moderation.web.edit"],
+      data: undefined, // This will be filled dynamically based on the current data,
+    },
   ];
 
   protected getRouteHandlers(): Record<
@@ -134,6 +152,30 @@ export default class ModerationService<T extends "guild"> extends Service<T> {
                   },
                 },
               } as InputField;
+            case "/setdiscordautomod":
+              return {
+                ...field,
+                data: {
+                  settings: {
+                    autoModeration: {
+                      enabled: currentData.settings.autoModeration.enabled,
+                    },
+                  },
+                },
+              } as InputField;
+            case "/automodrules": {
+              console.info(currentData.settings.autoModeration.rules);
+              return {
+                ...field,
+                data: {
+                  settings: {
+                    autoModeration: {
+                      rules: currentData.settings.autoModeration.rules,
+                    },
+                  },
+                },
+              } as InputField;
+            }
             default:
               return field;
           }
@@ -169,11 +211,9 @@ export default class ModerationService<T extends "guild"> extends Service<T> {
             .getModule("Main")
             .hasPerm(req.user as User, "moderation.web.edit", guildID))
         ) {
-          res
-            .status(403)
-            .json({
-              message: "You do not have permission to access this endpoint.",
-            });
+          res.status(403).json({
+            message: "You do not have permission to access this endpoint.",
+          });
           return;
         }
 
@@ -216,11 +256,9 @@ export default class ModerationService<T extends "guild"> extends Service<T> {
               })) as ModerationModuleData;
 
               if (typeof bodyData.enabled !== "boolean") {
-                res
-                  .status(400)
-                  .json({
-                    message: "Invalid data format for auto punish status",
-                  });
+                res.status(400).json({
+                  message: "Invalid data format for auto punish status",
+                });
                 return;
               }
 
@@ -260,11 +298,9 @@ export default class ModerationService<T extends "guild"> extends Service<T> {
             .getModule("Main")
             .hasPerm(req.user as User, "moderation.web.edit", guildID))
         ) {
-          res
-            .status(403)
-            .json({
-              message: "You do not have permission to access this endpoint.",
-            });
+          res.status(403).json({
+            message: "You do not have permission to access this endpoint.",
+          });
           return;
         }
 
@@ -313,11 +349,9 @@ export default class ModerationService<T extends "guild"> extends Service<T> {
                 value = Number(bodyData.infractionsUntilWarn);
 
                 if (isNaN(value)) {
-                  res
-                    .status(400)
-                    .json({
-                      message: "Invalid data format for infractions until warn",
-                    });
+                  res.status(400).json({
+                    message: "Invalid data format for infractions until warn",
+                  });
                   return;
                 }
               }
@@ -359,11 +393,9 @@ export default class ModerationService<T extends "guild"> extends Service<T> {
             .getModule("Main")
             .hasPerm(req.user as User, "moderation.web.edit", guildID))
         ) {
-          res
-            .status(403)
-            .json({
-              message: "You do not have permission to access this endpoint.",
-            });
+          res.status(403).json({
+            message: "You do not have permission to access this endpoint.",
+          });
           return;
         }
 
@@ -412,11 +444,9 @@ export default class ModerationService<T extends "guild"> extends Service<T> {
                 value = Number(bodyData.infractionsUntilBan);
 
                 if (isNaN(value)) {
-                  res
-                    .status(400)
-                    .json({
-                      message: "Invalid data format for infractions until warn",
-                    });
+                  res.status(400).json({
+                    message: "Invalid data format for infractions until warn",
+                  });
                   return;
                 }
               }
@@ -458,11 +488,9 @@ export default class ModerationService<T extends "guild"> extends Service<T> {
             .getModule("Main")
             .hasPerm(req.user as User, "moderation.web.edit", guildID))
         ) {
-          res
-            .status(403)
-            .json({
-              message: "You do not have permission to access this endpoint.",
-            });
+          res.status(403).json({
+            message: "You do not have permission to access this endpoint.",
+          });
           return;
         }
 
@@ -511,11 +539,9 @@ export default class ModerationService<T extends "guild"> extends Service<T> {
                 value = Number(bodyData.infractionsUntilKick);
 
                 if (isNaN(value)) {
-                  res
-                    .status(400)
-                    .json({
-                      message: "Invalid data format for infractions until warn",
-                    });
+                  res.status(400).json({
+                    message: "Invalid data format for infractions until warn",
+                  });
                   return;
                 }
               }
@@ -557,11 +583,9 @@ export default class ModerationService<T extends "guild"> extends Service<T> {
             .getModule("Main")
             .hasPerm(req.user as User, "moderation.web.edit", guildID))
         ) {
-          res
-            .status(403)
-            .json({
-              message: "You do not have permission to access this endpoint.",
-            });
+          res.status(403).json({
+            message: "You do not have permission to access this endpoint.",
+          });
           return;
         }
 
@@ -608,11 +632,9 @@ export default class ModerationService<T extends "guild"> extends Service<T> {
                 value = Number(bodyData.infractionsUntilTimeout);
 
                 if (isNaN(value)) {
-                  res
-                    .status(400)
-                    .json({
-                      message: "Invalid data format for infractions until warn",
-                    });
+                  res.status(400).json({
+                    message: "Invalid data format for infractions until warn",
+                  });
                   return;
                 }
               }
@@ -637,6 +659,181 @@ export default class ModerationService<T extends "guild"> extends Service<T> {
             } catch (error) {
               res.status(500).json({
                 message: "Failed to update infractions until timeout",
+                error: error instanceof Error ? error.message : "Unknown error",
+              });
+            }
+            break;
+          }
+          default:
+            res.status(405).json({ message: "Method not allowed" });
+            return;
+        }
+      },
+      "/setdiscordautomod": async (req, res) => {
+        const guildID = req.params.id;
+
+        if (
+          !(await this.bot
+            .getModule("Main")
+            .hasPerm(req.user as User, "moderation.web.edit", guildID))
+        ) {
+          res.status(403).json({
+            message: "You do not have permission to access this endpoint.",
+          });
+          return;
+        }
+        switch (req.method) {
+          case "GET": {
+            try {
+              const currentData = (await this.bot.getModuleData("Moderation", {
+                guildID,
+              })) as ModerationModuleData;
+              this.get<"Moderation">(req, res, {
+                message: "Discord Auto-Moderation Status",
+                data: {
+                  settings: {
+                    autoModeration: {
+                      enabled: currentData.settings.autoModeration.enabled,
+                    },
+                  },
+                },
+              });
+            } catch (error) {
+              res.status(500).json({
+                message: "Failed to retrieve discord auto-moderation status",
+                error: error instanceof Error ? error.message : "Unknown error",
+              });
+            }
+            break;
+          }
+          case "POST": {
+            try {
+              const bodyData = this.getBodyData(
+                "Moderation",
+                "enabled",
+                req.body
+              ) as DeepPartial<
+                ModerationModuleData["settings"]["autoModeration"]
+              >;
+              const currentData = (await this.bot.getModuleData("Moderation", {
+                guildID,
+              })) as ModerationModuleData;
+              if (typeof bodyData.enabled !== "boolean") {
+                res.status(400).json({
+                  message:
+                    "Invalid data format for discord auto-moderation status",
+                });
+                return;
+              }
+              currentData.settings.autoModeration.enabled = bodyData.enabled;
+              const updatedData = await this.updateData(
+                { module: "Moderation", ctx: { guildID } },
+                currentData
+              );
+              this.post<"Moderation">(req, res, {
+                message: "Discord Auto-Moderation Status Updated",
+                data: {
+                  settings: {
+                    autoModeration: {
+                      enabled: updatedData.settings.autoModeration.enabled,
+                    },
+                  },
+                },
+              });
+            } catch (error) {
+              res.status(500).json({
+                message: "Failed to update discord auto-moderation status",
+                error: error instanceof Error ? error.message : "Unknown error",
+              });
+            }
+            break;
+          }
+          default:
+            res.status(405).json({ message: "Method not allowed" });
+            return;
+        }
+      },
+      "/automodrules": async (req, res) => {
+        const guildID = req.params.id;
+        if (
+          !(await this.bot
+            .getModule("Main")
+            .hasPerm(req.user as User, "moderation.web.edit", guildID))
+        ) {
+          res.status(403).json({
+            message: "You do not have permission to access this endpoint.",
+          });
+          return;
+        }
+
+        switch (req.method) {
+          case "GET":
+            {
+              try {
+                const currentData = (await this.bot.getModuleData(
+                  "Moderation",
+                  {
+                    guildID,
+                  }
+                )) as ModerationModuleData;
+                this.get<"Moderation">(req, res, {
+                  message: "Discord Auto-Moderation Rules",
+                  data: {
+                    settings: {
+                      autoModeration: {
+                        rules: currentData.settings.autoModeration.rules,
+                      },
+                    },
+                  },
+                });
+              } catch (error) {
+                res.status(500).json({
+                  message: "Failed to update discord auto-moderation status",
+                  error:
+                    error instanceof Error ? error.message : "Unknown error",
+                });
+              }
+            }
+            break;
+          case "POST": {
+            try {
+              const bodyData = this.getBodyData(
+                "Moderation",
+                "rules",
+                req.body
+              ) as DeepPartial<
+                ModerationModuleData["settings"]["autoModeration"]
+              >;
+              const currentData = (await this.bot.getModuleData("Moderation", {
+                guildID,
+              })) as ModerationModuleData;
+              if (!Array.isArray(bodyData.rules)) {
+                res.status(400).json({
+                  message:
+                    "Invalid data format for discord auto-moderation rules",
+                });
+                return;
+              }
+
+              currentData.settings.autoModeration.rules =
+                bodyData.rules as typeof currentData.settings.autoModeration.rules;
+              const updatedData = await this.updateData(
+                { module: "Moderation", ctx: { guildID } },
+                currentData
+              );
+              this.post<"Moderation">(req, res, {
+                message: "Discord Auto-Moderation Rules Updated",
+                data: {
+                  settings: {
+                    autoModeration: {
+                      rules: updatedData.settings.autoModeration.rules,
+                    },
+                  },
+                },
+              });
+            } catch (error) {
+              res.status(500).json({
+                message: "Failed to update discord auto-moderation rules",
                 error: error instanceof Error ? error.message : "Unknown error",
               });
             }

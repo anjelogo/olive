@@ -14,7 +14,7 @@ const client = new ExtendedClient({
   auth: `Bot ${process.env.TOKEN}`,
   gateway: {
     getAllUsers:  true,
-    intents: 14063,
+    intents: 3153551,
   }
 });
 

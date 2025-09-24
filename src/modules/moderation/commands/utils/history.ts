@@ -1,4 +1,9 @@
-import { CommandInteraction, Constants, Guild, MessageComponent } from "oceanic.js";
+import {
+  CommandInteraction,
+  Constants,
+  Guild,
+  MessageComponent,
+} from "oceanic.js";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
@@ -6,11 +11,9 @@ import { getCases, removeCase } from "../../internals/caseHandler";
 import { ModerationModuleData } from "../../../../Database/interfaces/ModerationModuleData";
 
 export default class History extends Command {
-
   public type = Constants.ApplicationCommandTypes.CHAT_INPUT;
 
   constructor(bot: ExtendedClient) {
-
     super(bot);
 
     this.commands = ["history"];
@@ -28,9 +31,10 @@ export default class History extends Command {
             description: "The user to view the moderation history of",
             required: true,
             type: Constants.ApplicationCommandOptionTypes.USER,
-          }
-        ]
-      }, {
+          },
+        ],
+      },
+      {
         name: "clear",
         description: "Clear the moderation history of a user",
         type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
@@ -40,14 +44,15 @@ export default class History extends Command {
             description: "The user to clear the moderation history of",
             required: true,
             type: Constants.ApplicationCommandOptionTypes.USER,
-          }
-        ]
-      }
+          },
+        ],
+      },
     ];
-
   }
 
-  readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
+  readonly execute = async (
+    interaction: CommandInteraction
+  ): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {
     const guild = this.bot.findGuild(interaction.guildID) as Guild,
       subcommand = interaction.data.options.getSubCommand(true)[0];
 
@@ -55,89 +60,101 @@ export default class History extends Command {
 
     if (!user)
       return interaction.createFollowup({
-        content: `${this.bot.constants.emojis.x} I couldn't find that user!`
+        content: `${this.bot.constants.emojis.x} I couldn't find that user!`,
       });
 
     const cases = await getCases(this.bot, guild, user.id);
 
     if (!cases)
       return interaction.createFollowup({
-        content: `${this.bot.constants.emojis.x} I couldn't find any cases for that user!`
+        content: `${this.bot.constants.emojis.x} I couldn't find any cases for that user!`,
       });
 
     switch (subcommand) {
-    case "view": {
-      const data = await this.bot.getModuleData("Moderation", { guildID: guild.id }) as ModerationModuleData;
-      let infractions = 0;
+      case "view": {
+        let infractions = 0;
 
-      const hierarchy = {
-          warn: data?.settings.autoPunish.infractionsUntilWarn || 1,
-          timeout: data?.settings.autoPunish.infractionsUntilTimeout || 3,
-          kick: data?.settings.autoPunish.infractionsUntilKick || 6,
-          ban: data?.settings.autoPunish.infractionsUntilBan || 12
-        },
-        arr = [];
+        const hierarchy = {
+            warn: 1,
+            timeout: 3,
+            kick: 6,
+            ban: 12,
+          },
+          arr = [];
 
-      for (const Case of cases) {
-        if (!Case.resolved) infractions += hierarchy[Case.action as keyof typeof hierarchy];
-          
-        let string = `\`Case (${Case.id}) [${Case.action.substring(0, 1).toUpperCase()}]\``;
-        Case.resolved ? string = `~~${string}~~` : string;
-        arr.push(string);
-      }
+        for (const Case of cases.filter((c) => !c.resolved)) {
+          infractions += hierarchy[Case.action];
 
-      const components: MessageComponent[] = [
-        {
-          type: Constants.ComponentTypes.CONTAINER,
-          components: [
-            {
-              type: Constants.ComponentTypes.TEXT_DISPLAY,
-              content: `## History for ${user.username}`
-            }, {
-              type: Constants.ComponentTypes.SEPARATOR,
-              spacing: Constants.SeparatorSpacingSize.SMALL,
-              divider: false
-            }, {
-              type: Constants.ComponentTypes.TEXT_DISPLAY,
-              content: "`[W]` - Warn\n`[K]` - Kick\n`[T]` - Timeout\n`[B]` - Ban"
-            }, {
-              type: Constants.ComponentTypes.SEPARATOR,
-              spacing: Constants.SeparatorSpacingSize.SMALL,
-              divider: false
-            }, {
-              type: Constants.ComponentTypes.TEXT_DISPLAY,
-              content: `### Cases (${arr.length}):`
-            }, {
-              type: Constants.ComponentTypes.TEXT_DISPLAY,
-              content: arr.length ? arr.join(", ") : "None"
-            }, {
-              type: Constants.ComponentTypes.SEPARATOR,
-              divider: true,
-              spacing: Constants.SeparatorSpacingSize.LARGE
-            }, {
-              type: Constants.ComponentTypes.TEXT_DISPLAY,
-              content: `${this.bot.constants.emojis.administrator} <t:${Math.floor(Date.now() / 1000)}:f> • Infractions: ${infractions}`
-            }
-          ]
+          let string = `\`Case (${Case.id}) [${Case.action
+            .substring(0, 1)
+            .toUpperCase()}]\``;
+          Case.resolved ? (string = `~~${string}~~`) : string;
+          arr.push(string);
         }
-      ];
 
-      return interaction.createFollowup({
-        components,
-        flags: Constants.MessageFlags.IS_COMPONENTS_V2
-      });
-    }
+        const components: MessageComponent[] = [
+          {
+            type: Constants.ComponentTypes.CONTAINER,
+            components: [
+              {
+                type: Constants.ComponentTypes.TEXT_DISPLAY,
+                content: `## History for ${user.username}`,
+              },
+              {
+                type: Constants.ComponentTypes.SEPARATOR,
+                spacing: Constants.SeparatorSpacingSize.SMALL,
+                divider: false,
+              },
+              {
+                type: Constants.ComponentTypes.TEXT_DISPLAY,
+                content:
+                  "`[W]` - Warn\n`[K]` - Kick\n`[T]` - Timeout\n`[B]` - Ban",
+              },
+              {
+                type: Constants.ComponentTypes.SEPARATOR,
+                spacing: Constants.SeparatorSpacingSize.SMALL,
+                divider: false,
+              },
+              {
+                type: Constants.ComponentTypes.TEXT_DISPLAY,
+                content: `### Cases (${arr.length}):`,
+              },
+              {
+                type: Constants.ComponentTypes.TEXT_DISPLAY,
+                content: arr.length ? arr.join(", ") : "None",
+              },
+              {
+                type: Constants.ComponentTypes.SEPARATOR,
+                divider: true,
+                spacing: Constants.SeparatorSpacingSize.LARGE,
+              },
+              {
+                type: Constants.ComponentTypes.TEXT_DISPLAY,
+                content: `${
+                  this.bot.constants.emojis.administrator
+                } <t:${Math.floor(
+                  Date.now() / 1000
+                )}:f> • Infractions: ${infractions}`,
+              },
+            ],
+          },
+        ];
 
-    case "clear": {
-      for (const Case of cases) {
-        await removeCase(this.bot, guild, Case.id);
+        return interaction.createFollowup({
+          components,
+          flags: Constants.MessageFlags.IS_COMPONENTS_V2,
+        });
       }
 
-      return interaction.createFollowup({
-        content: `${this.bot.constants.emojis.tick} Successfully cleared the moderation history of ${user.mention}`
-      });
-    }
+      case "clear": {
+        for (const Case of cases) {
+          await removeCase(this.bot, guild, Case.id);
+        }
+
+        return interaction.createFollowup({
+          content: `${this.bot.constants.emojis.tick} Successfully cleared the moderation history of ${user.mention}`,
+        });
+      }
     }
   };
-
 }

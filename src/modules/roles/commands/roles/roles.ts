@@ -425,8 +425,6 @@ export default class Roles extends Command {
       }
 
       case "removeroles": {
-        component.deferUpdate();
-
         if (
           !(component.data as MessageComponentSelectMenuInteractionData).values
             .raw.length
@@ -481,8 +479,6 @@ export default class Roles extends Command {
       }
 
       case "cancel": {
-        component.deferUpdate();
-
         return component.editOriginal({
           content: "Cancelled",
           components: undefined,

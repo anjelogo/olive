@@ -25,6 +25,7 @@ export type ContextForKey<K> = K extends keyof ModuleDataMap<"guild">
 export interface InputField {
   label: string;
   type:
+    | "custom"
     | "checkbox"
     | "number"
     | "long_input"
