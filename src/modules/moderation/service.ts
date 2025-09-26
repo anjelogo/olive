@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { User } from "oceanic.js";
+import { Guild, User } from "oceanic.js";
 import ExtendedClient from "../../Base/Client";
 import Service, {
   ContextForKey,
@@ -9,6 +9,7 @@ import Service, {
 } from "../../Base/Service";
 import { ModuleDataMap, ModuleName } from "../../Database/ModuleTypes";
 import { ModerationModuleData } from "../../Database/interfaces/ModerationModuleData";
+import { Presets, synchroniseAutoModRules } from "./internals/autoModHandler";
 
 export default class ModerationService<T extends "guild"> extends Service<T> {
   protected readonly context: T = "guild" as T;
@@ -167,6 +168,10 @@ export default class ModerationService<T extends "guild"> extends Service<T> {
               console.info(currentData.settings.autoModeration.rules);
               return {
                 ...field,
+                options: Object.keys(Presets).map((key) => ({
+                  label: Presets[key].name,
+                  value: key,
+                })),
                 data: {
                   settings: {
                     autoModeration: {
@@ -779,6 +784,10 @@ export default class ModerationService<T extends "guild"> extends Service<T> {
                 this.get<"Moderation">(req, res, {
                   message: "Discord Auto-Moderation Rules",
                   data: {
+                    options: Object.keys(Presets).map((key) => ({
+                      label: Presets[key].name,
+                      value: key,
+                    })),
                     settings: {
                       autoModeration: {
                         rules: currentData.settings.autoModeration.rules,
@@ -817,6 +826,7 @@ export default class ModerationService<T extends "guild"> extends Service<T> {
 
               currentData.settings.autoModeration.rules =
                 bodyData.rules as typeof currentData.settings.autoModeration.rules;
+
               const updatedData = await this.updateData(
                 { module: "Moderation", ctx: { guildID } },
                 currentData
@@ -831,6 +841,12 @@ export default class ModerationService<T extends "guild"> extends Service<T> {
                   },
                 },
               });
+
+              // Synchronise the rules with Discord
+              await synchroniseAutoModRules(
+                this.bot,
+                this.bot.findGuild(guildID) as Guild
+              );
             } catch (error) {
               res.status(500).json({
                 message: "Failed to update discord auto-moderation rules",

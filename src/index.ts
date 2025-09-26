@@ -22,7 +22,7 @@ client.init().then(() => {
   const api = express();
 
   api.use(cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: "*",
     credentials: true,
   }));
   api.use(express.json());
@@ -32,8 +32,8 @@ client.init().then(() => {
   api.use("/api/users", userRoute(client));
   api.use("/api/commands", CommandsRoute(client));
   
-  api.listen(5000, () => {
-    console.log("API is running on port 5000");
+  api.listen(5001, () => {
+    console.log("API is running on port 5001");
   });
   console.log("Client is ready!");
 }).catch((err) => {

@@ -6,6 +6,14 @@ export type AutoModRule = {
   name: string;
   enabled: string;
   action: CaseActionTypes;
+  ruleMetadata: {
+    preset: string;
+    keywords?: string[];
+    regexPatterns?: string[];
+    allowList?: string[];
+    mentionTotalLimit?: number;
+    mentionRaidProtectionEnabled?: boolean;
+  }
 }
 
 export type CaseActionTypes = "ban" | "kick" | "timeout" | "warn";

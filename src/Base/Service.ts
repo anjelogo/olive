@@ -115,7 +115,10 @@ export default abstract class Service<T extends "user" | "guild"> {
   protected async get<K extends keyof DataFor<ContextForKey<K>>>(
     req: Request,
     res: Response,
-    data: { message: string; data: DeepPartial<DataFor<ContextForKey<K>>[K]> }
+    data: {
+      message: string;
+      data: DeepPartial<DataFor<ContextForKey<K>>[K]> & Partial<InputField>;
+    }
   ): Promise<void>;
   protected async get(
     req: Request,
