@@ -32,17 +32,15 @@ export default class UserSettingsCommand extends Command {
   }
 
   readonly execute = async (interaction: CommandInteraction) => {
-    const subCommand = interaction.data.options.getSubCommand(true)[0];
+    const subcommand = interaction.data.options.getSubCommand(true)[0],
+      userSettings = await this.bot.getModuleData("User", {
+        userID: interaction.user.id,
+      });
 
-    switch (subCommand) {
+    switch (subcommand) {
       case "view": {
-        const userSettings = await this.bot.getModuleData("User", {
-          userID: interaction.user.id,
-        });
         if (!userSettings) {
-          return interaction.createFollowup({
-            content: `${this.bot.constants.emojis.x} You do not have any settings saved. Use /usettings edit to set your preferences.`,
-          });
+          throw new Error("User settings not found.");
         }
 
         return interaction.createFollowup({
@@ -56,10 +54,6 @@ export default class UserSettingsCommand extends Command {
           "vc_notifications",
           true
         );
-
-        let userSettings = await this.bot.getModuleData("User", {
-          userID: interaction.user.id,
-        });
 
         if (!userSettings) {
           throw new Error("User settings not found.");
