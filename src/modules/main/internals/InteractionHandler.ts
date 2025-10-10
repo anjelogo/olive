@@ -122,7 +122,7 @@ export const updateHandler = async (bot: ExtendedClient, component: ComponentInt
 
   try {
     await component.deferUpdate();
-    await command.update(component);
+    if (command.update) await command.update(component);
   } catch (e) {
     const embed: Embed = {
       author: {
@@ -170,7 +170,7 @@ export const modalHandler = async (bot: ExtendedClient, modal: ModalSubmitIntera
   if (member.id !== authorID) return;
 
   try {
-    await command.modalSubmit(modal);
+    if (command.modalSubmit) await command.modalSubmit(modal);
   } catch (e) {
     const embed: Embed = {
       author: {
