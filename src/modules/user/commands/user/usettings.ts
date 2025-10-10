@@ -4,11 +4,13 @@ import ExtendedClient from "../../../../Base/Client";
 
 export default class UserSettingsCommand extends Command {
   public type = Constants.ApplicationCommandTypes.CHAT_INPUT;
+  public commands = ["usettings"];
+  public description = "View or edit your personal settings.";
+  public example = "usettings view | usettings edit vc_notifications true";
+  public permissions: string[] = [];
 
   constructor(bot: ExtendedClient) {
     super(bot);
-    this.commands = ["usettings"]; // user settings
-    this.description = "View or edit your personal settings.";
     this.options = [
       {
         name: "view",

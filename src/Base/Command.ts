@@ -23,14 +23,16 @@ export default abstract class Command {
   public permissions?: string[];
   public requirePerms?: keyof typeof Constants.Permissions;
   public options?: Options[];
-  public bot: ExtendedClient;
+  
   public constants: CustomConstants;
   public guildSpecific?: string[];
-  public execute: (interaction: CommandInteraction) => Promise<InitialMessagedInteractionResponse<CommandInteraction | ComponentInteraction> | FollowupMessageInteractionResponse<CommandInteraction | ComponentInteraction> | InteractionCallbackResponse<AnyInteractionChannel | Uncached> | undefined | void> | undefined;
-  public update: (component: ComponentInteraction) => Promise<FollowupMessageInteractionResponse<CommandInteraction | ComponentInteraction> | Message | undefined | void> | undefined;
-  public modalSubmit: (modal: ModalSubmitInteraction) => Promise<FollowupMessageInteractionResponse<CommandInteraction | ComponentInteraction> | Message | undefined | void> | undefined;
+  public abstract execute: (interaction: CommandInteraction) => Promise<InitialMessagedInteractionResponse<CommandInteraction | ComponentInteraction> | FollowupMessageInteractionResponse<CommandInteraction | ComponentInteraction> | InteractionCallbackResponse<AnyInteractionChannel | Uncached> | undefined | void> | undefined;
+  public update?: (component: ComponentInteraction) => Promise<FollowupMessageInteractionResponse<CommandInteraction | ComponentInteraction> | Message | undefined | void> | undefined;
+  public modalSubmit?: (modal: ModalSubmitInteraction) => Promise<FollowupMessageInteractionResponse<CommandInteraction | ComponentInteraction> | Message | undefined | void> | undefined;
   public autocomplete?: (interaction: AutocompleteInteraction) => Promise<Promise<InteractionCallbackResponse<AnyInteractionChannel | Uncached>> | void>;
   public tags?: string[];
+
+  readonly bot: ExtendedClient;
 
   constructor(bot: ExtendedClient) {
     this.commands = [];
@@ -42,10 +44,6 @@ export default abstract class Command {
     this.constants = bot.constants;
     this.category = "Uncategorized";
     this.noDefer = false;
-
-    this.execute = () => { return undefined; };
-    this.update = () => { return undefined; };
-    this.modalSubmit = () => { return undefined; };
   }
 
 }
