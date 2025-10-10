@@ -180,23 +180,40 @@ export default class ExtendedClient extends Olive {
   >(
     name: K,
     ctx: Ctx<ContextForKey<K>>
-  ): Promise<(ModuleDataMap<ContextForKey<K>>[keyof ModuleDataMap<ContextForKey<K>>]) | undefined> {
+  ): Promise<
+    | ModuleDataMap<ContextForKey<K>>[keyof ModuleDataMap<ContextForKey<K>>]
+    | undefined
+  > {
     if (!ctx) return undefined;
 
-    const Module = this.getModule(name as keyof ModuleMap) as Module<ContextForKey<K>>;
+    const Module = this.getModule(name as keyof ModuleMap) as Module<
+      ContextForKey<K>
+    >;
 
-  if ("guildID" in ctx) {
-    return (await Module.data({ guildID: ctx.guildID } as Ctx<ContextForKey<K>>)) as ModuleDataMap<ContextForKey<K>>[Extract<K, keyof ModuleDataMap<ContextForKey<K>>>];
-  }
-  if ("userID" in ctx) {
-    return (await Module.data({ userID: ctx.userID } as Ctx<ContextForKey<K>>)) as ModuleDataMap<ContextForKey<K>>[Extract<K, keyof ModuleDataMap<ContextForKey<K>>>];
-  }
+    if ("guildID" in ctx) {
+      return (await Module.data({ guildID: ctx.guildID } as Ctx<
+        ContextForKey<K>
+      >)) as ModuleDataMap<ContextForKey<K>>[Extract<
+        K,
+        keyof ModuleDataMap<ContextForKey<K>>
+      >];
+    }
+    if ("userID" in ctx) {
+      return (await Module.data({ userID: ctx.userID } as Ctx<
+        ContextForKey<K>
+      >)) as ModuleDataMap<ContextForKey<K>>[Extract<
+        K,
+        keyof ModuleDataMap<ContextForKey<K>>
+      >];
+    }
   }
 
-  public async getAllData<
-    K extends keyof ModuleDataMap<ContextForKey<K>>,
-  >(name: K): Promise<Array<ModuleDataMap<ContextForKey<K>>[K]>> {
-    const Module = this.getModule(name as keyof ModuleMap) as Module<ContextForKey<K>>;
+  public async getAllData<K extends keyof ModuleDataMap<ContextForKey<K>>>(
+    name: K
+  ): Promise<Array<ModuleDataMap<ContextForKey<K>>[K]>> {
+    const Module = this.getModule(name as keyof ModuleMap) as Module<
+      ContextForKey<K>
+    >;
 
     if (!Module) return [] as Array<ModuleDataMap<ContextForKey<K>>[K]>;
 
@@ -208,7 +225,7 @@ export default class ExtendedClient extends Olive {
   }
 
   public async updateModuleData<
-    K extends keyof ModuleDataMap<ContextForKey<K>>,
+    K extends keyof ModuleDataMap<ContextForKey<K>>
   >(
     name: K,
     data: DeepPartial<ModuleDataMap<ContextForKey<K>>[K]>,
@@ -216,7 +233,9 @@ export default class ExtendedClient extends Olive {
   ): Promise<ModuleDataMap<ContextForKey<K>>[K] | undefined> {
     if (!data) throw new Error("No data provided!");
 
-    const Module = this.getModule(name as keyof ModuleMap) as Module<ContextForKey<K>>;
+    const Module = this.getModule(name as keyof ModuleMap) as Module<
+      ContextForKey<K>
+    >;
 
     if ("guildID" in ctx && ctx.guildID !== undefined) {
       const guild = this.findGuild(ctx.guildID);
