@@ -51,15 +51,8 @@ const authRoute = (client: ExtendedClient): Router => {
         { expiresIn: "1h" } // Token expires in 1 hour
       );
 
-      // Set the JWT in an HttpOnly cookie
-      res.cookie("token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 3600000, // 1 hour
-      });
-
-      res.redirect(CLIENT_URL + "/dashboard"); // Redirect to the frontend
+      // Let the Next.js frontend set the cookie on its own origin
+      res.redirect(`${CLIENT_URL}/api/auth/set-cookie?token=${encodeURIComponent(token)}`);
     }
   );
 
