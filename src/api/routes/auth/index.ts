@@ -76,9 +76,9 @@ const authRoute = (client: ExtendedClient): Router => {
     try {
       // Verify the token and get the user data
       const decrypted = jwt.verify(token, JWT_SECRET) as jwt.JwtPayload;
-      
+
       const user = client.findUser(decrypted.discordID as string);
-      res.status(200).json(user);
+      res.status(200).json(user ?? { id: decrypted.discordID, username: decrypted.username });
       return;
     } catch (error) {
       res.status(401).json({ message: "Invalid token" });
