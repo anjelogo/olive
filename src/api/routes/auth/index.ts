@@ -54,7 +54,7 @@ const authRoute = (client: ExtendedClient): Router => {
       // Set the JWT in an HttpOnly cookie
       res.cookie("token", token, {
         httpOnly: true,
-        secure: true, // Set secure only in production
+        secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
         maxAge: 3600000, // 1 hour
       });
