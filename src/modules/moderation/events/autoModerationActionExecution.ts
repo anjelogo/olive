@@ -61,7 +61,7 @@ export const run = async (
     (r) => r.id === executionOptions.ruleID
   );
   if (!rule) return;
-  if (rule.enabled !== "true") return;
+  if (!rule.enabled) return;
 
   console.log("Rule found and is enabled:", rule.id, rule.name, rule.action);
 

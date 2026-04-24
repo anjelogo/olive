@@ -158,6 +158,29 @@ export default class Checks {
           promises.push(await this.bot.updateModuleData("Moderation", newDataStruct, { guildID: guildData.guildID }));
           break;
         }
+        case "1.5": {
+          // Migrates from 1.5 to 1.6
+          // Change: AutoModRule.enabled string -> boolean
+          if (guildData.version === newVersion) continue;
+
+          const newDataStruct = {
+            ...guildData,
+            version: newVersion,
+            settings: {
+              ...guildData.settings,
+              autoModeration: {
+                ...guildData.settings.autoModeration,
+                rules: guildData.settings.autoModeration.rules.map(r => ({
+                  ...r,
+                  enabled: r.enabled === true || (r.enabled as unknown as string) === "true"
+                }))
+              }
+            }
+          };
+
+          promises.push(await this.bot.updateModuleData("Moderation", newDataStruct, { guildID: guildData.guildID }));
+          break;
+        }
         }
       }
     }

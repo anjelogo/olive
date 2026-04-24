@@ -4,7 +4,7 @@ import { BaseModuleData } from "./BaseModuleData";
 export type AutoModRule = {
   id: string;
   name: string;
-  enabled: string;
+  enabled: boolean;
   action: CaseActionTypes;
   ruleMetadata: {
     preset: string;

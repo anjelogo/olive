@@ -155,26 +155,30 @@ export async function createAutoModRule(
     guildID: guild.id,
   })) as ModerationModuleData;
 
+  // preset is a global, clone it or you'll regret it
+  const presetClone = {
+    ...Presets[options.preset],
+    triggerMetadata: { ...Presets[options.preset].triggerMetadata },
+  };
+
   if (
     options.preset !== "blank" &&
     options.keywords &&
     options.keywords.length
   ) {
-    Presets[options.preset].triggerMetadata!.regexPatterns = options.keywords;
+    presetClone.triggerMetadata!.keywordFilter = options.keywords;
   }
 
-  Presets[options.preset].name = "[Olive] " + Presets[options.preset].name;
+  presetClone.name = "[Olive] " + presetClone.name;
 
-  const discordRule = await guild.createAutoModerationRule(
-    Presets[options.preset]
-  );
+  const discordRule = await guild.createAutoModerationRule(presetClone);
 
   const rule: AutoModRule = {
     id: discordRule.id,
     name: `[Olive] ${
       Constants.AutoModerationActionTypes[discordRule.actions[0].type]
     } - ${Constants.AutoModerationTriggerTypes[discordRule.triggerType]}`,
-    enabled: "true",
+    enabled: true,
     action: options.caseAction,
     ruleMetadata: {
       preset: options.preset,
@@ -226,9 +230,7 @@ export async function modifyAutoModRule(
   if (options.name)
     guildData.settings.autoModeration.rules[ruleIndex].name = options.name;
   if (options.enabled !== undefined)
-    guildData.settings.autoModeration.rules[ruleIndex].enabled = options.enabled
-      ? "true"
-      : "false";
+    guildData.settings.autoModeration.rules[ruleIndex].enabled = options.enabled as boolean;
   if (options.action)
     guildData.settings.autoModeration.rules[ruleIndex].action = options.action;
 
@@ -283,26 +285,37 @@ export async function synchroniseAutoModRules(
 
   if (!guildData) return;
 
+  // coerce enabled: existing db docs may have "true"/"false" strings
+  for (const r of guildData.settings.autoModeration.rules) {
+    if (typeof (r.enabled as unknown) === "string") {
+      r.enabled = (r.enabled as unknown as string) === "true";
+    }
+  }
+
   const discordRules = await guild.getAutoModerationRules();
+
+  // snapshot db-only before the filter removes them
+  const dbOnlyRules = guildData.settings.autoModeration.rules.filter(
+    (r) => !discordRules.some((dr) => dr.id === r.id)
+  );
 
   // Remove any rules that no longer exist on Discord
   guildData.settings.autoModeration.rules =
-    guildData.settings.autoModeration.rules.filter((r) => {
-      return discordRules.some((dr) => dr.id === r.id);
-    });
+    guildData.settings.autoModeration.rules.filter((r) =>
+      discordRules.some((dr) => dr.id === r.id)
+    );
 
-  // create rules that exist in the database but not on Discord
-  for (const r of guildData.settings.autoModeration.rules) {
-    if (!discordRules.some((dr) => dr.id === r.id)) {
-      const preset = r.ruleMetadata.preset;
-      if (preset) {
-        const { discordRule } = await createAutoModRule(bot, guild, {
-          preset: preset as keyof typeof Presets,
-          caseAction: r.action,
-        });
-        r.id = discordRule.id;
-      }
-    }
+  // recreate db-only rules on Discord with fresh ids
+  for (const r of dbOnlyRules) {
+    const preset = r.ruleMetadata.preset;
+    if (!preset || !Presets[preset]) continue;
+    const presetClone = {
+      ...Presets[preset],
+      triggerMetadata: { ...Presets[preset].triggerMetadata },
+    };
+    presetClone.name = "[Olive] " + presetClone.name;
+    const discordRule = await guild.createAutoModerationRule(presetClone);
+    guildData.settings.autoModeration.rules.push({ ...r, id: discordRule.id });
   }
 
   // Note: We do not delete rules that exist on Discord but not in the database
@@ -313,7 +326,7 @@ export async function synchroniseAutoModRules(
     const discordRule = discordRules.find((dr) => dr.id === r.id);
     if (discordRule) {
       r.name = discordRule.name;
-      r.enabled = discordRule.enabled ? "true" : "false";
+      r.enabled = discordRule.enabled;
     }
   }
 

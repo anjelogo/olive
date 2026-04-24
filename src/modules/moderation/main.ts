@@ -12,7 +12,7 @@ export default class Moderation extends Module<"guild"> {
   constructor (bot: ExtendedClient) {
     super(bot);
 
-    this.version = "1.5";
+    this.version = "1.6";
     this.path = "modules/moderation";
     this.db = true;
     this.serviceEnabled = true;
