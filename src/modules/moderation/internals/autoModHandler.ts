@@ -6,6 +6,8 @@ import {
   CaseActionTypes,
   ModerationModuleData,
 } from "../../../Database/interfaces/ModerationModuleData";
+import { BucketKey, GlobalBucketDataset } from "./bucketDataset";
+import { compileBucket, CompiledChunk } from "./bucketCompiler";
 
 export const Presets: Record<
   string,
@@ -349,4 +351,84 @@ export async function synchroniseAutoModRules(
 
   await bot.updateModuleData("Moderation", guildData, { guildID: guild.id });
   return;
+}
+
+export async function synchroniseBucketRules(
+  bot: ExtendedClient,
+  guild: Guild
+): Promise<void> {
+  const guildData = (await bot.getModuleData("Moderation", {
+    guildID: guild.id,
+  })) as ModerationModuleData;
+
+  if (!guildData) return;
+
+  const discordRules = await guild.getAutoModerationRules();
+  const existingBucketRules = discordRules.filter(r => r.name.startsWith("olive:"));
+
+  const buckets: BucketKey[] = ["contact", "giveaway", "payment", "spam"];
+  const allChunks: (CompiledChunk & { bucket: BucketKey })[] = [];
+
+  for (const bucket of buckets) {
+    const globalPhrases = GlobalBucketDataset[bucket];
+    const customPhrases = guildData.settings.autoModeration.customPhrases?.[bucket] ?? [];
+    const chunks = compileBucket(bucket, [...globalPhrases, ...customPhrases]);
+    for (const chunk of chunks) allChunks.push({ ...chunk, bucket });
+  }
+
+  const targetNames = new Set(allChunks.map(c => c.name));
+
+  for (const dr of existingBucketRules) {
+    if (!targetNames.has(dr.name)) await guild.deleteAutoModerationRule(dr.id);
+  }
+
+  const synced: { name: string; id: string; bucket: BucketKey }[] = [];
+
+  for (const chunk of allChunks) {
+    const existing = existingBucketRules.find(dr => dr.name === chunk.name);
+    if (existing) {
+      await guild.editAutoModerationRule(existing.id, {
+        triggerMetadata: {
+          keywordFilter: chunk.keywords,
+          regexPatterns: chunk.regexPatterns,
+        },
+      });
+      synced.push({ name: chunk.name, id: existing.id, bucket: chunk.bucket });
+    } else {
+      const created = await guild.createAutoModerationRule({
+        name: chunk.name,
+        eventType: Constants.AutoModerationEventTypes.MESSAGE_SEND,
+        triggerType: Constants.AutoModerationTriggerTypes.KEYWORD,
+        triggerMetadata: {
+          keywordFilter: chunk.keywords,
+          regexPatterns: chunk.regexPatterns,
+        },
+        actions: [{
+          metadata: {
+            customMessage: "[AUTO-MOD] Your message was blocked by Olive's Auto Moderation.",
+          },
+          type: Constants.AutoModerationActionTypes.BLOCK_MESSAGE,
+        }],
+        enabled: true,
+        exemptRoles: [],
+        exemptChannels: [],
+      });
+      synced.push({ name: chunk.name, id: created.id, bucket: chunk.bucket });
+    }
+  }
+
+  guildData.settings.autoModeration.rules = guildData.settings.autoModeration.rules.filter(
+    r => !r.name.startsWith("olive:")
+  );
+  for (const { name, id, bucket } of synced) {
+    guildData.settings.autoModeration.rules.push({
+      id,
+      name,
+      enabled: true,
+      action: "warn",
+      ruleMetadata: { preset: `bucket:${bucket}` },
+    });
+  }
+
+  await bot.updateModuleData("Moderation", guildData, { guildID: guild.id });
 }

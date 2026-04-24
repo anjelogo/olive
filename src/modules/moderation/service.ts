@@ -9,7 +9,7 @@ import Service, {
 } from "../../Base/Service";
 import { ModuleDataMap, ModuleName } from "../../Database/ModuleTypes";
 import { ModerationModuleData } from "../../Database/interfaces/ModerationModuleData";
-import { Presets, synchroniseAutoModRules } from "./internals/autoModHandler";
+import { deleteAutoModRule, Presets, synchroniseAutoModRules, synchroniseBucketRules } from "./internals/autoModHandler";
 
 export default class ModerationService<T extends "guild"> extends Service<T> {
   protected readonly context: T = "guild" as T;
@@ -847,6 +847,10 @@ export default class ModerationService<T extends "guild"> extends Service<T> {
                 this.bot,
                 this.bot.findGuild(guildID) as Guild
               );
+              await synchroniseBucketRules(
+                this.bot,
+                this.bot.findGuild(guildID) as Guild
+              );
             } catch (error) {
               res.status(500).json({
                 message: "Failed to update discord auto-moderation rules",
@@ -855,9 +859,279 @@ export default class ModerationService<T extends "guild"> extends Service<T> {
             }
             break;
           }
+          case "PATCH": {
+            try {
+              const { id, enabled, action } = req.body;
+              if (!id) {
+                res.status(400).json({ message: "Rule id required" });
+                return;
+              }
+              const currentData = (await this.bot.getModuleData("Moderation", {
+                guildID,
+              })) as ModerationModuleData;
+              const rule = currentData.settings.autoModeration.rules.find(r => r.id === id);
+              if (!rule) {
+                res.status(404).json({ message: "Rule not found" });
+                return;
+              }
+              if (typeof enabled === "boolean") rule.enabled = enabled;
+              if (action) rule.action = action;
+              await this.updateData({ module: "Moderation", ctx: { guildID } }, currentData);
+              this.post<"Moderation">(req, res, {
+                message: "Rule updated",
+                data: { settings: { autoModeration: { rules: currentData.settings.autoModeration.rules } } },
+              });
+              await synchroniseAutoModRules(this.bot, this.bot.findGuild(guildID) as Guild);
+            } catch (error) {
+              res.status(500).json({
+                message: "Failed to update rule",
+                error: error instanceof Error ? error.message : "Unknown error",
+              });
+            }
+            break;
+          }
+          case "DELETE": {
+            try {
+              const { id } = req.body;
+              if (!id) {
+                res.status(400).json({ message: "Rule id required" });
+                return;
+              }
+              const deleted = await deleteAutoModRule(this.bot, this.bot.findGuild(guildID) as Guild, id);
+              if (!deleted) {
+                res.status(404).json({ message: "Rule not found or could not be deleted" });
+                return;
+              }
+              res.status(200).json({ message: "Rule deleted" });
+            } catch (error) {
+              res.status(500).json({
+                message: "Failed to delete rule",
+                error: error instanceof Error ? error.message : "Unknown error",
+              });
+            }
+            break;
+          }
           default:
             res.status(405).json({ message: "Method not allowed" });
             return;
+        }
+      },
+      "/automodrules/sync": async (req, res) => {
+        const guildID = req.params.id;
+        if (
+          !(await this.bot
+            .getModule("Main")
+            .hasPerm(req.user as User, "moderation.web.edit", guildID))
+        ) {
+          res.status(403).json({ message: "You do not have permission to access this endpoint." });
+          return;
+        }
+        if (req.method !== "POST") {
+          res.status(405).json({ message: "Method not allowed" });
+          return;
+        }
+        try {
+          await synchroniseAutoModRules(this.bot, this.bot.findGuild(guildID) as Guild);
+          await synchroniseBucketRules(this.bot, this.bot.findGuild(guildID) as Guild);
+          const currentData = (await this.bot.getModuleData("Moderation", { guildID })) as ModerationModuleData;
+          res.status(200).json({ message: "Sync complete", data: { ruleCount: currentData.settings.autoModeration.rules.length } });
+        } catch (error) {
+          res.status(500).json({
+            message: "Failed to sync rules",
+            error: error instanceof Error ? error.message : "Unknown error",
+          });
+        }
+      },
+      "/customphrases": async (req, res) => {
+        const guildID = req.params.id;
+        if (
+          !(await this.bot
+            .getModule("Main")
+            .hasPerm(req.user as User, "moderation.web.edit", guildID))
+        ) {
+          res.status(403).json({
+            message: "You do not have permission to access this endpoint.",
+          });
+          return;
+        }
+
+        switch (req.method) {
+          case "GET": {
+            try {
+              const currentData = (await this.bot.getModuleData("Moderation", { guildID })) as ModerationModuleData;
+              this.get<"Moderation">(req, res, {
+                message: "Custom phrases",
+                data: { settings: { autoModeration: { customPhrases: currentData.settings.autoModeration.customPhrases } } },
+              });
+            } catch (error) {
+              res.status(500).json({
+                message: "Failed to retrieve custom phrases",
+                error: error instanceof Error ? error.message : "Unknown error",
+              });
+            }
+            break;
+          }
+          case "POST": {
+            try {
+              const { bucket, phrases } = req.body;
+              const validBuckets = ["contact", "giveaway", "payment", "spam"];
+
+              if (!validBuckets.includes(bucket)) {
+                res.status(400).json({ message: "Invalid bucket. Must be one of: contact, giveaway, payment, spam" });
+                return;
+              }
+              if (!Array.isArray(phrases)) {
+                res.status(400).json({ message: "phrases must be an array" });
+                return;
+              }
+              if (phrases.length > 100) {
+                res.status(400).json({ message: "Maximum 100 custom phrases per bucket" });
+                return;
+              }
+
+              const currentData = (await this.bot.getModuleData("Moderation", {
+                guildID,
+              })) as ModerationModuleData;
+
+              currentData.settings.autoModeration.customPhrases = {
+                ...currentData.settings.autoModeration.customPhrases,
+                [bucket]: phrases,
+              };
+
+              const updatedData = await this.updateData(
+                { module: "Moderation", ctx: { guildID } },
+                currentData
+              );
+
+              this.post<"Moderation">(req, res, {
+                message: "Custom phrases updated",
+                data: {
+                  settings: {
+                    autoModeration: {
+                      customPhrases: updatedData.settings.autoModeration.customPhrases,
+                    },
+                  },
+                },
+              });
+
+              await synchroniseBucketRules(
+                this.bot,
+                this.bot.findGuild(guildID) as Guild
+              );
+            } catch (error) {
+              res.status(500).json({
+                message: "Failed to update custom phrases",
+                error: error instanceof Error ? error.message : "Unknown error",
+              });
+            }
+            break;
+          }
+          default:
+            res.status(405).json({ message: "Method not allowed" });
+            return;
+        }
+      },
+      "/customphrases/add": async (req, res) => {
+        const guildID = req.params.id;
+        if (
+          !(await this.bot
+            .getModule("Main")
+            .hasPerm(req.user as User, "moderation.web.edit", guildID))
+        ) {
+          res.status(403).json({ message: "You do not have permission to access this endpoint." });
+          return;
+        }
+        if (req.method !== "POST") {
+          res.status(405).json({ message: "Method not allowed" });
+          return;
+        }
+        try {
+          const { bucket, phrase } = req.body;
+          const validBuckets = ["contact", "giveaway", "payment", "spam"];
+          if (!validBuckets.includes(bucket)) {
+            res.status(400).json({ message: "Invalid bucket. Must be one of: contact, giveaway, payment, spam" });
+            return;
+          }
+          if (typeof phrase !== "string" || !phrase.trim()) {
+            res.status(400).json({ message: "phrase must be a non-empty string" });
+            return;
+          }
+          const currentData = (await this.bot.getModuleData("Moderation", { guildID })) as ModerationModuleData;
+          const existing = currentData.settings.autoModeration.customPhrases?.[bucket as keyof typeof currentData.settings.autoModeration.customPhrases] ?? [];
+          if (existing.length >= 100) {
+            res.status(400).json({ message: "Maximum 100 custom phrases per bucket" });
+            return;
+          }
+          const normalized = phrase.trim().toLowerCase();
+          if (existing.includes(normalized)) {
+            res.status(400).json({ message: "Phrase already exists in bucket" });
+            return;
+          }
+          currentData.settings.autoModeration.customPhrases = {
+            ...currentData.settings.autoModeration.customPhrases,
+            [bucket]: [...existing, normalized],
+          };
+          const updatedData = await this.updateData({ module: "Moderation", ctx: { guildID } }, currentData);
+          this.post<"Moderation">(req, res, {
+            message: "Phrase added",
+            data: { settings: { autoModeration: { customPhrases: updatedData.settings.autoModeration.customPhrases } } },
+          });
+          await synchroniseBucketRules(this.bot, this.bot.findGuild(guildID) as Guild);
+        } catch (error) {
+          res.status(500).json({
+            message: "Failed to add phrase",
+            error: error instanceof Error ? error.message : "Unknown error",
+          });
+        }
+      },
+      "/customphrases/remove": async (req, res) => {
+        const guildID = req.params.id;
+        if (
+          !(await this.bot
+            .getModule("Main")
+            .hasPerm(req.user as User, "moderation.web.edit", guildID))
+        ) {
+          res.status(403).json({ message: "You do not have permission to access this endpoint." });
+          return;
+        }
+        if (req.method !== "POST") {
+          res.status(405).json({ message: "Method not allowed" });
+          return;
+        }
+        try {
+          const { bucket, phrase } = req.body;
+          const validBuckets = ["contact", "giveaway", "payment", "spam"];
+          if (!validBuckets.includes(bucket)) {
+            res.status(400).json({ message: "Invalid bucket. Must be one of: contact, giveaway, payment, spam" });
+            return;
+          }
+          if (typeof phrase !== "string" || !phrase.trim()) {
+            res.status(400).json({ message: "phrase must be a non-empty string" });
+            return;
+          }
+          const currentData = (await this.bot.getModuleData("Moderation", { guildID })) as ModerationModuleData;
+          const existing = currentData.settings.autoModeration.customPhrases?.[bucket as keyof typeof currentData.settings.autoModeration.customPhrases] ?? [];
+          const normalized = phrase.trim().toLowerCase();
+          const filtered = existing.filter(p => p !== normalized);
+          if (filtered.length === existing.length) {
+            res.status(404).json({ message: "Phrase not found in bucket" });
+            return;
+          }
+          currentData.settings.autoModeration.customPhrases = {
+            ...currentData.settings.autoModeration.customPhrases,
+            [bucket]: filtered,
+          };
+          const updatedData = await this.updateData({ module: "Moderation", ctx: { guildID } }, currentData);
+          this.post<"Moderation">(req, res, {
+            message: "Phrase removed",
+            data: { settings: { autoModeration: { customPhrases: updatedData.settings.autoModeration.customPhrases } } },
+          });
+          await synchroniseBucketRules(this.bot, this.bot.findGuild(guildID) as Guild);
+        } catch (error) {
+          res.status(500).json({
+            message: "Failed to remove phrase",
+            error: error instanceof Error ? error.message : "Unknown error",
+          });
         }
       },
     };

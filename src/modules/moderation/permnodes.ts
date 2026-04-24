@@ -79,5 +79,13 @@ export default [
     name: "moderation.web.edit",
     description: "Grants the ability to edit the moderation settings of a guild",
     default: false
+  }, {
+    name: "moderation.automod.*",
+    description: "Grants access to all auto-moderation commands",
+    default: false
+  }, {
+    name: "moderation.automod.manage",
+    description: "Grants the ability to manage auto-moderation phrases, toggle, and sync via commands",
+    default: false
   }
 ];

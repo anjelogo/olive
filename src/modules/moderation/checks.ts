@@ -181,6 +181,26 @@ export default class Checks {
           promises.push(await this.bot.updateModuleData("Moderation", newDataStruct, { guildID: guildData.guildID }));
           break;
         }
+        case "1.6": {
+          // Migrates from 1.6 to 1.7
+          // Change: settings.autoModeration.customPhrases added
+          if (guildData.version === newVersion) continue;
+
+          const newDataStruct = {
+            ...guildData,
+            version: newVersion,
+            settings: {
+              ...guildData.settings,
+              autoModeration: {
+                ...guildData.settings.autoModeration,
+                customPhrases: {}
+              }
+            }
+          };
+
+          promises.push(await this.bot.updateModuleData("Moderation", newDataStruct, { guildID: guildData.guildID }));
+          break;
+        }
         }
       }
     }

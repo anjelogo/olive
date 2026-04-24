@@ -12,7 +12,7 @@ export default class Moderation extends Module<"guild"> {
   constructor (bot: ExtendedClient) {
     super(bot);
 
-    this.version = "1.6";
+    this.version = "1.7";
     this.path = "modules/moderation";
     this.db = true;
     this.serviceEnabled = true;
@@ -34,7 +34,8 @@ export default class Moderation extends Module<"guild"> {
       },
       autoModeration: {
         enabled: false,
-        rules: []
+        rules: [],
+        customPhrases: {}
       }
     }
   };

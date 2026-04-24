@@ -58,6 +58,7 @@ export interface ModerationSettings {
   autoModeration: {
     enabled: boolean;
     rules: AutoModRule[];
+    customPhrases: Partial<Record<'contact' | 'giveaway' | 'payment' | 'spam', string[]>>;
   }
 
   /** @deprecated use autoPunish.infractionsUntilBan */
