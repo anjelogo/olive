@@ -13,8 +13,8 @@ const MAX_KEYWORDS_PER_CHUNK = 1000;
 // fixed structural detectors per bucket: appended to chunk 0 only
 const STRUCTURAL_PATTERNS: Record<BucketKey, string[]> = {
   contact: [
-    "[\\w.+\\-]+@[\\w\\-]+\\.[\\w.]{2,}",
-    "\\+?[\\d][\\d\\s()\\-\\.]{6,}\\d",
+    ".+@.+\\..+",
+    "\\+?\\d[\\d\\s()-.]{6,}\\d",
   ],
   giveaway: [
     "https?:\\/\\/[^\\s]+",
