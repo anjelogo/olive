@@ -289,6 +289,7 @@ export async function synchroniseAutoModRules(
 
   // coerce enabled: existing db docs may have "true"/"false" strings
   for (const r of guildData.settings.autoModeration.rules) {
+    if (!r) continue;
     if (typeof (r.enabled as unknown) === "string") {
       r.enabled = (r.enabled as unknown as string) === "true";
     }
@@ -298,18 +299,18 @@ export async function synchroniseAutoModRules(
 
   // snapshot db-only before the filter removes them
   const dbOnlyRules = guildData.settings.autoModeration.rules.filter(
-    (r) => !discordRules.some((dr) => dr.id === r.id)
+    (r) => r && !discordRules.some((dr) => dr.id === r.id)
   );
 
   // Remove any rules that no longer exist on Discord
   guildData.settings.autoModeration.rules =
-    guildData.settings.autoModeration.rules.filter((r) =>
-      discordRules.some((dr) => dr.id === r.id)
+    guildData.settings.autoModeration.rules.filter(
+      (r) => r && discordRules.some((dr) => dr.id === r.id)
     );
 
   // recreate db-only rules on Discord with fresh ids
   for (const r of dbOnlyRules) {
-    const preset = r.ruleMetadata.preset;
+    const preset = r.ruleMetadata?.preset;
     if (!preset || !Presets[preset]) continue;
     const presetClone = {
       ...Presets[preset],
@@ -325,6 +326,7 @@ export async function synchroniseAutoModRules(
   
   // Update names and enabled status of existing rules
   for (const r of guildData.settings.autoModeration.rules) {
+    if (!r) continue;
     const discordRule = discordRules.find((dr) => dr.id === r.id);
     if (discordRule) {
       r.name = discordRule.name;
@@ -334,9 +336,10 @@ export async function synchroniseAutoModRules(
 
   // update trigger words for rules that use keywords
   for (const r of guildData.settings.autoModeration.rules) {
+    if (!r) continue;
     if (
-      r.ruleMetadata.preset !== "blank" &&
-      r.ruleMetadata.keywords &&
+      r.ruleMetadata?.preset !== "blank" &&
+      r.ruleMetadata?.keywords &&
       r.ruleMetadata.keywords.length
     ) {
       const discordRule = discordRules.find((dr) => dr.id === r.id);
