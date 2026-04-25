@@ -17,14 +17,10 @@ const STRUCTURAL_PATTERNS: Record<BucketKey, string[]> = {
     "\\+?\\d+([\\s.\\-()]\\d+){2,}",
   ],
   giveaway: [
-    "https?:\\/\\/[^\\s]+",
     "discord\\.(gg|com\\/invite)\\/[\\w\\-]+",
   ],
-  payment: [
-    "https?:\\/\\/[^\\s]+",
-  ],
+  payment: [],
   spam: [
-    "https?:\\/\\/[^\\s]+",
     "discord\\.(gg|com\\/invite)\\/[\\w\\-]+",
   ],
 };
