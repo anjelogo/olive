@@ -14,7 +14,7 @@ const MAX_KEYWORDS_PER_CHUNK = 1000;
 const STRUCTURAL_PATTERNS: Record<BucketKey, string[]> = {
   contact: [
     ".+@.+\\..+",
-    "\\+?\\d[\\d\\s()-.]{6,}\\d",
+    "\\+?\\d+([\\s.\\-()]\\d+){2,}",
   ],
   giveaway: [
     "https?:\\/\\/[^\\s]+",

@@ -70,6 +70,11 @@ export const Presets: Record<
         "*.png",
         "*.mp4",
         "https://tenor.com/*",
+        "https://media.tenor.com/*",
+        "https://c.tenor.com/*",
+        "https://giphy.com/*",
+        "https://media.giphy.com/*",
+        "https://media.discordapp.net/*",
       ],
     },
     actions: [
@@ -366,6 +371,7 @@ export async function synchroniseBucketRules(
 
   if (!guildData) return;
 
+  const moduleEnabled = guildData.settings.autoModeration.enabled;
   const discordRules = await guild.getAutoModerationRules();
   const existingBucketRules = discordRules.filter(r => r.name.startsWith("olive:"));
 
@@ -395,6 +401,7 @@ export async function synchroniseBucketRules(
           keywordFilter: chunk.keywords,
           regexPatterns: chunk.regexPatterns,
         },
+        enabled: moduleEnabled,
       });
       synced.push({ name: chunk.name, id: existing.id, bucket: chunk.bucket });
     } else {
@@ -412,7 +419,7 @@ export async function synchroniseBucketRules(
           },
           type: Constants.AutoModerationActionTypes.BLOCK_MESSAGE,
         }],
-        enabled: true,
+        enabled: moduleEnabled,
         exemptRoles: [],
         exemptChannels: [],
       });
