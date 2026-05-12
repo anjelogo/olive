@@ -5,12 +5,16 @@ import { createLogEntry } from "../internals/logHandler";
 
 export const run = async (bot: ExtendedClient, guild: Guild, user: User): Promise<void> => {
     
-  const Cases = await getCases(bot, guild, user.id),
-    audit = await guild.getAuditLog({
+  if (!guild) return;
+
+  const audit = await guild.getAuditLog({
       limit: 1,
       actionType: Constants.AuditLogActionTypes.MEMBER_BAN_ADD
     }),
     moderator = bot.findMember(guild, audit.entries[0].user?.id) as Member;
+
+  // get user id from audit log
+  const Cases = await getCases(bot, guild, audit.users[1].id);
 
   if (Cases.filter(c => c.action === "ban" && !c.resolved).length) return;
 
