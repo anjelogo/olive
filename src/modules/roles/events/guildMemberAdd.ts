@@ -14,6 +14,19 @@ export const run = async (bot: ExtendedClient, member: Member): Promise<void> =>
     if (!userData) return;
 
     for (const role of userData.roles) {
+      // check if role exists
+      const roleData = bot.findRole(member.guild, role);
+      if (!roleData) continue;
+
+      // skip if user already has role
+      if (member.roles.includes(role)) continue;
+      
+      //skip paid/boost roles
+      if (roleData.tags.premiumSubscriber) continue;
+      if (roleData.tags.integrationID) continue;
+      if (roleData.tags.botID) continue;
+      if (roleData.tags.availableForPurchase) continue;
+
       promises.push(member.addRole(role));
     }
 
@@ -24,13 +37,28 @@ export const run = async (bot: ExtendedClient, member: Member): Promise<void> =>
     }
   }
 
-  for (const rid of data.autoRoles) {
-    const role = bot.findRole(member.guild, rid);
+  if (data.autoRoles.length > 0) {
+    const promises = [];
 
-    if (!role) continue;
-    
+    for (const role of data.autoRoles) {
+      // check if role exists
+      const roleData = bot.findRole(member.guild, role);
+      if (!roleData) continue;
+
+      // skip if user already has role
+      if (member.roles.includes(role)) continue;
+
+      //skip paid/boost roles
+      if (roleData.tags.premiumSubscriber) continue;
+      if (roleData.tags.integrationID) continue;
+      if (roleData.tags.botID) continue;
+      if (roleData.tags.availableForPurchase) continue;
+
+      promises.push(member.addRole(role));
+    }
+
     try {
-      await member.addRole(rid);
+      await Promise.all(promises);
     } catch (e) {
       return;
     }

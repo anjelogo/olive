@@ -28,9 +28,11 @@ export const run = async (bot: ExtendedClient, member: Member | User, guild: Gui
   const rolesToRemove = roles
     .filter(role => role.tags && role.tags.premiumSubscriber)
     .filter(role => role.tags.guildConnections)
+    .filter(role => role.tags.integrationID)
+    .filter(role => role.tags.botID)
+    .filter(role => role.tags.availableForPurchase)
     .map(role => role.id);
   const filteredRoles = savedroles.filter(role => !rolesToRemove.includes(role));
-
 
   data.savedRoles.roles.push({ userID: member.id, roles: filteredRoles });
 

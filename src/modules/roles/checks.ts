@@ -140,7 +140,8 @@ export default class Checks {
               .sort((a, b) => b.position - a.position).map((r) => r.name),
             botHighestRole: Role = this.bot.findRole(guild, botHighestRoleID[0]) as Role;
 
-          if (!role || (role && botHighestRole && (role.position > botHighestRole.position))) {
+          if (!role || (role && botHighestRole && (role.position > botHighestRole.position)) ||
+            (role && role.tags && (role.tags.premiumSubscriber || role.tags.integrationID || role.tags.botID || role.tags.availableForPurchase))) {
             promises.push(deleteRoleFromList(this, guildData, roleID));
             continue;
           }
@@ -159,7 +160,8 @@ export default class Checks {
               .sort((a, b) => b.position - a.position).map((r) => r.name),
             botHighestRole: Role = this.bot.findRole(guild, botHighestRoleID[0]) as Role;
         
-          if (!role || (role && botHighestRole && (role.position > botHighestRole.position))) {
+          if (!role || (role && botHighestRole && (role.position > botHighestRole.position))
+            || (role && role.tags && (role.tags.premiumSubscriber || role.tags.integrationID || role.tags.botID || role.tags.availableForPurchase))) {
             promises.push(deleteAutoRole(this, guildData, roleID));
             continue;
           }
@@ -178,7 +180,8 @@ export default class Checks {
                 .sort((a, b) => b.position - a.position).map((r) => r.name),
               botHighestRole: Role = this.bot.findRole(guild, botHighestRoleID[0]) as Role;
         
-            if (!role || (role && botHighestRole && (role.position > botHighestRole.position))) {
+            if (!role || (role && botHighestRole && (role.position > botHighestRole.position)) ||
+              (role && role.tags && (role.tags.premiumSubscriber || role.tags.integrationID || role.tags.botID || role.tags.availableForPurchase))) {
               promises.push(deleteAutoRole(this, guildData, rid));
               continue;
             }
