@@ -67,7 +67,7 @@ export default class Warn extends Command {
         content: `${this.bot.constants.emojis.x} I couldn't find that user!`
       });
 
-    if (await isPunishable(this.bot, moderator, memberToWarn)) {
+    if (!(await isPunishable(this.bot, moderator, memberToWarn))) {
       return interaction.createFollowup({
         content: `${this.bot.constants.emojis.x} I can't warn that user!`,
       });

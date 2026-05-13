@@ -62,7 +62,7 @@ export default class Timeout extends Command {
         content: `${this.bot.constants.emojis.x} I couldn't find that user!`
       });
 
-    if (await isPunishable(this.bot, moderator, memberToTimeOut)) {
+    if (!(await isPunishable(this.bot, moderator, memberToTimeOut))) {
       return interaction.createFollowup({
         content: `${this.bot.constants.emojis.x} I can't time that user out!`,
       });

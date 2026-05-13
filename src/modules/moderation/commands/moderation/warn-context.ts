@@ -20,7 +20,7 @@ export default class WarnContext extends Command {
     const member = interaction.data.resolved.members.first();
     if (!member) return interaction.createFollowup({content: `${this.bot.constants.emojis.x} Member not found`});
 
-    if (await isPunishable(this.bot, interaction.member as Member, member)) {
+    if (!(await isPunishable(this.bot, interaction.member as Member, member))) {
       return interaction.createFollowup({
         content: `${this.bot.constants.emojis.x} You can't warn that user!`,
       });
