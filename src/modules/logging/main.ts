@@ -14,7 +14,7 @@ export default class Logging extends Module<"guild"> {
   constructor (bot: ExtendedClient) {
     super(bot);
 
-    this.version = "1.2";
+    this.version = "1.3";
     this.path = "modules/logging";
     this.weight = 1;
     this.db = true;

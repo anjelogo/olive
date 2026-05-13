@@ -162,6 +162,15 @@ export default class Checks {
           promises.push(await this.bot.updateModuleData("Logging", newDataStruct, { guildID: guildData.guildID }));
           break;
         }
+
+        case "1.2": {
+          // migrates from 1.2 to 1.3 — added lastSeen? + broken? to cases[]
+          // both fields are optional; no coercion needed, bump version only
+          if (guildData.version === newVersion) continue;
+
+          promises.push(await this.bot.updateModuleData("Logging", { ...guildData, version: newVersion }, { guildID: guildData.guildID }));
+          break;
+        }
         }
       }
     }

@@ -18,6 +18,8 @@ export interface LoggingModuleData extends BaseModuleData<"guild"> {
       channelID: string;
       messageID: string;
       caseID: string;
+      lastSeen?: string;
+      broken?: boolean;
     }[];
     stars?: {
       channelID: string;
