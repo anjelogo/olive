@@ -1,5 +1,5 @@
 import { FollowupMessageInteractionResponse, InitialMessagedInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
-import { Constants, ApplicationCommandTypes, CommandInteraction, ComponentInteraction, Message, ApplicationCommandOptions, ModalSubmitInteraction, InteractionCallbackResponse, AnyInteractionChannel, Uncached, AutocompleteInteraction } from "oceanic.js";
+import { Constants, ApplicationCommandTypes, ApplicationIntegrationTypes, InteractionContextTypes, CommandInteraction, ComponentInteraction, Message, ApplicationCommandOptions, ModalSubmitInteraction, InteractionCallbackResponse, AnyInteractionChannel, Uncached, AutocompleteInteraction } from "oceanic.js";
 import { Constants as CustomConstants } from "../resources/interfaces";
 import ExtendedClient from "./Client";
 
@@ -30,6 +30,8 @@ export default abstract class Command {
   public update?: (component: ComponentInteraction) => Promise<FollowupMessageInteractionResponse<CommandInteraction | ComponentInteraction> | Message | undefined | void> | undefined;
   public modalSubmit?: (modal: ModalSubmitInteraction) => Promise<FollowupMessageInteractionResponse<CommandInteraction | ComponentInteraction> | Message | undefined | void> | undefined;
   public autocomplete?: (interaction: AutocompleteInteraction) => Promise<Promise<InteractionCallbackResponse<AnyInteractionChannel | Uncached>> | void>;
+  public integrationTypes?: Array<ApplicationIntegrationTypes>;
+  public contexts?: Array<InteractionContextTypes>;
   public tags?: string[];
 
   readonly bot: ExtendedClient;

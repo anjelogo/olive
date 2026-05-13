@@ -1,4 +1,4 @@
-import { CommandInteraction, Constants, Guild, Member,  TextChannel } from "oceanic.js";
+import { CommandInteraction, Constants, Guild, Member, TextChannel, ApplicationIntegrationTypes, InteractionContextTypes } from "oceanic.js";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
@@ -64,6 +64,8 @@ export default class Case extends Command {
         ]
       }
     ];
+    this.integrationTypes = [ApplicationIntegrationTypes.GUILD_INSTALL];
+    this.contexts = [InteractionContextTypes.GUILD];
 
   }
 

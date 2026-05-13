@@ -1,4 +1,4 @@
-import { MessageActionRow, CommandInteraction, ComponentInteraction, Constants, Guild, Member, Message, Role, TextChannel, MessageComponentSelectMenuInteractionData, SelectOption, PartialEmoji, ContainerComponent } from "oceanic.js";
+import { MessageActionRow, CommandInteraction, ComponentInteraction, Constants, Guild, Member, Message, Role, TextChannel, MessageComponentSelectMenuInteractionData, SelectOption, PartialEmoji, ContainerComponent, ApplicationIntegrationTypes, InteractionContextTypes } from "oceanic.js";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
@@ -46,6 +46,8 @@ export default class Reactionrole extends Command {
         ]
       }
     ];
+    this.integrationTypes = [ApplicationIntegrationTypes.GUILD_INSTALL];
+    this.contexts = [InteractionContextTypes.GUILD];
 
   }
 

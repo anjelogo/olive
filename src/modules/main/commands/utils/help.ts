@@ -1,4 +1,4 @@
-import { CommandInteraction, ComponentInteraction, Constants, ContainerComponent, Message, MessageActionRow, MessageActionRowComponent, MessageComponentSelectMenuInteractionData, TextDisplayComponent } from "oceanic.js";
+import { CommandInteraction, ComponentInteraction, Constants, ApplicationIntegrationTypes, InteractionContextTypes, ContainerComponent, Message, MessageActionRow, MessageActionRowComponent, MessageComponentSelectMenuInteractionData, TextDisplayComponent } from "oceanic.js";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import Module from "../../../../Base/Module";
@@ -19,6 +19,8 @@ export default class Help extends Command {
     this.example = "help";
     this.permissions = ["main.help"];
     this.tags = ["information"];
+    this.integrationTypes = [ApplicationIntegrationTypes.GUILD_INSTALL, ApplicationIntegrationTypes.USER_INSTALL];
+    this.contexts = [InteractionContextTypes.GUILD, InteractionContextTypes.BOT_DM, InteractionContextTypes.PRIVATE_CHANNEL];
 
   }
 
@@ -86,7 +88,7 @@ export default class Help extends Command {
               label: "View Commands",
               customID: `help_${interaction.member?.id}_commandembed`,
             },
-            (await (this.bot.getModule("Main") as Main).hasPerm(interaction.member, "main.permnode.view") && {
+            (interaction.context === InteractionContextTypes.GUILD && await (this.bot.getModule("Main") as Main).hasPerm(interaction.member, "main.permnode.view") && {
               type: Constants.ComponentTypes.BUTTON,
               style: Constants.ButtonStyles.PRIMARY,
               label: "View Permissions",
@@ -167,7 +169,12 @@ export default class Help extends Command {
 
     case "commandembed": {
 
-      const commands: Command[] = this.bot.commands.filter((c) => !c.devOnly),
+      const isGuild = component.context === InteractionContextTypes.GUILD;
+      const commands: Command[] = this.bot.commands.filter((c) => {
+        if (c.devOnly) return false;
+        if (!isGuild) return c.integrationTypes?.includes(ApplicationIntegrationTypes.USER_INSTALL) ?? false;
+        return true;
+      }),
         fields: TextDisplayComponent[] = [];
 
       for (const command of commands) {

@@ -1,4 +1,4 @@
-import { CommandInteraction, Constants, Guild } from "oceanic.js";
+import { CommandInteraction, Constants, Guild, ApplicationIntegrationTypes, InteractionContextTypes } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import { createAutoModRule, Presets } from "../../internals/autoModHandler";
@@ -64,6 +64,8 @@ export default class CreateAutoModRule extends Command {
         ]
       }
     ];
+    this.integrationTypes = [ApplicationIntegrationTypes.GUILD_INSTALL];
+    this.contexts = [InteractionContextTypes.GUILD];
   }
 
   readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {

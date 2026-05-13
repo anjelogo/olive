@@ -1,4 +1,4 @@
-import { CommandInteraction, Constants, Guild, Member, Role, VoiceChannel, ModalSubmitInteraction, InteractionCallbackResponse, AnyInteractionChannel, Uncached, ComponentInteraction, MessageComponent } from "oceanic.js";
+import { CommandInteraction, Constants, Guild, Member, Role, VoiceChannel, ModalSubmitInteraction, InteractionCallbackResponse, AnyInteractionChannel, Uncached, ComponentInteraction, MessageComponent, ApplicationIntegrationTypes, InteractionContextTypes } from "oceanic.js";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
@@ -87,6 +87,8 @@ export default class Voicechannel extends Command {
         ]
       }
     ];
+    this.integrationTypes = [ApplicationIntegrationTypes.GUILD_INSTALL];
+    this.contexts = [InteractionContextTypes.GUILD];
   }
 
   public execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | InteractionCallbackResponse<AnyInteractionChannel | Uncached> | void> => {

@@ -7,6 +7,8 @@ import {
   MessageActionRow,
   MessageComponentSelectMenuInteractionData,
   ContainerComponent,
+  ApplicationIntegrationTypes,
+  InteractionContextTypes,
 } from "oceanic.js";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
@@ -48,6 +50,8 @@ export default class Log extends Command {
         permissions: ["logging.channel.delete"],
       },
     ];
+    this.integrationTypes = [ApplicationIntegrationTypes.GUILD_INSTALL];
+    this.contexts = [InteractionContextTypes.GUILD];
   }
 
   private validTypes = ["vc", "welcome", "moderation", "starboard"] as const;

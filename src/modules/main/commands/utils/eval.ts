@@ -1,4 +1,4 @@
-import { CommandInteraction, Constants } from "oceanic.js";
+import { CommandInteraction, Constants, ApplicationIntegrationTypes, InteractionContextTypes } from "oceanic.js";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
@@ -23,7 +23,9 @@ export default class Eval extends Command {
         required: true
       }
     ];
-  
+    this.integrationTypes = [ApplicationIntegrationTypes.GUILD_INSTALL];
+    this.contexts = [InteractionContextTypes.GUILD];
+
   }
 
   readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {

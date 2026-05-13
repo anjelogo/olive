@@ -1,4 +1,4 @@
-import { CommandInteraction, Constants, Guild } from "oceanic.js";
+import { CommandInteraction, Constants, Guild, ApplicationIntegrationTypes, InteractionContextTypes } from "oceanic.js";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
@@ -15,6 +15,8 @@ export default class Saveroles extends Command {
     this.example = "saveroles";
     this.description = "Toggle Role Saving, which allows the bot to save roles when users leave or join the server.";
     this.permissions = ["roles.save.toggle"];
+    this.integrationTypes = [ApplicationIntegrationTypes.GUILD_INSTALL];
+    this.contexts = [InteractionContextTypes.GUILD];
   }
 
   readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {

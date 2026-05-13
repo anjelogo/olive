@@ -1,4 +1,4 @@
-import { CommandInteraction, Constants, InteractionOptionsWrapper } from "oceanic.js";
+import { CommandInteraction, Constants, InteractionOptionsWrapper, ApplicationIntegrationTypes, InteractionContextTypes } from "oceanic.js";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
@@ -13,6 +13,8 @@ export default class VoicechannelContext extends Command {
 
     this.commands = ["Set Voice Channel Owner"];
     this.permissions = ["vc.edit.owner"];
+    this.integrationTypes = [ApplicationIntegrationTypes.GUILD_INSTALL];
+    this.contexts = [InteractionContextTypes.GUILD];
   }
 
   public execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {

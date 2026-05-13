@@ -274,6 +274,9 @@ export default class ExtendedClient extends Olive {
               type: c.type,
             };
 
+            if (c.integrationTypes) command.integrationTypes = c.integrationTypes;
+            if (c.contexts) command.contexts = c.contexts;
+
             GlobalApplicationCommands.push(command);
             break;
           }
@@ -285,6 +288,8 @@ export default class ExtendedClient extends Olive {
             };
 
             if (c.options) command.options = c.options;
+            if (c.integrationTypes) command.integrationTypes = c.integrationTypes;
+            if (c.contexts) command.contexts = c.contexts;
 
             if (c.guildSpecific && c.guildSpecific.length)
               for (const guild of c.guildSpecific) {

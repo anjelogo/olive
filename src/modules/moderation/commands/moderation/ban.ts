@@ -1,4 +1,4 @@
-import { AutocompleteChoice, AutocompleteInteraction, CommandInteraction, Constants, Guild, Member } from "oceanic.js";
+import { AutocompleteChoice, AutocompleteInteraction, CommandInteraction, Constants, Guild, Member, ApplicationIntegrationTypes, InteractionContextTypes } from "oceanic.js";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
@@ -37,6 +37,8 @@ export default class Ban extends Command {
         type: Constants.ApplicationCommandOptionTypes.STRING,
       }
     ];
+    this.integrationTypes = [ApplicationIntegrationTypes.GUILD_INSTALL];
+    this.contexts = [InteractionContextTypes.GUILD];
 
   }
 

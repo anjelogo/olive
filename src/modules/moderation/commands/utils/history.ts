@@ -3,6 +3,8 @@ import {
   Constants,
   Guild,
   MessageComponent,
+  ApplicationIntegrationTypes,
+  InteractionContextTypes,
 } from "oceanic.js";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
@@ -48,6 +50,8 @@ export default class History extends Command {
         ],
       },
     ];
+    this.integrationTypes = [ApplicationIntegrationTypes.GUILD_INSTALL];
+    this.contexts = [InteractionContextTypes.GUILD];
   }
 
   readonly execute = async (

@@ -8,6 +8,8 @@ import {
   MessageActionRow,
   MessageComponentSelectMenuInteractionData,
   Role,
+  ApplicationIntegrationTypes,
+  InteractionContextTypes,
 } from "oceanic.js";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
@@ -73,6 +75,8 @@ export default class Roles extends Command {
         permissions: ["roles.remove.self"],
       },
     ];
+    this.integrationTypes = [ApplicationIntegrationTypes.GUILD_INSTALL];
+    this.contexts = [InteractionContextTypes.GUILD];
   }
 
   readonly execute = async (

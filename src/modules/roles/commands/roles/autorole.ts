@@ -1,4 +1,4 @@
-import { CommandInteraction, Constants, Guild, Member, Role } from "oceanic.js";
+import { CommandInteraction, Constants, Guild, Member, Role, ApplicationIntegrationTypes, InteractionContextTypes } from "oceanic.js";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
@@ -52,8 +52,10 @@ export default class Autorole extends Command {
             description: "List roles in autoroles"
           }
         ]
-      }, 
+      },
     ];
+    this.integrationTypes = [ApplicationIntegrationTypes.GUILD_INSTALL];
+    this.contexts = [InteractionContextTypes.GUILD];
   }
 
   readonly execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {

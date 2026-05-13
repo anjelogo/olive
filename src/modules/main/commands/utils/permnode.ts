@@ -1,4 +1,4 @@
-import { AnyInteractionChannel, AutocompleteChoice, AutocompleteInteraction, CommandInteraction, ComponentInteraction, Constants, ContainerComponent, Guild, InteractionCallbackResponse, Member, Message, MessageActionRow, Role, Uncached } from "oceanic.js";
+import { AnyInteractionChannel, AutocompleteChoice, AutocompleteInteraction, CommandInteraction, ComponentInteraction, Constants, ContainerComponent, Guild, InteractionCallbackResponse, Member, Message, MessageActionRow, Role, Uncached, ApplicationIntegrationTypes, InteractionContextTypes } from "oceanic.js";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
@@ -18,6 +18,8 @@ export default class Permnode extends Command {
     this.description = "Edit permissions for users/roles in the server using permissions nodes (permnodes).";
     this.example = "permnode set user @anjelo permnode.view true";
     this.permissions = ["main.permnode.view"];
+    this.integrationTypes = [ApplicationIntegrationTypes.GUILD_INSTALL];
+    this.contexts = [InteractionContextTypes.GUILD];
 
     this.options = [
       {

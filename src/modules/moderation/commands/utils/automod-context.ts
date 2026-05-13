@@ -1,4 +1,4 @@
-import { CommandInteraction, ComponentInteraction, Constants, Guild, Message, MessageComponentSelectMenuInteractionData } from "oceanic.js";
+import { CommandInteraction, ComponentInteraction, Constants, Guild, Message, MessageComponentSelectMenuInteractionData, ApplicationIntegrationTypes, InteractionContextTypes } from "oceanic.js";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
@@ -16,6 +16,8 @@ export default class AutoModContext extends Command {
 
     this.commands = ["Add to AutoMod Phrases"];
     this.permissions = ["moderation.automod.manage", "moderation.automod.*", "moderation.*"];
+    this.integrationTypes = [ApplicationIntegrationTypes.GUILD_INSTALL];
+    this.contexts = [InteractionContextTypes.GUILD];
   }
 
   public execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | void> => {

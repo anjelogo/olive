@@ -1,4 +1,4 @@
-import { AnyInteractionChannel, CommandInteraction, Constants, InteractionCallbackResponse, Member, Uncached } from "oceanic.js";
+import { AnyInteractionChannel, CommandInteraction, Constants, InteractionCallbackResponse, Member, Uncached, ApplicationIntegrationTypes, InteractionContextTypes } from "oceanic.js";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
@@ -14,6 +14,8 @@ export default class WarnContext extends Command {
     this.commands = ["Warn User"];
     this.permissions = ["moderation.punish.warn", "moderation.punish.*"];
     this.noDefer = true;
+    this.integrationTypes = [ApplicationIntegrationTypes.GUILD_INSTALL];
+    this.contexts = [InteractionContextTypes.GUILD];
   }
 
   public execute = async (interaction: CommandInteraction): Promise<FollowupMessageInteractionResponse<CommandInteraction> | InteractionCallbackResponse<AnyInteractionChannel | Uncached> | void> => {

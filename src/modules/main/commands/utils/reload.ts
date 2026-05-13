@@ -1,4 +1,4 @@
-import { CommandInteraction, ComponentInteraction, Constants, Message } from "oceanic.js";
+import { CommandInteraction, ComponentInteraction, Constants, Message, ApplicationIntegrationTypes, InteractionContextTypes } from "oceanic.js";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
@@ -16,6 +16,8 @@ export default class Reload extends Command {
     this.description = "Reload application commands";
     this.example = "eval";
     this.devOnly = true;
+    this.integrationTypes = [ApplicationIntegrationTypes.GUILD_INSTALL];
+    this.contexts = [InteractionContextTypes.GUILD];
   
   }
 
