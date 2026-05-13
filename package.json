@@ -21,7 +21,7 @@
     "mongoose": "^7.3.0",
     "monk": "^7.3.4",
     "node-fetch": "^2.6.1",
-    "oceanic.js": "^1.11.3-dev.d9f2e80",
+    "oceanic.js": "^1.14.0",
     "passport": "^0.7.0",
     "passport-discord": "^0.1.4",
     "passport-jwt": "^4.0.1",
