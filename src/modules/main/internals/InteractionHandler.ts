@@ -68,7 +68,7 @@ export const commandHandler = async (bot: ExtendedClient, interaction: CommandIn
   if (requirePerms.length)
     return interaction.createFollowup({content: `${bot.constants.emojis.x} I need more permissions to run that command.\n\n Permissions neede: \`${requirePerms.join("`, `")}\``});
 
-  if (permissions.length)
+  if (permissions.length && member)
     return await mainModule.handlePermission(member, [... new Set(permissions)], interaction);
 
   //Missing arguments thing (Review later, i dont think it's necessary)
