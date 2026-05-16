@@ -165,7 +165,6 @@ export default class ModerationService<T extends "guild"> extends Service<T> {
                 },
               } as InputField;
             case "/automodrules": {
-              console.info(currentData.settings.autoModeration.rules);
               return {
                 ...field,
                 options: Object.keys(Presets).map((key) => ({
@@ -864,6 +863,11 @@ export default class ModerationService<T extends "guild"> extends Service<T> {
               const { id, enabled, action } = req.body;
               if (!id) {
                 res.status(400).json({ message: "Rule id required" });
+                return;
+              }
+              const validActions = ["ban", "kick", "timeout", "warn"];
+              if (action !== undefined && !validActions.includes(action)) {
+                res.status(400).json({ message: "Invalid action. Must be one of: ban, kick, timeout, warn" });
                 return;
               }
               const currentData = (await this.bot.getModuleData("Moderation", {

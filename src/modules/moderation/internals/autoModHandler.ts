@@ -119,7 +119,7 @@ export const Presets: Record<
     triggerType: Constants.AutoModerationTriggerTypes.SPAM,
     triggerMetadata: {
       regexPatterns: [
-        "<a?:[a-z_0-9]+:[0-9]+>|p{Extended_Pictographic}|[\u{1F1E6}-\u{1F1FF}]|[0-9#*]\u{fe0f})",
+        "<a?:[a-z_0-9]+:[0-9]+>|\\p{Extended_Pictographic}|[\\u{1F1E6}-\\u{1F1FF}]|[0-9#*]\\u{fe0f}",
       ],
     },
     actions: [
@@ -201,7 +201,7 @@ export async function createAutoModRule(
   if (guildData) {
     guildData.settings.autoModeration.rules.push(rule);
 
-    bot.updateModuleData("Moderation", guildData, { guildID: guild.id });
+    await bot.updateModuleData("Moderation", guildData, { guildID: guild.id });
   }
 
   return {
@@ -244,7 +244,7 @@ export async function modifyAutoModRule(
   // update ruleMetadata based on preset
   // if preset is changed, update all metadata to match preset
 
-  bot.updateModuleData("Moderation", guildData, { guildID: guild.id });
+  await bot.updateModuleData("Moderation", guildData, { guildID: guild.id });
 
   return {
     discordRule,
@@ -277,7 +277,7 @@ export async function deleteAutoModRule(
 
   guildData.settings.autoModeration.rules.splice(ruleIndex, 1);
 
-  bot.updateModuleData("Moderation", guildData, { guildID: guild.id });
+  await bot.updateModuleData("Moderation", guildData, { guildID: guild.id });
 
   return true;
 }
