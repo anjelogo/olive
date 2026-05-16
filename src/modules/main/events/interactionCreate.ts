@@ -7,7 +7,7 @@ export const run = async (bot: ExtendedClient, interaction: AnyInteraction): Pro
   // IGNORE ACKNOWLEDGED INTERACTIONS
   // This breaks most commands, but it's a good practice to ignore acknowledged interactions
   // We'll edit the orginal message to prevent the bot from sending multiple messages
-  if (interaction.acknowledged && interaction.createdAt.getMilliseconds() + 3000 < Date.now()) {
+  if (interaction.acknowledged && interaction.createdAt.getTime() + 3000 < Date.now()) {
     switch (interaction.type) {
     case Constants.InteractionTypes.APPLICATION_COMMAND: {
       await interaction.editOriginal({ content: `${bot.constants.emojis.x} This interaction has expired`, components: [] });
@@ -58,8 +58,6 @@ export const run = async (bot: ExtendedClient, interaction: AnyInteraction): Pro
   }
 
   case Constants.InteractionTypes.APPLICATION_COMMAND_AUTOCOMPLETE: {
-
-    console.log(interaction.data.name, interaction.data.options);
 
     await autoCompleteHandler(bot, interaction);
 

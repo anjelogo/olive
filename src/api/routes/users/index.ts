@@ -12,6 +12,11 @@ const userRoute = (client: ExtendedClient): Router => {
   router.get("/:id/guilds", async (req: Request<{ id: string }>, res: Response) => {
     const userID = req.params.id;
 
+    if ((req.user as { id: string }).id !== userID) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+
     if (!userID) {
       res.status(400).json({ error: "User ID is required" });
       return;

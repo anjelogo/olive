@@ -259,7 +259,7 @@ export default class Voicechannel extends Command {
       if (!channelObj)
         return interaction.createFollowup({content: "That Voice Channel is not a Private Voice Channel!"});
       if (channelObj.owner !== member.id) return interaction.createFollowup({content: "You're not the owner of this voice channel!", flags: Constants.MessageFlags.EPHEMERAL});
-      if (!await mainModule.handlePermission(member, "VC.lock", interaction)) return;
+      if (!await mainModule.handlePermission(member, "vc.lock", interaction)) return;
       
       if (channelObj.locked)
         return interaction.createFollowup({content: "This channel is already locked!", flags: Constants.MessageFlags.EPHEMERAL});
@@ -295,7 +295,7 @@ export default class Voicechannel extends Command {
       if (!channelObj)
         return interaction.createFollowup({content: "That Voice Channel is not a Private Voice Channel!", flags: Constants.MessageFlags.EPHEMERAL});
       if (channelObj.owner !== member.id) return interaction.createFollowup({content: "You're not the owner of this voice channel!", flags: Constants.MessageFlags.EPHEMERAL});
-      if (!await mainModule.handlePermission(member, "vc.lock", interaction)) return;
+      if (!await mainModule.handlePermission(member, "vc.unlock", interaction)) return;
 
       channelObj.locked = false;
 

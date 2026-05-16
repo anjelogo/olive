@@ -93,7 +93,7 @@ export default class Checks {
         const guild = this.bot.findGuild(guildData.guildID);
 
         if (!guild) {
-          promises.push(await deleteGuild(this, guildData.guildID));
+          promises.push(deleteGuild(this, guildData.guildID));
           continue;
         }
 
@@ -101,7 +101,7 @@ export default class Checks {
 
           const channelObj = this.bot.findChannel(guild, channel.channelID) as TextChannel;
           if (!channelObj) {
-            promises.push(await deleteChannel(this, guildData, channel.channelID));
+            promises.push(deleteChannel(this, guildData, channel.channelID));
           }
 
           if (channel.cases) {
@@ -109,7 +109,7 @@ export default class Checks {
               const caseMessage = this.bot.findMessage(channelObj, caseData.messageID);
 
               if (!caseMessage) {
-                promises.push(await deleteCaseMessage(this, guildData, channel.channelID, caseData.messageID));
+                promises.push(deleteCaseMessage(this, guildData, channel.channelID, caseData.messageID));
                 break;
               }
             }
@@ -120,7 +120,7 @@ export default class Checks {
               const starMessage = this.bot.findMessage(channelObj, starData.messageID);
 
               if (!starMessage) {
-                promises.push(await deleteStarMessage(this, guildData, channel.channelID, starData.messageID));
+                promises.push(deleteStarMessage(this, guildData, channel.channelID, starData.messageID));
                 break;
               }
             }
@@ -159,7 +159,7 @@ export default class Checks {
             version: newVersion
           };
 
-          promises.push(await this.bot.updateModuleData("Logging", newDataStruct, { guildID: guildData.guildID }));
+          promises.push(this.bot.updateModuleData("Logging", newDataStruct, { guildID: guildData.guildID }));
           break;
         }
 
@@ -168,7 +168,7 @@ export default class Checks {
           // both fields are optional; no coercion needed, bump version only
           if (guildData.version === newVersion) continue;
 
-          promises.push(await this.bot.updateModuleData("Logging", { ...guildData, version: newVersion }, { guildID: guildData.guildID }));
+          promises.push(this.bot.updateModuleData("Logging", { ...guildData, version: newVersion }, { guildID: guildData.guildID }));
           break;
         }
         }

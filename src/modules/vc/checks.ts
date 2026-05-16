@@ -69,7 +69,7 @@ export default class Checks {
         const guild: Guild = this.bot.findGuild(guildData.guildID) as Guild;
 
         if (!guild) {
-          promises.push(await deleteGuild(this, guildData.guildID));
+          promises.push(deleteGuild(this, guildData.guildID));
           continue;
         }
   
@@ -85,7 +85,7 @@ export default class Checks {
             if (!category && joinChannel)
               await joinChannel.delete();
 
-            promises.push(await deleteCategory(this, guildData, catData.catID));
+            promises.push(deleteCategory(this, guildData, catData.catID));
             continue;
           } else if (joinChannel && category && joinChannel.voiceMembers.size > 0) {
             const members = joinChannel.voiceMembers.map((m) => m.id);
@@ -94,7 +94,7 @@ export default class Checks {
               const member: Member = this.bot.findMember(guild, m) as Member;
 
               if (member) {
-                promises.push(await create(this.bot, member, joinChannel));
+                promises.push(create(this.bot, member, joinChannel));
                 createdChannels++;
                 continue;
               }
@@ -111,7 +111,7 @@ export default class Checks {
 
               if (channel) await channel.delete();
 
-              promises.push(await deleteChannel(this, guildData, catData, channelData.channelID));
+              promises.push(deleteChannel(this, guildData, catData, channelData.channelID));
               continue;
             }
           }
@@ -154,7 +154,7 @@ export default class Checks {
 
           delete newDataStruct.defaultName.category;
 
-          promises.push(await this.bot.updateModuleData("VC", newDataStruct, { guildID: guildData.guildID }));
+          promises.push(this.bot.updateModuleData("VC", newDataStruct, { guildID: guildData.guildID }));
           break;
         }
         }

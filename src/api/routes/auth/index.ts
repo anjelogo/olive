@@ -7,7 +7,8 @@ import ExtendedClient from "../../../Base/Client";
 
 const authRoute = (client: ExtendedClient): Router => {
   const router = Router();
-  const JWT_SECRET = process.env.JWT_SECRET || "defaultsecret";
+  const JWT_SECRET = process.env.JWT_SECRET;
+  if (!JWT_SECRET) throw new Error("JWT_SECRET environment variable is not set");
   const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:3000"; // Adjust according to your environment
   const API_URL = process.env.API_URL || "http://localhost:5000"; // Adjust according to your environment
 
@@ -51,14 +52,18 @@ const authRoute = (client: ExtendedClient): Router => {
         { expiresIn: "1h" } // Token expires in 1 hour
       );
 
-      // Let the Next.js frontend set the cookie on its own origin
-      res.redirect(`${CLIENT_URL}/api/auth/set-cookie?token=${encodeURIComponent(token)}`);
+      res.cookie("token", token, {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 60 * 60 * 1000,
+      });
+      res.redirect(CLIENT_URL);
     }
   );
 
   // Protected route to get user information (from JWT)
   router.get("/me", (req: Request, res: Response) => {
-    console.log(req.cookies, "req");
     const token = req.cookies.token;
 
     if (!token) {

@@ -8,10 +8,15 @@ export const run = async (bot: ExtendedClient, guild: Guild, user: User): Promis
   if (!guild) return;
 
   const audit = await guild.getAuditLog({
-      limit: 1,
-      actionType: Constants.AuditLogActionTypes.MEMBER_BAN_ADD
-    }),
-    moderator = bot.findMember(guild, audit.entries[0].user?.id) as Member;
+    limit: 1,
+    actionType: Constants.AuditLogActionTypes.MEMBER_BAN_ADD
+  });
+
+  if (!audit.entries.length) return;
+  if (audit.users.length <= 1) return;
+
+  const moderator = bot.findMember(guild, audit.entries[0].user?.id) as Member;
+  if (!moderator) return;
 
   // get user id from audit log
   const Cases = await getCases(bot, guild, audit.users[1].id);

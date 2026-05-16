@@ -51,7 +51,7 @@ export default class Checks {
       const guild = this.bot.findGuild(guildData.guildID);
 
       if (!guild) {
-        promises.push(await deleteGuild(this, guildData.guildID));
+        promises.push(deleteGuild(this, guildData.guildID));
         continue;
       }
 
@@ -59,14 +59,14 @@ export default class Checks {
         const channel = this.bot.findChannel(guild, message.channelID) as TextChannel;
 
         if (!channel) {
-          promises.push(await deleteStar(this, guildData, message.messageID));
+          promises.push(deleteStar(this, guildData, message.messageID));
           continue;
         }
 
         const msg = this.bot.findMessage(channel, message.messageID);
 
         if (!msg) {
-          promises.push(await deleteStar(this, guildData, message.messageID));
+          promises.push(deleteStar(this, guildData, message.messageID));
           continue;
         }
       }
@@ -100,7 +100,7 @@ export default class Checks {
             version: newVersion
           };
       
-          promises.push(await this.bot.updateModuleData("Starboard", newDataStruct, { guildID: guildData.guildID }));
+          promises.push(this.bot.updateModuleData("Starboard", newDataStruct, { guildID: guildData.guildID }));
           break;
         }
         }

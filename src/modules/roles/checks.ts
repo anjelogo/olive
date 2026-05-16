@@ -96,7 +96,7 @@ export default class Checks {
         const guild: Guild = this.bot.findGuild(guildData.guildID) as Guild;
 
         if (!guild) {
-          promises.push(await deleteGuild(this, guildData.guildID));
+          promises.push(deleteGuild(this, guildData.guildID));
           continue;
         }
 
@@ -111,7 +111,7 @@ export default class Checks {
               msg: Message = await channel.getMessage(msgData.id) as Message;
 
             if (!msg || (msg && !msgData.roles.length)) {
-              promises.push(await deleteMessage(this, guildData, msgData.id));
+              promises.push(deleteMessage(this, guildData, msgData.id));
               continue;
             }
 
@@ -119,7 +119,7 @@ export default class Checks {
               const role: Role = this.bot.findRole(guild, roleData.role) as Role;
 
               if (!role) {
-                promises.push(await deleteRole(this, guildData, msgData, roleData.role));
+                promises.push(deleteRole(this, guildData, msgData, roleData.role));
                 continue;
               }
             }
@@ -222,7 +222,7 @@ export default class Checks {
             },
           };
       
-          promises.push(await this.bot.updateModuleData("Roles", newDataStruct, { guildID: guildData.guildID }));
+          promises.push(this.bot.updateModuleData("Roles", newDataStruct, { guildID: guildData.guildID }));
           break;
         }
         case "1.1": {
@@ -235,7 +235,7 @@ export default class Checks {
             version: newVersion
           };
 
-          promises.push(await this.bot.updateModuleData("Roles", newDataStruct, { guildID: guildData.guildID }));
+          promises.push(this.bot.updateModuleData("Roles", newDataStruct, { guildID: guildData.guildID }));
           break;
         }
         }

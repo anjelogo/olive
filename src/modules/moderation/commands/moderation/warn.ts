@@ -79,7 +79,7 @@ export default class Warn extends Command {
     if (!reason || reason.length < 1) reason = "No reason provided";
 
     //punish user using the punish function in ../../internals/punishmentHandler.ts
-    this.punishUser(interaction, memberToWarn, moderator, guild, reason);
+    await this.punishUser(interaction, memberToWarn, moderator, guild, reason);
   };
 
   readonly modalSubmit = async (modal: ModalSubmitInteraction<AnyInteractionChannel | Uncached>): Promise<void> => {
@@ -109,13 +109,13 @@ export default class Warn extends Command {
       });
       return;
     }
-    if (!isPunishable(this.bot, moderator, memberToWarn)) {
+    if (!(await isPunishable(this.bot, moderator, memberToWarn))) {
       modal.createFollowup({
         content: `${this.bot.constants.emojis.x} I can't warn that user!`,
       });
       return;
     }
-    this.punishUser(modal, memberToWarn, moderator, guild, reason); 
+    await this.punishUser(modal, memberToWarn, moderator, guild, reason);
     
   };
 }
