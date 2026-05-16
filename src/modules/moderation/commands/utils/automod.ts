@@ -5,6 +5,7 @@ import ExtendedClient from "../../../../Base/Client";
 import { ModerationModuleData } from "../../../../Database/interfaces/ModerationModuleData";
 import { BucketKey } from "../../internals/bucketDataset";
 import { synchroniseAutoModRules, synchroniseBucketRules } from "../../internals/autoModHandler";
+import { validateDuration } from "../../internals/durationHandler";
 
 const BUCKET_CHOICES = [
   { name: "Contact", value: "contact" },
@@ -92,6 +93,63 @@ export default class AutoMod extends Command {
                 type: Constants.ApplicationCommandOptionTypes.STRING,
                 required: true,
                 choices: BUCKET_CHOICES,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        name: "rule",
+        description: "View and configure auto-moderation rules",
+        type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND_GROUP,
+        options: [
+          {
+            name: "list",
+            description: "List configured rules with their IDs and settings",
+            type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
+            options: [
+              {
+                name: "page",
+                description: "Page number (10 rules per page)",
+                type: Constants.ApplicationCommandOptionTypes.INTEGER,
+                required: false,
+              },
+            ],
+          },
+          {
+            name: "set",
+            description: "Set action, duration, or silent flag on a rule by ID",
+            type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
+            options: [
+              {
+                name: "id",
+                description: "Rule ID (from /automod rule list)",
+                type: Constants.ApplicationCommandOptionTypes.STRING,
+                required: true,
+              },
+              {
+                name: "action",
+                description: "Punishment action for this rule",
+                type: Constants.ApplicationCommandOptionTypes.STRING,
+                required: false,
+                choices: [
+                  { name: "Ban", value: "ban" },
+                  { name: "Kick", value: "kick" },
+                  { name: "Timeout", value: "timeout" },
+                  { name: "Warn", value: "warn" },
+                ],
+              },
+              {
+                name: "duration",
+                description: "Duration for timeout/ban (e.g. 10m, 1h, 7d)",
+                type: Constants.ApplicationCommandOptionTypes.STRING,
+                required: false,
+              },
+              {
+                name: "silent",
+                description: "Suppress mod-log entry when this rule triggers",
+                type: Constants.ApplicationCommandOptionTypes.BOOLEAN,
+                required: false,
               },
             ],
           },
@@ -201,6 +259,75 @@ export default class AutoMod extends Command {
             },
           ],
           flags: Constants.MessageFlags.IS_COMPONENTS_V2,
+        });
+      }
+
+      }
+    }
+
+    case "rule": {
+      switch (sub) {
+
+      case "list": {
+        const PAGE_SIZE = 10;
+        const page = interaction.data.options.getInteger("page") ?? 1;
+        const rules = guildData.settings.autoModeration.rules;
+        const totalPages = Math.max(1, Math.ceil(rules.length / PAGE_SIZE));
+        const clamped = Math.min(Math.max(page, 1), totalPages);
+        const slice = rules.slice((clamped - 1) * PAGE_SIZE, clamped * PAGE_SIZE);
+        const lines = slice.length
+          ? slice.map(r =>
+              `**${r.id}** — \`${r.name}\` | \`${r.action}\`${r.actionDuration ? ` | \`${r.actionDuration}\`` : ""}${r.actionSilent ? " | silent" : ""} | ${r.enabled ? "enabled" : "disabled"}`
+            ).join("\n")
+          : "No rules configured.";
+        return interaction.createFollowup({
+          components: [
+            {
+              type: Constants.ComponentTypes.CONTAINER,
+              components: [
+                {
+                  type: Constants.ComponentTypes.TEXT_DISPLAY,
+                  content: `# Auto-Mod Rules (page ${clamped}/${totalPages})`,
+                },
+                {
+                  type: Constants.ComponentTypes.TEXT_DISPLAY,
+                  content: lines,
+                },
+              ],
+            },
+          ],
+          flags: Constants.MessageFlags.IS_COMPONENTS_V2,
+        });
+      }
+
+      case "set": {
+        const id = interaction.data.options.getString("id", true);
+        const actionOpt = interaction.data.options.getString("action") ?? undefined;
+        const durationOpt = interaction.data.options.getString("duration") ?? undefined;
+        const silentOpt = interaction.data.options.getBoolean("silent") ?? undefined;
+
+        if (durationOpt !== undefined && !validateDuration(durationOpt)) {
+          return interaction.createFollowup({
+            content: `${this.bot.constants.emojis.x} Invalid duration (e.g. \`10m\`, \`1h\`, \`7d\`).`,
+          });
+        }
+
+        const rule = guildData.settings.autoModeration.rules.find(r => r.id === id);
+        if (!rule) {
+          return interaction.createFollowup({
+            content: `${this.bot.constants.emojis.x} Rule \`${id}\` not found.`,
+          });
+        }
+
+        if (actionOpt !== undefined) rule.action = actionOpt as typeof rule.action;
+        if (durationOpt !== undefined) rule.actionDuration = durationOpt;
+        if (silentOpt !== undefined) rule.actionSilent = silentOpt;
+
+        await this.bot.updateModuleData("Moderation", guildData, { guildID: guild.id });
+        await synchroniseAutoModRules(this.bot, guild);
+
+        return interaction.createFollowup({
+          content: `${this.bot.constants.emojis.tick} Rule \`${rule.name}\` updated.`,
         });
       }
 

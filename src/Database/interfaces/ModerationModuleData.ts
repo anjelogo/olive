@@ -6,6 +6,8 @@ export type AutoModRule = {
   name: string;
   enabled: boolean;
   action: CaseActionTypes;
+  actionDuration?: string | null;
+  actionSilent?: boolean;
   ruleMetadata: {
     preset: string;
     keywords?: string[];

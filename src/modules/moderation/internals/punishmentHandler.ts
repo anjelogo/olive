@@ -5,7 +5,7 @@ import { addCase, generateCase, getCases, resolveCase } from "./caseHandler";
 import { createLogEntry } from "./logHandler";
 import { durationToMS } from "./durationHandler";
 
-export async function punish(bot: ExtendedClient, guild: Guild, data: Case): Promise<void> {
+export async function punish(bot: ExtendedClient, guild: Guild, data: Case, silent?: boolean): Promise<void> {
   const action = {
       warn: "You were warned in {guild}.",
       timeout: "You have been put on timeout in {guild}.",
@@ -22,10 +22,12 @@ export async function punish(bot: ExtendedClient, guild: Guild, data: Case): Pro
 
   try {
     await addCase(bot, guild, data);
-    if (["ban", "kick"].includes(data.action)) {
-      await createLogEntry(bot, guild, data, user);
-    } else {
-      await createLogEntry(bot, guild, data);
+    if (!silent) {
+      if (["ban", "kick"].includes(data.action)) {
+        await createLogEntry(bot, guild, data, user);
+      } else {
+        await createLogEntry(bot, guild, data);
+      }
     }
 
     // check for permissions

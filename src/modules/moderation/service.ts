@@ -10,6 +10,7 @@ import Service, {
 import { ModuleDataMap, ModuleName } from "../../Database/ModuleTypes";
 import { ModerationModuleData } from "../../Database/interfaces/ModerationModuleData";
 import { deleteAutoModRule, Presets, synchroniseAutoModRules, synchroniseBucketRules } from "./internals/autoModHandler";
+import { validateDuration } from "./internals/durationHandler";
 
 export default class ModerationService<T extends "guild"> extends Service<T> {
   protected readonly context: T = "guild" as T;
@@ -860,7 +861,7 @@ export default class ModerationService<T extends "guild"> extends Service<T> {
           }
           case "PATCH": {
             try {
-              const { id, enabled, action } = req.body;
+              const { id, enabled, action, actionDuration, actionSilent } = req.body;
               if (!id) {
                 res.status(400).json({ message: "Rule id required" });
                 return;
@@ -868,6 +869,16 @@ export default class ModerationService<T extends "guild"> extends Service<T> {
               const validActions = ["ban", "kick", "timeout", "warn"];
               if (action !== undefined && !validActions.includes(action)) {
                 res.status(400).json({ message: "Invalid action. Must be one of: ban, kick, timeout, warn" });
+                return;
+              }
+              if (actionDuration !== undefined && actionDuration !== null) {
+                if (typeof actionDuration !== "string" || !validateDuration(actionDuration)) {
+                  res.status(400).json({ message: "Invalid actionDuration (e.g. '10m', '1h', '7d')" });
+                  return;
+                }
+              }
+              if (actionSilent !== undefined && typeof actionSilent !== "boolean") {
+                res.status(400).json({ message: "actionSilent must be a boolean" });
                 return;
               }
               const currentData = (await this.bot.getModuleData("Moderation", {
@@ -880,6 +891,8 @@ export default class ModerationService<T extends "guild"> extends Service<T> {
               }
               if (typeof enabled === "boolean") rule.enabled = enabled;
               if (action) rule.action = action;
+              if (actionDuration !== undefined) rule.actionDuration = actionDuration;
+              if (actionSilent !== undefined) rule.actionSilent = actionSilent;
               await this.updateData({ module: "Moderation", ctx: { guildID } }, currentData);
               this.post<"Moderation">(req, res, {
                 message: "Rule updated",

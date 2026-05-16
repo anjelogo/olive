@@ -44,7 +44,7 @@ export const run = async (
       rule.action,
       member ? member.id : user.id,
       bot.user.id,
-      null,
+      rule.actionDuration ?? null,
       `[**AUTO-MOD**] Triggered discord auto-moderation rule: ${rule.name}`
     );
   } else if (rule.action === "kick" || rule.action === "warn") {
@@ -59,7 +59,7 @@ export const run = async (
 
   if (!caseData) return;
 
-  await punish(bot, guild as Guild, caseData);
+  await punish(bot, guild as Guild, caseData, rule.actionSilent);
   await autoCalculateInfractions(
     bot,
     guild.id,
