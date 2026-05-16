@@ -11,12 +11,19 @@ import {
   TextChannel,
   User,
 } from "oceanic.js";
+import express from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
 import { Entity } from "../resources/interfaces";
 import Olive from "../main";
 import { ModuleDataMap, ModuleMap, ModuleName } from "../Database/ModuleTypes";
 import Command from "./Command";
 import Module from "./Module";
 import { ContextForKey, DeepPartial } from "./Service";
+import guildsRoute from "../api/routes/guilds";
+import userRoute from "../api/routes/users";
+import authRoute from "../api/routes/auth";
+import CommandsRoute from "../api/routes/commands";
 
 type Ctx<T extends "user" | "guild"> = T extends "guild"
   ? { guildID: string }
@@ -338,4 +345,28 @@ export default class ExtendedClient extends Olive {
       throw new Error(`Failed to reload application commands: ${e}`);
     }
   };
+
+  protected override initApi(): void {
+    if (this.apiDisabled) return;
+
+    const api = express();
+
+    api.use(
+      cors({
+        origin: process.env.CLIENT_URL || "http://localhost:3000",
+        credentials: true,
+      }),
+    );
+    api.use(express.json());
+    api.use(cookieParser());
+    api.use("/api/auth", authRoute(this));
+    api.use("/api/guilds", guildsRoute(this));
+    api.use("/api/users", userRoute(this));
+    api.use("/api/commands", CommandsRoute(this));
+
+    api.listen(5000, () => {
+      console.log("API is running on port 5001");
+    });
+    console.log("Client is ready!");
+  }
 }

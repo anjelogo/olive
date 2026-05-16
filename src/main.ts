@@ -2,7 +2,10 @@ import { promises as fs } from "fs";
 import { Client, ClientOptions } from "oceanic.js";
 import monk, { IMonkManager } from "monk";
 import dotenv from "dotenv";
-import { Constants as CustomConstants, Permnodes } from "./resources/interfaces";
+import {
+  Constants as CustomConstants,
+  Permnodes,
+} from "./resources/interfaces";
 import { CustomData } from "./modules/main/internals/CustomDataHandler";
 import * as Config from "./resources/config";
 import * as utils from "./resources/utils";
@@ -10,21 +13,28 @@ import * as emojis from "./resources/emojis";
 import Command from "./Base/Command";
 import Module from "./Base/Module";
 dotenv.config({
-  path: "../.env"
+  path: "../.env",
 });
 
 interface ExtendedOptions extends ClientOptions {
-  disabledModules?: ("Main" | "VC" | "Roles" | "Starboard" | "Moderation" | "User")[];
+  disabledModules?: (
+    | "Main"
+    | "VC"
+    | "Roles"
+    | "Starboard"
+    | "Moderation"
+    | "User"
+  )[];
 }
 
 export default class Olive extends Client {
-
   readonly name: string;
   readonly perms: Permnodes[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   readonly events: any[];
   readonly constants: CustomConstants;
   readonly disabledModules: string[];
+  readonly apiDisabled = process.env.API_DISABLED === "true";
   readonly db: IMonkManager;
 
   public modules: Module<"user" | "guild">[];
@@ -44,15 +54,17 @@ export default class Olive extends Client {
     this.constants = {
       emojis: emojis.default,
       config: Config,
-      utils: utils
+      utils: utils,
     };
-    this.disabledModules = (options && options.disabledModules) ? [...options.disabledModules] : [];
+    this.disabledModules =
+      options && options.disabledModules ? [...options.disabledModules] : [];
 
-    this.db = monk((process.env.DATABASE || "").replace("{db}", this.name).replace(" ", "_"));
+    this.db = monk(
+      (process.env.DATABASE || "").replace("{db}", this.name).replace(" ", "_"),
+    );
   }
 
   readonly init = async (): Promise<void> => {
-    
     //Load Modules Data (Commands, Events, Perms... etc)
     type AnyCtor = (new (b: typeof this) => Module<"user" | "guild">) & {
       context: "user" | "guild";
@@ -65,7 +77,7 @@ export default class Olive extends Client {
       const mod = await import(`./modules/${dir.name}/main`);
       const Ctor = mod.default as AnyCtor;
 
-      const m = new Ctor(this)
+      const m = new Ctor(this);
 
       this.modules.push(m);
     }
@@ -79,29 +91,35 @@ export default class Olive extends Client {
     }
 
     for (const m of this.modules) await m.init();
-    
+
     //Load Events
     for (const e of this.events) {
       this.on(e.name, async (...args) => {
-        for (const event of e.functions)
-          await event.run(this, ...args);
+        for (const event of e.functions) await event.run(this, ...args);
       });
     }
 
     this.on("disconnect", () => this.connect());
 
-    this.connect().catch(() => {
-      const interval = setInterval(() => {
-        this.connect()
-          .then(() => {
-            clearInterval(interval);
-          })
-          .catch(() => {
-            console.log("[Discord] Failed to connect. Trying again in 5 minutes.");
-          });
-      }, 300000);
-    });
+    try {
+      const connectTimeout = setTimeout(() => {
+        console.log(
+          "[Discord] Connection taking longer than expected. Retrying...",
+        );
+        this.connect();
+      }, 10000);
 
+      await this.connect();
+      clearTimeout(connectTimeout);
+    } catch {
+      console.log("[Discord] Failed to connect. Trying again in 5 minutes.");
+      setTimeout(() => this.connect(), 300000);
+    }
+
+    if (!this.apiDisabled) {
+      this.initApi();
+    }
   };
 
+  protected initApi(): void {}
 }
