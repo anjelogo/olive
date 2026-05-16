@@ -313,10 +313,17 @@ export async function synchroniseAutoModRules(
       (r) => r && discordRules.some((dr) => dr.id === r.id)
     );
 
-  // recreate db-only rules on Discord with fresh ids
+  // recreate db-only rules on Discord with fresh ids, respecting keyword rule limit
+  const keywordRuleCount = discordRules.filter(
+    r => r.triggerType === Constants.AutoModerationTriggerTypes.KEYWORD
+  ).length;
+  let slotsUsed = keywordRuleCount;
+
   for (const r of dbOnlyRules) {
     const preset = r.ruleMetadata?.preset;
     if (!preset || !Presets[preset]) continue;
+    const isKeyword = Presets[preset].triggerType === Constants.AutoModerationTriggerTypes.KEYWORD;
+    if (isKeyword && slotsUsed >= 6) continue;
     const presetClone = {
       ...Presets[preset],
       triggerMetadata: { ...Presets[preset].triggerMetadata },
@@ -324,6 +331,7 @@ export async function synchroniseAutoModRules(
     presetClone.name = "[Olive] " + presetClone.name;
     const discordRule = await guild.createAutoModerationRule(presetClone);
     guildData.settings.autoModeration.rules.push({ ...r, id: discordRule.id });
+    if (isKeyword) slotsUsed++;
   }
 
   // Note: We do not delete rules that exist on Discord but not in the database
@@ -375,6 +383,13 @@ export async function synchroniseBucketRules(
   const discordRules = await guild.getAutoModerationRules();
   const existingBucketRules = discordRules.filter(r => r.name.startsWith("olive:"));
 
+  // discord caps keyword rules at 6/guild total — count slots taken by external rules
+  const nonOliveKeywordCount = discordRules.filter(r =>
+    r.triggerType === Constants.AutoModerationTriggerTypes.KEYWORD &&
+    !r.name.startsWith("olive:")
+  ).length;
+  const availableSlots = Math.max(0, 6 - nonOliveKeywordCount);
+
   const buckets: BucketKey[] = ["contact", "giveaway", "payment", "spam"];
   const allChunks: (CompiledChunk & { bucket: BucketKey })[] = [];
 
@@ -385,7 +400,8 @@ export async function synchroniseBucketRules(
     for (const chunk of chunks) allChunks.push({ ...chunk, bucket });
   }
 
-  const targetNames = new Set(allChunks.map(c => c.name));
+  const limitedChunks = allChunks.slice(0, availableSlots);
+  const targetNames = new Set(limitedChunks.map(c => c.name));
 
   for (const dr of existingBucketRules) {
     if (!targetNames.has(dr.name)) await guild.deleteAutoModerationRule(dr.id);
@@ -393,7 +409,7 @@ export async function synchroniseBucketRules(
 
   const synced: { name: string; id: string; bucket: BucketKey }[] = [];
 
-  for (const chunk of allChunks) {
+  for (const chunk of limitedChunks) {
     const existing = existingBucketRules.find(dr => dr.name === chunk.name);
     if (existing) {
       await guild.editAutoModerationRule(existing.id, {
