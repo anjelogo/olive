@@ -1,7 +1,8 @@
-import { CommandInteraction, Constants, Guild, TextChannel } from "oceanic.js";
+import { CommandInteraction, ComponentInteraction, Constants, Guild, Member, Message, TextChannel } from "oceanic.js";
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import { ModmailModuleData } from "../../../../Database/interfaces/ModmailModuleData";
+import { createTicket } from "../../internals/ticketHandler";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class Modmail extends Command {
@@ -99,6 +100,56 @@ export default class Modmail extends Command {
 
 		}
 
+	}
+
+	readonly update = async (component: ComponentInteraction): Promise<Message | void> => {
+
+		if (component.data.customID.split("_")[2] !== "open") return;
+
+		const guild = this.bot.findGuild(component.guildID) as Guild,
+			member = component.member as Member,
+			data = await this.bot.getModuleData("Modmail", { guildID: guild.id }) as ModmailModuleData;
+
+		if (!data.entryChannelID) {
+			await component.createFollowup({
+				content: `${this.bot.constants.emojis.x} Modmail isn't configured for this server yet.`,
+				flags: Constants.MessageFlags.EPHEMERAL
+			});
+			return;
+		}
+
+		if (data.blockedUserIDs.includes(member.id)) {
+			await component.createFollowup({
+				content: `${this.bot.constants.emojis.x} You are blocked from opening modmail tickets.`,
+				flags: Constants.MessageFlags.EPHEMERAL
+			});
+			return;
+		}
+
+		const memberTickets = data.openTickets.filter((t) => t.memberID === member.id);
+
+		if (memberTickets.length >= data.ticketLimit) {
+			if (memberTickets.length === 1) {
+				await component.createFollowup({
+					content: `${this.bot.constants.emojis.warning.yellow} You already have an open ticket: <#${memberTickets[0].channelID}>`,
+					flags: Constants.MessageFlags.EPHEMERAL
+				});
+				return;
+			}
+
+			await component.createFollowup({
+				content: `${this.bot.constants.emojis.warning.yellow} You've reached your open ticket limit (${data.ticketLimit}).`,
+				flags: Constants.MessageFlags.EPHEMERAL
+			});
+			return;
+		}
+
+		const channel = await createTicket(this.bot, guild, member, data);
+
+		await component.createFollowup({
+			content: `${this.bot.constants.emojis.tick} Ticket opened: <#${channel.id}>`,
+			flags: Constants.MessageFlags.EPHEMERAL
+		});
 	}
 
 }
