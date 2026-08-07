@@ -35,3 +35,27 @@ export const createTicket = async (bot: ExtendedClient, guild: Guild, member: Me
 
 	return channel;
 };
+
+export const closeTicket = async (bot: ExtendedClient, guild: Guild, channel: TextChannel, ticket: Ticket, closedBy: Member, data: ModmailModuleData): Promise<void> => {
+	const history = (await channel.getMessages({ limit: 100 })).reverse(),
+		lines = history.map((m) => `[${new Date(m.createdAt).toISOString()}] ${m.author.tag}: ${m.content}${m.attachments.size ? `\n${m.attachments.map((a) => a.url).join("\n")}` : ""}`),
+		transcript = Buffer.from(lines.join("\n"), "utf-8");
+
+	const logChannel = bot.findChannel(guild, data.logChannelID) as TextChannel | undefined;
+
+	if (logChannel) {
+		await logChannel.createMessage({
+			embeds: [{
+				author: { name: closedBy.tag, iconURL: closedBy.avatarURL() },
+				description: `Closed ticket for <@${ticket.memberID}> in \`${channel.name}\``,
+				color: bot.constants.config.colors.red,
+				timestamp: new Date().toISOString()
+			}],
+			files: [{ name: `${channel.name}.txt`, contents: transcript }]
+		});
+	}
+
+	await channel.edit({ name: `closed-${channel.name}`.slice(0, 100) });
+
+	await bot.updateModuleData("Modmail", { openTickets: data.openTickets.filter((t) => t.channelID !== ticket.channelID) }, { guildID: guild.id });
+};

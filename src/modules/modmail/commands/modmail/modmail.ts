@@ -2,7 +2,7 @@ import { CommandInteraction, ComponentInteraction, Constants, Guild, Member, Mes
 import Command from "../../../../Base/Command";
 import ExtendedClient from "../../../../Base/Client";
 import { ModmailModuleData } from "../../../../Database/interfaces/ModmailModuleData";
-import { createTicket } from "../../internals/ticketHandler";
+import { createTicket, closeTicket } from "../../internals/ticketHandler";
 import { FollowupMessageInteractionResponse } from "oceanic.js/dist/lib/util/interactions/MessageInteractionResponse";
 
 export default class Modmail extends Command {
@@ -49,6 +49,10 @@ export default class Modmail extends Command {
 						minValue: 1
 					}
 				]
+			}, {
+				name: "close",
+				type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
+				description: "Close the modmail ticket in this channel"
 			}
 		];
 
@@ -94,6 +98,26 @@ export default class Modmail extends Command {
 
 			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.tick} Modmail configured. Entry: <#${entryChannel.id}>, Category: <#${category.id}>, Log: <#${logChannel.id}>, Limit: ${ticketLimit}.`,
+				flags: Constants.MessageFlags.EPHEMERAL
+			});
+		}
+
+		case "close": {
+			const data = await this.bot.getModuleData("Modmail", { guildID: guild.id }) as ModmailModuleData,
+				ticket = data.openTickets.find((t) => t.channelID === interaction.channelID);
+
+			if (!ticket)
+				return interaction.createFollowup({
+					content: `${this.bot.constants.emojis.x} This isn't an open modmail ticket channel.`,
+					flags: Constants.MessageFlags.EPHEMERAL
+				});
+
+			const channel = this.bot.findChannel(guild, interaction.channelID) as TextChannel;
+
+			await closeTicket(this.bot, guild, channel, ticket, interaction.member as Member, data);
+
+			return interaction.createFollowup({
+				content: `${this.bot.constants.emojis.tick} Ticket closed and archived.`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
 		}
