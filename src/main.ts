@@ -24,6 +24,7 @@ interface ExtendedOptions extends ClientOptions {
     | "Starboard"
     | "Moderation"
     | "User"
+    | "Modmail"
   )[];
 }
 

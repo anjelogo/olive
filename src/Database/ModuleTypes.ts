@@ -5,6 +5,7 @@ import Moderation from "../modules/moderation/main";
 import Roles from "../modules/roles/main";
 import Starboard from "../modules/starboard/main";
 import User from "../modules/user/main";
+import Modmail from "../modules/modmail/main";
 import type * as main from "./interfaces/MainModuleData";
 import type * as log from "./interfaces/LoggingModuleData";
 import type * as vc from "./interfaces/VCModuleData";
@@ -12,6 +13,7 @@ import type * as moderation from "./interfaces/ModerationModuleData";
 import type * as roles from "./interfaces/RolesModuleData";
 import type * as starboard from "./interfaces/StarboardModuleData";
 import type * as user from "./interfaces/UserModuleData";
+import type * as modmail from "./interfaces/ModmailModuleData";
 
 export type ModuleName =
   | "Main"
@@ -20,7 +22,8 @@ export type ModuleName =
   | "Moderation"
   | "Roles"
   | "Starboard"
-  | "User";
+  | "User"
+  | "Modmail";
 
 export type ModuleDataMap<T extends "user" | "guild" = "guild"> =
   T extends "guild"
@@ -31,6 +34,7 @@ export type ModuleDataMap<T extends "user" | "guild" = "guild"> =
         Moderation: moderation.ModerationModuleData;
         Roles: roles.RolesModuleData;
         Starboard: starboard.StarboardModuleData;
+        Modmail: modmail.ModmailModuleData;
       }
     : {
         User: user.UserModuleData;
@@ -44,4 +48,5 @@ export type ModuleMap = {
   Roles: Roles;
   Starboard: Starboard;
   User: User;
+  Modmail: Modmail;
 };

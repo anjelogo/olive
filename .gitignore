@@ -6,3 +6,5 @@ src/resources/config.ts
 *.env
 dist
 .DS_Store
+SPEC.md
+.codegraph
