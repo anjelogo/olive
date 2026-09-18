@@ -65,6 +65,18 @@ export default class Modmail extends Command {
 						required: true
 					}
 				]
+			}, {
+				name: "block",
+				type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
+				description: "Block a member from opening modmail tickets and close their open ones",
+				options: [
+					{
+						name: "member",
+						type: Constants.ApplicationCommandOptionTypes.USER,
+						description: "The member to block",
+						required: true
+					}
+				]
 			}
 		];
 
@@ -165,6 +177,41 @@ export default class Modmail extends Command {
 
 			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.tick} Note added.`,
+				flags: Constants.MessageFlags.EPHEMERAL
+			});
+		}
+
+		case "block": {
+			const data = await this.bot.getModuleData("Modmail", { guildID: guild.id }) as ModmailModuleData,
+				target = interaction.data.options.getUser("member", true);
+
+			if (data.blockedUserIDs.includes(target.id))
+				return interaction.createFollowup({
+					content: `${this.bot.constants.emojis.x} \`${target.tag}\` is already blocked.`,
+					flags: Constants.MessageFlags.EPHEMERAL
+				});
+
+			const staff = interaction.member as Member,
+				targetTickets = data.openTickets.filter((t) => t.memberID === target.id);
+
+			// closeTicket persists openTickets from the data it's handed — passing stale `data` here would resurrect closed tickets
+			let openTickets = data.openTickets;
+
+			for (const ticket of targetTickets) {
+				const channel = this.bot.findChannel(guild, ticket.channelID) as TextChannel | undefined;
+
+				if (channel) await closeTicket(this.bot, guild, channel, ticket, staff, { ...data, openTickets });
+
+				openTickets = openTickets.filter((t) => t.channelID !== ticket.channelID);
+			}
+
+			await this.bot.updateModuleData("Modmail", {
+				blockedUserIDs: [...data.blockedUserIDs, target.id],
+				openTickets
+			}, { guildID: guild.id });
+
+			return interaction.createFollowup({
+				content: `${this.bot.constants.emojis.tick} Blocked \`${target.tag}\` from modmail. ${targetTickets.length} open ticket(s) closed.`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
 		}
