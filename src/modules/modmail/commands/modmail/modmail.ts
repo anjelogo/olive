@@ -53,6 +53,18 @@ export default class Modmail extends Command {
 				name: "close",
 				type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
 				description: "Close the modmail ticket in this channel"
+			}, {
+				name: "note",
+				type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
+				description: "Leave an internal note on this ticket (not visible to the member)",
+				options: [
+					{
+						name: "text",
+						type: Constants.ApplicationCommandOptionTypes.STRING,
+						description: "The note text",
+						required: true
+					}
+				]
 			}
 		];
 
@@ -118,6 +130,41 @@ export default class Modmail extends Command {
 
 			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.tick} Ticket closed and archived.`,
+				flags: Constants.MessageFlags.EPHEMERAL
+			});
+		}
+
+		case "note": {
+			const data = await this.bot.getModuleData("Modmail", { guildID: guild.id }) as ModmailModuleData,
+				ticket = data.openTickets.find((t) => t.channelID === interaction.channelID);
+
+			if (!ticket)
+				return interaction.createFollowup({
+					content: `${this.bot.constants.emojis.x} This isn't an open modmail ticket channel.`,
+					flags: Constants.MessageFlags.EPHEMERAL
+				});
+
+			const text = interaction.data.options.getString("text", true),
+				member = interaction.member as Member,
+				channel = this.bot.findChannel(guild, interaction.channelID) as TextChannel;
+
+			await channel.createMessage({
+				embeds: [{
+					author: {
+						name: `Internal Note — ${member.username}`,
+						iconURL: member.avatarURL()
+					},
+					description: text,
+					color: this.bot.constants.config.colors.default,
+					footer: {
+						text: "Not relayed to the member"
+					},
+					timestamp: new Date().toISOString()
+				}]
+			});
+
+			return interaction.createFollowup({
+				content: `${this.bot.constants.emojis.tick} Note added.`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
 		}
