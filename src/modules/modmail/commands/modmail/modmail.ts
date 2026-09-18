@@ -77,6 +77,18 @@ export default class Modmail extends Command {
 						required: true
 					}
 				]
+			}, {
+				name: "unblock",
+				type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
+				description: "Let a blocked member open modmail tickets again",
+				options: [
+					{
+						name: "member",
+						type: Constants.ApplicationCommandOptionTypes.USER,
+						description: "The member to unblock",
+						required: true
+					}
+				]
 			}
 		];
 
@@ -212,6 +224,26 @@ export default class Modmail extends Command {
 
 			return interaction.createFollowup({
 				content: `${this.bot.constants.emojis.tick} Blocked \`${target.tag}\` from modmail. ${targetTickets.length} open ticket(s) closed.`,
+				flags: Constants.MessageFlags.EPHEMERAL
+			});
+		}
+
+		case "unblock": {
+			const data = await this.bot.getModuleData("Modmail", { guildID: guild.id }) as ModmailModuleData,
+				target = interaction.data.options.getUser("member", true);
+
+			if (!data.blockedUserIDs.includes(target.id))
+				return interaction.createFollowup({
+					content: `${this.bot.constants.emojis.x} \`${target.tag}\` isn't blocked.`,
+					flags: Constants.MessageFlags.EPHEMERAL
+				});
+
+			await this.bot.updateModuleData("Modmail", {
+				blockedUserIDs: data.blockedUserIDs.filter((id) => id !== target.id)
+			}, { guildID: guild.id });
+
+			return interaction.createFollowup({
+				content: `${this.bot.constants.emojis.tick} Unblocked \`${target.tag}\`. They can open modmail tickets again.`,
 				flags: Constants.MessageFlags.EPHEMERAL
 			});
 		}
