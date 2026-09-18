@@ -11,6 +11,8 @@ const authRoute = (client: ExtendedClient): Router => {
   if (!JWT_SECRET) throw new Error("JWT_SECRET environment variable is not set");
   const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:3000"; // Adjust according to your environment
   const API_URL = process.env.API_URL || "http://localhost:5000"; // Adjust according to your environment
+  // set to ".example.com" in prod so the token cookie is shared across app + api subdomains
+  const COOKIE_DOMAIN = process.env.COOKIE_DOMAIN;
 
   // Passport Discord Strategy Setup (no session usage)
   passport.use(
@@ -56,6 +58,7 @@ const authRoute = (client: ExtendedClient): Router => {
         httpOnly: true,
         sameSite: "lax",
         secure: process.env.NODE_ENV === "production",
+        domain: COOKIE_DOMAIN, // undefined locally = host-only, fine on localhost
         maxAge: 60 * 60 * 1000,
       });
       res.redirect(CLIENT_URL);
