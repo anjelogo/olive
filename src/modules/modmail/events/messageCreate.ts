@@ -3,8 +3,9 @@ import ExtendedClient from "../../../Base/Client";
 import { ModmailModuleData } from "../../../Database/interfaces/ModmailModuleData";
 import { relayContent } from "../internals/ticketHandler";
 
-const relayToTickets = async (bot: ExtendedClient, msg: Message, content: string): Promise<void> => {
-	const allData = await bot.getAllData("Modmail") as ModmailModuleData[];
+const relayToTicket = async (bot: ExtendedClient, msg: Message, content: string): Promise<void> => {
+	const allData = await bot.getAllData("Modmail") as ModmailModuleData[],
+		candidates = [];
 
 	for (const data of allData) {
 		const ticket = data.openTickets.find((t) => t.memberID === msg.author.id);
@@ -16,15 +17,26 @@ const relayToTickets = async (bot: ExtendedClient, msg: Message, content: string
 		const channel = bot.findChannel(guild, ticket.channelID) as TextChannel;
 		if (!channel) continue;
 
-		await channel.createMessage({
-			embeds: [{
-				author: { name: msg.author.tag, iconURL: msg.author.avatarURL() },
-				description: content,
-				color: bot.constants.config.colors.default,
-				timestamp: new Date().toISOString()
-			}]
-		});
+		candidates.push({ guild, channel, createdAt: ticket.createdAt });
 	}
+
+	if (!candidates.length) return;
+
+	const destination = candidates.sort((a, b) => b.createdAt - a.createdAt)[0];
+
+	await destination.channel.createMessage({
+		embeds: [{
+			author: { name: msg.author.tag, iconURL: msg.author.avatarURL() },
+			description: content,
+			color: bot.constants.config.colors.default,
+			timestamp: new Date().toISOString()
+		}]
+	});
+
+	if (candidates.length > 1)
+		await msg.channel?.createMessage({
+			content: `${bot.constants.emojis.warning.yellow} You have open tickets in multiple servers — this went to \`${destination.guild.name}\`.`
+		});
 };
 
 const relayToMember = async (bot: ExtendedClient, msg: Message, content: string): Promise<void> => {
@@ -61,5 +73,5 @@ export const run = async (bot: ExtendedClient, msg: Message): Promise<void> => {
 	if (!content) return;
 
 	if (msg.guildID) await relayToMember(bot, msg, content);
-	else await relayToTickets(bot, msg, content);
+	else await relayToTicket(bot, msg, content);
 };
