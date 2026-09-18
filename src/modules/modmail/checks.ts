@@ -55,7 +55,7 @@ export default class Checks {
 
 				if (!guildData.openTickets.length) continue;
 
-				for (const ticket of guildData.openTickets) {
+				for (const ticket of [...guildData.openTickets]) {
 					const channel = this.bot.findChannel(guild, ticket.channelID);
 
 					if (!channel) promises.push(await pruneTicket(this, guildData, ticket.channelID));
@@ -66,6 +66,16 @@ export default class Checks {
 		await Promise.all(promises);
 
 		return `${deletedGuilds} Guilds Deleted. ${deletedTickets} Stale Tickets Pruned. ${failed} Failed Operations.`;
+	}
+
+	readonly checkVersion = async (newVersion: string): Promise<string> => {
+		const data = await this.bot.getAllData("Modmail") as ModmailModuleData[],
+			stale = data.filter((d) => d.version !== newVersion);
+
+		for (const guildData of stale)
+			await this.bot.updateModuleData("Modmail", { version: newVersion }, { guildID: guildData.guildID });
+
+		return `${stale.length} Guild(s) Versions Migrated.`;
 	}
 
 }
