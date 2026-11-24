@@ -18,7 +18,7 @@ import { UserModuleData } from "../../../Database/interfaces/UserModuleData";
 export const create = async (
   bot: ExtendedClient,
   member: Member,
-  channel: VoiceChannel
+  channel: VoiceChannel,
 ): Promise<void> => {
   const mainModule = bot.getModule("Main") as Main;
 
@@ -40,43 +40,48 @@ export const create = async (
     deny: p.deny,
   }));
 
-  // Use crypto.getRandomValues for better randomness distribution
-  const randomIndex = data.defaultName.channel.length ? Math.floor(
-    (crypto.getRandomValues(new Uint32Array(1))[0] / (0xffffffff + 1)) *
-      data.defaultName.channel.length
-  ) : 0;
-  const channelName = data.defaultName.channel[randomIndex];
+  try {
+    // Use crypto.getRandomValues for better randomness distribution
+    const randomIndex = data.defaultName.channel.length
+      ? Math.floor(
+          (crypto.getRandomValues(new Uint32Array(1))[0] / (0xffffffff + 1)) *
+            data.defaultName.channel.length,
+        )
+      : 0;
 
-  const voice = await member.guild.createChannel(
-    Constants.ChannelTypes.GUILD_VOICE,
-    {
-      name: channelName.replace("{user}", member.username),
-      parentID: channel.parentID as string,
-      permissionOverwrites: [...parentOverwrites],
-    }
-  );
+    const channelName = data.defaultName.channel[randomIndex];
 
-  const newChannel = {
-    channelID: voice.id,
-    owner: member.id,
-    createdAt: Date.now(),
-    locked: false,
-    parentOverwrites,
-  };
+    console.debug(channelName);
 
-  member.edit({ channelID: voice.id });
+    const voice = await member.guild.createChannel(
+      Constants.ChannelTypes.GUILD_VOICE,
+      {
+        name: channelName.replace("{user}", member.username),
+        parentID: channel.parentID as string,
+        permissionOverwrites: [...parentOverwrites],
+      },
+    );
 
-  category.channels.push(newChannel);
-  await bot.updateModuleData("VC", data, { guildID: channel.guild.id });
+    const newChannel = {
+      channelID: voice.id,
+      owner: member.id,
+      createdAt: Date.now(),
+      locked: false,
+      parentOverwrites,
+    };
 
-  // send a message to the user
-  // get user's vc notif settings from user module
-  const userData = (await bot.getModuleData("User", {
-    userID: member.id,
-  })) as UserModuleData;
+    member.edit({ channelID: voice.id });
 
-  if (userData?.notifications?.vc) {
-    try {
+    category.channels.push(newChannel);
+    await bot.updateModuleData("VC", data, { guildID: channel.guild.id });
+
+    // send a message to the user
+    // get user's vc notif settings from user module
+    const userData = (await bot.getModuleData("User", {
+      userID: member.id,
+    })) as UserModuleData;
+
+    if (userData?.notifications?.vc) {
       const dm = await member.user.createDM();
       await dm.createMessage({
         flags: Constants.MessageFlags.IS_COMPONENTS_V2,
@@ -91,7 +96,7 @@ export const create = async (
               {
                 type: Constants.ComponentTypes.TEXT_DISPLAY,
                 content: `-# Created at: ${new Date().toLocaleString(
-                  "en-US"
+                  "en-US",
                 )} | User ID: ${member.id}`,
               },
             ],
@@ -99,18 +104,18 @@ export const create = async (
           },
         ],
       });
-    } catch (e) {
-      console.error("Failed to send VC creation DM:", e);
     }
-  }
 
-  await createLogEntry(bot, "create", voice, member);
+    await createLogEntry(bot, "create", voice, member);
+  } catch (e) {
+    console.error("Error Creating Channel:", e);
+  }
 };
 
 export const remove = async (
   bot: ExtendedClient,
   member: Member,
-  channel: VoiceChannel | StageChannel
+  channel: VoiceChannel | StageChannel,
 ): Promise<void> => {
   const data = (await bot.getModuleData("VC", {
       guildID: channel.guild.id,
@@ -142,11 +147,11 @@ export const remove = async (
     // Use crypto.getRandomValues for better randomness distribution
     const randomIndex = Math.floor(
       (crypto.getRandomValues(new Uint32Array(1))[0] / (0xffffffff + 1)) *
-        members.length
+        members.length,
     );
     const newOwner = bot.findMember(
       channel.guild,
-      members[randomIndex]
+      members[randomIndex],
     ) as Member;
 
     channelObj.owner = newOwner.id;
@@ -194,7 +199,7 @@ export const createLogEntry = async (
     createdAt?: number;
     owner?: Member;
     skipLog?: boolean;
-  }
+  },
 ): Promise<MessageComponent[] | void> => {
   const logging = bot.getModule("Logging") as Logging,
     containerColors = {
@@ -211,7 +216,7 @@ export const createLogEntry = async (
         {
           type: Constants.ComponentTypes.TEXT_DISPLAY,
           content: `-# ${bot.constants.emojis.moderate} <t:${Math.floor(
-            Date.now() / 1000
+            Date.now() / 1000,
           )}:f>`,
         },
       ],
@@ -367,7 +372,7 @@ export const createLogEntry = async (
         options?.locked == undefined
       ) {
         throw new Error(
-          `Missing required options for information log entry: ${options?.owner}, ${options?.createdAt}, ${options?.locked}`
+          `Missing required options for information log entry: ${options?.owner}, ${options?.createdAt}, ${options?.locked}`,
         );
         return;
       }
