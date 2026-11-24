@@ -41,10 +41,10 @@ export const create = async (
   }));
 
   // Use crypto.getRandomValues for better randomness distribution
-  const randomIndex = Math.floor(
+  const randomIndex = data.defaultName.channel.length ? Math.floor(
     (crypto.getRandomValues(new Uint32Array(1))[0] / (0xffffffff + 1)) *
       data.defaultName.channel.length
-  );
+  ) : 0;
   const channelName = data.defaultName.channel[randomIndex];
 
   const voice = await member.guild.createChannel(
